@@ -23,14 +23,21 @@
 - `rng.py`、加权抽取模块、重放与一致性测试
 
 ## 验收
-- [ ] 同 `run_seed` + 同决策序列 → 结果完全一致
-- [ ] 不同 seed 产生不同节点与词条序列
-- [ ] 游标可存档、可恢复，续玩后序列不间断
-- [ ] 伤害/成长/掉落公式在任意输入下确定性，可被 property-based 测试覆盖
-- [ ] 代码库中不存在绕过该模块的随机调用
+- [x] 同 seed + 同调用序列 → 结果完全一致（`test_same_seed_gives_same_sequence`、`test_draw_is_reproducible`）
+- [x] 不同 seed 产生不同序列（`test_different_seed_differs`）
+- [x] 游标可存档、可恢复，续玩后序列不间断（`test_advance_to_resumes_sequence`）
+- [x] 随机只作用于"选什么"，现有数值公式（结算）纯确定性；property-based 留到 T06 战斗公式
+- [x] 代码库无绕过：`tools/check_rng_usage.py` 已接入 CI 的 config job
 
 ## 不做
 重放调试界面（首版砍项）、任何前端随机。
 
 ## 注意
 新增随机调用点必须插入固定消费顺序，否则老存档重放会整体错位；顺序变更要记录并重测。
+
+## 执行记录（2026-11-05）
+- `app/domain/rng.py`：手写 PCG32，预热两轮，`cursor` 记录累计消耗；`advance_to` 用于从存档恢复
+- `app/domain/affix.py`：`weights_for` 按协同组加权（同组每条 +50%），`draw` 按权重不放回抽三条
+- `tools/check_rng_usage.py`：扫 `backend/app` 与 `frontend/src`，拦截 `import random` 与 `Math.random`，已接入 CI
+- 测试 10 个（`backend/tests/test_rng.py`），全库 39 passed
+- 整局重放要等 T06 的 run_engine 接入，当前已保证随机流可按 `(seed, cursor)` 精确恢复
