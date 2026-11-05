@@ -87,7 +87,7 @@ def assign(
         return "该弟子已在值守"
     if len(state.duty_slots) >= MAX_DUTY_SLOTS:
         return f"值守编制已满（{MAX_DUTY_SLOTS} 人）"
-    if disciple.busy_until is not None and disciple.busy_until > now:
+    if disciple.busy:
         return "该弟子正在出征"
 
     state.duty_slots.append(DutySlot(disciple_id=disciple_id, assigned_at=now))

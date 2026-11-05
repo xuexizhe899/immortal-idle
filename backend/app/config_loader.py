@@ -22,3 +22,15 @@ def _load_dir(folder: Path) -> dict[str, dict]:
 def load_disciples() -> dict[str, dict]:
     """弟子模板配置，按 id 索引；首次调用后常驻内存。"""
     return _load_dir(CONFIG_DIR / "disciples")
+
+
+@lru_cache(maxsize=1)
+def load_affixes() -> list[dict]:
+    """词条配置列表；目录为空时返回空列表，出征就跳过三选一。"""
+    return list(_load_dir(CONFIG_DIR / "affixes").values())
+
+
+@lru_cache(maxsize=1)
+def load_modes() -> dict[str, dict]:
+    """出征模式配置，按 id 索引。"""
+    return _load_dir(CONFIG_DIR / "modes")

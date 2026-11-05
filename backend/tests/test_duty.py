@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pytest
 
@@ -88,7 +88,7 @@ def test_assign_rejects_unknown_disciple() -> None:
 def test_assign_rejects_busy_disciple() -> None:
     """出征中的弟子不能上岗。"""
     state = make_state("d_attack")
-    state.disciples[0].busy_until = NOW + timedelta(hours=1)
+    state.disciples[0].busy = True
     assert assign(state, "i0", TEMPLATES, NOW) == "该弟子正在出征"
 
 

@@ -33,7 +33,7 @@ class DiscipleState(BaseModel):
     equipment: list[str] = Field(default_factory=list)
     injury_stacks: int = 0
     injured_until: datetime | None = None
-    busy_until: datetime | None = None
+    busy: bool = False
 
 
 class DutySlot(BaseModel):
@@ -50,15 +50,30 @@ class DutyEvent(BaseModel):
     rates: dict[str, float] = Field(default_factory=dict)
 
 
+class RunNode(BaseModel):
+    """出征路线上的一个节点。"""
+
+    kind: str
+    enemy: str
+    power: int
+    reward: dict[str, float] = Field(default_factory=dict)
+
+
 class ActiveRun(BaseModel):
     """进行中的一次出征；结束时整体清空。"""
 
     run_seed: int
     rng_cursor: int = 0
-    mode: str
-    node_index: int = 0
+    mode: str = "tower"
+    party: list[str] = Field(default_factory=list)
+    hp: int = 300
+    max_hp: int = 300
+    nodes: list[RunNode] = Field(default_factory=list)
+    choices: list[RunNode] = Field(default_factory=list)
+    affix_options: list[str] = Field(default_factory=list)
+    affix_pending: bool = False
     affixes: list[str] = Field(default_factory=list)
-    pending_loot: dict[str, int] = Field(default_factory=dict)
+    pending_loot: dict[str, float] = Field(default_factory=dict)
     started_at: datetime
 
 

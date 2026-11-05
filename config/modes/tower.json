@@ -4,6 +4,15 @@
   "enabled": true,
   "stamina_cost": 1,
   "node_count": 10,
+  "start_hp": 300,
+  "base_enemy_power": 30,
+  "choices_per_step": 2,
+  "elite_chance": 20,
+  "rewards": {
+    "battle": { "cultivation": 10.0, "spirit_stone": 5.0 },
+    "elite": { "cultivation": 20.0, "spirit_stone": 10.0 },
+    "boss": { "cultivation": 50.0, "spirit_stone": 25.0 }
+  },
   "segments": 5,
   "floors_per_segment": 20,
   "boss_every": 20,
