@@ -1,0 +1,1 @@
+"""Xiuxian idle backend package."""
