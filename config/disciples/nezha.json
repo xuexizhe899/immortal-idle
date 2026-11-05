@@ -1,0 +1,13 @@
+{
+  "id": "nezha",
+  "name": "哪吒",
+  "title": "三坛海会",
+  "origin": "myth",
+  "rarity": 3,
+  "lean": "attack",
+  "asset_id": "nezha",
+  "base_stats": { "hp": 110, "atk": 18, "def": 8, "spd": 13 },
+  "skill": "huojian",
+  "passive": "lianshen",
+  "bonds": []
+}

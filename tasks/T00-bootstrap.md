@@ -25,7 +25,7 @@
 ## 验收
 - [x] `uvicorn` 启动后 `/api/health` 可访问；`vite dev` 经 proxy 取到健康数据（curl 验证通过）
 - [x] 修改 Pydantic 字段描述后重生成，`api.d.ts` 同步变化（已实测并回滚）
-- [ ] push 后 CI 三个 job 全绿（workflow 已就绪，待推送 GitHub 后验证）
+- [x] push 后 CI 三个 job 全绿（backend / config / frontend 均 success）
 - [x] 项目依赖全部在项目目录内（`backend/.venv`），未污染系统 Python 与其他 venv
 
 ## 不做

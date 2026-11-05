@@ -1,0 +1,13 @@
+{
+  "id": "zhugeliang",
+  "name": "诸葛亮",
+  "title": "卧龙",
+  "origin": "sanguo",
+  "rarity": 3,
+  "lean": "support",
+  "asset_id": "zhugeliang",
+  "base_stats": { "hp": 96, "atk": 12, "def": 9, "spd": 10 },
+  "skill": "bagua",
+  "passive": "mou-ding",
+  "bonds": []
+}

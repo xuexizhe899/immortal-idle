@@ -31,14 +31,44 @@
 - style bible、`gen_assets.py`、`assets/manifest.json`、`assets/masters/`、全部成品 PNG
 
 ## 验收
-- [ ] 立绘与场景风格统一，同一角色派生图身份一致
+- [x] 立绘与场景风格统一（试稿已验证）；派生图身份一致性待 `edits` 验证
 - [ ] 产物命名与 `config/disciples/*.json` 的 `asset_id` 一一对应，T01 校验不再需要白名单
-- [ ] manifest 完整可复现；配置与存档中无任何生图 URL 或 base64
+- [x] manifest 完整可复现；配置与存档中无生图 URL 或 base64
 - [ ] 断网状态下游戏资产完整可用；运行时不发起任何生图请求
-- [ ] 调用次数受上限控制，成本可核对
+- [x] 调用次数受上限控制（5/300），成本可核对
 
 ## 不做
 三视图、逐角色战斗小人、AI 生成 UI 图标、运行时生图、本地模型训练。
 
 ## 注意
 中转站模型版本可能变、服务可能停：靠 manifest + master 图 + style bible 保证后期追加角色仍可复现风格。
+
+## 试稿记录（2026-11-05，5 次调用）
+
+### 端点实测
+- 文生图 `POST https://frapi.centos.hk/v1/images/generations`，Bearer 认证，OpenAI 兼容请求体
+- 模型 `gpt-image-2.6-sunburst` 直接可用，不必退回 `gpt-image-2`
+- **返回 `b64_json` 而非 URL**：不存在链接过期问题，但单张响应 2.3–2.9MB，必须解码后立刻落盘
+- 尺寸 `1024x1536`（立绘）与 `1024x1024`（场景）均被接受；代码里的降级链（→`1024x1024`）已实现但未触发
+- 耗时波动大：立绘 104–129 秒/张；场景首版 104 秒，修正 prompt 后 243 秒
+- 计费按 token 计（input/output tokens），非按张；5 次调用 output 图片 token 约 162–205/张
+- **`negative_prompt` 没有独立字段**，必须合进正向 prompt 的 `Avoid:` 段才生效——这是场景首版跑偏的根因
+
+### 产出
+- `assets/raw/disciple_zhugeliang.png`（1024x1536，2.6MB）
+- `assets/raw/disciple_nezha.png`（1024x1536，2.5MB）
+- `assets/raw/disciple_libai.png`（1024x1536，2.9MB）
+- `assets/raw/scene_tower_01.png`（1024x1024，2.3MB）
+- `assets/manifest.json` 记录每次调用的 model / size / prompt / bytes / elapsed / usage
+
+### 风格结论
+- `style_prompt` 有效压住了模型的写实倾向，三张立绘统一为半写实水墨淡彩、浅暖灰底、全身正面构图
+- 场景必须单独写死 `scene_prompt` + `scene_avoid`：缺 `low saturation / overcast / avoid sunset` 就会跑成暖色 CG 概念图（已实测）
+- 本地去重（prompt+size+model hash）有效：改场景 prompt 后重跑，3 张立绘全部跳过
+
+### 尚未验证 / 待办
+- `/v1/images/edits` 的 master 回喂与身份一致性未测
+- `1536x1024` 横版场景未测
+- 生成失败是否计费未测
+- 产物仍在 `assets/raw/`，尚未按 `asset_id` 迁入 `frontend/public/assets/`
+- 头像裁切、批量 12–20 张、移除 T01 资产白名单

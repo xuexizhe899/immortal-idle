@@ -1,0 +1,9 @@
+{
+  "id": "shixian",
+  "name": "诗仙",
+  "type": "passive",
+  "description": "值守时提升材料产出。",
+  "effects": [
+    { "stat": "material_rate", "mode": "add_pct", "value": 0.12, "scope": "duty" }
+  ]
+}

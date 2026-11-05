@@ -1,0 +1,14 @@
+{
+  "id": "tower",
+  "name": "问道塔",
+  "enabled": true,
+  "stamina_cost": 1,
+  "node_count": 10,
+  "segments": 5,
+  "floors_per_segment": 20,
+  "boss_every": 20,
+  "enemy_pool": [],
+  "event_pool": [],
+  "affix_pool": [],
+  "reward_table": []
+}

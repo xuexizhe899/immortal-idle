@@ -1,17 +1,29 @@
-"""FastAPI application entrypoint.
+"""FastAPI 应用入口：生命周期内创建数据库引擎与会话工厂。"""
 
-Kept intentionally thin at T00: only the health endpoint exists.
-Domain logic, repositories and database wiring land in T02+.
-"""
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
 from app.api.health import router as health_router
+from app.api.saves import router as saves_router
+from app.db import create_engine, create_session_factory
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """启动时创建引擎，关闭时释放连接池。"""
+    engine = create_engine()
+    app.state.session_factory = create_session_factory(engine)
+    yield
+    await engine.dispose()
+
 
 app = FastAPI(
     title="Xiuxian Idle API",
     version="0.1.0",
     description="Self-hosted idle roguelite. Single player, multi-slot saves.",
+    lifespan=lifespan,
 )
 
 app.include_router(health_router, prefix="/api")
+app.include_router(saves_router, prefix="/api")

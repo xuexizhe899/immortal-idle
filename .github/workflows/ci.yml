@@ -24,6 +24,12 @@ jobs:
       - name: Test
         working-directory: backend
         run: python -m pytest -q
+      - name: Migrate up and down
+        working-directory: backend
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
       - name: Export OpenAPI contract
         working-directory: backend
         run: python scripts/export_openapi.py
@@ -41,8 +47,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install pytest
+        run: python -m pip install pytest
       - name: Validate config
         run: python tools/validate_config.py
+      - name: Test validator
+        run: python -m pytest tools/tests -q
 
   frontend:
     name: frontend / types + build

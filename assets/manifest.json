@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "calls": 5,
+  "items": [
+    {
+      "key": "disciple_zhugeliang",
+      "kind": "portrait",
+      "file": "assets/raw/disciple_zhugeliang.png",
+      "hash": "142ee5d4f4f9f8f3",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "prompt": "Chinese xianxia character illustration, semi-realistic painterly style, restrained ink-wash texture, muted jade green and ink-black palette with warm paper tone, clean readable silhouette, even soft studio lighting from upper left, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Zhuge Liang, Three Kingdoms strategist, a calm scholar in his thirties, long black hair tied with a plain cloth band, light jade-green robe with wide sleeves, holding a feather fan, serene thoughtful expression",
+      "bytes": 2677849,
+      "elapsed_ms": 111091,
+      "usage": {
+        "input_tokens": 115,
+        "output_tokens": 167,
+        "total_tokens": 282,
+        "input_tokens_details": {
+          "text_tokens": 115,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 167,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-05T14:35:47+00:00"
+    },
+    {
+      "key": "disciple_nezha",
+      "kind": "portrait",
+      "file": "assets/raw/disciple_nezha.png",
+      "hash": "12a9c9660df316eb",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "prompt": "Chinese xianxia character illustration, semi-realistic painterly style, restrained ink-wash texture, muted jade green and ink-black palette with warm paper tone, clean readable silhouette, even soft studio lighting from upper left, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Nezha, Chinese mythology youth deity, a confident teenage warrior, hair in two buns, red sash and light armor over a short robe, holding a spear, energetic stance, faint flame motif on the sleeves",
+      "bytes": 2527986,
+      "elapsed_ms": 128829,
+      "usage": {
+        "input_tokens": 114,
+        "output_tokens": 168,
+        "total_tokens": 282,
+        "input_tokens_details": {
+          "text_tokens": 114,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 168,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-05T14:37:55+00:00"
+    },
+    {
+      "key": "disciple_libai",
+      "kind": "portrait",
+      "file": "assets/raw/disciple_libai.png",
+      "hash": "4184dc86a8ac62de",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "prompt": "Chinese xianxia character illustration, semi-realistic painterly style, restrained ink-wash texture, muted jade green and ink-black palette with warm paper tone, clean readable silhouette, even soft studio lighting from upper left, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Li Bai, Tang dynasty poet, a lean wandering swordsman in his forties, loose white robe with ink-wash stains, wine gourd at the waist, sword on the back, relaxed half-smile, wind-blown sleeves",
+      "bytes": 2983823,
+      "elapsed_ms": 103882,
+      "usage": {
+        "input_tokens": 119,
+        "output_tokens": 162,
+        "total_tokens": 281,
+        "input_tokens_details": {
+          "text_tokens": 119,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 162,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-05T14:39:39+00:00"
+    },
+    {
+      "key": "scene_tower_01",
+      "kind": "scene",
+      "file": "assets/raw/scene_tower_01.png",
+      "hash": "fe79ab76f21f03ba",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "Chinese xianxia environment concept art, restrained ink-wash painting on toned paper, muted jade-green and ink-gray palette, low saturation, soft diffuse overcast daylight, wide establishing shot, large calm empty sky area, minimal detail, no characters, no text, no watermark. Subject: An ancient stone pagoda on a cliff above a sea of clouds, narrow steps winding upward, distant mountain peaks, early morning light, no characters. Avoid: sunset, orange or golden glow, god rays, saturated sky, photorealistic rendering, 3d cgi look, dense clutter, dramatic lighting, lens flare, people, close-up architecture",
+      "bytes": 2390131,
+      "elapsed_ms": 242826,
+      "usage": {
+        "input_tokens": 130,
+        "output_tokens": 205,
+        "total_tokens": 335,
+        "input_tokens_details": {
+          "text_tokens": 130,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 205,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-05T14:45:48+00:00"
+    }
+  ],
+  "updated_at": "2026-11-05T14:45:48+00:00"
+}

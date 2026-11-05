@@ -117,18 +117,21 @@ xiuxian-idle/
 {
   "id": "zhugeliang",
   "name": "诸葛亮",
+  "title": "卧龙",
   "origin": "sanguo",
-  "rarity": 2,
+  "rarity": 3,
   "lean": "support",
   "asset_id": "zhugeliang",
-  "base_stats": { "hp": 100, "atk": 12, "def": 8, "spd": 10 },
-  "skill": { "id": "bagua", "type": "active", "effects": [] },
-  "passive": { "id": "mou-ding", "effects": [] },
-  "bonds": ["wolong_fengchu"]
+  "base_stats": { "hp": 96, "atk": 12, "def": 9, "spd": 10 },
+  "skill": "bagua",
+  "passive": "mou-ding",
+  "bonds": []
 }
 ```
 
-**引用完整性规则**：`skill.id` 必须存在于技能表、`bonds[*]` 必须存在于 `config/bonds/`、`asset_id` 必须对应 `frontend/public/assets/` 下文件、`lean` 必须是四倾向之一。任一悬空 → CI 失败。
+`skill` / `passive` 是技能表 id 引用，定义集中在 `config/skills/`，避免内联重复。
+
+**引用完整性规则**：`skill` / `passive` 必须存在于 `config/skills/` 且类型匹配、`bonds[*]` 必须存在于 `config/bonds/`、`asset_id` 必须对应 `frontend/public/assets/<asset_id>.png`、`lean` 必须是四倾向之一。任一悬空 → CI 失败。
 
 ### 4.2 数据库表
 

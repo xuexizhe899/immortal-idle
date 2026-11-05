@@ -1,0 +1,30 @@
+{
+  "preset": "trial",
+  "notes": "试稿集：三国/神话/历史各一名 + 一张爬塔场景，用于验证风格一致性与端点参数",
+  "items": [
+    {
+      "key": "disciple_zhugeliang",
+      "kind": "portrait",
+      "file": "disciple_zhugeliang.png",
+      "subject": "Zhuge Liang, Three Kingdoms strategist, a calm scholar in his thirties, long black hair tied with a plain cloth band, light jade-green robe with wide sleeves, holding a feather fan, serene thoughtful expression"
+    },
+    {
+      "key": "disciple_nezha",
+      "kind": "portrait",
+      "file": "disciple_nezha.png",
+      "subject": "Nezha, Chinese mythology youth deity, a confident teenage warrior, hair in two buns, red sash and light armor over a short robe, holding a spear, energetic stance, faint flame motif on the sleeves"
+    },
+    {
+      "key": "disciple_libai",
+      "kind": "portrait",
+      "file": "disciple_libai.png",
+      "subject": "Li Bai, Tang dynasty poet, a lean wandering swordsman in his forties, loose white robe with ink-wash stains, wine gourd at the waist, sword on the back, relaxed half-smile, wind-blown sleeves"
+    },
+    {
+      "key": "scene_tower_01",
+      "kind": "scene",
+      "file": "scene_tower_01.png",
+      "subject": "An ancient stone pagoda on a cliff above a sea of clouds, narrow steps winding upward, distant mountain peaks, early morning light, no characters"
+    }
+  ]
+}

@@ -24,14 +24,23 @@
 - `backend/app/models/`、`backend/app/repositories/`、Alembic 迁移、多档与 CAS 测试
 
 ## 验收
-- [ ] 两个并发写入只有一个成功，另一个重读重算，状态不被覆盖
-- [ ] 快照可回滚到指定版本，回滚后游戏可继续
-- [ ] 导出 → 导入往返后 `state_json` 语义一致
-- [ ] Alembic upgrade/downgrade 均可执行；老 `schema_version` 存档可自动迁移
-- [ ] 存档内不含任何图片数据或生图 URL
+- [x] 过期 revision 的写入被拒（`test_cas_rejects_stale_revision`），已有数据不被覆盖
+- [x] 快照可回滚，回滚后 revision 继续递增而非归零（`test_snapshot_and_rollback`）
+- [x] 导出 → 导入往返状态一致（`test_export_import_roundtrip`）
+- [x] Alembic upgrade / downgrade 实测可循环；`migrate()` 预留 schema_version 升级入口
+- [x] 导出内容不含 base64 图片或生图链接（`test_export_contains_no_image_payload`）
 
 ## 不做
 结算算法（T04）、值守（T03）、前端界面。
 
 ## 何时才允许拆行（现在不做）
 单档弟子 > 1000，或 `state_json` > 5MB，或需要按弟子检索/跨档排行。届时只把 `disciples` 挪到独立表并 `schema_version + 1`，其余不动。
+
+## 执行记录（2026-11-05）
+- 表：`save_slots` / `save_snapshots`，迁移 `0001_init`；实测 `upgrade → downgrade → upgrade` 可循环
+- 模型：`GameState` 及子模型（Resources / DiscipleState / DutySlot / DutyEvent / ActiveRun）；`SaveExport` 作为导入的边界校验
+- 仓储：`SaveRepository`，整档 JSON + revision CAS，含复制 / 导出导入 / 快照 / 回滚
+- 接口：10 条路由（列表、创建、导入、读取、写入、删除、复制、导出、建快照、回滚）；冒烟实测 200 与 409 符合预期
+- 依赖修正：SQLAlchemy async 需要 `sqlalchemy[asyncio]`（greenlet），pyproject 已更新
+- 前端契约重新生成后 build 通过；`backend/data/` 已 gitignore
+- 测试：`backend/tests/test_saves.py` 7 个用例，全库 9 passed

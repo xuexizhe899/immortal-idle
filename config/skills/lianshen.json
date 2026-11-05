@@ -1,0 +1,9 @@
+{
+  "id": "lianshen",
+  "name": "莲身",
+  "type": "passive",
+  "description": "出征战斗中受到的首次伤害降低。",
+  "effects": [
+    { "stat": "def", "mode": "add_pct", "value": 0.1, "scope": "battle" }
+  ]
+}
