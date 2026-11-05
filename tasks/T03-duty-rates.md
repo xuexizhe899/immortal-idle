@@ -23,13 +23,21 @@
 - `backend/app/domain/duty.py`、编制 API、速率公式与测试
 
 ## 验收
-- [ ] 同一弟子不能同时出现在值守与出征；第 7 人上岗被拒绝
-- [ ] 换人会追加一条事件，历史事件不被修改
-- [ ] 同一编制下速率计算结果确定；不同倾向影响对应产出
-- [ ] 加成只作用于加区，不出现乘法叠加导致的数值爆炸
+- [x] 出征中的弟子拒绝上岗、同一弟子不可重复上岗；第 7 人上岗被拒（`test_duty_capacity_is_six`）
+- [x] 每次变更追加一条事件，历史事件只读不改（`test_unassign_removes_slot_and_records_event`）
+- [x] 同一编制速率确定；四倾向分别影响对应产出（含辅倾向同时影响行动力与伤势）
+- [x] 加成只走加区：两名同倾向弟子相加，不做乘法叠加（`test_rates_are_additive_not_multiplicative`）
 
 ## 不做
 分段补算本身（T04）、前端编制界面（T11）。
 
 ## 注意
 速率必须是**纯函数**，不能在读档时偷偷改状态；否则 T04 的可重放与幂等测试会失效。
+
+## 执行记录（2026-11-05）
+- `app/config_loader.py`：`load_disciples()` 用 `lru_cache` 常驻内存，运行期不重读磁盘
+- `app/domain/duty.py`：`compute_rates` 是纯函数；四倾向映射五个键（辅倾向同时给 `stamina_rate` 与 `injury_rate`）；品质系数 + 境界加成，全走加区
+- `assign` / `unassign` 负责互斥、上限、busy 校验，成功后 `record_event` 追加 `duty_events` 快照
+- `app/api/duty.py`：3 条路由（查看 / 上岗 / 下岗），变更带 revision 走 CAS，冲突 409、业务错误 400
+- 冒烟实测：诸葛亮（rarity 3 / realm 2）上岗后 `stamina_rate = injury_rate = 0.11`（0.09 + 0.02），重复上岗返回 400
+- 测试 11 个（`backend/tests/test_duty.py`），全库 20 passed；契约新增 3 条路由，前端 build 通过

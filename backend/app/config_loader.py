@@ -1,0 +1,24 @@
+"""静态配置加载：进程内只读一次，运行期不再重读磁盘。"""
+
+from __future__ import annotations
+
+import json
+from functools import lru_cache
+from pathlib import Path
+
+CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
+
+
+def _load_dir(folder: Path) -> dict[str, dict]:
+    """读取目录下所有 JSON，按 id 建索引。"""
+    return {
+        data["id"]: data
+        for path in sorted(folder.glob("*.json"))
+        for data in [json.loads(path.read_text(encoding="utf-8"))]
+    }
+
+
+@lru_cache(maxsize=1)
+def load_disciples() -> dict[str, dict]:
+    """弟子模板配置，按 id 索引；首次调用后常驻内存。"""
+    return _load_dir(CONFIG_DIR / "disciples")

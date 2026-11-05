@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.duty import router as duty_router
 from app.api.health import router as health_router
 from app.api.saves import router as saves_router
 from app.db import create_engine, create_session_factory
@@ -27,3 +28,4 @@ app = FastAPI(
 
 app.include_router(health_router, prefix="/api")
 app.include_router(saves_router, prefix="/api")
+app.include_router(duty_router, prefix="/api")
