@@ -132,6 +132,6 @@ async def settle(slot_id: int, repo: SaveRepository = Depends(get_repo)) -> dict
     if run_engine.run_status(state.active_run, mode) not in ENDED:
         raise HTTPException(status_code=400, detail="出征尚未结束")
 
-    result = run_engine.settle_run(state, mode)
+    result = run_engine.settle_run(state, mode, utcnow())
     await commit(slot_id, state, revision, repo)
     return {"revision": revision + 1, **result, "state": state.model_dump(mode="json")}

@@ -27,6 +27,8 @@ MODE = {
     "base_enemy_power": 30,
     "choices_per_step": 2,
     "elite_chance": 20,
+    "defeat_ratio": 0.5,
+    "defeat_floor_reward": {"cultivation": 3.0},
     "rewards": {
         "battle": {"cultivation": 10.0, "spirit_stone": 5.0},
         "elite": {"cultivation": 20.0, "spirit_stone": 10.0},
@@ -176,11 +178,11 @@ def test_defeat_settles_half_loot() -> None:
     state.active_run.pending_loot = {"cultivation": 100.0}
     choose(state, 0, TEMPLATES, [], MODE)
 
-    result = settle_run(state, MODE)
+    result = settle_run(state, MODE, NOW)
 
     assert result["victory"] is False
-    assert result["loot"]["cultivation"] == 50.0
-    assert state.resources.cultivation == pytest.approx(50.0)
+    assert result["loot"]["cultivation"] == pytest.approx(53.0)
+    assert state.resources.cultivation == pytest.approx(53.0)
     assert state.active_run is None
 
 
@@ -197,7 +199,7 @@ def test_clear_settles_full_loot() -> None:
     state.active_run.pending_loot = {"cultivation": 100.0}
 
     choose(state, 0, TEMPLATES, [], MODE)
-    result = settle_run(state, MODE)
+    result = settle_run(state, MODE, NOW)
 
     assert result["victory"] is True
     assert result["loot"]["cultivation"] == pytest.approx(150.0)
@@ -210,7 +212,7 @@ def test_settle_clears_busy() -> None:
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
     state.active_run.hp = 0
 
-    settle_run(state, MODE)
+    settle_run(state, MODE, NOW)
 
     assert state.disciples[0].busy is False
 

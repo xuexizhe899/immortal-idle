@@ -8,6 +8,8 @@
   "base_enemy_power": 30,
   "choices_per_step": 2,
   "elite_chance": 20,
+  "defeat_ratio": 0.5,
+  "defeat_floor_reward": { "cultivation": 3.0 },
   "rewards": {
     "battle": { "cultivation": 10.0, "spirit_stone": 5.0 },
     "elite": { "cultivation": 20.0, "spirit_stone": 10.0 },

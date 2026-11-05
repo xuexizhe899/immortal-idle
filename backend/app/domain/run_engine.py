@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from app.domain.affix import draw
+from app.domain.injuries import apply_injury, attack_multiplier
 from app.domain.rng import Pcg32
 from app.models.save import ActiveRun, DiscipleState, GameState, RunNode
 
@@ -35,7 +36,8 @@ def party_power(party: list[DiscipleState], templates: dict[str, dict]) -> float
         if template is None:
             continue
         base = template["base_stats"]
-        total += (base["atk"] + base["def"] * 0.5 + base["hp"] * 0.1) * (
+        attack = base["atk"] * attack_multiplier(disciple.injury_stacks)
+        total += (attack + base["def"] * 0.5 + base["hp"] * 0.1) * (
             1 + 0.1 * (disciple.level - 1)
         )
     return total
@@ -229,13 +231,26 @@ def pick_affix(state: GameState, affix_id: str, mode: dict) -> str | None:
     return None
 
 
-def settle_run(state: GameState, mode: dict) -> dict:
-    """结算出征：按到达层数发收益，清空 run 并解除占用。"""
+def defeat_loot(pending: dict[str, float], cleared: int, mode: dict) -> dict[str, float]:
+    """失败收益：已累积战利品按比例折算，再按到达层数给保底，避免断粮。"""
+    loot = {
+        key: round(value * mode["defeat_ratio"], 2) for key, value in pending.items()
+    }
+    for key, value in mode["defeat_floor_reward"].items():
+        loot[key] = round(loot.get(key, 0.0) + value * cleared, 2)
+    return loot
+
+
+def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
+    """结算出征：发收益、失败挂伤、清空 run 并解除占用。"""
     run = state.active_run
     cleared = len(run.nodes)
     victory = run.hp > 0 and cleared >= mode["node_count"]
-    ratio = 1.0 if victory else 0.5
-    loot = {key: round(value * ratio, 2) for key, value in run.pending_loot.items()}
+    loot = (
+        {key: round(value, 2) for key, value in run.pending_loot.items()}
+        if victory
+        else defeat_loot(run.pending_loot, cleared, mode)
+    )
 
     state.resources.cultivation += loot.get("cultivation", 0.0)
     state.resources.spirit_stone += loot.get("spirit_stone", 0.0)
@@ -244,8 +259,11 @@ def settle_run(state: GameState, mode: dict) -> dict:
     by_id = {d.id: d for d in state.disciples}
     for disciple_id in run.party:
         disciple = by_id.get(disciple_id)
-        if disciple is not None:
-            disciple.busy = False
+        if disciple is None:
+            continue
+        disciple.busy = False
+        if not victory:
+            apply_injury(disciple, now)
 
     state.active_run = None
-    return {"cleared": cleared, "victory": victory, "ratio": ratio, "loot": loot}
+    return {"cleared": cleared, "victory": victory, "loot": loot}
