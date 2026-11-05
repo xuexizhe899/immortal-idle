@@ -71,6 +71,14 @@ class SaveRepository:
         state = migrate(GameState.model_validate_json(record.state_json))
         return state, int(record.revision)
 
+    async def get_last_settled_at(self, slot_id: int) -> datetime | None:
+        """读取上次结算时间；槽不存在返回 None。"""
+        row = await self.session.execute(
+            select(save_slots.c.last_settled_at).where(save_slots.c.slot_id == slot_id)
+        )
+        record = row.first()
+        return datetime.fromisoformat(record[0]) if record else None
+
     async def save_state(
         self, slot_id: int, state: GameState, expected_revision: int
     ) -> bool:

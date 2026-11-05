@@ -14,11 +14,11 @@ CURRENT_SCHEMA_VERSION = 1
 
 
 class Resources(BaseModel):
-    """局外资源存量。"""
+    """局外资源存量；用浮点是因为按小时产出会产生小数。"""
 
-    cultivation: int = 0
-    spirit_stone: int = 0
-    stamina: int = 0
+    cultivation: float = 0.0
+    spirit_stone: float = 0.0
+    stamina: float = 0.0
 
 
 class DiscipleState(BaseModel):

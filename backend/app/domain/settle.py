@@ -1,0 +1,109 @@
+"""惰性挂机结算。
+
+没有常驻 tick：读取存档时按 last_settled_at 与 now 的时间差补算。
+速率会随值守变更而变，所以区间要按 duty_events 切段逐段求和。
+代价：一段时间的产出 = 基础速率 × (1 + 加成) × 小时数。
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+
+from app.models.save import GameState
+
+# 基础产出（每小时），加成走加区：基础 × (1 + 加成)
+BASE_CULTIVATION_PER_HOUR = 1.0
+BASE_SPIRIT_STONE_PER_HOUR = 0.5
+BASE_STAMINA_PER_HOUR = 0.5
+
+# 离线最多补算 12 小时，超出部分丢弃
+IDLE_CAP_HOURS = 12.0
+
+# 日志最多保留条数，避免存档无限膨胀
+LOG_LIMIT = 50
+
+
+@dataclass
+class SettleReport:
+    """一次补算的结果摘要。"""
+
+    elapsed_hours: float = 0.0
+    dropped_hours: float = 0.0
+    cultivation: float = 0.0
+    spirit_stone: float = 0.0
+    stamina: float = 0.0
+    warnings: list[str] = field(default_factory=list)
+
+
+def rate_segments(
+    state: GameState, start: datetime, end: datetime
+) -> list[tuple[datetime, datetime, dict[str, float]]]:
+    """把 [start, end] 按值守事件切段，返回 (段起点, 段终点, 该段速率)。"""
+    events = sorted(state.duty_events, key=lambda event: event.at)
+
+    current: dict[str, float] = {}
+    for event in events:
+        if event.at <= start:
+            current = event.rates
+        else:
+            break
+
+    segments: list[tuple[datetime, datetime, dict[str, float]]] = []
+    cursor = start
+    for event in events:
+        if not start < event.at < end:
+            continue
+        segments.append((cursor, event.at, current))
+        cursor = event.at
+        current = event.rates
+    segments.append((cursor, end, current))
+    return segments
+
+
+def settle(state: GameState, last_settled_at: datetime, now: datetime) -> SettleReport:
+    """按经过时间补算挂机产出，原地更新 state 并返回报告。"""
+    report = SettleReport()
+
+    raw_hours = (now - last_settled_at).total_seconds() / 3600
+    if raw_hours < 0:
+        report.warnings.append(f"时钟回拨 {raw_hours:.2f}h，按 0 处理")
+
+    if raw_hours <= 0:
+        window_start = now
+        report.elapsed_hours = 0.0
+        report.dropped_hours = 0.0
+    else:
+        window_start = max(last_settled_at, now - timedelta(hours=IDLE_CAP_HOURS))
+        report.elapsed_hours = (now - window_start).total_seconds() / 3600
+        report.dropped_hours = raw_hours - report.elapsed_hours
+
+    for seg_start, seg_end, rates in rate_segments(state, window_start, now):
+        hours = (seg_end - seg_start).total_seconds() / 3600
+        if hours <= 0:
+            continue
+        report.cultivation += (
+            BASE_CULTIVATION_PER_HOUR * (1 + rates.get("cultivation_rate", 0.0)) * hours
+        )
+        report.spirit_stone += (
+            BASE_SPIRIT_STONE_PER_HOUR * (1 + rates.get("spirit_stone_rate", 0.0)) * hours
+        )
+        report.stamina += (
+            BASE_STAMINA_PER_HOUR * (1 + rates.get("stamina_rate", 0.0)) * hours
+        )
+
+    state.resources.cultivation += report.cultivation
+    state.resources.spirit_stone += report.spirit_stone
+    state.resources.stamina += report.stamina
+
+    for disciple in state.disciples:
+        if disciple.injured_until is not None and disciple.injured_until <= now:
+            disciple.injury_stacks = 0
+            disciple.injured_until = None
+
+    for warning in report.warnings:
+        state.logs.append(warning)
+    if len(state.logs) > LOG_LIMIT:
+        del state.logs[: len(state.logs) - LOG_LIMIT]
+
+    return report
