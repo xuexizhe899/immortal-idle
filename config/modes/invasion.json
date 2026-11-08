@@ -1,0 +1,6 @@
+{
+  "id": "invasion",
+  "name": "入侵者",
+  "enabled": false,
+  "note": "首版占位，不开放入口；引擎可加载但不启动。"
+}

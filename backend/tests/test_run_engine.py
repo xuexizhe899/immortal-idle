@@ -313,3 +313,13 @@ def test_affix_options_share_one_group() -> None:
     options = set(state.active_run.affix_options)
     groups = {affix["group"] for affix in pool if affix["id"] in options}
     assert len(groups) == 1
+
+
+def test_placeholder_modes_are_disabled() -> None:
+    """远征与入侵者存在但未启用，爬塔不受影响。"""
+    from app.config_loader import load_modes
+
+    modes = load_modes()
+    assert modes["tower"]["enabled"] is True
+    assert modes["expedition"]["enabled"] is False
+    assert modes["invasion"]["enabled"] is False

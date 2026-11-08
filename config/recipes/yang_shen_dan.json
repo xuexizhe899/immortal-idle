@@ -1,0 +1,16 @@
+{
+  "id": "yang_shen_dan",
+  "name": "养神丹",
+  "kind": "pill",
+  "inputs": {
+    "xuan_jing": 2
+  },
+  "effects": [
+    {
+      "stat": "stamina_rate",
+      "mode": "add_pct",
+      "value": 0.15,
+      "scope": "permanent"
+    }
+  ]
+}

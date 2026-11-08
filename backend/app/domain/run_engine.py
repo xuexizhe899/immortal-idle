@@ -224,6 +224,8 @@ def choose(
     bonus = bond_bonus(run.party, bonds)
     for key, value in affix_bonus(run.affixes, affix_pool).items():
         bonus[key] = bonus.get(key, 0.0) + value
+    for key, value in state.bonuses.items():
+        bonus[key] = bonus.get(key, 0.0) + value
     result = fight(
         party_power(party, templates, bonus), node.power, run.hp, mode["damage_scale"]
     )
@@ -309,6 +311,10 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
 
     state.resources.cultivation += loot.get("cultivation", 0.0)
     state.resources.spirit_stone += loot.get("spirit_stone", 0.0)
+    for key, value in loot.items():
+        if key in ("cultivation", "spirit_stone"):
+            continue
+        state.inventory[key] = state.inventory.get(key, 0) + int(value)
     state.tower_floor = max(state.tower_floor, cleared)
 
     by_id = {d.id: d for d in state.disciples}

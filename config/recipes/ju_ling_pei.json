@@ -1,0 +1,17 @@
+{
+  "id": "ju_ling_pei",
+  "name": "聚灵佩",
+  "kind": "artifact",
+  "inputs": {
+    "xuan_jing": 2,
+    "jiu_ye": 1
+  },
+  "effects": [
+    {
+      "stat": "cultivation_rate",
+      "mode": "add_pct",
+      "value": 0.15,
+      "scope": "permanent"
+    }
+  ]
+}

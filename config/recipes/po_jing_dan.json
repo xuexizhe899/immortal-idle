@@ -1,0 +1,11 @@
+{
+  "id": "po_jing_dan",
+  "name": "破境丹",
+  "kind": "pill",
+  "inputs": {
+    "jiu_ye": 1,
+    "xuan_jing": 1
+  },
+  "effects": [],
+  "special": "realm"
+}

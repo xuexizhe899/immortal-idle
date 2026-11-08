@@ -1,0 +1,17 @@
+{
+  "id": "ju_qi_dan",
+  "name": "聚气丹",
+  "kind": "pill",
+  "inputs": {
+    "ling_cao": 3,
+    "jiao_gu": 1
+  },
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.05,
+      "scope": "permanent"
+    }
+  ]
+}

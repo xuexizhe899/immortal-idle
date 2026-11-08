@@ -40,3 +40,9 @@ def load_modes() -> dict[str, dict]:
 def load_bonds() -> dict[str, dict]:
     """羁绊配置，按 id 索引。"""
     return _load_dir(CONFIG_DIR / "bonds")
+
+
+@lru_cache(maxsize=1)
+def load_recipes() -> dict[str, dict]:
+    """丹方与器方配置，按 id 索引。"""
+    return _load_dir(CONFIG_DIR / "recipes")

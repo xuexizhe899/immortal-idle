@@ -1,0 +1,11 @@
+{
+  "id": "liao_shang_dan",
+  "name": "疗伤丹",
+  "kind": "pill",
+  "inputs": {
+    "ling_cao": 1,
+    "yun_mu": 1
+  },
+  "effects": [],
+  "special": "heal"
+}

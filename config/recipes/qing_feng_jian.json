@@ -1,0 +1,16 @@
+{
+  "id": "qing_feng_jian",
+  "name": "青锋剑",
+  "kind": "artifact",
+  "inputs": {
+    "han_tie": 3
+  },
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.08,
+      "scope": "permanent"
+    }
+  ]
+}

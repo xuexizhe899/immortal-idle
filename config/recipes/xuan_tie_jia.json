@@ -1,0 +1,17 @@
+{
+  "id": "xuan_tie_jia",
+  "name": "玄铁甲",
+  "kind": "artifact",
+  "inputs": {
+    "han_tie": 4,
+    "yun_mu": 2
+  },
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.08,
+      "scope": "permanent"
+    }
+  ]
+}

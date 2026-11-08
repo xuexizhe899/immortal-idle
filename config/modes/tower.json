@@ -15,9 +15,9 @@
   "defeat_ratio": 0.5,
   "defeat_floor_reward": { "cultivation": 3.0 },
   "rewards": {
-    "battle": { "cultivation": 10.0, "spirit_stone": 5.0 },
-    "elite": { "cultivation": 20.0, "spirit_stone": 10.0 },
-    "boss": { "cultivation": 50.0, "spirit_stone": 25.0 }
+    "battle": { "cultivation": 10.0, "spirit_stone": 5.0, "ling_cao": 1 },
+    "elite": { "cultivation": 20.0, "spirit_stone": 10.0, "ling_cao": 2 },
+    "boss": { "cultivation": 50.0, "spirit_stone": 25.0, "ling_cao": 5 }
   },
   "segments": 5,
   "floors_per_segment": 20,

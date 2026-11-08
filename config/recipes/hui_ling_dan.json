@@ -1,0 +1,16 @@
+{
+  "id": "hui_ling_dan",
+  "name": "回灵丹",
+  "kind": "pill",
+  "inputs": {
+    "ling_cao": 2
+  },
+  "effects": [
+    {
+      "stat": "cultivation_rate",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "permanent"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "liu_yun_xue",
+  "name": "流云靴",
+  "kind": "artifact",
+  "inputs": {
+    "yun_mu": 2,
+    "jiao_gu": 1
+  },
+  "effects": [
+    {
+      "stat": "spd",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "permanent"
+    }
+  ]
+}

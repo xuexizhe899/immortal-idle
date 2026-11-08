@@ -1,0 +1,17 @@
+{
+  "id": "hu_xin_jing",
+  "name": "护心镜",
+  "kind": "artifact",
+  "inputs": {
+    "xuan_jing": 1,
+    "han_tie": 2
+  },
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "permanent"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "gu_ti_dan",
+  "name": "固元丹",
+  "kind": "pill",
+  "inputs": {
+    "han_tie": 2,
+    "yun_mu": 1
+  },
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.05,
+      "scope": "permanent"
+    }
+  ]
+}

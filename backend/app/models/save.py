@@ -87,6 +87,7 @@ class GameState(BaseModel):
     duty_slots: list[DutySlot] = Field(default_factory=list)
     duty_events: list[DutyEvent] = Field(default_factory=list)
     inventory: dict[str, int] = Field(default_factory=dict)
+    bonuses: dict[str, float] = Field(default_factory=dict)
     unlocks: list[str] = Field(default_factory=list)
     tower_floor: int = 0
     active_run: ActiveRun | None = None

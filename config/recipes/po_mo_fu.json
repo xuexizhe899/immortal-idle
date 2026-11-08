@@ -1,0 +1,17 @@
+{
+  "id": "po_mo_fu",
+  "name": "破魔符",
+  "kind": "artifact",
+  "inputs": {
+    "jiao_gu": 2,
+    "xuan_jing": 1
+  },
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "permanent"
+    }
+  ]
+}
