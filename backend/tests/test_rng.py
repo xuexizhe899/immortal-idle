@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.domain.affix import draw, weights_for
+from app.domain.affix import draw, pick_group, weights_for
 from app.domain.rng import Pcg32
 
 AFFIXES = [
@@ -83,3 +83,11 @@ def test_draw_is_reproducible() -> None:
 def test_draw_respects_candidate_count() -> None:
     """候选不足三个时按实际数量返回。"""
     assert len(draw(Pcg32(4), AFFIXES[:2], {})) == 2
+
+
+def test_pick_group_prefers_accumulated_group() -> None:
+    """已选越多的组越容易被再次抽中。"""
+    rng = Pcg32(3)
+    picks = [pick_group(rng, ["a", "b"], {"a": 20}) for _ in range(50)]
+
+    assert picks.count("a") > picks.count("b")

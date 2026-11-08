@@ -1,0 +1,20 @@
+{
+  "id": "xue_yong",
+  "name": "血勇",
+  "group": "fengrui",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.04,
+      "scope": "run"
+    },
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.02,
+      "scope": "run"
+    }
+  ]
+}

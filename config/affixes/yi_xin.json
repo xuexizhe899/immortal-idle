@@ -1,0 +1,20 @@
+{
+  "id": "yi_xin",
+  "name": "一心",
+  "group": "qimou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.03,
+      "scope": "run"
+    },
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.025,
+      "scope": "run"
+    }
+  ]
+}

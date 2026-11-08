@@ -1,0 +1,20 @@
+{
+  "id": "zhong_liu",
+  "name": "中流",
+  "group": "jianshou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.03,
+      "scope": "run"
+    },
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.03,
+      "scope": "run"
+    }
+  ]
+}

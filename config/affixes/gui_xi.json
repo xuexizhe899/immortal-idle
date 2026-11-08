@@ -1,0 +1,20 @@
+{
+  "id": "gui_xi",
+  "name": "龟息",
+  "group": "jianshou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.04,
+      "scope": "run"
+    },
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.04,
+      "scope": "run"
+    }
+  ]
+}

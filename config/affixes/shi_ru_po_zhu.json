@@ -1,0 +1,14 @@
+{
+  "id": "shi_ru_po_zhu",
+  "name": "势如破竹",
+  "group": "fengrui",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.075,
+      "scope": "run"
+    }
+  ]
+}

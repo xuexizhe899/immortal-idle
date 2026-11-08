@@ -245,6 +245,14 @@ def validate(
                     errors.append(f"{where}: inputs['{material_id}'] 必须是正整数")
         check_effects(recipe, where, errors)
 
+    for affix_id, affix in affixes.items():
+        where = f"config/affixes/{affix_id}.json"
+        if not isinstance(affix.get("name"), str):
+            errors.append(f"{where}: 缺少字符串字段 'name'")
+        if not isinstance(affix.get("group"), str):
+            errors.append(f"{where}: 缺少字符串字段 'group'")
+        check_effects(affix, where, errors)
+
     for mode_id, mode in modes.items():
         where = f"config/modes/{mode_id}.json"
         if not isinstance(mode.get("name"), str):
@@ -278,7 +286,7 @@ def main() -> int:
 
     summary = ", ".join(
         f"{name}={len(list((CONFIG_DIR / name).glob('*.json')))}"
-        for name in ("skills", "disciples", "bonds", "materials", "recipes", "modes")
+        for name in ("skills", "disciples", "bonds", "affixes", "materials", "recipes", "modes")
         if (CONFIG_DIR / name).is_dir()
     )
     print(f"[config] ok: {summary}")

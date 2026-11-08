@@ -1,0 +1,26 @@
+{
+  "id": "tong_chou",
+  "name": "统筹",
+  "group": "qimou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.025,
+      "scope": "run"
+    },
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.025,
+      "scope": "run"
+    },
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.025,
+      "scope": "run"
+    }
+  ]
+}

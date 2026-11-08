@@ -1,0 +1,14 @@
+{
+  "id": "bu_dong",
+  "name": "不动",
+  "group": "jianshou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.07,
+      "scope": "run"
+    }
+  ]
+}

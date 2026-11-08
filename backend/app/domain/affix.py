@@ -24,6 +24,22 @@ def weights_for(
     ]
 
 
+def pick_group(
+    rng: Pcg32, groups: list[str], chosen_groups: dict[str, int], bonus: float = GROUP_BONUS
+) -> str:
+    """按已选数量加权选一个协同组：已选越多的组越容易被再次抽到。"""
+    weights = [1 + bonus * chosen_groups.get(group, 0) for group in groups]
+    total = sum(weights)
+    roll = rng.next_u32() / UINT32_SPAN * total
+
+    acc = 0.0
+    for group, weight in zip(groups, weights):
+        acc += weight
+        if roll < acc:
+            return group
+    return groups[-1]
+
+
 def draw(
     rng: Pcg32, candidates: list[dict], chosen_groups: dict[str, int], count: int = 3
 ) -> list[str]:

@@ -1,0 +1,20 @@
+{
+  "id": "fu_ji",
+  "name": "伏击",
+  "group": "qimou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.05,
+      "scope": "run"
+    },
+    {
+      "stat": "spd",
+      "mode": "add_pct",
+      "value": 0.02,
+      "scope": "run"
+    }
+  ]
+}

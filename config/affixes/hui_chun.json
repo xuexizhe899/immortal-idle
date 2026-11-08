@@ -1,0 +1,14 @@
+{
+  "id": "hui_chun",
+  "name": "回春",
+  "group": "jianshou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.04,
+      "scope": "run"
+    }
+  ]
+}

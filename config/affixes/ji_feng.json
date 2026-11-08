@@ -1,0 +1,14 @@
+{
+  "id": "ji_feng",
+  "name": "疾风",
+  "group": "fengrui",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "spd",
+      "mode": "add_pct",
+      "value": 0.05,
+      "scope": "run"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "pan_shi",
+  "name": "磐石",
+  "group": "jianshou",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.075,
+      "scope": "run"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "po_jun",
+  "name": "破军",
+  "group": "fengrui",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.04,
+      "scope": "run"
+    }
+  ]
+}

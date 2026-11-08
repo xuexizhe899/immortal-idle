@@ -1,0 +1,14 @@
+{
+  "id": "lian_ji",
+  "name": "连击",
+  "group": "fengrui",
+  "weight": 1.0,
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.03,
+      "scope": "run"
+    }
+  ]
+}

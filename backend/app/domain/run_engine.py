@@ -10,7 +10,7 @@ import secrets
 from dataclasses import dataclass
 from datetime import datetime
 
-from app.domain.affix import draw
+from app.domain.affix import draw, pick_group
 from app.domain.injuries import apply_injury, attack_multiplier
 from app.domain.rng import Pcg32
 from app.models.save import ActiveRun, DiscipleState, GameState, RunNode
@@ -45,6 +45,23 @@ def bond_bonus(party_ids: list[str], bonds: dict[str, dict]) -> dict[str, float]
     return bonus
 
 
+def affix_bonus(affix_ids: list[str], pool: list[dict]) -> dict[str, float]:
+    """已选词条提供的加成（只统计 run 作用域）。"""
+    by_id = {affix["id"]: affix for affix in pool}
+    bonus: dict[str, float] = {}
+
+    for affix_id in affix_ids:
+        affix = by_id.get(affix_id)
+        if affix is None:
+            continue
+        for effect in affix.get("effects", []):
+            if effect["scope"] != "run" or effect["mode"] != "add_pct":
+                continue
+            bonus[effect["stat"]] = bonus.get(effect["stat"], 0.0) + effect["value"]
+
+    return bonus
+
+
 def party_power(
     party: list[DiscipleState],
     templates: dict[str, dict],
@@ -70,23 +87,26 @@ def party_power(
 
 
 def enemy_power(step: int, mode: dict) -> int:
-    """第 step 层敌人的战力，随层数线性增长。"""
-    return mode["base_enemy_power"] * (step + 1)
+    """第 step 层敌人的战力，按配置的成长系数线性增长。"""
+    return round(mode["base_enemy_power"] * (1 + step * mode["enemy_growth"]))
 
 
-def node_reward(kind: str, mode: dict) -> dict[str, float]:
-    """节点战利品，从模式配置取；未知类型退回普通战斗奖励。"""
-    return dict(mode["rewards"].get(kind, mode["rewards"]["battle"]))
+def node_reward(kind: str, mode: dict, step: int) -> dict[str, float]:
+    """节点战利品：基础值随层数按 reward_growth 放大。"""
+    base = mode["rewards"].get(kind, mode["rewards"]["battle"])
+    scale = 1 + step * mode["reward_growth"]
+    return {key: round(value * scale, 2) for key, value in base.items()}
 
 
 def roll_choices(rng: Pcg32, step: int, mode: dict) -> list[RunNode]:
     """生成某一层的候选节点；同种子必得同一组。"""
     last_step = step >= mode["node_count"] - 1
-    count = 1 if last_step else mode["choices_per_step"]
+    is_boss = last_step or (step + 1) % mode["boss_every"] == 0
+    count = 1 if is_boss else mode["choices_per_step"]
     nodes: list[RunNode] = []
 
     for _ in range(count):
-        if last_step:
+        if is_boss:
             kind = "boss"
         else:
             kind = "elite" if rng.randint(1, 100) <= mode["elite_chance"] else "battle"
@@ -95,18 +115,18 @@ def roll_choices(rng: Pcg32, step: int, mode: dict) -> list[RunNode]:
                 kind=kind,
                 enemy=f"{kind}_{step}",
                 power=enemy_power(step, mode),
-                reward=node_reward(kind, mode),
+                reward=node_reward(kind, mode, step),
             )
         )
     return nodes
 
 
-def fight(strength: float, enemy: int, hp: int) -> BattleResult:
+def fight(strength: float, enemy: int, hp: int, scale: int = 100) -> BattleResult:
     """确定性战斗：战力低于敌人直接失败，否则按战力比扣血。"""
     if strength < enemy:
         return BattleResult(won=False, damage=hp, enemy_power=enemy, party_power=strength)
 
-    damage = max(1, round(enemy * 100 / strength))
+    damage = max(1, round(enemy * scale / strength))
     return BattleResult(
         won=hp - damage > 0,
         damage=damage,
@@ -201,14 +221,18 @@ def choose(
     run.choices = []
 
     party = [d for d in state.disciples if d.id in run.party]
-    strength = party_power(party, templates, bond_bonus(run.party, bonds))
-    result = fight(strength, node.power, run.hp)
+    bonus = bond_bonus(run.party, bonds)
+    for key, value in affix_bonus(run.affixes, affix_pool).items():
+        bonus[key] = bonus.get(key, 0.0) + value
+    result = fight(
+        party_power(party, templates, bonus), node.power, run.hp, mode["damage_scale"]
+    )
     run.hp = max(0, run.hp - result.damage)
 
     if not result.won:
         return None
 
-    for key, value in node_reward(node.kind, mode).items():
+    for key, value in node_reward(node.kind, mode, len(run.nodes) - 1).items():
         run.pending_loot[key] = run.pending_loot.get(key, 0.0) + value
 
     if len(run.nodes) >= mode["node_count"]:
@@ -218,7 +242,10 @@ def choose(
     rng.advance_to(run.rng_cursor)
 
     if affix_pool:
-        run.affix_options = draw(rng, affix_pool, group_counts(run.affixes, affix_pool))
+        groups = sorted({affix["group"] for affix in affix_pool})
+        group = pick_group(rng, groups, group_counts(run.affixes, affix_pool))
+        candidates = [affix for affix in affix_pool if affix["group"] == group]
+        run.affix_options = draw(rng, candidates, {})
         run.affix_pending = True
     else:
         run.choices = roll_choices(rng, len(run.nodes), mode)

@@ -8,6 +8,7 @@ import pytest
 
 from app.domain.run_engine import (
     choose,
+    node_reward,
     party_power,
     pick_affix,
     run_status,
@@ -22,9 +23,13 @@ MODE = {
     "id": "tower",
     "name": "问道塔",
     "stamina_cost": 1,
-    "node_count": 10,
+    "node_count": 20,
     "start_hp": 300,
-    "base_enemy_power": 30,
+    "base_enemy_power": 20,
+    "enemy_growth": 0.4,
+    "reward_growth": 0.1,
+    "damage_scale": 60,
+    "boss_every": 5,
     "choices_per_step": 2,
     "elite_chance": 20,
     "defeat_ratio": 0.5,
@@ -204,7 +209,8 @@ def test_clear_settles_full_loot() -> None:
     result = settle_run(state, MODE, NOW)
 
     assert result["victory"] is True
-    assert result["loot"]["cultivation"] == pytest.approx(150.0)
+    boss_reward = node_reward("boss", MODE, MODE["node_count"] - 1)["cultivation"]
+    assert result["loot"]["cultivation"] == pytest.approx(100.0 + boss_reward)
     assert state.tower_floor == MODE["node_count"]
 
 
@@ -259,6 +265,9 @@ def test_tower_config_has_fields_engine_needs() -> None:
         "node_count",
         "start_hp",
         "base_enemy_power",
+        "enemy_growth",
+        "reward_growth",
+        "boss_every",
         "choices_per_step",
         "elite_chance",
         "rewards",
@@ -285,3 +294,22 @@ def test_run_survives_serialization() -> None:
     option = restored.active_run.affix_options[0]
     assert pick_affix(restored, option, MODE) is None
     assert len(restored.active_run.choices) > 0
+
+
+def test_affix_options_share_one_group() -> None:
+    """三选一的候选来自同一个协同组，不混组。"""
+    from app.config_loader import load_affixes, load_disciples
+
+    pool = load_affixes()
+    templates = load_disciples()
+    state = GameState(
+        resources=Resources(stamina=3.0),
+        disciples=[DiscipleState(id="guanyu", template_id="guanyu")],
+    )
+
+    start_run(state, ["guanyu"], templates, MODE, NOW, seed=3)
+    choose(state, 0, templates, pool, MODE, BONDS)
+
+    options = set(state.active_run.affix_options)
+    groups = {affix["group"] for affix in pool if affix["id"] in options}
+    assert len(groups) == 1
