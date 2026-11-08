@@ -3,10 +3,23 @@ import { computed, ref } from 'vue'
 
 import DiscipleCard from '../components/DiscipleCard.vue'
 import { useGameStore } from '../stores/game'
+import CraftPanel from './CraftPanel.vue'
+import DutyPanel from './DutyPanel.vue'
+import RecruitPanel from './RecruitPanel.vue'
+import SaveSlotsPanel from './SaveSlotsPanel.vue'
+
+const TABS = [
+  { key: 'roster', label: '弟子' },
+  { key: 'duty', label: '值守' },
+  { key: 'recruit', label: '招贤' },
+  { key: 'craft', label: '炼制' },
+  { key: 'saves', label: '存档' },
+]
 
 const store = useGameStore()
 const party = ref<string[]>([])
 const notice = ref<string | null>(null)
+const activeTab = ref('roster')
 
 const roster = computed(() =>
   store.disciples.map((disciple) => ({
@@ -67,12 +80,25 @@ async function doStart() {
     修为 +{{ (store.lastRun.loot.cultivation ?? 0).toFixed(1) }}
   </p>
 
-  <section class="panel">
+  <nav class="tabs">
+    <button
+      v-for="tab in TABS"
+      :key="tab.key"
+      class="tab"
+      :class="{ active: activeTab === tab.key }"
+      type="button"
+      @click="activeTab = tab.key"
+    >
+      {{ tab.label }}
+    </button>
+  </nav>
+
+  <section v-if="activeTab === 'roster'" class="panel">
     <div class="panel-head">
       <h2>门下弟子</h2>
       <span class="hint">已选 {{ party.length }} / 5</span>
     </div>
-    <p v-if="roster.length === 0" class="hint">还没有弟子，先去招人。</p>
+    <p v-if="roster.length === 0" class="hint">还没有弟子，去「招贤」看看。</p>
     <div class="grid">
       <DiscipleCard
         v-for="entry in roster"
@@ -85,6 +111,11 @@ async function doStart() {
       />
     </div>
   </section>
+
+  <DutyPanel v-else-if="activeTab === 'duty'" />
+  <RecruitPanel v-else-if="activeTab === 'recruit'" />
+  <CraftPanel v-else-if="activeTab === 'craft'" />
+  <SaveSlotsPanel v-else />
 
   <section class="actions">
     <button class="primary" type="button" :disabled="!canStart" @click="doStart">
@@ -100,17 +131,16 @@ async function doStart() {
 .resources {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
 .res {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
   background: var(--surface);
 }
 
@@ -126,13 +156,38 @@ async function doStart() {
 
 .notice {
   margin: 0 0 12px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 6px;
+  padding: 8px 12px;
+  border: 2px solid var(--border);
+  border-left-width: 6px;
+  border-left-color: var(--accent);
   background: var(--surface);
   color: var(--muted);
   font-size: 13px;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 14px;
+  border-bottom: 2px solid var(--border);
+}
+
+.tab {
+  padding: 8px 16px;
+  border: 2px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tab.active {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text);
+  margin-bottom: -2px;
 }
 
 .panel-head {
@@ -154,44 +209,46 @@ async function doStart() {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
   gap: 10px;
 }
 
 .actions {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 18px;
 }
 
 .primary {
-  padding: 10px 22px;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
+  padding: 10px 24px;
+  border: 2px solid var(--border);
   background: var(--accent);
   color: #fff;
   font: inherit;
   cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(43, 43, 51, 0.35);
 }
 
 .primary:disabled {
-  border-color: var(--border);
-  background: var(--border);
+  background: #cfcabb;
+  color: #8b8779;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
 .ghost {
-  padding: 10px 22px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
+  padding: 10px 24px;
+  border: 2px solid var(--border);
+  background: var(--surface);
   color: inherit;
   font: inherit;
   cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(43, 43, 51, 0.2);
 }
 
 .ghost:disabled {
   color: var(--muted);
+  box-shadow: none;
   cursor: not-allowed;
 }
 </style>

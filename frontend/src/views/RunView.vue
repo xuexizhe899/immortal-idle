@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import BattleStage from '../components/BattleStage.vue'
 import { useGameStore } from '../stores/game'
 
 const KIND_LABELS: Record<string, string> = {
@@ -56,6 +57,13 @@ async function finish() {
       <div class="bar"><span :style="{ width: `${hpPercent}%` }"></span></div>
       <span class="hp-text">{{ run.hp }} / {{ run.max_hp }}</span>
     </div>
+
+    <BattleStage
+      v-if="run"
+      :hp="run.hp"
+      :max-hp="run.max_hp"
+      :layer="run.nodes?.length ?? 0"
+    />
 
     <div v-if="run && (run.affixes ?? []).length" class="chips">
       <span v-for="id in run.affixes ?? []" :key="id" class="chip">{{ affixName(id) }}</span>

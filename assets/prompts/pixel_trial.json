@@ -1,0 +1,18 @@
+{
+  "preset": "pixel_trial",
+  "notes": "像素风试稿：两名弟子，验证风格是否稳定",
+  "items": [
+    {
+      "key": "pixel_guanyu",
+      "kind": "portrait",
+      "file": "guanyu.png",
+      "subject": "Guan Yu, Three Kingdoms general, long green robe over lamellar armor, long black beard, holding a guandao polearm, stern dignified expression"
+    },
+    {
+      "key": "pixel_nezha",
+      "kind": "portrait",
+      "file": "nezha.png",
+      "subject": "Nezha, Chinese mythology youth deity, confident teenage warrior, hair in two buns, red sash and light armor over a short robe, holding a spear, energetic stance"
+    }
+  ]
+}

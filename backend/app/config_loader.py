@@ -46,3 +46,9 @@ def load_bonds() -> dict[str, dict]:
 def load_recipes() -> dict[str, dict]:
     """丹方与器方配置，按 id 索引。"""
     return _load_dir(CONFIG_DIR / "recipes")
+
+
+@lru_cache(maxsize=1)
+def load_materials() -> dict[str, dict]:
+    """材料配置，按 id 索引。"""
+    return _load_dir(CONFIG_DIR / "materials")

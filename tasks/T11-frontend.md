@@ -35,7 +35,18 @@
 ## 注意
 前端只做"展示 + 发指令"。任何"先在本地算一遍再同步"的写法都会制造第二状态源，直接违反本卡。
 
-## 执行记录（2026-11-08，骨架）
+## 执行记录（2026-11-08，像素风改版）
+- 方向调整：美术改像素风（`config/style/style.json` 的 style_prompt / negative_prompt / size 全部改写），原水墨立绘废弃
+- 全局像素风：去圆角、2px 硬边框、硬阴影、`image-rendering: pixelated`
+- 新增 `components/BattleStage.vue`：PixiJS 画双方像素小人 + 呼吸动画，替掉纯静态展示
+- 主城改为 5 个标签页：弟子 / 值守 / 招贤 / 炼制 / 存档
+- 值守面板：6 位编制、上岗下岗、当前加成
+- 招贤面板：按声望排序，已拥有显示境界与半价升境界
+- 炼制面板：材料需求校验、疗伤/破境需先选目标
+- 存档面板：切换 / 新建 / 复制 / 导出 / 导入 / 删除，切档自动补算
+- `GET /api/catalog` 增加 `unlock_cost`、`recipes.inputs`、`recipes.special`、`materials`
+- 接口验证：值守上岗（关羽 cultivation_rate 0.1）、招募华佗（声望 500→370）、炼制回灵丹（灵草 29→27）
+- 前端 build 通过；像素立绘仍在生成，`public/assets/` 尚未替换
 - `api/client.ts`：按 generated 类型封装接口，统一错误处理（取出 `detail`）
 - `stores/game.ts`：单档状态（slot / revision / state / run / catalog），所有操作走 API，前端不做结算与随机
 - `views/HomeView.vue`：资源栏、弟子网格、组队出征、收菜

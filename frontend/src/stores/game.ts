@@ -7,6 +7,7 @@ import {
   type GameState,
   type RunPayload,
   type RunSettleResult,
+  type SaveSlotMeta,
   type SettleResult,
 } from '../api/client'
 
@@ -17,6 +18,7 @@ export const useGameStore = defineStore('game', () => {
   const run = ref<RunPayload | null>(null)
   const catalog = ref<Catalog | null>(null)
   const lastRun = ref<RunSettleResult | null>(null)
+  const saves = ref<SaveSlotMeta[]>([])
   const busy = ref(false)
   const error = ref<string | null>(null)
 
@@ -96,6 +98,85 @@ export const useGameStore = defineStore('game', () => {
     })
   }
 
+  async function assignDuty(discipleId: string): Promise<void> {
+    await guard(async () => {
+      await api.assignDuty(slotId.value as number, revision.value, discipleId)
+      await loadSave()
+    })
+  }
+
+  async function unassignDuty(discipleId: string): Promise<void> {
+    await guard(async () => {
+      await api.unassignDuty(slotId.value as number, revision.value, discipleId)
+      await loadSave()
+    })
+  }
+
+  async function recruit(templateId: string): Promise<void> {
+    await guard(async () => {
+      await api.recruit(slotId.value as number, templateId)
+      await loadSave()
+    })
+  }
+
+  async function craft(recipeId: string, target: string | null): Promise<void> {
+    await guard(async () => {
+      await api.craft(slotId.value as number, recipeId, target)
+      await loadSave()
+    })
+  }
+
+  async function loadSaves(): Promise<void> {
+    saves.value = await api.listSaves()
+  }
+
+  async function switchSave(id: number): Promise<void> {
+    await guard(async () => {
+      slotId.value = id
+      lastRun.value = null
+      await loadSave()
+      const result = await api.settle(id)
+      revision.value = result.revision
+      state.value = result.state
+    })
+  }
+
+  async function createSave(name: string): Promise<void> {
+    await guard(async () => {
+      const result = await api.createSave(name)
+      await loadSaves()
+      slotId.value = result.slot_id
+      await loadSave()
+    })
+  }
+
+  async function duplicateSave(id: number, name: string): Promise<void> {
+    await guard(async () => {
+      await api.duplicateSave(id, name)
+      await loadSaves()
+    })
+  }
+
+  async function deleteSave(id: number): Promise<void> {
+    await guard(async () => {
+      await api.deleteSave(id)
+      await loadSaves()
+      if (slotId.value === id) {
+        slotId.value = saves.value[0]?.slot_id ?? null
+        if (slotId.value !== null) await loadSave()
+      }
+    })
+  }
+
+  async function importSave(payload: unknown): Promise<void> {
+    await guard(async () => {
+      const result = await api.importSave(payload)
+      await loadSaves()
+      slotId.value = result.slot_id
+      await loadSave()
+    })
+  }
+
   return {
     slotId,
     revision,
@@ -103,6 +184,7 @@ export const useGameStore = defineStore('game', () => {
     run,
     catalog,
     lastRun,
+    saves,
     busy,
     error,
     disciples,
@@ -115,5 +197,15 @@ export const useGameStore = defineStore('game', () => {
     choose,
     pickAffix,
     settleRun,
+    assignDuty,
+    unassignDuty,
+    recruit,
+    craft,
+    loadSaves,
+    switchSave,
+    createSave,
+    duplicateSave,
+    deleteSave,
+    importSave,
   }
 })

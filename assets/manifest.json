@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "calls": 5,
+  "calls": 13,
   "items": [
     {
       "key": "disciple_zhugeliang",
@@ -109,7 +109,196 @@
         }
       },
       "created_at": "2026-11-05T14:45:48+00:00"
+    },
+    {
+      "key": "pixel_guanyu",
+      "kind": "portrait",
+      "file": "assets/raw/guanyu.png",
+      "hash": "753e68ed7624e89d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Guan Yu, Three Kingdoms general, long green robe over lamellar armor, long black beard, holding a guandao polearm, stern dignified expression",
+      "bytes": 1606005,
+      "elapsed_ms": 75954,
+      "usage": {
+        "input_tokens": 89,
+        "output_tokens": 207,
+        "total_tokens": 296,
+        "input_tokens_details": {
+          "text_tokens": 89,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 207,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:05:16+00:00"
+    },
+    {
+      "key": "pixel_nezha",
+      "kind": "portrait",
+      "file": "assets/raw/nezha.png",
+      "hash": "e8e1c8bbac377ae3",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Nezha, Chinese mythology youth deity, confident teenage warrior, hair in two buns, red sash and light armor over a short robe, holding a spear, energetic stance",
+      "bytes": 1630765,
+      "elapsed_ms": 43693,
+      "usage": {
+        "input_tokens": 92,
+        "output_tokens": 210,
+        "total_tokens": 302,
+        "input_tokens_details": {
+          "text_tokens": 92,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 210,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:05:59+00:00"
+    },
+    {
+      "key": "disciple_guanyu",
+      "kind": "portrait",
+      "file": "assets/raw/guanyu.png",
+      "hash": "753e68ed7624e89d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Guan Yu, Three Kingdoms general, long green robe over lamellar armor, long black beard, holding a guandao polearm, stern dignified expression",
+      "bytes": 1607885,
+      "elapsed_ms": 67251,
+      "usage": {
+        "input_tokens": 89,
+        "output_tokens": 208,
+        "total_tokens": 297,
+        "input_tokens_details": {
+          "text_tokens": 89,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 208,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:08:48+00:00"
+    },
+    {
+      "key": "disciple_zhangfei",
+      "kind": "portrait",
+      "file": "assets/raw/zhangfei.png",
+      "hash": "e5f90061da8db917",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Zhang Fei, Three Kingdoms general, dark heavy armor, wild beard, holding a serpent spear, fierce expression",
+      "bytes": 1643347,
+      "elapsed_ms": 42338,
+      "usage": {
+        "input_tokens": 81,
+        "output_tokens": 197,
+        "total_tokens": 278,
+        "input_tokens_details": {
+          "text_tokens": 81,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 197,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:09:31+00:00"
+    },
+    {
+      "key": "disciple_zhaoyun",
+      "kind": "portrait",
+      "file": "assets/raw/zhaoyun.png",
+      "hash": "ce26250871208288",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Zhao Yun, young Three Kingdoms general, white and silver armor, white cloak, holding a spear, calm confident expression",
+      "bytes": 1579924,
+      "elapsed_ms": 49223,
+      "usage": {
+        "input_tokens": 82,
+        "output_tokens": 212,
+        "total_tokens": 294,
+        "input_tokens_details": {
+          "text_tokens": 82,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 212,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:10:20+00:00"
+    },
+    {
+      "key": "disciple_zhouyu",
+      "kind": "portrait",
+      "file": "assets/raw/zhouyu.png",
+      "hash": "351e745411f173ab",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Zhou Yu, Three Kingdoms strategist general, elegant dark red and black robe, holding a feather fan, refined expression",
+      "bytes": 1507017,
+      "elapsed_ms": 82548,
+      "usage": {
+        "input_tokens": 81,
+        "output_tokens": 211,
+        "total_tokens": 292,
+        "input_tokens_details": {
+          "text_tokens": 81,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 211,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:11:42+00:00"
+    },
+    {
+      "key": "disciple_huatuo",
+      "kind": "portrait",
+      "file": "assets/raw/huatuo.png",
+      "hash": "ac466a33a7c1fbf0",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Hua Tuo, ancient Chinese physician, simple gray robe, medicine box and herb bundle, kind elderly expression",
+      "bytes": 1460751,
+      "elapsed_ms": 102366,
+      "usage": {
+        "input_tokens": 79,
+        "output_tokens": 206,
+        "total_tokens": 285,
+        "input_tokens_details": {
+          "text_tokens": 79,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 206,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:13:25+00:00"
     }
   ],
-  "updated_at": "2026-11-05T14:45:48+00:00"
+  "updated_at": "2026-11-08T14:13:25+00:00"
 }

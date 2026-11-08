@@ -1,9 +1,9 @@
 {
   "version": "0.1.0",
   "notes": "所有立绘共用同一段 style_prompt；派生图回喂 master 时只改角色描述，不改风格段。",
-  "style_prompt": "Chinese xianxia character illustration, semi-realistic painterly style, restrained ink-wash texture, muted jade green and ink-black palette with warm paper tone, clean readable silhouette, even soft studio lighting from upper left, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border",
-  "negative_prompt": "photorealistic, 3d render, plastic skin, oversaturated colors, neon, lens flare, heavy glow, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background",
-  "size": "1024x1536",
+  "style_prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border",
+  "negative_prompt": "photorealistic, 3d render, anti-aliasing, smooth gradients, realistic shading, plastic skin, oversaturated colors, neon, lens flare, heavy glow, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background",
+  "size": "1024x1024",
   "fallback_size": "1024x1024",
   "palette": ["#2f6f5e", "#8a7f5c", "#3a3f4b", "#f6f5f1"],
   "scene_prompt": "Chinese xianxia environment concept art, restrained ink-wash painting on toned paper, muted jade-green and ink-gray palette, low saturation, soft diffuse overcast daylight, wide establishing shot, large calm empty sky area, minimal detail, no characters, no text, no watermark",

@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.config_loader import load_affixes, load_disciples, load_recipes
+from app.config_loader import load_affixes, load_disciples, load_materials, load_recipes
 
 router = APIRouter(tags=["catalog"])
 
@@ -17,6 +17,7 @@ async def catalog() -> dict:
                 "title": item.get("title", ""),
                 "lean": item["lean"],
                 "rarity": item["rarity"],
+                "unlock_cost": item.get("unlock_cost", {}),
             }
             for key, item in load_disciples().items()
         },
@@ -25,7 +26,15 @@ async def catalog() -> dict:
             for item in load_affixes()
         },
         "recipes": {
-            key: {"name": item["name"], "kind": item["kind"]}
+            key: {
+                "name": item["name"],
+                "kind": item["kind"],
+                "inputs": item["inputs"],
+                "special": item.get("special"),
+            }
             for key, item in load_recipes().items()
+        },
+        "materials": {
+            key: item["name"] for key, item in load_materials().items()
         },
     }

@@ -42,9 +42,36 @@ export interface DutyPayload {
 }
 
 export interface Catalog {
-  disciples: Record<string, { name: string; title: string; lean: string; rarity: number }>
+  disciples: Record<
+    string,
+    { name: string; title: string; lean: string; rarity: number; unlock_cost: { reputation: number } }
+  >
   affixes: Record<string, { name: string; group: string }>
-  recipes: Record<string, { name: string; kind: string }>
+  recipes: Record<
+    string,
+    { name: string; kind: string; inputs: Record<string, number>; special?: string | null }
+  >
+  materials: Record<string, string>
+}
+
+export type DiscipleState = Schemas['DiscipleState']
+
+export interface DutyChange {
+  revision: number
+  duty: { disciple_id: string; assigned_at: string }[]
+  rates: Record<string, number>
+}
+
+export interface RecruitResult {
+  revision: number
+  reputation: number
+  disciple: DiscipleState
+}
+
+export interface CraftResult {
+  revision: number
+  bonuses: Record<string, number>
+  inventory: Record<string, number>
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -99,4 +126,48 @@ export const api = {
 
   settleRun: (slotId: number) =>
     request<RunSettleResult>(`/saves/${slotId}/run/settle`, { method: 'POST' }),
+
+  assignDuty: (slotId: number, revision: number, discipleId: string) =>
+    request<DutyChange>(`/saves/${slotId}/duty/assign`, {
+      method: 'POST',
+      body: JSON.stringify({ revision, disciple_id: discipleId }),
+    }),
+
+  unassignDuty: (slotId: number, revision: number, discipleId: string) =>
+    request<DutyChange>(`/saves/${slotId}/duty/unassign`, {
+      method: 'POST',
+      body: JSON.stringify({ revision, disciple_id: discipleId }),
+    }),
+
+  recruit: (slotId: number, templateId: string) =>
+    request<RecruitResult>(`/saves/${slotId}/recruit`, {
+      method: 'POST',
+      body: JSON.stringify({ template_id: templateId }),
+    }),
+
+  craft: (slotId: number, recipeId: string, target: string | null) =>
+    request<CraftResult>(`/saves/${slotId}/craft`, {
+      method: 'POST',
+      body: JSON.stringify({ recipe_id: recipeId, target }),
+    }),
+
+  duplicateSave: (slotId: number, name: string) =>
+    request<{ slot_id: number }>(`/saves/${slotId}/duplicate`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    }),
+
+  deleteSave: (slotId: number) =>
+    request<{ ok: boolean }>(`/saves/${slotId}`, { method: 'DELETE' }),
+
+  exportSave: (slotId: number) =>
+    request<{ name: string; schema_version: number; state: GameState }>(
+      `/saves/${slotId}/export`,
+    ),
+
+  importSave: (payload: unknown) =>
+    request<{ slot_id: number }>('/saves/import', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 }
