@@ -52,6 +52,7 @@ bash tools/gen_types.sh
 |---|---|
 | 重新生成接口类型 | `bash tools/gen_types.sh` |
 | 数据库迁移 | `cd backend && .venv/Scripts/python.exe -m alembic upgrade head` |
+| 处理立绘资产 | `backend/.venv/Scripts/python.exe tools/normalize_assets.py` |
 | 校验配置引用 | `python tools/validate_config.py` |
 | 后端测试 | `cd backend && .venv/Scripts/python.exe -m pytest -q` |
 | 前端构建 | `cd frontend && npm run build` |

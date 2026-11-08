@@ -1,0 +1,24 @@
+{
+  "preset": "pixel_extra",
+  "notes": "补齐早期三名弟子的像素版，替换旧水墨图",
+  "items": [
+    {
+      "key": "pixel_zhugeliang",
+      "kind": "portrait",
+      "file": "zhugeliang.png",
+      "subject": "Zhuge Liang, Three Kingdoms strategist, calm scholar in his thirties, long black hair tied with a plain cloth band, light jade-green robe with wide sleeves, holding a feather fan, serene thoughtful expression"
+    },
+    {
+      "key": "pixel_nezha",
+      "kind": "portrait",
+      "file": "nezha.png",
+      "subject": "Nezha, Chinese mythology youth deity, confident teenage warrior, hair in two buns, red sash and light armor over a short robe, holding a spear, energetic stance"
+    },
+    {
+      "key": "pixel_libai",
+      "kind": "portrait",
+      "file": "libai.png",
+      "subject": "Li Bai, Tang dynasty poet, lean wandering swordsman in his forties, loose white robe with ink-wash stains, wine gourd at the waist, sword on the back, relaxed half-smile, wind-blown sleeves"
+    }
+  ]
+}

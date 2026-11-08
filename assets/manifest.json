@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "calls": 13,
+  "calls": 23,
   "items": [
     {
       "key": "disciple_zhugeliang",
@@ -298,7 +298,277 @@
         }
       },
       "created_at": "2026-11-08T14:13:25+00:00"
+    },
+    {
+      "key": "disciple_yangjian",
+      "kind": "portrait",
+      "file": "assets/raw/yangjian.png",
+      "hash": "2ce226c1ef3ba44d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Erlang Shen Yang Jian, Chinese mythic warrior deity, silver armor, a third eye on the forehead, holding a three-pointed double-edged lance, commanding expression",
+      "bytes": 1876667,
+      "elapsed_ms": 68015,
+      "usage": {
+        "input_tokens": 92,
+        "output_tokens": 200,
+        "total_tokens": 292,
+        "input_tokens_details": {
+          "text_tokens": 92,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 200,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:14:33+00:00"
+    },
+    {
+      "key": "disciple_change",
+      "kind": "portrait",
+      "file": "assets/raw/change.png",
+      "hash": "51b7b2a36296a79a",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Chang'e, Chinese moon goddess, flowing pale blue and white silk robes, very long sleeves, holding a jade rabbit, serene expression",
+      "bytes": 1807182,
+      "elapsed_ms": 84750,
+      "usage": {
+        "input_tokens": 84,
+        "output_tokens": 200,
+        "total_tokens": 284,
+        "input_tokens_details": {
+          "text_tokens": 84,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 200,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:15:57+00:00"
+    },
+    {
+      "key": "disciple_houyi",
+      "kind": "portrait",
+      "file": "assets/raw/houyi.png",
+      "hash": "619bbd6c4a33c42d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Hou Yi, Chinese mythic archer, leather and bronze armor, holding a tall bow, determined expression",
+      "bytes": 1647370,
+      "elapsed_ms": 71651,
+      "usage": {
+        "input_tokens": 79,
+        "output_tokens": 199,
+        "total_tokens": 278,
+        "input_tokens_details": {
+          "text_tokens": 79,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 199,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:17:09+00:00"
+    },
+    {
+      "key": "disciple_jingwei",
+      "kind": "portrait",
+      "file": "assets/raw/jingwei.png",
+      "hash": "ce89de6ac1b545fc",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Jingwei, Chinese mythic bird maiden, simple feathered cloak over plain robe, carrying small stones in both hands, gentle determined expression",
+      "bytes": 1616141,
+      "elapsed_ms": 44814,
+      "usage": {
+        "input_tokens": 85,
+        "output_tokens": 214,
+        "total_tokens": 299,
+        "input_tokens_details": {
+          "text_tokens": 85,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 214,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:17:54+00:00"
+    },
+    {
+      "key": "disciple_baisuzhen",
+      "kind": "portrait",
+      "file": "assets/raw/baisuzhen.png",
+      "hash": "d05e0b9676da5ed2",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Bai Suzhen, white snake spirit in human form, flowing white robe, jade hairpin, calm graceful expression",
+      "bytes": 1470181,
+      "elapsed_ms": 72804,
+      "usage": {
+        "input_tokens": 80,
+        "output_tokens": 208,
+        "total_tokens": 288,
+        "input_tokens_details": {
+          "text_tokens": 80,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 208,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:19:07+00:00"
+    },
+    {
+      "key": "disciple_dufu",
+      "kind": "portrait",
+      "file": "assets/raw/dufu.png",
+      "hash": "eb891c8c174f8fef",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Du Fu, Tang dynasty poet, worn gray blue robe, holding a paper scroll, weary thoughtful expression",
+      "bytes": 1455580,
+      "elapsed_ms": 70870,
+      "usage": {
+        "input_tokens": 78,
+        "output_tokens": 205,
+        "total_tokens": 283,
+        "input_tokens_details": {
+          "text_tokens": 78,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 205,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:20:18+00:00"
+    },
+    {
+      "key": "disciple_zhangheng",
+      "kind": "portrait",
+      "file": "assets/raw/zhangheng.png",
+      "hash": "befadfc2dfe68f3a",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Zhang Heng, Han dynasty scholar, dark blue robe, holding a small bronze seismoscope model, focused expression",
+      "bytes": 1352491,
+      "elapsed_ms": 73551,
+      "usage": {
+        "input_tokens": 80,
+        "output_tokens": 200,
+        "total_tokens": 280,
+        "input_tokens_details": {
+          "text_tokens": 80,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 200,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:21:31+00:00"
+    },
+    {
+      "key": "disciple_yuefei",
+      "kind": "portrait",
+      "file": "assets/raw/yuefei.png",
+      "hash": "5f0b2bf3de9b7816",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Yue Fei, Song dynasty general, heavy armor with a red cloak, holding a spear, resolute expression",
+      "bytes": 1596681,
+      "elapsed_ms": 41483,
+      "usage": {
+        "input_tokens": 80,
+        "output_tokens": 211,
+        "total_tokens": 291,
+        "input_tokens_details": {
+          "text_tokens": 80,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 211,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:22:13+00:00"
+    },
+    {
+      "key": "pixel_zhugeliang",
+      "kind": "portrait",
+      "file": "assets/raw/zhugeliang.png",
+      "hash": "175c137e4742834d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Zhuge Liang, Three Kingdoms strategist, calm scholar in his thirties, long black hair tied with a plain cloth band, light jade-green robe with wide sleeves, holding a feather fan, serene thoughtful expression",
+      "bytes": 1459059,
+      "elapsed_ms": 134546,
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 198,
+        "total_tokens": 298,
+        "input_tokens_details": {
+          "text_tokens": 100,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 198,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:25:11+00:00"
+    },
+    {
+      "key": "pixel_libai",
+      "kind": "portrait",
+      "file": "assets/raw/libai.png",
+      "hash": "1394c5e5a308f366",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "pixel art character sprite, crisp hard pixel edges, no anti-aliasing, limited 16-color palette, muted jade green and ink-black tones, full body, standing, facing viewer, neutral expression, plain light warm-gray background, no text, no watermark, no border. Subject: Li Bai, Tang dynasty poet, lean wandering swordsman in his forties, loose white robe with ink-wash stains, wine gourd at the waist, sword on the back, relaxed half-smile, wind-blown sleeves",
+      "bytes": 1611110,
+      "elapsed_ms": 75286,
+      "usage": {
+        "input_tokens": 104,
+        "output_tokens": 215,
+        "total_tokens": 319,
+        "input_tokens_details": {
+          "text_tokens": 104,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 215,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-08T14:26:26+00:00"
     }
   ],
-  "updated_at": "2026-11-08T14:13:25+00:00"
+  "updated_at": "2026-11-08T14:26:26+00:00"
 }
