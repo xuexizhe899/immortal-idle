@@ -1,0 +1,84 @@
+{
+  "preset": "disciples",
+  "notes": "补齐 13 名弟子的立绘，风格沿用 style.json 的立绘段落",
+  "items": [
+    {
+      "key": "disciple_guanyu",
+      "kind": "portrait",
+      "file": "guanyu.png",
+      "subject": "Guan Yu, Three Kingdoms general, long green robe over lamellar armor, long black beard, holding a guandao polearm, stern dignified expression"
+    },
+    {
+      "key": "disciple_zhangfei",
+      "kind": "portrait",
+      "file": "zhangfei.png",
+      "subject": "Zhang Fei, Three Kingdoms general, dark heavy armor, wild beard, holding a serpent spear, fierce expression"
+    },
+    {
+      "key": "disciple_zhaoyun",
+      "kind": "portrait",
+      "file": "zhaoyun.png",
+      "subject": "Zhao Yun, young Three Kingdoms general, white and silver armor, white cloak, holding a spear, calm confident expression"
+    },
+    {
+      "key": "disciple_zhouyu",
+      "kind": "portrait",
+      "file": "zhouyu.png",
+      "subject": "Zhou Yu, Three Kingdoms strategist general, elegant dark red and black robe, holding a feather fan, refined expression"
+    },
+    {
+      "key": "disciple_huatuo",
+      "kind": "portrait",
+      "file": "huatuo.png",
+      "subject": "Hua Tuo, ancient Chinese physician, simple gray robe, medicine box and herb bundle, kind elderly expression"
+    },
+    {
+      "key": "disciple_yangjian",
+      "kind": "portrait",
+      "file": "yangjian.png",
+      "subject": "Erlang Shen Yang Jian, Chinese mythic warrior deity, silver armor, a third eye on the forehead, holding a three-pointed double-edged lance, commanding expression"
+    },
+    {
+      "key": "disciple_change",
+      "kind": "portrait",
+      "file": "change.png",
+      "subject": "Chang'e, Chinese moon goddess, flowing pale blue and white silk robes, very long sleeves, holding a jade rabbit, serene expression"
+    },
+    {
+      "key": "disciple_houyi",
+      "kind": "portrait",
+      "file": "houyi.png",
+      "subject": "Hou Yi, Chinese mythic archer, leather and bronze armor, holding a tall bow, determined expression"
+    },
+    {
+      "key": "disciple_jingwei",
+      "kind": "portrait",
+      "file": "jingwei.png",
+      "subject": "Jingwei, Chinese mythic bird maiden, simple feathered cloak over plain robe, carrying small stones in both hands, gentle determined expression"
+    },
+    {
+      "key": "disciple_baisuzhen",
+      "kind": "portrait",
+      "file": "baisuzhen.png",
+      "subject": "Bai Suzhen, white snake spirit in human form, flowing white robe, jade hairpin, calm graceful expression"
+    },
+    {
+      "key": "disciple_dufu",
+      "kind": "portrait",
+      "file": "dufu.png",
+      "subject": "Du Fu, Tang dynasty poet, worn gray blue robe, holding a paper scroll, weary thoughtful expression"
+    },
+    {
+      "key": "disciple_zhangheng",
+      "kind": "portrait",
+      "file": "zhangheng.png",
+      "subject": "Zhang Heng, Han dynasty scholar, dark blue robe, holding a small bronze seismoscope model, focused expression"
+    },
+    {
+      "key": "disciple_yuefei",
+      "kind": "portrait",
+      "file": "yuefei.png",
+      "subject": "Yue Fei, Song dynasty general, heavy armor with a red cloak, holding a spear, resolute expression"
+    }
+  ]
+}

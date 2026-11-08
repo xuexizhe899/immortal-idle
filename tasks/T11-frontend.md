@@ -34,3 +34,15 @@
 
 ## 注意
 前端只做"展示 + 发指令"。任何"先在本地算一遍再同步"的写法都会制造第二状态源，直接违反本卡。
+
+## 执行记录（2026-11-08，骨架）
+- `api/client.ts`：按 generated 类型封装接口，统一错误处理（取出 `detail`）
+- `stores/game.ts`：单档状态（slot / revision / state / run / catalog），所有操作走 API，前端不做结算与随机
+- `views/HomeView.vue`：资源栏、弟子网格、组队出征、收菜
+- `views/RunView.vue`：血条、已选词条、节点选择、三选一、结算
+- `components/DiscipleCard.vue`：立绘（缺图时显示首字占位）、出征中 / 伤势标签
+- 新增 `GET /api/catalog` 提供弟子、词条、配方中文名，前端不硬编码
+- 修复：`load_affixes()` 返回列表却按字典取，导致 catalog 500
+- 修复：材料战利品出现小数（19.05），结算时对非资源项取整
+- 端到端跑通：3 人队 → 18 层失败 → 结算 244.5 修为 / 95 灵石 / 19 灵草
+- 未做：值守编制面板、招募、炼丹 UI、多档切换、PixiJS 演出

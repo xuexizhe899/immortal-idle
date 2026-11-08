@@ -308,6 +308,9 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
         if victory
         else defeat_loot(run.pending_loot, cleared, mode)
     )
+    for key in list(loot):
+        if key not in ("cultivation", "spirit_stone"):
+            loot[key] = int(loot[key])
 
     state.resources.cultivation += loot.get("cultivation", 0.0)
     state.resources.spirit_stone += loot.get("spirit_stone", 0.0)
