@@ -1,0 +1,14 @@
+{
+  "id": "huatuo-art",
+  "name": "麻沸散",
+  "type": "active",
+  "description": "华佗的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "battle"
+    }
+  ]
+}

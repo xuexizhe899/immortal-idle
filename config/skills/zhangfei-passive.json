@@ -1,0 +1,14 @@
+{
+  "id": "zhangfei-passive",
+  "name": "据水断桥",
+  "type": "passive",
+  "description": "张飞的被动，提升hp。",
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "permanent"
+    }
+  ]
+}

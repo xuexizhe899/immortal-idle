@@ -1,0 +1,23 @@
+{
+  "id": "zhangfei",
+  "name": "张飞",
+  "title": "燕人",
+  "origin": "sanguo",
+  "rarity": 2,
+  "lean": "defense",
+  "asset_id": "zhangfei",
+  "base_stats": {
+    "hp": 140,
+    "atk": 15,
+    "def": 18,
+    "spd": 9
+  },
+  "skill": "zhangfei-art",
+  "passive": "zhangfei-passive",
+  "bonds": [
+    "wuhu"
+  ],
+  "unlock_cost": {
+    "reputation": 140
+  }
+}

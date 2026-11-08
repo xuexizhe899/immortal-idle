@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from app.api.saves import get_repo
-from app.config_loader import load_affixes, load_disciples, load_modes
+from app.config_loader import load_affixes, load_bonds, load_disciples, load_modes
 from app.domain import run_engine
 from app.models.save import GameState
 from app.repositories.saves import SaveRepository
@@ -99,7 +99,9 @@ async def choose_node(
     """选择节点并自动战斗。"""
     state, revision = await load_slot(slot_id, repo)
     mode = tower_mode()
-    error = run_engine.choose(state, payload.choice, load_disciples(), load_affixes(), mode)
+    error = run_engine.choose(
+        state, payload.choice, load_disciples(), load_affixes(), mode, load_bonds()
+    )
     if error:
         raise HTTPException(status_code=400, detail=error)
 

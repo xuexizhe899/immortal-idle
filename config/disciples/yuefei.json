@@ -1,0 +1,21 @@
+{
+  "id": "yuefei",
+  "name": "岳飞",
+  "title": "精忠",
+  "origin": "history",
+  "rarity": 3,
+  "lean": "defense",
+  "asset_id": "yuefei",
+  "base_stats": {
+    "hp": 145,
+    "atk": 16,
+    "def": 20,
+    "spd": 10
+  },
+  "skill": "yuefei-art",
+  "passive": "yuefei-passive",
+  "bonds": [],
+  "unlock_cost": {
+    "reputation": 180
+  }
+}

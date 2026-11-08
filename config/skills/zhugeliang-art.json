@@ -1,0 +1,14 @@
+{
+  "id": "zhugeliang-art",
+  "name": "八阵图",
+  "type": "active",
+  "description": "诸葛亮的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.18,
+      "scope": "battle"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "guanyu",
+  "name": "关羽",
+  "title": "武圣",
+  "origin": "sanguo",
+  "rarity": 3,
+  "lean": "attack",
+  "asset_id": "guanyu",
+  "base_stats": {
+    "hp": 120,
+    "atk": 22,
+    "def": 12,
+    "spd": 11
+  },
+  "skill": "guanyu-art",
+  "passive": "guanyu-passive",
+  "bonds": [
+    "wuhu"
+  ],
+  "unlock_cost": {
+    "reputation": 220
+  }
+}

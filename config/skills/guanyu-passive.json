@@ -1,0 +1,14 @@
+{
+  "id": "guanyu-passive",
+  "name": "武圣",
+  "type": "passive",
+  "description": "关羽的被动，提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "permanent"
+    }
+  ]
+}

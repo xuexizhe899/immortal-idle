@@ -1,0 +1,14 @@
+{
+  "id": "change-passive",
+  "name": "广寒",
+  "type": "passive",
+  "description": "嫦娥的被动，提升stamina_rate。",
+  "effects": [
+    {
+      "stat": "stamina_rate",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "duty"
+    }
+  ]
+}

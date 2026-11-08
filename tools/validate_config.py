@@ -71,6 +71,14 @@ def load_collection(config_dir: Path, name: str, errors: list[str]) -> dict[str,
     return index
 
 
+def load_pending(config_dir: Path) -> set[str]:
+    """读取待生成资产清单；文件不存在时视为空。"""
+    path = config_dir / "assets_pending.json"
+    if not path.exists():
+        return set()
+    return set(json.loads(path.read_text(encoding="utf-8")))
+
+
 def check_effects(container: dict, where: str, errors: list[str]) -> None:
     """校验 effects 数组，逐个检查 stat / mode / scope / value。"""
     effects = container.get("effects", [])
@@ -104,6 +112,7 @@ def validate(
     config_dir = config_dir or CONFIG_DIR
     assets_dir = assets_dir or ASSETS_DIR
     errors: list[str] = []
+    pending = load_pending(config_dir)
 
     skills = load_collection(config_dir, "skills", errors)
     disciples = load_collection(config_dir, "disciples", errors)
@@ -174,12 +183,15 @@ def validate(
                     )
 
         asset_id = disciple.get("asset_id")
-        if not isinstance(asset_id, str) or not (
+        if not isinstance(asset_id, str):
+            errors.append(f"{where}: asset_id 必须是字符串")
+        elif asset_id not in pending and not (
             assets_dir / f"{asset_id}.png"
         ).is_file():
             errors.append(
                 f"{where}: asset_id '{asset_id}' 缺少 "
-                f"frontend/public/assets/{asset_id}.png"
+                f"frontend/public/assets/{asset_id}.png，"
+                f"也未登记在 config/assets_pending.json"
             )
 
     for bond_id, bond in bonds.items():
@@ -270,6 +282,9 @@ def main() -> int:
         if (CONFIG_DIR / name).is_dir()
     )
     print(f"[config] ok: {summary}")
+    pending = load_pending(CONFIG_DIR)
+    if pending:
+        print(f"[config] 待生成资产 {len(pending)} 个：{', '.join(sorted(pending))}")
     return 0
 
 

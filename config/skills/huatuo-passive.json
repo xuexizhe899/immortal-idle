@@ -1,0 +1,14 @@
+{
+  "id": "huatuo-passive",
+  "name": "青囊",
+  "type": "passive",
+  "description": "华佗的被动，提升pill_rate。",
+  "effects": [
+    {
+      "stat": "pill_rate",
+      "mode": "add_pct",
+      "value": 0.15,
+      "scope": "duty"
+    }
+  ]
+}

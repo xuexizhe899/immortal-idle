@@ -1,0 +1,14 @@
+{
+  "id": "zhangfei-art",
+  "name": "燕人咆哮",
+  "type": "active",
+  "description": "张飞的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.2,
+      "scope": "battle"
+    }
+  ]
+}

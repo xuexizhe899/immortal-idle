@@ -1,0 +1,23 @@
+{
+  "id": "dufu",
+  "name": "杜甫",
+  "title": "诗史",
+  "origin": "history",
+  "rarity": 1,
+  "lean": "support",
+  "asset_id": "dufu",
+  "base_stats": {
+    "hp": 92,
+    "atk": 12,
+    "def": 11,
+    "spd": 10
+  },
+  "skill": "dufu-art",
+  "passive": "dufu-passive",
+  "bonds": [
+    "shisheng"
+  ],
+  "unlock_cost": {
+    "reputation": 80
+  }
+}

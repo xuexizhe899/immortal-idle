@@ -1,0 +1,14 @@
+{
+  "id": "zhouyu-passive",
+  "name": "儒将",
+  "type": "passive",
+  "description": "周瑜的被动，提升stamina_rate。",
+  "effects": [
+    {
+      "stat": "stamina_rate",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "duty"
+    }
+  ]
+}

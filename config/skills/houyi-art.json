@@ -1,0 +1,14 @@
+{
+  "id": "houyi-art",
+  "name": "射日",
+  "type": "active",
+  "description": "后羿的主动招式，出征时提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.2,
+      "scope": "battle"
+    }
+  ]
+}

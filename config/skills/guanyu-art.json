@@ -1,0 +1,14 @@
+{
+  "id": "guanyu-art",
+  "name": "青龙偃月",
+  "type": "active",
+  "description": "关羽的主动招式，出征时提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.25,
+      "scope": "battle"
+    }
+  ]
+}

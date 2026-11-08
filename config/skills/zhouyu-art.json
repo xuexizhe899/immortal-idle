@@ -1,0 +1,14 @@
+{
+  "id": "zhouyu-art",
+  "name": "赤壁火攻",
+  "type": "active",
+  "description": "周瑜的主动招式，出征时提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.15,
+      "scope": "battle"
+    }
+  ]
+}

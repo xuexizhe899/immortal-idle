@@ -1,0 +1,17 @@
+{
+  "id": "fengshen",
+  "name": "封神",
+  "members": [
+    "nezha",
+    "yangjian"
+  ],
+  "requires": 2,
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "run"
+    }
+  ]
+}

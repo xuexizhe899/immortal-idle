@@ -1,0 +1,14 @@
+{
+  "id": "libai-art",
+  "name": "将进酒",
+  "type": "active",
+  "description": "李白的主动招式，出征时提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.16,
+      "scope": "battle"
+    }
+  ]
+}

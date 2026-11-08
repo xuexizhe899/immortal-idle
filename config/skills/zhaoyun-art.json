@@ -1,0 +1,14 @@
+{
+  "id": "zhaoyun-art",
+  "name": "龙胆",
+  "type": "active",
+  "description": "赵云的主动招式，出征时提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.2,
+      "scope": "battle"
+    }
+  ]
+}

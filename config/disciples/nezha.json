@@ -6,8 +6,18 @@
   "rarity": 3,
   "lean": "attack",
   "asset_id": "nezha",
-  "base_stats": { "hp": 110, "atk": 18, "def": 8, "spd": 13 },
-  "skill": "huojian",
-  "passive": "lianshen",
-  "bonds": []
+  "base_stats": {
+    "hp": 110,
+    "atk": 18,
+    "def": 8,
+    "spd": 13
+  },
+  "skill": "nezha-art",
+  "passive": "nezha-passive",
+  "bonds": [
+    "fengshen"
+  ],
+  "unlock_cost": {
+    "reputation": 180
+  }
 }

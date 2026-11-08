@@ -36,6 +36,8 @@ MODE = {
     },
 }
 
+BONDS: dict[str, dict] = {}
+
 TEMPLATES = {
     "d_strong": {
         "id": "d_strong",
@@ -122,7 +124,7 @@ def test_choose_appends_node_and_deals_damage() -> None:
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
     hp_before = state.active_run.hp
 
-    assert choose(state, 0, TEMPLATES, [], MODE) is None
+    assert choose(state, 0, TEMPLATES, [], MODE, BONDS) is None
     assert len(state.active_run.nodes) == 1
     assert state.active_run.hp < hp_before
     assert state.active_run.pending_loot["cultivation"] > 0
@@ -132,18 +134,18 @@ def test_choose_requires_affix_pick() -> None:
     """有待选词条时不能再选节点。"""
     state = make_state()
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
-    choose(state, 0, TEMPLATES, AFFIXES, MODE)
+    choose(state, 0, TEMPLATES, AFFIXES, MODE, BONDS)
 
     assert state.active_run.affix_pending is True
     assert run_status(state.active_run, MODE) == "choosing_affix"
-    assert choose(state, 0, TEMPLATES, AFFIXES, MODE) == "请先选择词条"
+    assert choose(state, 0, TEMPLATES, AFFIXES, MODE, BONDS) == "请先选择词条"
 
 
 def test_pick_affix_advances_choices() -> None:
     """选完词条后生成下一层候选。"""
     state = make_state()
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
-    choose(state, 0, TEMPLATES, AFFIXES, MODE)
+    choose(state, 0, TEMPLATES, AFFIXES, MODE, BONDS)
     option = state.active_run.affix_options[0]
 
     assert pick_affix(state, option, MODE) is None
@@ -156,7 +158,7 @@ def test_weak_party_is_defeated() -> None:
     """战力不足时血量归零，状态转为失败。"""
     state = make_state("d_weak")
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
-    choose(state, 0, TEMPLATES, [], MODE)
+    choose(state, 0, TEMPLATES, [], MODE, BONDS)
 
     assert state.active_run.hp == 0
     assert run_status(state.active_run, MODE) == "defeated"
@@ -166,9 +168,9 @@ def test_choose_rejects_after_defeat() -> None:
     """失败后不能再选节点，必须先结算。"""
     state = make_state("d_weak")
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
-    choose(state, 0, TEMPLATES, [], MODE)
+    choose(state, 0, TEMPLATES, [], MODE, BONDS)
 
-    assert "已结束" in (choose(state, 0, TEMPLATES, [], MODE) or "")
+    assert "已结束" in (choose(state, 0, TEMPLATES, [], MODE, BONDS) or "")
 
 
 def test_defeat_settles_half_loot() -> None:
@@ -176,7 +178,7 @@ def test_defeat_settles_half_loot() -> None:
     state = make_state("d_weak")
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
     state.active_run.pending_loot = {"cultivation": 100.0}
-    choose(state, 0, TEMPLATES, [], MODE)
+    choose(state, 0, TEMPLATES, [], MODE, BONDS)
 
     result = settle_run(state, MODE, NOW)
 
@@ -198,7 +200,7 @@ def test_clear_settles_full_loot() -> None:
     state.active_run.choices = [RunNode(kind="boss", enemy="boss_9", power=1)]
     state.active_run.pending_loot = {"cultivation": 100.0}
 
-    choose(state, 0, TEMPLATES, [], MODE)
+    choose(state, 0, TEMPLATES, [], MODE, BONDS)
     result = settle_run(state, MODE, NOW)
 
     assert result["victory"] is True
@@ -227,7 +229,7 @@ def test_same_seed_and_decisions_replay_identically() -> None:
             if state.active_run.affix_pending:
                 pick_affix(state, state.active_run.affix_options[0], MODE)
             else:
-                choose(state, 0, TEMPLATES, AFFIXES, MODE)
+                choose(state, 0, TEMPLATES, AFFIXES, MODE, BONDS)
         return len(state.active_run.nodes), state.active_run.hp
 
     assert play(11) == play(11)
@@ -241,7 +243,7 @@ def test_node_count_comes_from_mode() -> None:
 
     state.active_run.nodes = [RunNode(kind="battle", enemy="battle_0", power=1)]
     state.active_run.choices = [RunNode(kind="boss", enemy="boss_1", power=1)]
-    choose(state, 0, TEMPLATES, [], short)
+    choose(state, 0, TEMPLATES, [], short, BONDS)
 
     assert run_status(state.active_run, short) == "cleared"
 
@@ -268,7 +270,7 @@ def test_run_survives_serialization() -> None:
     """出征中途存档再读回，节点、游标与待选词条都不丢，并能继续推进。"""
     state = make_state()
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
-    choose(state, 0, TEMPLATES, AFFIXES, MODE)
+    choose(state, 0, TEMPLATES, AFFIXES, MODE, BONDS)
     original_cursor = state.active_run.rng_cursor
 
     restored = GameState.model_validate_json(state.model_dump_json())

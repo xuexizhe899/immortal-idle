@@ -1,0 +1,14 @@
+{
+  "id": "yuefei-art",
+  "name": "精忠",
+  "type": "active",
+  "description": "岳飞的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.22,
+      "scope": "battle"
+    }
+  ]
+}

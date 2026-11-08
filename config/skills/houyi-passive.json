@@ -1,0 +1,14 @@
+{
+  "id": "houyi-passive",
+  "name": "神弓",
+  "type": "passive",
+  "description": "后羿的被动，提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.08,
+      "scope": "permanent"
+    }
+  ]
+}

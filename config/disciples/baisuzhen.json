@@ -1,0 +1,21 @@
+{
+  "id": "baisuzhen",
+  "name": "白素贞",
+  "title": "千年",
+  "origin": "myth",
+  "rarity": 2,
+  "lean": "defense",
+  "asset_id": "baisuzhen",
+  "base_stats": {
+    "hp": 135,
+    "atk": 14,
+    "def": 17,
+    "spd": 10
+  },
+  "skill": "baisuzhen-art",
+  "passive": "baisuzhen-passive",
+  "bonds": [],
+  "unlock_cost": {
+    "reputation": 140
+  }
+}

@@ -41,6 +41,8 @@ MODE = {
     },
 }
 
+BONDS: dict[str, dict] = {}
+
 TEMPLATES = {
     "d_strong": {
         "id": "d_strong",
@@ -122,7 +124,7 @@ def test_defeat_attaches_injury() -> None:
     """失败结算后队伍获得一层伤势。"""
     state = make_state("d_weak")
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
-    choose(state, 0, TEMPLATES, [], MODE)
+    choose(state, 0, TEMPLATES, [], MODE, BONDS)
 
     settle_run(state, MODE, NOW)
 
@@ -134,7 +136,7 @@ def test_defeat_grants_floor_reward() -> None:
     """首层失败也有保底收益，不会断粮。"""
     state = make_state("d_weak")
     start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
-    choose(state, 0, TEMPLATES, [], MODE)
+    choose(state, 0, TEMPLATES, [], MODE, BONDS)
 
     result = settle_run(state, MODE, NOW)
 
@@ -152,7 +154,7 @@ def test_victory_does_not_injure() -> None:
     ]
     state.active_run.choices = [RunNode(kind="boss", enemy="boss_9", power=1)]
 
-    choose(state, 0, TEMPLATES, [], MODE)
+    choose(state, 0, TEMPLATES, [], MODE, BONDS)
     settle_run(state, MODE, NOW)
 
     assert state.disciples[0].injury_stacks == 0

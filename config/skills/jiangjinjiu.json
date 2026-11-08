@@ -1,9 +1,0 @@
-{
-  "id": "jiangjinjiu",
-  "name": "将进酒",
-  "type": "active",
-  "description": "饮酒长歌，回复自身并短暂提升攻击。",
-  "effects": [
-    { "stat": "atk", "mode": "add_pct", "value": 0.16, "scope": "battle" }
-  ]
-}

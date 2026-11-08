@@ -1,0 +1,18 @@
+{
+  "id": "wuhu",
+  "name": "五虎上将",
+  "members": [
+    "guanyu",
+    "zhangfei",
+    "zhaoyun"
+  ],
+  "requires": 3,
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "run"
+    }
+  ]
+}

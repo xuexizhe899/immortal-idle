@@ -1,9 +1,0 @@
-{
-  "id": "bagua",
-  "name": "八阵图",
-  "type": "active",
-  "description": "以阵法护住同阵弟子，短时间内大幅提升防御。",
-  "effects": [
-    { "stat": "def", "mode": "add_pct", "value": 0.18, "scope": "battle" }
-  ]
-}

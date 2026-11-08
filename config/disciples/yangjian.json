@@ -1,0 +1,23 @@
+{
+  "id": "yangjian",
+  "name": "杨戬",
+  "title": "二郎真君",
+  "origin": "myth",
+  "rarity": 3,
+  "lean": "attack",
+  "asset_id": "yangjian",
+  "base_stats": {
+    "hp": 118,
+    "atk": 21,
+    "def": 12,
+    "spd": 12
+  },
+  "skill": "yangjian-art",
+  "passive": "yangjian-passive",
+  "bonds": [
+    "fengshen"
+  ],
+  "unlock_cost": {
+    "reputation": 200
+  }
+}

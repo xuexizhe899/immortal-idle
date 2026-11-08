@@ -1,0 +1,14 @@
+{
+  "id": "zhangheng-art",
+  "name": "浑天",
+  "type": "active",
+  "description": "张衡的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "battle"
+    }
+  ]
+}

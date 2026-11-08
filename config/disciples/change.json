@@ -1,0 +1,23 @@
+{
+  "id": "change",
+  "name": "嫦娥",
+  "title": "月宫",
+  "origin": "myth",
+  "rarity": 2,
+  "lean": "support",
+  "asset_id": "change",
+  "base_stats": {
+    "hp": 98,
+    "atk": 13,
+    "def": 13,
+    "spd": 12
+  },
+  "skill": "change-art",
+  "passive": "change-passive",
+  "bonds": [
+    "benyue"
+  ],
+  "unlock_cost": {
+    "reputation": 140
+  }
+}

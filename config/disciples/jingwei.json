@@ -1,0 +1,21 @@
+{
+  "id": "jingwei",
+  "name": "精卫",
+  "title": "衔石",
+  "origin": "myth",
+  "rarity": 1,
+  "lean": "craft",
+  "asset_id": "jingwei",
+  "base_stats": {
+    "hp": 90,
+    "atk": 13,
+    "def": 8,
+    "spd": 12
+  },
+  "skill": "jingwei-art",
+  "passive": "jingwei-passive",
+  "bonds": [],
+  "unlock_cost": {
+    "reputation": 80
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "zhaoyun",
+  "name": "赵云",
+  "title": "常山",
+  "origin": "sanguo",
+  "rarity": 3,
+  "lean": "attack",
+  "asset_id": "zhaoyun",
+  "base_stats": {
+    "hp": 115,
+    "atk": 20,
+    "def": 11,
+    "spd": 14
+  },
+  "skill": "zhaoyun-art",
+  "passive": "zhaoyun-passive",
+  "bonds": [
+    "wuhu"
+  ],
+  "unlock_cost": {
+    "reputation": 200
+  }
+}

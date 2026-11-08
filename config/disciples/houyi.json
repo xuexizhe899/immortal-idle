@@ -1,0 +1,23 @@
+{
+  "id": "houyi",
+  "name": "后羿",
+  "title": "射日",
+  "origin": "myth",
+  "rarity": 2,
+  "lean": "attack",
+  "asset_id": "houyi",
+  "base_stats": {
+    "hp": 105,
+    "atk": 19,
+    "def": 9,
+    "spd": 13
+  },
+  "skill": "houyi-art",
+  "passive": "houyi-passive",
+  "bonds": [
+    "benyue"
+  ],
+  "unlock_cost": {
+    "reputation": 150
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "baisuzhen-passive",
+  "name": "千年道行",
+  "type": "passive",
+  "description": "白素贞的被动，提升hp。",
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "permanent"
+    }
+  ]
+}

@@ -19,6 +19,7 @@ class Resources(BaseModel):
     cultivation: float = 0.0
     spirit_stone: float = 0.0
     stamina: float = 0.0
+    reputation: float = 0.0
 
 
 class DiscipleState(BaseModel):

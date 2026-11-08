@@ -1,0 +1,21 @@
+{
+  "id": "huatuo",
+  "name": "华佗",
+  "title": "神医",
+  "origin": "sanguo",
+  "rarity": 2,
+  "lean": "craft",
+  "asset_id": "huatuo",
+  "base_stats": {
+    "hp": 95,
+    "atk": 13,
+    "def": 10,
+    "spd": 12
+  },
+  "skill": "huatuo-art",
+  "passive": "huatuo-passive",
+  "bonds": [],
+  "unlock_cost": {
+    "reputation": 130
+  }
+}

@@ -6,8 +6,18 @@
   "rarity": 3,
   "lean": "support",
   "asset_id": "zhugeliang",
-  "base_stats": { "hp": 96, "atk": 12, "def": 9, "spd": 10 },
-  "skill": "bagua",
-  "passive": "mou-ding",
-  "bonds": []
+  "base_stats": {
+    "hp": 96,
+    "atk": 12,
+    "def": 9,
+    "spd": 10
+  },
+  "skill": "zhugeliang-art",
+  "passive": "zhugeliang-passive",
+  "bonds": [
+    "fensan"
+  ],
+  "unlock_cost": {
+    "reputation": 200
+  }
 }

@@ -1,0 +1,14 @@
+{
+  "id": "jingwei-passive",
+  "name": "填海",
+  "type": "passive",
+  "description": "精卫的被动，提升material_rate。",
+  "effects": [
+    {
+      "stat": "material_rate",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "duty"
+    }
+  ]
+}

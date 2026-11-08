@@ -1,0 +1,14 @@
+{
+  "id": "zhugeliang-passive",
+  "name": "谋定",
+  "type": "passive",
+  "description": "诸葛亮的被动，提升spirit_stone_rate。",
+  "effects": [
+    {
+      "stat": "spirit_stone_rate",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "duty"
+    }
+  ]
+}

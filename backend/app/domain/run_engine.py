@@ -28,18 +28,44 @@ class BattleResult:
     party_power: float
 
 
-def party_power(party: list[DiscipleState], templates: dict[str, dict]) -> float:
-    """队伍战力：攻击为主，防御与气血加权，等级线性放大。"""
+def bond_bonus(party_ids: list[str], bonds: dict[str, dict]) -> dict[str, float]:
+    """计算队伍触发的羁绊加成（加区百分比），只统计 run 作用域。"""
+    active = set(party_ids)
+    bonus: dict[str, float] = {}
+
+    for bond in bonds.values():
+        members = set(bond["members"])
+        if len(members & active) < bond.get("requires", len(members)):
+            continue
+        for effect in bond.get("effects", []):
+            if effect["scope"] != "run" or effect["mode"] != "add_pct":
+                continue
+            bonus[effect["stat"]] = bonus.get(effect["stat"], 0.0) + effect["value"]
+
+    return bonus
+
+
+def party_power(
+    party: list[DiscipleState],
+    templates: dict[str, dict],
+    bonus: dict[str, float] | None = None,
+) -> float:
+    """队伍战力：攻击为主，防御与气血加权，等级线性放大，可叠加羁绊加成。"""
+    bonus = bonus or {}
+    atk_mult = 1 + bonus.get("atk", 0.0)
+    def_mult = 1 + bonus.get("def", 0.0)
+    hp_mult = 1 + bonus.get("hp", 0.0)
+
     total = 0.0
     for disciple in party:
         template = templates.get(disciple.template_id)
         if template is None:
             continue
         base = template["base_stats"]
-        attack = base["atk"] * attack_multiplier(disciple.injury_stacks)
-        total += (attack + base["def"] * 0.5 + base["hp"] * 0.1) * (
-            1 + 0.1 * (disciple.level - 1)
-        )
+        attack = base["atk"] * attack_multiplier(disciple.injury_stacks) * atk_mult
+        total += (
+            attack + base["def"] * 0.5 * def_mult + base["hp"] * 0.1 * hp_mult
+        ) * (1 + 0.1 * (disciple.level - 1))
     return total
 
 
@@ -155,6 +181,7 @@ def choose(
     templates: dict[str, dict],
     affix_pool: list[dict],
     mode: dict,
+    bonds: dict[str, dict],
 ) -> str | None:
     """选择节点并自动战斗；成功返回 None，失败返回原因。"""
     run = state.active_run
@@ -174,7 +201,8 @@ def choose(
     run.choices = []
 
     party = [d for d in state.disciples if d.id in run.party]
-    result = fight(party_power(party, templates), node.power, run.hp)
+    strength = party_power(party, templates, bond_bonus(run.party, bonds))
+    result = fight(strength, node.power, run.hp)
     run.hp = max(0, run.hp - result.damage)
 
     if not result.won:

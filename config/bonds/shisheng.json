@@ -1,0 +1,17 @@
+{
+  "id": "shisheng",
+  "name": "诗圣",
+  "members": [
+    "libai",
+    "dufu"
+  ],
+  "requires": 2,
+  "effects": [
+    {
+      "stat": "cultivation_rate",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "duty"
+    }
+  ]
+}

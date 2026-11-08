@@ -1,0 +1,14 @@
+{
+  "id": "change-art",
+  "name": "月华",
+  "type": "active",
+  "description": "嫦娥的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.15,
+      "scope": "battle"
+    }
+  ]
+}

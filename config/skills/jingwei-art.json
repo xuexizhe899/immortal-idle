@@ -1,0 +1,14 @@
+{
+  "id": "jingwei-art",
+  "name": "衔石",
+  "type": "active",
+  "description": "精卫的主动招式，出征时提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "battle"
+    }
+  ]
+}

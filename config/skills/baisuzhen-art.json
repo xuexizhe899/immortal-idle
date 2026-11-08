@@ -1,0 +1,14 @@
+{
+  "id": "baisuzhen-art",
+  "name": "水漫金山",
+  "type": "active",
+  "description": "白素贞的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.18,
+      "scope": "battle"
+    }
+  ]
+}

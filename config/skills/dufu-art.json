@@ -1,0 +1,14 @@
+{
+  "id": "dufu-art",
+  "name": "沉郁",
+  "type": "active",
+  "description": "杜甫的主动招式，出征时提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "battle"
+    }
+  ]
+}

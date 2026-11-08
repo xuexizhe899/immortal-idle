@@ -34,3 +34,9 @@ def load_affixes() -> list[dict]:
 def load_modes() -> dict[str, dict]:
     """出征模式配置，按 id 索引。"""
     return _load_dir(CONFIG_DIR / "modes")
+
+
+@lru_cache(maxsize=1)
+def load_bonds() -> dict[str, dict]:
+    """羁绊配置，按 id 索引。"""
+    return _load_dir(CONFIG_DIR / "bonds")

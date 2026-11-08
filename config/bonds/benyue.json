@@ -1,0 +1,17 @@
+{
+  "id": "benyue",
+  "name": "奔月",
+  "members": [
+    "houyi",
+    "change"
+  ],
+  "requires": 2,
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "run"
+    }
+  ]
+}

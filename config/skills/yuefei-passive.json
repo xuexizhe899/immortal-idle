@@ -1,0 +1,14 @@
+{
+  "id": "yuefei-passive",
+  "name": "岳家军",
+  "type": "passive",
+  "description": "岳飞的被动，提升hp。",
+  "effects": [
+    {
+      "stat": "hp",
+      "mode": "add_pct",
+      "value": 0.15,
+      "scope": "permanent"
+    }
+  ]
+}

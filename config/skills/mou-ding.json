@@ -1,9 +1,0 @@
-{
-  "id": "mou-ding",
-  "name": "谋定",
-  "type": "passive",
-  "description": "值守时提升灵石产出。",
-  "effects": [
-    { "stat": "spirit_stone_rate", "mode": "add_pct", "value": 0.12, "scope": "duty" }
-  ]
-}

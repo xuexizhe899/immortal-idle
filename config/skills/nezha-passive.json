@@ -1,0 +1,14 @@
+{
+  "id": "nezha-passive",
+  "name": "莲身",
+  "type": "passive",
+  "description": "哪吒的被动，提升def。",
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "battle"
+    }
+  ]
+}

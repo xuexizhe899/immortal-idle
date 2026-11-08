@@ -1,0 +1,14 @@
+{
+  "id": "zhaoyun-passive",
+  "name": "一身是胆",
+  "type": "passive",
+  "description": "赵云的被动，提升spd。",
+  "effects": [
+    {
+      "stat": "spd",
+      "mode": "add_pct",
+      "value": 0.08,
+      "scope": "permanent"
+    }
+  ]
+}

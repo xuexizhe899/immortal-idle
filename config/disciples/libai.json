@@ -6,8 +6,18 @@
   "rarity": 2,
   "lean": "craft",
   "asset_id": "libai",
-  "base_stats": { "hp": 88, "atk": 15, "def": 7, "spd": 14 },
-  "skill": "jiangjinjiu",
-  "passive": "shixian",
-  "bonds": []
+  "base_stats": {
+    "hp": 88,
+    "atk": 15,
+    "def": 7,
+    "spd": 14
+  },
+  "skill": "libai-art",
+  "passive": "libai-passive",
+  "bonds": [
+    "shisheng"
+  ],
+  "unlock_cost": {
+    "reputation": 120
+  }
 }

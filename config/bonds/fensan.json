@@ -1,0 +1,17 @@
+{
+  "id": "fensan",
+  "name": "三分天下",
+  "members": [
+    "zhugeliang",
+    "zhouyu"
+  ],
+  "requires": 2,
+  "effects": [
+    {
+      "stat": "def",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "run"
+    }
+  ]
+}

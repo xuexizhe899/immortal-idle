@@ -1,0 +1,14 @@
+{
+  "id": "libai-passive",
+  "name": "诗仙",
+  "type": "passive",
+  "description": "李白的被动，提升material_rate。",
+  "effects": [
+    {
+      "stat": "material_rate",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "duty"
+    }
+  ]
+}

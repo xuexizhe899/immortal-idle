@@ -1,0 +1,14 @@
+{
+  "id": "dufu-passive",
+  "name": "诗史",
+  "type": "passive",
+  "description": "杜甫的被动，提升cultivation_rate。",
+  "effects": [
+    {
+      "stat": "cultivation_rate",
+      "mode": "add_pct",
+      "value": 0.1,
+      "scope": "duty"
+    }
+  ]
+}

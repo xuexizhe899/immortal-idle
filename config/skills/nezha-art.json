@@ -1,0 +1,14 @@
+{
+  "id": "nezha-art",
+  "name": "火尖枪",
+  "type": "active",
+  "description": "哪吒的主动招式，出征时提升atk。",
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.22,
+      "scope": "battle"
+    }
+  ]
+}

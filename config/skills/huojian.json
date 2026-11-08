@@ -1,9 +1,0 @@
-{
-  "id": "huojian",
-  "name": "火尖枪",
-  "type": "active",
-  "description": "单点爆发，火焰伤害显著高于普攻。",
-  "effects": [
-    { "stat": "atk", "mode": "add_pct", "value": 0.22, "scope": "battle" }
-  ]
-}
