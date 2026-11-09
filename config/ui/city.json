@@ -1,0 +1,14 @@
+{
+  "background": "/assets/scenes/city_main.png",
+  "aspect": 1.5,
+  "notes": "坐标均为百分比，原点在左上角；x / y 是热区中心，w / h 是热区尺寸。换图只需重标这一份。",
+  "hotspots": [
+    { "id": "library", "name": "藏经阁", "panel": "codex", "x": 18, "y": 15, "w": 16, "h": 18 },
+    { "id": "main_hall", "name": "宗门主殿", "panel": "sect", "x": 50, "y": 25, "w": 26, "h": 30 },
+    { "id": "dock", "name": "远行码头", "panel": "expedition", "x": 86, "y": 22, "w": 20, "h": 20 },
+    { "id": "tower", "name": "问道塔", "panel": "tower", "x": 90, "y": 63, "w": 14, "h": 38 },
+    { "id": "drill", "name": "演武场", "panel": "duty", "x": 24, "y": 53, "w": 22, "h": 24 },
+    { "id": "forge", "name": "炼器炉", "panel": "forge", "x": 43, "y": 74, "w": 14, "h": 20 },
+    { "id": "alchemy", "name": "炼丹房", "panel": "alchemy", "x": 60, "y": 74, "w": 16, "h": 22 }
+  ]
+}

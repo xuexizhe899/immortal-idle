@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 
 import { useGameStore } from '../stores/game'
 
+const props = defineProps<{ kind?: string }>()
+
 const store = useGameStore()
 const target = ref('')
 
@@ -10,7 +12,9 @@ const recipes = computed(() => store.catalog?.recipes ?? {})
 const inventory = computed(() => store.state?.inventory ?? {})
 const bonuses = computed(() => store.state?.bonuses ?? {})
 
-const list = computed(() => Object.entries(recipes.value))
+const list = computed(() =>
+  Object.entries(recipes.value).filter(([, r]) => !props.kind || r.kind === props.kind),
+)
 
 function needsTarget(id: string): boolean {
   return ['heal', 'realm'].includes(recipes.value[id]?.special ?? '')
@@ -34,12 +38,7 @@ async function craft(id: string) {
 </script>
 
 <template>
-  <section class="panel">
-    <div class="panel-head">
-      <h2>炼制</h2>
-      <span class="hint">炼成即生效</span>
-    </div>
-
+  <div class="craft">
     <div class="bonus-line">
       <span class="hint">全局加成：</span>
       <span v-for="(value, key) in bonuses" :key="key" class="chip">
@@ -51,7 +50,6 @@ async function craft(id: string) {
     <div class="list">
       <div v-for="[id, r] in list" :key="id" class="row">
         <span class="name">{{ r.name }}</span>
-        <span class="hint">{{ r.kind === 'pill' ? '丹' : '器' }}</span>
         <span class="inputs">{{ inputText(r.inputs) }}</span>
         <button
           class="mini"
@@ -73,22 +71,10 @@ async function craft(id: string) {
         </option>
       </select>
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>
-.panel-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.panel-head h2 {
-  margin: 0;
-  font-size: 16px;
-}
-
 .hint {
   color: var(--muted);
   font-size: 12px;
@@ -101,13 +87,12 @@ async function craft(id: string) {
   gap: 6px;
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
 }
 
 .chip {
   padding: 2px 8px;
   border: 1px solid var(--border);
-  border-radius: 999px;
   color: var(--muted);
   font-size: 12px;
 }
@@ -144,8 +129,7 @@ async function craft(id: string) {
 .mini {
   flex: none;
   padding: 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 2px solid var(--border);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -159,8 +143,8 @@ async function craft(id: string) {
 }
 
 .mini:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
+  background: var(--border);
+  color: var(--surface);
 }
 
 .target-line {
@@ -169,13 +153,12 @@ async function craft(id: string) {
   gap: 10px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--border);
 }
 
 .select {
   padding: 4px 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 2px solid var(--border);
   background: var(--surface);
   color: inherit;
   font: inherit;

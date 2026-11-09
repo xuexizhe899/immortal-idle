@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "calls": 23,
+  "calls": 29,
   "items": [
     {
       "key": "disciple_zhugeliang",
@@ -568,7 +568,169 @@
         }
       },
       "created_at": "2026-11-08T14:26:26+00:00"
+    },
+    {
+      "key": "city_main",
+      "kind": "city",
+      "file": "assets/raw/city_main.png",
+      "hash": "269f5b89526c364e",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "prompt": "high-quality Chinese xianxia immortal city panorama, hand-painted semi-realistic style with volumetric lighting, isometric three-quarter top-down view like a premium city-builder game, floating city above a sea of clouds, layout: scripture library pavilion on upper-left cliff with waterfall, grand mountain gate hall with expedition plaque at center, tavern and disciple courtyard lower-left, alchemy hall with golden smoking furnace and forge with red furnace fire at bottom center, market stalls and quest board on the right, seven-story pagoda at lower right, harbor with sailing junks upper right, dark teal tile roofs, warm wooden beams, white jade stone plaza with carved circular motif, stone paths connecting buildings, golden ginkgo and pink blossom trees, tiny cultivator pedestrians for scale, ink-wash distant mountains, soft warm afternoon daylight with clear cast shadows, moderate saturation, no text, no watermark, no UI buttons. Avoid: pixel art, flat illustration, photorealistic photo, smooth plastic 3d cgi, sunset orange glow, god rays, oversaturated sky, lens flare, text, watermark, UI buttons, video player interface, close-up single building",
+      "bytes": 4160907,
+      "elapsed_ms": 54348,
+      "usage": {
+        "input_tokens": 232,
+        "output_tokens": 171,
+        "total_tokens": 403,
+        "input_tokens_details": {
+          "text_tokens": 232,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 171,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T13:04:16+00:00"
+    },
+    {
+      "key": "building_scripture",
+      "kind": "building",
+      "file": "assets/raw/building_scripture.png",
+      "hash": "7683364898c5c923",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "prompt": "high-quality Chinese xianxia game building art, hand-painted semi-realistic style with volumetric lighting, isometric three-quarter view, single complete building centered with visible roof, facade and side faces, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base with steps, small surrounding trees and stone lanterns, soft warm afternoon daylight, clear cast shadow, plain soft cloud background fading at edges, no text, no watermark, no UI. Subject: scripture library pavilion (藏经阁), two-story wooden pavilion with scroll shelves visible through open doors, perched on a rocky cliff edge with a small waterfall beside it. Avoid: pixel art, flat illustration, photorealistic photo, smooth plastic 3d cgi, sunset orange glow, god rays, oversaturated sky, lens flare, text, watermark, UI buttons, video player interface, close-up single building",
+      "bytes": 3491704,
+      "elapsed_ms": 34288,
+      "usage": {
+        "input_tokens": 180,
+        "output_tokens": 160,
+        "total_tokens": 340,
+        "input_tokens_details": {
+          "text_tokens": 180,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 160,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T13:04:51+00:00"
+    },
+    {
+      "key": "disciple_zhugeliang_v2",
+      "kind": "portrait",
+      "file": "assets/raw/disciple_zhugeliang_v2.png",
+      "hash": "c41f1827f9ccb52c",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "prompt": "high-quality Chinese xianxia game character art, hand-painted semi-realistic style with soft volumetric shading and painterly texture, three-quarter view full body, standing on subtle ground shadow, warm afternoon diffuse light from upper left, clear light and shadow sides giving 3D volume, teal-gray and warm wood color palette with jade green accents, moderate saturation, clean readable silhouette, plain light warm-gray background, no text, no watermark, no border, no card frame. Subject: Zhuge Liang, Three Kingdoms strategist, a calm scholar in his thirties, long black hair tied with a plain cloth band and a taoist crown, light jade-green robe with wide sleeves and dark teal trim, holding a white feather fan, serene thoughtful expression. Avoid: pixel art, flat cartoon, cel shading, photorealistic photo, plastic 3d render, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "bytes": 2429540,
+      "elapsed_ms": 20777,
+      "usage": {
+        "input_tokens": 212,
+        "output_tokens": 170,
+        "total_tokens": 382,
+        "input_tokens_details": {
+          "text_tokens": 212,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 170,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T13:05:11+00:00"
+    },
+    {
+      "key": "scene_tower_seg1",
+      "kind": "scene",
+      "file": "assets/raw/scene_tower_seg1.png",
+      "hash": "b40bb7473391305d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "prompt": "high-quality Chinese xianxia game environment art, hand-painted semi-realistic style with volumetric lighting, isometric three-quarter top-down view like a premium city-builder game, floating immortal architecture with dark teal tile roofs and warm wooden beams, white jade stone ground, visible thickness and side faces on platforms for pseudo-3D depth, golden ginkgo and pink blossom trees, sea of clouds and ink-wash distant mountains, soft warm afternoon daylight with clear cast shadows, moderate saturation, no characters unless specified, no text, no watermark, no UI. Subject: battle arena on the first segment of an immortal trial pagoda: wide white jade stone platform with carved railings above a sea of clouds, stone steps at both ends, two stone lanterns and a pine tree at the edges, empty center left clear for combat units, no characters. Avoid: pixel art, flat illustration, photorealistic photo, smooth plastic 3d cgi, sunset orange glow, god rays, oversaturated sky, lens flare, text, watermark, UI buttons, video player interface, close-up single building",
+      "bytes": 3189366,
+      "elapsed_ms": 25713,
+      "usage": {
+        "input_tokens": 221,
+        "output_tokens": 177,
+        "total_tokens": 398,
+        "input_tokens_details": {
+          "text_tokens": 221,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 177,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T13:05:37+00:00"
+    },
+    {
+      "key": "city_main_pixel",
+      "kind": "city",
+      "file": "assets/raw/city_main_pixel.png",
+      "hash": "89fda445fdb7269e",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "prompt": "detailed pixel art Chinese xianxia immortal city panorama, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter top-down view, floating city above a sea of clouds, layout: scripture library pavilion on upper-left cliff with waterfall, grand mountain gate hall with expedition plaque at center, tavern and disciple courtyard lower-left, alchemy hall with golden smoking furnace and forge with red furnace fire at bottom center, market stalls and quest board on the right, seven-story pagoda at lower right, harbor with sailing junks upper right, dark teal tile roofs, warm wooden beams, white jade stone plaza with carved circular motif, stone paths connecting buildings, golden ginkgo and pink blossom trees, tiny cultivator pedestrians for scale, distant mountains, warm afternoon daylight with clear pixel cast shadows, no text, no watermark, no UI buttons. Avoid: photorealistic photo, smooth painterly rendering, smooth gradients, anti-aliasing, plastic 3d cgi, sunset orange glow, god rays, oversaturated sky, lens flare, text, watermark, UI buttons, video player interface",
+      "bytes": 3803277,
+      "elapsed_ms": 32484,
+      "usage": {
+        "input_tokens": 240,
+        "output_tokens": 164,
+        "total_tokens": 404,
+        "input_tokens_details": {
+          "text_tokens": 240,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 164,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T13:38:30+00:00"
+    },
+    {
+      "key": "disciple_zhugeliang_pixel",
+      "kind": "portrait",
+      "file": "assets/raw/disciple_zhugeliang_pixel.png",
+      "hash": "d3fc071f18d4e5eb",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, plain light warm-gray background, no text, no watermark, no border, no card frame. Subject: Zhuge Liang, Three Kingdoms strategist, a calm scholar in his thirties, long black hair tied with a plain cloth band and a taoist crown, light jade-green robe with wide sleeves and dark teal trim, holding a white feather fan, serene thoughtful expression. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "bytes": 1522667,
+      "elapsed_ms": 35098,
+      "usage": {
+        "input_tokens": 221,
+        "output_tokens": 169,
+        "total_tokens": 390,
+        "input_tokens_details": {
+          "text_tokens": 221,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 169,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T13:39:05+00:00"
     }
   ],
-  "updated_at": "2026-11-08T14:26:26+00:00"
+  "updated_at": "2026-11-09T13:39:05+00:00"
 }

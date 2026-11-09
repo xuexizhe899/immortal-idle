@@ -41,6 +41,22 @@ export interface DutyPayload {
   rates: Record<string, number>
 }
 
+export interface CityHotspot {
+  id: string
+  name: string
+  panel: string
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+export interface CityLayout {
+  background: string
+  aspect: number
+  hotspots: CityHotspot[]
+}
+
 export interface Catalog {
   disciples: Record<
     string,
@@ -52,6 +68,7 @@ export interface Catalog {
     { name: string; kind: string; inputs: Record<string, number>; special?: string | null }
   >
   materials: Record<string, string>
+  city: CityLayout
 }
 
 export type DiscipleState = Schemas['DiscipleState']

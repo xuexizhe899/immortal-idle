@@ -48,7 +48,7 @@ async function importOne() {
 </script>
 
 <template>
-  <section class="panel">
+  <div class="slots-panel">
     <div class="panel-head">
       <h2>多档管理</h2>
       <span class="hint">当前 #{{ store.slotId }}</span>
@@ -79,7 +79,7 @@ async function importOne() {
       <textarea v-model="importText" class="textarea" rows="3" placeholder="粘贴导出的 JSON"></textarea>
       <button class="mini" type="button" @click="importOne">导入</button>
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>

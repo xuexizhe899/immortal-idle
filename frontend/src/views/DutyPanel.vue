@@ -35,7 +35,7 @@ async function toggle(discipleId: string) {
 </script>
 
 <template>
-  <section class="panel">
+  <div class="duty">
     <div class="panel-head">
       <h2>值守编制</h2>
       <span class="hint">{{ onDuty.size }} / 6</span>
@@ -74,7 +74,7 @@ async function toggle(discipleId: string) {
         </button>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>

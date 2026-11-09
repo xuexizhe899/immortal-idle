@@ -19,6 +19,7 @@ export const useGameStore = defineStore('game', () => {
   const catalog = ref<Catalog | null>(null)
   const lastRun = ref<RunSettleResult | null>(null)
   const saves = ref<SaveSlotMeta[]>([])
+  const party = ref<string[]>([])
   const busy = ref(false)
   const error = ref<string | null>(null)
 
@@ -66,11 +67,20 @@ export const useGameStore = defineStore('game', () => {
     })
   }
 
-  async function startRun(party: string[]): Promise<void> {
+  async function startRun(partyIds: string[]): Promise<void> {
     await guard(async () => {
-      run.value = await api.startRun(slotId.value as number, party)
+      run.value = await api.startRun(slotId.value as number, partyIds)
       await loadSave()
     })
+  }
+
+  function toggleParty(id: string): void {
+    const index = party.value.indexOf(id)
+    if (index >= 0) {
+      party.value.splice(index, 1)
+    } else if (party.value.length < 5) {
+      party.value.push(id)
+    }
   }
 
   async function choose(index: number): Promise<void> {
@@ -185,6 +195,7 @@ export const useGameStore = defineStore('game', () => {
     catalog,
     lastRun,
     saves,
+    party,
     busy,
     error,
     disciples,
@@ -194,6 +205,7 @@ export const useGameStore = defineStore('game', () => {
     loadSave,
     settle,
     startRun,
+    toggleParty,
     choose,
     pickAffix,
     settleRun,

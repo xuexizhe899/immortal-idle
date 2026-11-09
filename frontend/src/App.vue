@@ -2,7 +2,7 @@
 import { computed, onMounted } from 'vue'
 
 import { useGameStore } from './stores/game'
-import HomeView from './views/HomeView.vue'
+import CityView from './views/CityView.vue'
 import RunView from './views/RunView.vue'
 
 const store = useGameStore()
@@ -21,7 +21,7 @@ onMounted(() => {
 
   <p v-if="store.error" class="error">{{ store.error }}</p>
 
-  <HomeView v-if="!inRun" />
+  <CityView v-if="!inRun" />
   <RunView v-else />
 
   <footer class="foot">

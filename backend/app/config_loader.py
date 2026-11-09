@@ -52,3 +52,9 @@ def load_recipes() -> dict[str, dict]:
 def load_materials() -> dict[str, dict]:
     """材料配置，按 id 索引。"""
     return _load_dir(CONFIG_DIR / "materials")
+
+
+@lru_cache(maxsize=1)
+def load_city() -> dict:
+    """主城布局：背景图与建筑热区坐标。"""
+    return json.loads((CONFIG_DIR / "ui" / "city.json").read_text(encoding="utf-8"))

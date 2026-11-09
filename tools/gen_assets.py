@@ -67,14 +67,35 @@ def digest(*parts: str) -> str:
 
 
 def build_prompt(style: dict, item: dict) -> str:
-    if item.get("kind") == "scene":
+    kind = item.get("kind", "portrait")
+    if kind == "scene":
         base = style["scene_prompt"]
         avoid = style.get("scene_avoid") or style.get("negative_prompt", "")
         prompt = f"{base}. Subject: {item['subject']}"
         if avoid:
             prompt = f"{prompt}. Avoid: {avoid}"
         return prompt
-    return f"{style['style_prompt']}. Subject: {item['subject']}"
+    if kind == "building":
+        base = style["building_prompt"]
+        avoid = style.get("scene_avoid") or style.get("negative_prompt", "")
+        prompt = f"{base}. Subject: {item['subject']}"
+        if avoid:
+            prompt = f"{prompt}. Avoid: {avoid}"
+        return prompt
+    if kind == "city":
+        # 主城全景 prompt 已在 style 里写死布局，不再拼 Subject
+        avoid = style.get("scene_avoid") or style.get("negative_prompt", "")
+        prompt = style["city_prompt"]
+        if item.get("subject"):
+            prompt = f"{prompt}. Additional: {item['subject']}"
+        if avoid:
+            prompt = f"{prompt}. Avoid: {avoid}"
+        return prompt
+    avoid = style.get("negative_prompt", "")
+    prompt = f"{style['style_prompt']}. Subject: {item['subject']}"
+    if avoid:
+        prompt = f"{prompt}. Avoid: {avoid}"
+    return prompt
 
 
 def request_image(
@@ -166,11 +187,14 @@ def main() -> int:
         for item in preset["items"]:
             key = item["key"]
             prompt = build_prompt(style, item)
-            size = size_override or (
-                style.get("scene_size", fallback_size)
-                if item.get("kind") == "scene"
-                else style.get("size", fallback_size)
-            )
+            kind = item.get("kind", "portrait")
+            if kind in ("scene", "city"):
+                default_size = style.get("scene_size", fallback_size)
+            elif kind == "building":
+                default_size = style.get("building_size", style.get("scene_size", fallback_size))
+            else:
+                default_size = style.get("size", fallback_size)
+            size = size_override or item.get("size") or default_size
             call_hash = digest(model, size, prompt)
 
             existing = done.get(key)
