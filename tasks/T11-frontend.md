@@ -47,6 +47,17 @@
 - `GET /api/catalog` 增加 `unlock_cost`、`recipes.inputs`、`recipes.special`、`materials`
 - 接口验证：值守上岗（关羽 cultivation_rate 0.1）、招募华佗（声望 500→370）、炼制回灵丹（灵草 29→27）
 - 前端 build 通过；像素立绘仍在生成，`public/assets/` 尚未替换
+
+## 执行记录（2026-11-09，分层主城复核）
+- 主城改为分层方案：无建筑地形 + 7 张抠图 sprite，热区带 `sprite` / `anim`，每栋建筑独立动效
+- 复核后修正：
+  - hover 去掉矩形白框与 14% 白色蒙层，改为建筑 `brightness` + `drop-shadow`
+  - 新增 `tools/compress_assets.py`：地形 256 色、sprite 用 P 模式 255 色 + 专用透明索引
+  - 首屏 5.3MB → 1.8MB，总资产 8.8MB → 4.4MB
+  - `tools/chroma_key.py` 补上 alpha 1px 腐蚀，docstring 与实现对齐
+  - 修复 P 模式 `transparency` 传整数导致的黑块（改传 256 项 alpha 表）
+  - 删除冗余 `city_main.png`；`style.json` 恢复缩进
+- **风格核对结论（未解决）**：主城是 v0.3 的精细像素（细颗粒、暖光、投影、抖动），16 张弟子立绘仍是旧 prompt 的粗颗粒平涂 + 硬描边 + 浅灰纯色底，不是同一套。要统一需按 v0.3 重生成 16 张并抠底（约 16 次调用）
 - `api/client.ts`：按 generated 类型封装接口，统一错误处理（取出 `detail`）
 - `stores/game.ts`：单档状态（slot / revision / state / run / catalog），所有操作走 API，前端不做结算与随机
 - `views/HomeView.vue`：资源栏、弟子网格、组队出征、收菜

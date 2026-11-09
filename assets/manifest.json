@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "calls": 29,
+  "calls": 37,
   "items": [
     {
       "key": "disciple_zhugeliang",
@@ -730,7 +730,223 @@
         }
       },
       "created_at": "2026-11-09T13:39:05+00:00"
+    },
+    {
+      "key": "city_terrain",
+      "kind": "terrain",
+      "file": "assets/raw/city_terrain.png",
+      "hash": "095858d4a57fd2bc",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "prompt": "detailed pixel art Chinese xianxia game terrain, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter top-down view, floating island terrain above a sea of clouds, layout: rocky cliff with waterfall on upper-left, wide white jade stone plaza with carved circular motif at center, stone paths radiating to upper-left / center-top / upper-right / lower-left / bottom-center / lower-right, grass patches, golden ginkgo and pink blossom trees between paths, small lotus pond, stone lanterns along paths, wooden harbor pier at upper right edge, distant mountains, warm afternoon daylight with clear pixel cast shadows, absolutely no buildings, no houses, no pavilions, no pagoda, no characters, no text, no watermark, no UI. Avoid: photorealistic photo, smooth painterly rendering, smooth gradients, anti-aliasing, plastic 3d cgi, sunset orange glow, god rays, oversaturated sky, lens flare, text, watermark, UI buttons, video player interface",
+      "bytes": 3647276,
+      "elapsed_ms": 45965,
+      "usage": {
+        "input_tokens": 224,
+        "output_tokens": 161,
+        "total_tokens": 385,
+        "input_tokens_details": {
+          "text_tokens": 224,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 161,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:27:04+00:00"
+    },
+    {
+      "key": "sprite_library",
+      "kind": "sprite",
+      "file": "assets/raw/sprite_library.png",
+      "hash": "7c33985481f00366",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "detailed pixel art Chinese xianxia game building sprite, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter view matching a city-builder map, single complete building centered, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base, warm afternoon light from upper left with clear light and shadow sides, pure flat solid magenta background (#FF00FF) for chroma-key cutout, no ground plane, no trees, no extra objects, no text, no watermark, no UI. Subject: scripture library pavilion (藏经阁), elegant two-story wooden pavilion, scroll shelves visible through open lattice doors, small stone steps",
+      "bytes": 2836521,
+      "elapsed_ms": 27878,
+      "usage": {
+        "input_tokens": 152,
+        "output_tokens": 216,
+        "total_tokens": 368,
+        "input_tokens_details": {
+          "text_tokens": 152,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 216,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:27:32+00:00"
+    },
+    {
+      "key": "sprite_main_hall",
+      "kind": "sprite",
+      "file": "assets/raw/sprite_main_hall.png",
+      "hash": "dfbb96f8aaf70aa3",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "detailed pixel art Chinese xianxia game building sprite, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter view matching a city-builder map, single complete building centered, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base, warm afternoon light from upper left with clear light and shadow sides, pure flat solid magenta background (#FF00FF) for chroma-key cutout, no ground plane, no trees, no extra objects, no text, no watermark, no UI. Subject: grand sect main hall (宗门主殿), wide imposing hall with double-eaved roof, red pillars, hanging lanterns, wide white jade staircase",
+      "bytes": 2512455,
+      "elapsed_ms": 24300,
+      "usage": {
+        "input_tokens": 158,
+        "output_tokens": 201,
+        "total_tokens": 359,
+        "input_tokens_details": {
+          "text_tokens": 158,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 201,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:27:56+00:00"
+    },
+    {
+      "key": "sprite_dock",
+      "kind": "sprite",
+      "file": "assets/raw/sprite_dock.png",
+      "hash": "7a7634bc5c3e6649",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "detailed pixel art Chinese xianxia game building sprite, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter view matching a city-builder map, single complete building centered, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base, warm afternoon light from upper left with clear light and shadow sides, pure flat solid magenta background (#FF00FF) for chroma-key cutout, no ground plane, no trees, no extra objects, no text, no watermark, no UI. Subject: harbor office with a moored sailing junk (远行码头), small wooden dock house with rope coils and cargo crates, one Chinese junk boat with tan sails beside it",
+      "bytes": 2322948,
+      "elapsed_ms": 35158,
+      "usage": {
+        "input_tokens": 161,
+        "output_tokens": 202,
+        "total_tokens": 363,
+        "input_tokens_details": {
+          "text_tokens": 161,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 202,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:28:31+00:00"
+    },
+    {
+      "key": "sprite_tower",
+      "kind": "sprite",
+      "file": "assets/raw/sprite_tower.png",
+      "hash": "02313c7ebf22390c",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "detailed pixel art Chinese xianxia game building sprite, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter view matching a city-builder map, single complete building centered, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base, warm afternoon light from upper left with clear light and shadow sides, pure flat solid magenta background (#FF00FF) for chroma-key cutout, no ground plane, no trees, no extra objects, no text, no watermark, no UI. Subject: seven-story trial pagoda (问道塔), tall slender stone-and-wood pagoda with teal tile eaves on each level, faint glowing runes on the top level",
+      "bytes": 1903609,
+      "elapsed_ms": 56644,
+      "usage": {
+        "input_tokens": 162,
+        "output_tokens": 206,
+        "total_tokens": 368,
+        "input_tokens_details": {
+          "text_tokens": 162,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 206,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:29:28+00:00"
+    },
+    {
+      "key": "sprite_drill",
+      "kind": "sprite",
+      "file": "assets/raw/sprite_drill.png",
+      "hash": "d488e2fba2d346a5",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "detailed pixel art Chinese xianxia game building sprite, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter view matching a city-builder map, single complete building centered, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base, warm afternoon light from upper left with clear light and shadow sides, pure flat solid magenta background (#FF00FF) for chroma-key cutout, no ground plane, no trees, no extra objects, no text, no watermark, no UI. Subject: martial training ground (演武场), open-air wooden arena platform with weapon racks, training dummies and banners",
+      "bytes": 2546898,
+      "elapsed_ms": 26744,
+      "usage": {
+        "input_tokens": 149,
+        "output_tokens": 202,
+        "total_tokens": 351,
+        "input_tokens_details": {
+          "text_tokens": 149,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 202,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:29:55+00:00"
+    },
+    {
+      "key": "sprite_forge",
+      "kind": "sprite",
+      "file": "assets/raw/sprite_forge.png",
+      "hash": "b8d757b8142b297c",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "detailed pixel art Chinese xianxia game building sprite, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter view matching a city-builder map, single complete building centered, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base, warm afternoon light from upper left with clear light and shadow sides, pure flat solid magenta background (#FF00FF) for chroma-key cutout, no ground plane, no trees, no extra objects, no text, no watermark, no UI. Subject: artifact forge (炼器炉), squat stone smithy with a large open furnace glowing red-orange, anvil and hammer outside, chimney with smoke",
+      "bytes": 2483801,
+      "elapsed_ms": 27165,
+      "usage": {
+        "input_tokens": 156,
+        "output_tokens": 202,
+        "total_tokens": 358,
+        "input_tokens_details": {
+          "text_tokens": 156,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 202,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:30:22+00:00"
+    },
+    {
+      "key": "sprite_alchemy",
+      "kind": "sprite",
+      "file": "assets/raw/sprite_alchemy.png",
+      "hash": "66630e4f08662950",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1024",
+      "prompt": "detailed pixel art Chinese xianxia game building sprite, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter view matching a city-builder map, single complete building centered, dark teal tile roof, warm wooden beams, glowing warm windows, white jade stone base, warm afternoon light from upper left with clear light and shadow sides, pure flat solid magenta background (#FF00FF) for chroma-key cutout, no ground plane, no trees, no extra objects, no text, no watermark, no UI. Subject: alchemy hall (炼丹房), round-roofed hall with a large golden bronze pill furnace in front emitting green smoke, herb drying racks on the side",
+      "bytes": 2485398,
+      "elapsed_ms": 43818,
+      "usage": {
+        "input_tokens": 159,
+        "output_tokens": 208,
+        "total_tokens": 367,
+        "input_tokens_details": {
+          "text_tokens": 159,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 208,
+          "reasoning_tokens": 0
+        }
+      },
+      "created_at": "2026-11-09T14:31:06+00:00"
     }
   ],
-  "updated_at": "2026-11-09T13:39:05+00:00"
+  "updated_at": "2026-11-09T14:31:06+00:00"
 }

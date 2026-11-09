@@ -49,6 +49,8 @@ export interface CityHotspot {
   y: number
   w: number
   h: number
+  sprite?: string
+  anim?: string
 }
 
 export interface CityLayout {

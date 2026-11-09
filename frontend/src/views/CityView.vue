@@ -28,6 +28,11 @@ function open(panel: string) {
   openPanel.value = panel
 }
 
+function hideBroken(event: Event) {
+  const image = event.target as HTMLImageElement
+  image.style.display = 'none'
+}
+
 async function enterTower() {
   if (store.party.length === 0) {
     open('codex')
@@ -52,8 +57,21 @@ async function enterTower() {
         width: `${spot.w}%`,
         height: `${spot.h}%`,
       }"
+      :aria-label="spot.name"
       @click="spot.panel === 'tower' ? enterTower() : open(spot.panel)"
     >
+      <img
+        v-if="spot.sprite"
+        :src="spot.sprite"
+        :alt="spot.name"
+        class="building"
+        :class="spot.anim ? `anim-${spot.anim}` : ''"
+        draggable="false"
+        @error="hideBroken"
+      />
+      <span v-if="spot.anim === 'alchemy' || spot.anim === 'forge'" class="smoke" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </span>
       <span class="tag">{{ spot.name }}</span>
     </button>
 
@@ -106,9 +124,126 @@ async function enterTower() {
   cursor: pointer;
 }
 
-.hotspot:hover {
-  border-color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.14);
+.hotspot:focus-visible {
+  outline: none;
+}
+
+.building {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.hotspot:hover .building,
+.hotspot:focus-visible .building {
+  filter: brightness(1.14) drop-shadow(0 0 6px rgba(255, 246, 214, 0.85));
+}
+
+/* 每栋建筑的常驻动效：幅度小、周期错开，避免整屏齐步走 */
+.anim-library {
+  animation: breathe 5.2s ease-in-out infinite;
+}
+
+.anim-sect {
+  animation: lantern 3.4s ease-in-out infinite;
+}
+
+.anim-dock {
+  animation: bob 4.6s ease-in-out infinite;
+}
+
+.anim-tower {
+  animation: glow 6s ease-in-out infinite;
+}
+
+.anim-duty {
+  animation: sway 3.8s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.anim-forge {
+  animation: flicker 1.7s steps(3) infinite;
+}
+
+.anim-alchemy {
+  animation: breathe 4.4s ease-in-out infinite 0.8s;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes lantern {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.14) saturate(1.08); }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(-0.6deg); }
+}
+
+@keyframes glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1) drop-shadow(0 0 6px rgba(140, 220, 200, 0.55)); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(0.5deg); }
+}
+
+@keyframes flicker {
+  0%, 100% { filter: brightness(1); }
+  40% { filter: brightness(1.16) saturate(1.15); }
+  70% { filter: brightness(0.96); }
+}
+
+/* 丹房/锻炉的烟：三个像素点错峰上升 */
+.smoke {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.smoke i {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: rgba(230, 230, 224, 0.85);
+  animation: rise 2.8s linear infinite;
+}
+
+.smoke i:nth-child(2) {
+  animation-delay: 0.9s;
+  left: 4px;
+}
+
+.smoke i:nth-child(3) {
+  animation-delay: 1.8s;
+  left: -4px;
+}
+
+@keyframes rise {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 0.9; }
+  100% { transform: translateY(-26px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .building,
+  .smoke i {
+    animation: none;
+  }
 }
 
 .tag {

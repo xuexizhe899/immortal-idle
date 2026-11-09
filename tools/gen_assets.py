@@ -75,6 +75,17 @@ def build_prompt(style: dict, item: dict) -> str:
         if avoid:
             prompt = f"{prompt}. Avoid: {avoid}"
         return prompt
+    if kind == "terrain":
+        avoid = style.get("scene_avoid") or style.get("negative_prompt", "")
+        prompt = style["terrain_prompt"]
+        if item.get("subject"):
+            prompt = f"{prompt}. Additional: {item['subject']}"
+        if avoid:
+            prompt = f"{prompt}. Avoid: {avoid}"
+        return prompt
+    if kind == "sprite":
+        # 洋红底供本地 chroma-key 抠图，负面词不再拼（避免与 magenta 背景冲突）
+        return f"{style['sprite_prompt']}. Subject: {item['subject']}"
     if kind == "building":
         base = style["building_prompt"]
         avoid = style.get("scene_avoid") or style.get("negative_prompt", "")
@@ -188,9 +199,9 @@ def main() -> int:
             key = item["key"]
             prompt = build_prompt(style, item)
             kind = item.get("kind", "portrait")
-            if kind in ("scene", "city"):
+            if kind in ("scene", "city", "terrain"):
                 default_size = style.get("scene_size", fallback_size)
-            elif kind == "building":
+            elif kind in ("building", "sprite"):
                 default_size = style.get("building_size", style.get("scene_size", fallback_size))
             else:
                 default_size = style.get("size", fallback_size)
