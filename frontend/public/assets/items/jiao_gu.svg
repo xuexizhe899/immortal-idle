@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>蛟骨</title>
+  <polygon points="18,54 15,44 19,30 28,18 38,10 44,13 43,18 36,26 30,36 28,48 30,56" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+  <polygon points="20,50 18,42 22,31 30,20 38,14 34,20 28,30 24,40 24,50" fill="#EFE5CB"/>
+  <polygon points="36,22 40,17 41,20 36,28 31,36 30,44 28,46 30,34" fill="#A9946E"/>
+  <rect x="25" y="38" width="8" height="3" fill="#C9A24B"/>
+  <rect x="29" y="28" width="6" height="3" fill="#3F7359"/>
+  <rect x="26" y="32" width="2" height="6" fill="#A9946E"/>
+  <rect x="32" y="24" width="2" height="5" fill="#A9946E"/>
+  <circle cx="21" cy="48" r="4" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+  <circle cx="41" cy="13" r="4" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+  <rect x="24" y="49" width="4" height="2" fill="#EFE5CB"/>
+  <rect x="39" y="11" width="3" height="2" fill="#EFE5CB"/>
+</svg>

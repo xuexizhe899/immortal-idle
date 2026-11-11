@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>回灵丹</title>
+  <circle cx="32" cy="34" r="17" fill="#8CC4A2" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="34" r="13" fill="#CFE8D8"/>
+  <rect x="30" y="22" width="4" height="2" fill="#3F7359"/>
+  <rect x="38" y="24" width="2" height="8" fill="#3F7359"/>
+  <rect x="32" y="32" width="7" height="2" fill="#3F7359"/>
+  <rect x="28" y="30" width="2" height="5" fill="#3F7359"/>
+  <rect x="30" y="28" width="4" height="2" fill="#3F7359"/>
+  <rect x="23" y="30" width="3" height="2" fill="#5E9B77"/>
+  <rect x="22" y="24" width="5" height="3" fill="#F2EAD3"/>
+  <polygon points="39,14 48,9 46,18 40,21" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <rect x="41" y="15" width="5" height="2" fill="#3F7359"/>
+  <rect x="24" y="50" width="16" height="3" fill="#A78132"/>
+</svg>

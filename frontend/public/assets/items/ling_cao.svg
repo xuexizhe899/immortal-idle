@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>灵草</title>
+  <polygon points="30,52 23,42 16,28 18,24 26,34 31,46" fill="#3F7359" stroke="#22342C" stroke-width="2"/>
+  <polygon points="34,52 41,40 48,26 46,22 38,32 33,46" fill="#3F7359" stroke="#22342C" stroke-width="2"/>
+  <polygon points="28,52 20,48 14,40 16,37 24,44 30,49" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <polygon points="36,52 44,48 50,42 48,39 40,44 34,49" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,53 29,40 30,18 32,11 34,18 35,40" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <polygon points="31,20 32,13 33,20 32,44" fill="#CFE8D8"/>
+  <rect x="27" y="52" width="10" height="4" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <rect x="30" y="56" width="4" height="5" fill="#6E4528" stroke="#22342C" stroke-width="2"/>
+  <rect x="23" y="58" width="6" height="2" fill="#6E4528"/>
+  <rect x="35" y="58" width="6" height="2" fill="#6E4528"/>
+  <circle cx="32" cy="7" r="3" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <circle cx="28" cy="10" r="3" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <circle cx="36" cy="10" r="3" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="13" r="3" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="10" r="2" fill="#C9A24B"/>
+</svg>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>道具图标总览 · 云岫仙宗</title>
+  <style>
+    :root {
+      --page: #e8e5d6;
+      --card: #f6f1e2;
+      --ink: #23342c;
+      --muted: #6f7d72;
+      --line: #c8c0a6;
+      --jade: #426b57;
+      --light-bg: #f4efdf;
+      --dark-bg: #1d2a25;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 28px clamp(16px, 4vw, 48px) 56px;
+      background: var(--page);
+      color: var(--ink);
+      font: 14px/1.6 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+    header { max-width: 1180px; margin: 0 auto 24px; }
+    h1 { margin: 0 0 6px; font-size: 24px; letter-spacing: .08em; }
+    .lede { margin: 0; color: var(--muted); }
+    .meta { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; color: var(--muted); }
+    code { font: 12px/1.6 ui-monospace, Consolas, monospace; background: #ded8c4; padding: 1px 5px; }
+    section { max-width: 1180px; margin: 0 auto 28px; }
+    h2 { margin: 0 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-size: 16px; letter-spacing: .12em; color: var(--jade); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr)); gap: 14px; }
+    .item { background: var(--card); border: 1px solid var(--line); padding: 12px; }
+    .item-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .item-head h3 { margin: 0; font-size: 15px; }
+    .item-head span { font-size: 11px; color: var(--muted); }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .surface { padding: 8px; border: 1px solid var(--line); }
+    .surface.light { background: var(--light-bg); }
+    .surface.dark { background: var(--dark-bg); color: #e9e3ce; border-color: #3b4a43; }
+    .surface-label { display: block; margin-bottom: 4px; font-size: 10px; letter-spacing: .12em; opacity: .72; }
+    .sizes { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; min-height: 100px; }
+    figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    figure img { display: block; image-rendering: pixelated; }
+    figcaption { font-size: 10px; opacity: .7; }
+    .error { padding: 14px; border: 1px solid #b05a4a; background: #f4dfd8; color: #7d3227; }
+    @media (max-width: 520px) {
+      .pair { grid-template-columns: 1fr; }
+      .sizes { min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>道具图标总览</h1>
+    <p class="lede">18 张本地代码绘制的 64×64 SVG，透明背景，展示 32 / 48 / 96 三种尺寸及浅色、深色背景。</p>
+    <div class="meta">
+      <span>生成：<code>python tools/generate_item_icons.py</code></span>
+      <span>文件：<code>frontend/public/assets/items/</code></span>
+      <span id="count">正在读取清单…</span>
+    </div>
+  </header>
+  <div id="root"><section><div class="grid" id="loading"><p class="lede">加载图标清单…</p></div></section></div>
+  <script>
+    const SIZES = [32, 48, 96]
+    const KIND_NAMES = { material: '材料', pill: '丹药', artifact: '法器' }
+    const KIND_ORDER = ['material', 'pill', 'artifact']
+
+    function figureFor(item, size) {
+      const figure = document.createElement('figure')
+      const image = document.createElement('img')
+      image.src = `assets/items/${item.file}`
+      image.width = size
+      image.height = size
+      image.alt = ''
+      image.loading = 'lazy'
+      const caption = document.createElement('figcaption')
+      caption.textContent = `${size}px`
+      figure.append(image, caption)
+      return figure
+    }
+
+    function surfaceFor(item, tone) {
+      const surface = document.createElement('div')
+      surface.className = `surface ${tone}`
+      const label = document.createElement('span')
+      label.className = 'surface-label'
+      label.textContent = tone === 'light' ? '浅色背景' : '深色背景'
+      const sizes = document.createElement('div')
+      sizes.className = 'sizes'
+      SIZES.forEach(size => sizes.append(figureFor(item, size)))
+      surface.append(label, sizes)
+      return surface
+    }
+
+    function cardFor(item) {
+      const card = document.createElement('article')
+      card.className = 'item'
+      const head = document.createElement('div')
+      head.className = 'item-head'
+      const title = document.createElement('h3')
+      title.textContent = item.name
+      const id = document.createElement('span')
+      id.textContent = item.id
+      head.append(title, id)
+      const pair = document.createElement('div')
+      pair.className = 'pair'
+      pair.append(surfaceFor(item, 'light'), surfaceFor(item, 'dark'))
+      card.append(head, pair)
+      return card
+    }
+
+    async function main() {
+      const root = document.getElementById('root')
+      try {
+        const response = await fetch('assets/items/index.json', { cache: 'no-store' })
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        const data = await response.json()
+        if (!Array.isArray(data.items) || data.items.length === 0) throw new Error('清单为空')
+        document.getElementById('count').textContent = `共 ${data.items.length} 张`
+        root.replaceChildren()
+        KIND_ORDER.forEach(kind => {
+          const items = data.items.filter(item => item.kind === kind)
+          if (!items.length) return
+          const section = document.createElement('section')
+          const heading = document.createElement('h2')
+          heading.textContent = `${KIND_NAMES[kind]} · ${items.length}`
+          const grid = document.createElement('div')
+          grid.className = 'grid'
+          items.forEach(item => grid.append(cardFor(item)))
+          section.append(heading, grid)
+          root.append(section)
+        })
+        document.documentElement.dataset.ready = '1'
+        document.documentElement.dataset.count = String(data.items.length)
+        document.documentElement.dataset.height = String(document.documentElement.scrollHeight)
+      } catch (error) {
+        root.replaceChildren()
+        const box = document.createElement('div')
+        box.className = 'error'
+        box.textContent = `无法读取图标清单：${error.message}`
+        root.append(box)
+      }
+    }
+
+    main()
+  </script>
+</body>
+</html>

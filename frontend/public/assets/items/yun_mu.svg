@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>云母</title>
+  <polygon points="12,42 40,38 54,44 50,54 20,56" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+  <polygon points="15,43 39,40 49,45 46,50 21,52" fill="#EFE5CB"/>
+  <polygon points="18,32 44,28 50,34 46,42 16,44" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+  <polygon points="21,33 43,30 47,34 44,39 19,41" fill="#F2EAD3"/>
+  <polygon points="24,22 44,18 48,24 44,32 22,32" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+  <polygon points="27,24 43,21 45,24 42,29 25,29" fill="#F2EAD3"/>
+  <polygon points="27,24 43,21 44,23 28,26" fill="#E8D08A"/>
+  <polygon points="21,33 43,30 44,32 22,35" fill="#E8D08A"/>
+  <polygon points="15,43 39,40 40,42 16,45" fill="#E8D08A"/>
+</svg>

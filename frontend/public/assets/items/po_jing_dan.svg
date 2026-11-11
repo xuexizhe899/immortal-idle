@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>破境丹</title>
+  <polygon points="32,12 46,20 46,40 32,50 18,40 18,20" fill="#86CFC4" stroke="#22342C" stroke-width="2"/>
+  <polygon points="31,16 31,46 21,38 21,22" fill="#C6EDE5"/>
+  <polygon points="33,16 43,22 43,38 33,46" fill="#4E9F97"/>
+  <polygon points="31,12 34,20 31,27 34,35 31,44 33,46 36,35 33,28 36,20 33,12" fill="#22342C"/>
+  <polygon points="12,14 18,10 19,17 14,20" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="47,13 53,10 54,18 49,20" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <circle cx="50" cy="30" r="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <circle cx="15" cy="28" r="2" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="22" y="50" width="20" height="3" fill="#2C6B6B"/>
+</svg>

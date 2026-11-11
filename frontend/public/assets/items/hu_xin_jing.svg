@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>护心镜</title>
+  <circle cx="32" cy="34" r="18" fill="#A78132" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="34" r="15" fill="#E8D08A"/>
+  <circle cx="32" cy="34" r="11" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="34" r="6" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <circle cx="30" cy="32" r="2" fill="#F2EAD3"/>
+  <rect x="31" y="16" width="2" height="5" fill="#A78132"/>
+  <rect x="31" y="47" width="2" height="5" fill="#A78132"/>
+  <rect x="14" y="33" width="5" height="2" fill="#A78132"/>
+  <rect x="45" y="33" width="5" height="2" fill="#A78132"/>
+  <rect x="19" y="22" width="5" height="2" fill="#A78132"/>
+  <rect x="40" y="22" width="5" height="2" fill="#A78132"/>
+  <rect x="19" y="45" width="5" height="2" fill="#A78132"/>
+  <rect x="40" y="45" width="5" height="2" fill="#A78132"/>
+  <circle cx="32" cy="12" r="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="31" y="50" width="2" height="6" fill="#A9473B"/>
+  <rect x="29" y="56" width="6" height="3" fill="#C9A24B"/>
+</svg>

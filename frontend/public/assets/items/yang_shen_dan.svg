@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>养神丹</title>
+  <polygon points="18,42 24,54 32,46" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,46 40,54 46,42" fill="#3F7359" stroke="#22342C" stroke-width="2"/>
+  <polygon points="26,44 32,56 38,44" fill="#8CC4A2" stroke="#22342C" stroke-width="2"/>
+  <polygon points="12,33 22,23 32,21 42,23 52,33 42,43 32,45 22,43" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <polygon points="16,33 24,26 32,25 40,26 48,33 40,40 32,41 24,40" fill="#9CC6DE"/>
+  <circle cx="32" cy="33" r="7" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="33" r="4" fill="#16241F"/>
+  <circle cx="30" cy="31" r="1" fill="#F2EAD3"/>
+  <rect x="20" y="45" width="24" height="2" fill="#A78132"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>青锋剑</title>
+  <polygon points="32,4 38,15 37,41 27,41 26,15" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <polygon points="31,9 34,16 33,39 31,39" fill="#CFE8D8"/>
+  <polygon points="35,18 36,20 35,39 34,39" fill="#3F7359"/>
+  <rect x="30" y="18" width="4" height="3" fill="#C9A24B"/>
+  <rect x="20" y="41" width="24" height="5" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="22" y="42" width="20" height="2" fill="#E8D08A"/>
+  <rect x="29" y="46" width="6" height="11" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="49" width="6" height="2" fill="#A78132"/>
+  <rect x="29" y="53" width="6" height="2" fill="#A78132"/>
+  <rect x="26" y="57" width="12" height="4" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="43" y="44" width="2" height="9" fill="#A9473B"/>
+  <rect x="42" y="52" width="4" height="3" fill="#C9A24B"/>
+</svg>

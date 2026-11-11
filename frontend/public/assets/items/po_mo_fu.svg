@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>破魔符</title>
+  <polygon points="20,14 44,14 44,48 32,54 20,48" fill="#EFE3C6" stroke="#22342C" stroke-width="2"/>
+  <rect x="20" y="14" width="24" height="4" fill="#A9473B"/>
+  <rect x="28" y="22" width="4" height="18" fill="#A9473B"/>
+  <rect x="23" y="26" width="16" height="3" fill="#A9473B"/>
+  <rect x="26" y="36" width="12" height="3" fill="#A78132"/>
+  <circle cx="32" cy="44" r="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="16" y="9" width="32" height="5" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <rect x="18" y="8" width="4" height="7" fill="#C9A24B"/>
+  <rect x="42" y="8" width="4" height="7" fill="#C9A24B"/>
+  <polygon points="24,20 28,16 30,22 26,25" fill="#E8D08A"/>
+</svg>

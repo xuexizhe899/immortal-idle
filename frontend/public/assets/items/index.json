@@ -1,0 +1,112 @@
+{
+  "items": [
+    {
+      "file": "han_tie.svg",
+      "id": "han_tie",
+      "kind": "material",
+      "name": "寒铁"
+    },
+    {
+      "file": "jiao_gu.svg",
+      "id": "jiao_gu",
+      "kind": "material",
+      "name": "蛟骨"
+    },
+    {
+      "file": "jiu_ye.svg",
+      "id": "jiu_ye",
+      "kind": "material",
+      "name": "九叶灵芝"
+    },
+    {
+      "file": "ling_cao.svg",
+      "id": "ling_cao",
+      "kind": "material",
+      "name": "灵草"
+    },
+    {
+      "file": "xuan_jing.svg",
+      "id": "xuan_jing",
+      "kind": "material",
+      "name": "玄晶"
+    },
+    {
+      "file": "yun_mu.svg",
+      "id": "yun_mu",
+      "kind": "material",
+      "name": "云母"
+    },
+    {
+      "file": "gu_ti_dan.svg",
+      "id": "gu_ti_dan",
+      "kind": "pill",
+      "name": "固元丹"
+    },
+    {
+      "file": "hui_ling_dan.svg",
+      "id": "hui_ling_dan",
+      "kind": "pill",
+      "name": "回灵丹"
+    },
+    {
+      "file": "ju_qi_dan.svg",
+      "id": "ju_qi_dan",
+      "kind": "pill",
+      "name": "聚气丹"
+    },
+    {
+      "file": "liao_shang_dan.svg",
+      "id": "liao_shang_dan",
+      "kind": "pill",
+      "name": "疗伤丹"
+    },
+    {
+      "file": "po_jing_dan.svg",
+      "id": "po_jing_dan",
+      "kind": "pill",
+      "name": "破境丹"
+    },
+    {
+      "file": "yang_shen_dan.svg",
+      "id": "yang_shen_dan",
+      "kind": "pill",
+      "name": "养神丹"
+    },
+    {
+      "file": "hu_xin_jing.svg",
+      "id": "hu_xin_jing",
+      "kind": "artifact",
+      "name": "护心镜"
+    },
+    {
+      "file": "ju_ling_pei.svg",
+      "id": "ju_ling_pei",
+      "kind": "artifact",
+      "name": "聚灵佩"
+    },
+    {
+      "file": "liu_yun_xue.svg",
+      "id": "liu_yun_xue",
+      "kind": "artifact",
+      "name": "流云靴"
+    },
+    {
+      "file": "po_mo_fu.svg",
+      "id": "po_mo_fu",
+      "kind": "artifact",
+      "name": "破魔符"
+    },
+    {
+      "file": "qing_feng_jian.svg",
+      "id": "qing_feng_jian",
+      "kind": "artifact",
+      "name": "青锋剑"
+    },
+    {
+      "file": "xuan_tie_jia.svg",
+      "id": "xuan_tie_jia",
+      "kind": "artifact",
+      "name": "玄铁甲"
+    }
+  ]
+}

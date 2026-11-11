@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>玄晶</title>
+  <polygon points="16,52 24,44 40,44 50,52 44,56 22,56" fill="#46565B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="19,52 25,46 39,46 47,52 42,54 24,54" fill="#66797E"/>
+  <polygon points="20,24 24,18 28,24 27,42 21,46 18,40" fill="#4E9F97" stroke="#22342C" stroke-width="2"/>
+  <polygon points="22,25 24,21 26,25 25,41 22,43" fill="#C6EDE5"/>
+  <polygon points="30,14 36,8 42,16 40,42 32,48 28,40 28,20" fill="#2C6B6B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="31,16 34,12 35,42 31,44" fill="#86CFC4"/>
+  <polygon points="36,17 39,14 39,40 36,42" fill="#4E9F97"/>
+  <polygon points="44,20 48,14 52,22 50,42 45,46 42,38" fill="#2C6B6B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="45,21 48,18 49,24 48,40 46,42" fill="#86CFC4"/>
+</svg>

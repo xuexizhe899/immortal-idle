@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>聚灵佩</title>
+  <polygon points="24,14 40,14 44,20 44,42 32,54 20,42 20,20" fill="#8CC4A2" stroke="#22342C" stroke-width="2"/>
+  <polygon points="26,17 38,17 41,21 41,41 32,50 23,41 23,21" fill="#CFE8D8"/>
+  <polygon points="28,24 36,24 36,32 32,36 28,32" fill="#3F7359"/>
+  <rect x="30" y="28" width="4" height="2" fill="#E8D08A"/>
+  <rect x="25" y="38" width="4" height="2" fill="#C9A24B"/>
+  <rect x="35" y="38" width="4" height="2" fill="#C9A24B"/>
+  <rect x="27" y="10" width="10" height="5" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="30" y="5" width="4" height="3" fill="#A78132"/>
+  <rect x="31" y="52" width="2" height="8" fill="#A9473B"/>
+  <rect x="29" y="58" width="6" height="3" fill="#C9A24B"/>
+</svg>

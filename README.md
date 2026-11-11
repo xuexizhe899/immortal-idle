@@ -62,6 +62,16 @@ npm run gen:api
 
 `backend/openapi.json` 与 `frontend/src/generated/` 都是构建产物，已被 gitignore，不要手改。
 
+## 道具图标
+
+丹药、法器与材料图标由本地脚本绘制，不走生图 API：
+
+```powershell
+backend\.venv\Scripts\python.exe tools\generate_item_icons.py
+```
+
+输出 `frontend/public/assets/items/<id>.svg` 和清单 `index.json`；总览页在 Vite 启动后访问 `/item-icons.html`。新增道具时，先在 `config/recipes` 或 `config/materials` 添加配置，再在 `tools/generate_item_icons.py` 的 `ART` 中补同名绘图函数，并同步 `frontend/src/components/ItemIcon.vue` 的 ID 列表。重复运行只按内容更新本脚本负责的文件，不清空资产目录。
+
 ## 约束
 
 - 本机不装游戏引擎、不装 Docker Desktop、不装本地生图环境
