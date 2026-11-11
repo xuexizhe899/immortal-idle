@@ -527,19 +527,21 @@ def generate(
     items: list[dict[str, str]], output: Path, only: set[str] | None = None,
 ) -> list[Path]:
     """生成 SVG 与 index.json，返回实际写入的文件路径。"""
+    selected_items = items
     if only:
         unknown = only - {item["id"] for item in items}
         if unknown:
             raise IconError(f"未知道具 ID：{', '.join(sorted(unknown))}")
-        items = [item for item in items if item["id"] in only]
+        selected_items = [item for item in items if item["id"] in only]
 
     output.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
-    for item in items:
+    for item in selected_items:
         path = output / f"{item['id']}.svg"
         if _write_if_changed(path, render_svg(item)):
             written.append(path)
 
+    # 单图更新后仍登记目录中其余已生成道具，避免完整总览被开发预览缩减。
     manifest = {
         "items": [
             {
@@ -549,6 +551,7 @@ def generate(
                 "file": f"{item['id']}.svg",
             }
             for item in items
+            if (output / f"{item['id']}.svg").is_file()
         ]
     }
     manifest_path = output / "index.json"

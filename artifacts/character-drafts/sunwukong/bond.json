@@ -1,0 +1,17 @@
+{
+  "id": "qitian",
+  "name": "齐天大圣",
+  "members": [
+    "sunwukong",
+    "nezha"
+  ],
+  "requires": 2,
+  "effects": [
+    {
+      "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.12,
+      "scope": "run"
+    }
+  ]
+}

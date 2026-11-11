@@ -70,6 +70,8 @@ npm run gen:api
 backend\.venv\Scripts\python.exe tools\generate_item_icons.py
 ```
 
+开发时可用 `--only qing_feng_jian` 单独更新图标；已有完整输出目录的清单会保留其余道具，新的预览目录只登记实际生成的文件。
+
 输出 `frontend/public/assets/items/<id>.svg` 和清单 `index.json`；总览页在 Vite 启动后访问 `/item-icons.html`。新增道具时，先在 `config/recipes` 或 `config/materials` 添加配置，再在 `tools/generate_item_icons.py` 的 `ART` 中补同名绘图函数，并同步 `frontend/src/components/ItemIcon.vue` 的 ID 列表。重复运行只按内容更新本脚本负责的文件，不清空资产目录。
 
 ## 约束
@@ -82,4 +84,10 @@ backend\.venv\Scripts\python.exe tools\generate_item_icons.py
 
 主城七座建筑分别承载宗门总览、弟子/招贤、值守、爬塔、炼丹、炼器和远征开放状态。存档管理在主殿内；进行中的出征可返回宗门查看，再继续原进度。晨昼暮夜随本地时间变化，也可在“天色”入口预览，不影响服务端收益。
 
+首页采用一屏主城与底部固定功能栏，提供宗门、弟子、值守、炼丹、炼器、问道六入口，与建筑打开相同面板。问道入口按真实出征状态显示“继续出征”或“待结算”；未开放码头只保留地图入口。当前目标以可点击浮签显示，右下可收取收益；收益与最近出征明细在宗门总览查看，阵容在弟子与出征准备中调整。手机地图可在场景区域左右滑动，底栏始终可达；底栏图标由本地 SVG 绘制。
+
 当前战斗按队伍总战力确定结果，PixiJS 只播放真实结果的短演出。人物招式标为资料预览；出发时保存队伍战斗快照，刷新与自然消伤不会改变本局战力。本次完整修改汇总见 `CHANGELOG-2026-11-11.md`，任务记录见 `tasks/T14-frontend-polish.md`。
+
+## 角色内容草稿
+
+`tools/create_disciple.py` 可从角色卡生成弟子、技能、可选羁绊、立绘提示和数值报告；默认只生成草稿，显式 `--apply` 才写正式配置。使用步骤和孙悟空示例见 [T15 角色快速创建与数值平衡](tasks/T15-character-creation.md)。

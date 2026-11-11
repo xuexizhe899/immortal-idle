@@ -1,0 +1,56 @@
+{
+  "id": "sunwukong",
+  "name": "孙悟空",
+  "title": "齐天",
+  "origin": "myth",
+  "rarity": 3,
+  "lean": "attack",
+  "profile": "burst",
+  "concept": "花果山猴王，桀骜不驯却重情重义，一根金箍棒打上天庭，也在取经路上学会守护同伴。",
+  "motifs": [
+    "金箍棒",
+    "筋斗云",
+    "火眼金睛",
+    "七十二变"
+  ],
+  "visual": "身形精瘦矫健的猴王，头戴金箍，火眼金睛，虎皮短裙与赤红披帛，手持如意金箍棒，脚踏筋斗云，桀骜张扬。",
+  "visual_prompt": "Sun Wukong the Monkey King, lean agile monkey warrior, golden fillet, fiery golden eyes, tiger-skin skirt, crimson scarf, holding the golden cudgel, standing on a somersault cloud, proud defiant expression, dynamic pose",
+  "active": {
+    "name": "大闹天宫",
+    "description": "孙悟空抡起金箍棒，一棒扫开天兵阵势，棒风所至群敌退避；出征时攻击大幅提升。",
+    "stat": "atk",
+    "value": 0.24,
+    "scope": "battle",
+    "mode": "add_pct"
+  },
+  "passive": {
+    "name": "七十二变",
+    "description": "孙悟空仗着火眼金睛看破敌招，翻腾闪转之间身法愈发迅捷；身法永久提升。",
+    "stat": "spd",
+    "value": 0.1,
+    "scope": "permanent",
+    "mode": "add_pct"
+  },
+  "bond": {
+    "id": "qitian",
+    "name": "齐天大圣",
+    "members": [
+      "sunwukong",
+      "nezha"
+    ],
+    "requires": 2,
+    "effects": [
+      {
+        "stat": "atk",
+        "mode": "add_pct",
+        "value": 0.12,
+        "scope": "run"
+      }
+    ]
+  },
+  "unlock_cost": {
+    "reputation": 220
+  },
+  "asset_id": "trial-v04/sunwukong",
+  "power_target": 38.0
+}

@@ -96,6 +96,32 @@ class ItemIconGeneratorTests(unittest.TestCase):
             self.assertNotIn("<script", text)
             self.assertNotIn("<image", text)
 
+    def test_single_icon_refresh_preserves_complete_manifest(self) -> None:
+        items = gen.load_items()
+        gen.generate(items, self.output)
+        manifest = (self.output / "index.json").read_bytes()
+        other_icon = (self.output / "ling_cao.svg").read_bytes()
+        (self.output / "qing_feng_jian.svg").write_text("stale", encoding="utf-8")
+
+        written = gen.generate(items, self.output, {"qing_feng_jian"})
+
+        self.assertEqual(written, [self.output / "qing_feng_jian.svg"])
+        self.assertEqual((self.output / "index.json").read_bytes(), manifest)
+        self.assertEqual((self.output / "ling_cao.svg").read_bytes(), other_icon)
+        self.assertEqual(
+            (self.output / "qing_feng_jian.svg").read_text(encoding="utf-8"),
+            gen.render_svg(next(item for item in items if item["id"] == "qing_feng_jian")),
+        )
+
+    def test_single_icon_preview_lists_only_existing_files(self) -> None:
+        gen.generate(gen.load_items(), self.output, {"qing_feng_jian"})
+        manifest = json.loads((self.output / "index.json").read_text(encoding="utf-8"))
+        self.assertEqual([item["id"] for item in manifest["items"]], ["qing_feng_jian"])
+        self.assertEqual(
+            {path.name for path in self.output.iterdir()},
+            {"qing_feng_jian.svg", "index.json"},
+        )
+
     def test_unrelated_files_in_output_directory_are_preserved(self) -> None:
         self.output.mkdir(parents=True)
         keep = self.output / "keep.txt"

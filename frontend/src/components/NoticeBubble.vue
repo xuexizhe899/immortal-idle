@@ -62,7 +62,7 @@ onBeforeUnmount(clearTimer)
   --bubble-bg: #f5f7e8; --bubble-border: #a9b996; --bubble-ink: #2d5644;
   --seal-ink: #3c6b56; --seal-border: #93a787; --seal-bg: #faf5e5;
   position: relative; display: flex; align-items: flex-end; gap: 9px;
-  max-width: 100%; color: var(--bubble-ink); pointer-events: auto;
+  flex: none; max-width: 100%; color: var(--bubble-ink); pointer-events: auto;
 }
 .tone-error {
   --bubble-bg: #faecdf; --bubble-border: #c99580; --bubble-ink: #8f4032;

@@ -1,0 +1,23 @@
+{
+  "id": "sunwukong",
+  "name": "孙悟空",
+  "title": "齐天",
+  "origin": "myth",
+  "rarity": 3,
+  "lean": "attack",
+  "asset_id": "trial-v04/sunwukong",
+  "base_stats": {
+    "hp": 110,
+    "atk": 22,
+    "def": 10,
+    "spd": 14
+  },
+  "skill": "sunwukong-art",
+  "passive": "sunwukong-passive",
+  "bonds": [
+    "qitian"
+  ],
+  "unlock_cost": {
+    "reputation": 220
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "asset_id": "trial-v04/sunwukong",
+  "status": "pending",
+  "style_source": "config/style/style.json",
+  "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, plain light warm-gray background, no text, no watermark, no border, no card frame, Sun Wukong the Monkey King, lean agile monkey warrior, golden fillet, fiery golden eyes, tiger-skin skirt, crimson scarf, holding the golden cudgel, standing on a somersault cloud, proud defiant expression, dynamic pose",
+  "negative_prompt": "photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+  "size": "1024x1536",
+  "fallback_size": "1024x1024",
+  "palette": [
+    "#4a5d5a",
+    "#8a6d4a",
+    "#e8e2d4",
+    "#c9a86a"
+  ],
+  "motifs": [
+    "金箍棒",
+    "筋斗云",
+    "火眼金睛",
+    "七十二变"
+  ],
+  "visual": "身形精瘦矫健的猴王，头戴金箍，火眼金睛，虎皮短裙与赤红披帛，手持如意金箍棒，脚踏筋斗云，桀骜张扬。"
+}
