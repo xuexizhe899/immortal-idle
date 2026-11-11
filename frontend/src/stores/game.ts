@@ -29,7 +29,16 @@ export const useGameStore = defineStore('game', () => {
   const ready = ref(false)
   const operation = ref('')
   const error = ref<string | null>(null)
-  const notice = ref<string | null>(null)
+  const noticeText = ref<string | null>(null)
+  const noticeId = ref(0)
+  // 连续下发相同文案时也要重新出现并重新计时，因此单独记录提示事件序号。
+  const notice = computed<string | null>({
+    get: () => noticeText.value,
+    set: value => {
+      noticeText.value = value
+      if (value) noticeId.value += 1
+    },
+  })
   const status = ref<SaveContent['status']>('idle')
   const production = ref<Production>({ cultivation: 0, spirit_stone: 0, stamina: 0, materials: {}, injury_recovery_multiplier: 1 })
   const disciples = computed(() => state.value?.disciples ?? [])
@@ -301,7 +310,7 @@ export const useGameStore = defineStore('game', () => {
 
   return {
     slotId, revision, state, run, catalog, lastRun, lastSettle, saves, party, busy, ready,
-    operation, error, notice, disciples, resources, status, production, battleResult,
+    operation, error, notice, noticeId, disciples, resources, status, production, battleResult,
     bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, choose, pickAffix,
     settleRun, assignDuty, unassignDuty, recruit, craft, upgrade, loadSaves, switchSave,
     createSave, duplicateSave, deleteSave, importSave,

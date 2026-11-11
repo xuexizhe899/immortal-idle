@@ -54,6 +54,10 @@ textarea { resize: vertical; width: 100%; }
 .field-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
 .notice-box { padding: 12px 15px; border: 1px solid #bdc7a8; background: #eaf0dd; color: var(--jade); font-size: 13px; }
 .error-box { padding: 12px 15px; border: 1px solid #c7947f; background: #f9eade; color: var(--danger); font-size: 13px; }
+.bubble-enter-active { animation: bubble-in .22s cubic-bezier(.2,.7,.3,1); }
+.bubble-leave-active { animation: bubble-out .16s ease-in forwards; }
+@keyframes bubble-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes bubble-out { to { opacity: 0; transform: translateY(5px); } }
 .progress-track { overflow: hidden; height: 6px; background: #d6d5bf; }
 .progress-track span { display: block; height: 100%; background: var(--jade); transition: width .3s ease; }
 .pixel-art { image-rendering: pixelated; }
@@ -68,4 +72,7 @@ textarea { resize: vertical; width: 100%; }
   .tabs button { min-height: 44px; padding: 8px 12px; }
   .stat-grid { gap: 5px; }.stat-cell { padding: 10px 4px; }
 }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .bubble-enter-active, .bubble-leave-active { animation: none; }
+}

@@ -155,3 +155,26 @@ test('deleting the current save with a lost response recovers an existing save w
   assert.equal(session.store.busy, false)
   assert.match(session.store.error, /确认最新进度/)
 })
+
+test('repeating the same notice registers a fresh feedback event so it can appear again', async t => {
+  const ids = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta']
+  const session = harness({ 1: snapshot({ disciples: ids.map(id => disciple(id)) }) })
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  for (const id of ids.slice(0, 5)) session.store.toggleParty(id)
+  assert.equal(session.store.party.length, 5)
+
+  session.store.toggleParty('zeta')
+  const firstEvent = session.store.noticeId
+  assert.equal(session.store.notice, '队伍已满，请先移除一名弟子。')
+  assert.ok(firstEvent > 0)
+
+  session.store.toggleParty('zeta')
+  assert.equal(session.store.notice, '队伍已满，请先移除一名弟子。')
+  assert.equal(session.store.noticeId, firstEvent + 1, 'identical text must still count as a new notice')
+
+  session.store.dismissNotice()
+  assert.equal(session.store.notice, null)
+  session.store.toggleParty('zeta')
+  assert.equal(session.store.noticeId, firstEvent + 2)
+})
