@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "calls": 37,
+  "calls": 58,
   "items": [
     {
       "key": "disciple_zhugeliang",
@@ -946,7 +946,720 @@
         }
       },
       "created_at": "2026-11-09T14:31:06+00:00"
+    },
+    {
+      "key": "trial_v03_zhugeliang",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/zhugeliang.png",
+      "hash": "dbf198d9b46edd9c",
+      "requested_hash": "dbf198d9b46edd9c",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Zhuge Liang, adult Chinese Three Kingdoms strategist, calm long-haired scholar with a neat dark beard, tall traditional scholar headdress, layered jade-green and muted ivory robes, holding one white feather fan at chest level. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including headdress and feet, clear separated silhouette, relaxed standing three-quarter pose, entire figure within generous empty margins. Warm afternoon key light from upper left, subtle cool shadow side. Exactly one character, no scenery, no lettering, no weapon effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no shadow, no gradient and no pink garment details. Palette: jade, ivory, dark teal and warm wood browns. Fine deliberate pixel clusters, readable at 512px character height.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T08:36:44+00:00",
+      "bytes": 1810708,
+      "elapsed_ms": 28817,
+      "usage": {
+        "input_tokens": 353,
+        "output_tokens": 171,
+        "total_tokens": 524,
+        "input_tokens_details": {
+          "text_tokens": 353,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 171,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/zhugeliang.png"
+    },
+    {
+      "key": "trial_v03_guanyu",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/guanyu.png",
+      "hash": "1172a879377ffda2",
+      "requested_hash": "1172a879377ffda2",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Guan Yu, adult Chinese Three Kingdoms warrior with a dignified deep-red face and long black beard, strong broad-shouldered silhouette, dark teal lamellar armor over a jade-green robe with restrained warm bronze fittings, traditional cloth cap, holding one long guandao polearm with the blade fully visible within the image. Detailed pixel-art material shading consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including head, weapon and feet, clear separated silhouette, relaxed standing three-quarter pose, entire figure within generous empty margins. Warm afternoon key light from upper left, subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects. Background is perfectly flat pure magenta #FF00FF with no shadow, no gradient and no pink garment details. Fine deliberate pixel clusters, readable at 512px character height.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T08:37:14+00:00",
+      "bytes": 2044839,
+      "elapsed_ms": 30173,
+      "usage": {
+        "input_tokens": 354,
+        "output_tokens": 161,
+        "total_tokens": 515,
+        "input_tokens_details": {
+          "text_tokens": 354,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 161,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/guanyu.png"
+    },
+    {
+      "key": "trial_v03_change",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/change.png",
+      "hash": "6078007c9b462d5d",
+      "requested_hash": "6078007c9b462d5d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Chang'e, adult Chinese moon goddess, poised woman with long dark hair arranged in a traditional bun with a small crescent-shaped gold ornament, elegant long ivory and pale-blue flowing robes with muted jade details, holding a small moon-shaped ivory disk, graceful narrow silhouette distinct from the scholar and armored warrior. Detailed pixel-art fabric shading consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hairstyle and feet, calm standing three-quarter pose, all sleeves fully within generous empty margins. Warm afternoon key light from upper left, subtle cool shadow side. Exactly one character, no rabbit, no scenery, no lettering, no glow halo or scattered particles. Background is perfectly flat pure magenta #FF00FF with no shadow, no gradient and no pink garment details. Fine deliberate pixel clusters, readable at 512px character height.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T08:37:36+00:00",
+      "bytes": 1528566,
+      "elapsed_ms": 21657,
+      "usage": {
+        "input_tokens": 351,
+        "output_tokens": 165,
+        "total_tokens": 516,
+        "input_tokens_details": {
+          "text_tokens": 351,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 165,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/change.png"
+    },
+    {
+      "key": "trial_v03_scene_tower",
+      "kind": "scene",
+      "file": "assets/raw/trial-v03/scene_tower_trial.png",
+      "hash": "824f56243643dd29",
+      "requested_hash": "824f56243643dd29",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art Chinese xianxia game environment, high-resolution pixel art like modern indie city-builder games, crisp hard pixel edges, no anti-aliasing, limited palette with dithering, isometric three-quarter top-down view, floating immortal architecture with dark teal tile roofs and warm wooden beams, white jade stone ground, visible thickness and side faces on platforms for pseudo-3D depth, golden ginkgo and pink blossom trees, sea of clouds and distant mountains, warm afternoon daylight with clear pixel cast shadows, no characters unless specified, no text, no watermark, no UI. Subject: An ancient Chinese trial pagoda battle platform above a sea of clouds, matching the existing detailed-pixel-art immortal sect city. Dark teal tiled roof corners and warm wooden columns frame the far left and right edges, weathered white jade paving forms a wide uncluttered battle floor across the lower middle, engraved subtle circular motif, distant layered mountains and drifting clouds visible through the open architecture. Three-quarter slightly elevated view with clear platform thickness and grounding. Warm afternoon sunlight from upper left with restrained cast shadows, jade-gray and warm wood palette. Keep the middle 65 percent open and readable for two opposing parties. No characters, no enemies, no buildings in the center, no text, no interface, no signs, no borders.. Avoid: photorealistic photo, smooth painterly rendering, smooth gradients, anti-aliasing, plastic 3d cgi, sunset orange glow, god rays, oversaturated sky, lens flare, text, watermark, UI buttons, video player interface",
+      "created_at": "2026-11-11T08:38:02+00:00",
+      "bytes": 3045915,
+      "elapsed_ms": 25499,
+      "usage": {
+        "input_tokens": 316,
+        "output_tokens": 162,
+        "total_tokens": 478,
+        "input_tokens_details": {
+          "text_tokens": 316,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 162,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/scene_tower_trial.png"
+    },
+    {
+      "key": "city_v03_complete",
+      "kind": "city",
+      "file": "assets/raw/city-v03/scene_city_complete.png",
+      "hash": "d14c50c019b24d09",
+      "requested_hash": "d14c50c019b24d09",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "style_version": "0.3.0",
+      "prompt": "Use case: stylized-concept. Asset type: a complete 3:2 Chinese xianxia sect city background for a browser game, 1536 by 1024. Create one integrated high-resolution detailed pixel-art isometric floating-island city, all terrain and architecture coherently composed in one image, matching modern indie detailed pixel art. Crisp deliberate pixel clusters, limited teal-gray, jade, ivory stone, warm brown wood and restrained gold palette, careful pixel dithering, consistent warm afternoon sunlight from the upper left and cool shadows. Three-quarter elevated isometric camera with visible architectural side faces and platform thickness. EXACTLY SEVEN distinct complete functional building groups, no more and no fewer. Keep each group visually separate, unobstructed, not overlapping other roofs, fully inside the frame, linked by white-jade stone paths to one open central white-jade plaza at image center (50 percent x, 52 percent y). Positions are building-group centers measured from top left: 1. scripture library at (20 percent x, 27 percent y), elegant scholarly pavilion with visible bookshelves and scrolls, clearly for disciple study and recruitment; 2. dignified sect administrative main hall at (50 percent x, 25 percent y), widest ceremonial double-eaved hall with broad white-jade steps and red wooden pillars, not a gate or tavern; 3. harbor at (83 percent x, 25 percent y), one small dock office pavilion attached to a wooden pier and exactly one moored Chinese sailing boat; 4. martial drill courtyard at (20 percent x, 59 percent y), open training arena with weapon racks and wooden training dummies, no enclosed house; 5. tall slender seven-story trial pagoda at (81 percent x, 59 percent y), clearly the tallest vertical landmark, entirely visible and not cropped; 6. artifact smithy at (40 percent x, 79 percent y), compact stone-and-wood forge workshop with one anvil, a red glowing forge opening and short chimney; 7. alchemy house at (62 percent x, 79 percent y), herb shelves and a bronze pill furnace with faint jade-green smoke, visually distinct from the smithy. All seven groups use harmonious dark-teal tile roofs and warm wooden details, firmly grounded with correct contact shadows and consistent perspective. Architecture occupies the inner approximately 70 percent of the image; keep an outer approximately 15 percent border of cloud sea, rocky floating-island edge and distant mountains so roofs and boats are not cut off. A few golden ginkgo and pink blossom trees may sit in gaps without concealing building silhouettes or the open center. No extra buildings, no tavern, no inn, no marketplace, no market stalls, no quest board, no signboards, no eighth building, no additional towers. No people, no UI, no labels, no text, no watermark, no logos, no border, no floating building sprites. Avoid photorealistic rendering, smooth painterly gradients, plastic 3D, chibi architecture and oversaturated orange sunset.",
+      "created_at": "2026-11-11T09:22:31+00:00",
+      "bytes": 3952926,
+      "elapsed_ms": 26864,
+      "usage": {
+        "input_tokens": 626,
+        "output_tokens": 174,
+        "total_tokens": 800,
+        "input_tokens_details": {
+          "text_tokens": 626,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 174,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/city-v03/scene_city_complete.png"
+    },
+    {
+      "key": "trial_v03_baisuzhen",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/baisuzhen.png",
+      "hash": "b67590d5aa892757",
+      "requested_hash": "b67590d5aa892757",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Bai Suzhen, adult Chinese white-snake spirit in human form, graceful poised woman with long black hair, a jade hairpin shaped like a leaf, ivory-white layered long robes with very pale jade embroidery, holding a slim folded white parasol close to her body, elegant serene expression. No snake body and no animals. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:24:47+00:00",
+      "bytes": 1565237,
+      "elapsed_ms": 45628,
+      "usage": {
+        "input_tokens": 398,
+        "output_tokens": 173,
+        "total_tokens": 571,
+        "input_tokens_details": {
+          "text_tokens": 398,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 173,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/baisuzhen.png"
+    },
+    {
+      "key": "trial_v03_dufu",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/dufu.png",
+      "hash": "97dfd8d64b4ee4bc",
+      "requested_hash": "97dfd8d64b4ee4bc",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Du Fu, older Tang dynasty Chinese poet, lean weathered face and short greying beard, simple worn muted blue-grey scholar robe and cloth head wrap, holding one rolled parchment in both hands, contemplative patient expression, modest slightly stooped silhouette. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:25:16+00:00",
+      "bytes": 1617261,
+      "elapsed_ms": 29733,
+      "usage": {
+        "input_tokens": 383,
+        "output_tokens": 171,
+        "total_tokens": 554,
+        "input_tokens_details": {
+          "text_tokens": 383,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 171,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/dufu.png"
+    },
+    {
+      "key": "trial_v03_houyi",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/houyi.png",
+      "hash": "869922f7f34daeb7",
+      "requested_hash": "869922f7f34daeb7",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Hou Yi, adult Chinese mythical archer, athletic tall man with tied dark hair, bronze-and-dark-teal leather armor with warm russet sash, holding a full-height traditional curved bow and wearing one restrained quiver, determined expression. Bow completely inside frame, no arrows flying. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:25:52+00:00",
+      "bytes": 1916899,
+      "elapsed_ms": 35329,
+      "usage": {
+        "input_tokens": 389,
+        "output_tokens": 160,
+        "total_tokens": 549,
+        "input_tokens_details": {
+          "text_tokens": 389,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 160,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/houyi.png"
+    },
+    {
+      "key": "trial_v03_huatuo",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/huatuo.png",
+      "hash": "92ee453c96e7c5c2",
+      "requested_hash": "92ee453c96e7c5c2",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Hua Tuo, elderly Chinese physician with white beard and kind attentive face, simple sage-grey and ivory robes, a small wooden medicine case at the waist and one tied bundle of herbs in his hands, distinctive stooped healer silhouette, no magical glow. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:26:19+00:00",
+      "bytes": 1600237,
+      "elapsed_ms": 27528,
+      "usage": {
+        "input_tokens": 383,
+        "output_tokens": 177,
+        "total_tokens": 560,
+        "input_tokens_details": {
+          "text_tokens": 383,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 177,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/huatuo.png"
+    },
+    {
+      "key": "trial_v03_jingwei",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/jingwei.png",
+      "hash": "63b2abacce5119d0",
+      "requested_hash": "63b2abacce5119d0",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Jingwei, Chinese mythical bird maiden in human form, young adult woman with dark feather-accented hair, short ochre-and-muted-teal feather mantle over a plain ivory robe, carrying a few small stones in one cupped hand and a woven pebble pouch, gentle determined expression. Human arms and legs, no wings spread, no bird companions. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:26:58+00:00",
+      "bytes": 1588305,
+      "elapsed_ms": 38414,
+      "usage": {
+        "input_tokens": 404,
+        "output_tokens": 166,
+        "total_tokens": 570,
+        "input_tokens_details": {
+          "text_tokens": 404,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 166,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/jingwei.png"
+    },
+    {
+      "key": "trial_v03_libai",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/libai.png",
+      "hash": "ecdd2504e9d7c022",
+      "requested_hash": "ecdd2504e9d7c022",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Li Bai, adult Tang dynasty Chinese wandering poet swordsman, slender relaxed man with loosely tied dark hair and a slight moustache, flowing ivory robe with muted indigo sash, sheathed sword diagonally on his back and one small brown wine gourd at the waist, holding a narrow rolled poem, serene half-smile. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:27:18+00:00",
+      "bytes": 1650046,
+      "elapsed_ms": 20648,
+      "usage": {
+        "input_tokens": 398,
+        "output_tokens": 159,
+        "total_tokens": 557,
+        "input_tokens_details": {
+          "text_tokens": 398,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 159,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/libai.png"
+    },
+    {
+      "key": "trial_v03_nezha",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/nezha.png",
+      "hash": "2f26edc40621eed7",
+      "requested_hash": "2f26edc40621eed7",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Nezha, Chinese mythic young warrior deity, athletic adolescent with dark hair in two compact buns, fierce confident expression, restrained red sash and warm bronze light armor over muted ivory short robes, holding one fire-tipped spear with no actual flames, small gold ring at the waist. Normal heroic adolescent proportions, not a toddler or chibi, both feet planted, no wheels and no floating ribbons outside frame. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:27:43+00:00",
+      "bytes": 1780339,
+      "elapsed_ms": 24575,
+      "usage": {
+        "input_tokens": 415,
+        "output_tokens": 177,
+        "total_tokens": 592,
+        "input_tokens_details": {
+          "text_tokens": 415,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 177,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/nezha.png"
+    },
+    {
+      "key": "trial_v03_yangjian",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/yangjian.png",
+      "hash": "3d57283c85c0e284",
+      "requested_hash": "3d57283c85c0e284",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Yang Jian Erlang Shen, adult Chinese mythic warrior deity, tall commanding man with a clearly visible small vertical third eye on forehead, tied dark hair, silver and dark-teal armor, ivory cape with restrained jade trim, holding a three-pointed double-edged polearm with its full blade visible, no dog companion and no magic aura. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:28:30+00:00",
+      "bytes": 2066610,
+      "elapsed_ms": 47243,
+      "usage": {
+        "input_tokens": 402,
+        "output_tokens": 164,
+        "total_tokens": 566,
+        "input_tokens_details": {
+          "text_tokens": 402,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 164,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/yangjian.png"
+    },
+    {
+      "key": "trial_v03_yuefei",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/yuefei.png",
+      "hash": "436b3bf86c0d4f0b",
+      "requested_hash": "436b3bf86c0d4f0b",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Yue Fei, adult Song dynasty Chinese general, stern resolute face with a short neat beard, heavy dark iron lamellar armor and a muted crimson cloak, traditional military helmet with a short red tassel, holding one straight spear, broad stable defensive silhouette, no banners or writing. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:29:27+00:00",
+      "bytes": 1514873,
+      "elapsed_ms": 56983,
+      "usage": {
+        "input_tokens": 390,
+        "output_tokens": 160,
+        "total_tokens": 550,
+        "input_tokens_details": {
+          "text_tokens": 390,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 160,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/yuefei.png"
+    },
+    {
+      "key": "trial_v03_zhangfei",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/zhangfei.png",
+      "hash": "cf44dfa0002e062a",
+      "requested_hash": "cf44dfa0002e062a",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Zhang Fei, adult Three Kingdoms Chinese general, powerfully stocky broad man with thick wild black beard and fierce round eyes, dark iron lamellar armor with a brown-red sash, holding one long serpent-headed spear, rugged defensive silhouette distinct from Guan Yu, no helmet hiding the face. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:31:29+00:00",
+      "bytes": 1932825,
+      "elapsed_ms": 121379,
+      "usage": {
+        "input_tokens": 392,
+        "output_tokens": 159,
+        "total_tokens": 551,
+        "input_tokens_details": {
+          "text_tokens": 392,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 159,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/zhangfei.png"
+    },
+    {
+      "key": "trial_v03_zhangheng",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/zhangheng.png",
+      "hash": "38cc405b23f4166a",
+      "requested_hash": "38cc405b23f4166a",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Zhang Heng, adult Han dynasty Chinese scholar inventor, focused thoughtful man with neat moustache and scholarly cap, deep indigo-blue layered robe with warm bronze trim, holding a small bronze ringed astronomical instrument in both hands, a slim measuring tool at waist, no lettering or diagrams floating around him. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:32:02+00:00",
+      "bytes": 1832424,
+      "elapsed_ms": 33430,
+      "usage": {
+        "input_tokens": 392,
+        "output_tokens": 162,
+        "total_tokens": 554,
+        "input_tokens_details": {
+          "text_tokens": 392,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 162,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/zhangheng.png"
+    },
+    {
+      "key": "trial_v03_zhaoyun",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/zhaoyun.png",
+      "hash": "2f37962258d0b241",
+      "requested_hash": "2f37962258d0b241",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Zhao Yun, handsome young adult Three Kingdoms Chinese general, calm clean-shaven face, polished silver-white lamellar armor with muted pale-blue details and a white cloak, tied dark hair under a compact silver helmet, holding one long straight silver spear, upright agile silhouette, no horse. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:32:33+00:00",
+      "bytes": 2325465,
+      "elapsed_ms": 30531,
+      "usage": {
+        "input_tokens": 390,
+        "output_tokens": 175,
+        "total_tokens": 565,
+        "input_tokens_details": {
+          "text_tokens": 390,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 175,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/zhaoyun.png"
+    },
+    {
+      "key": "trial_v03_zhouyu",
+      "kind": "portrait",
+      "file": "assets/raw/trial-v03/zhouyu.png",
+      "hash": "3fd82c0b2d6b1fa4",
+      "requested_hash": "3fd82c0b2d6b1fa4",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: Zhou Yu, refined adult Three Kingdoms Chinese scholar-general, clean-shaven handsome face and tied long dark hair, elegant muted burgundy robe over dark-teal light armor with warm bronze fittings, holding a narrow feather fan and wearing a sheathed sword, composed confident expression, distinct from a plain scholarly green-robed strategist. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-11T09:33:24+00:00",
+      "bytes": 1823015,
+      "elapsed_ms": 51287,
+      "usage": {
+        "input_tokens": 398,
+        "output_tokens": 174,
+        "total_tokens": 572,
+        "input_tokens_details": {
+          "text_tokens": 398,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 174,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/trial-v03/zhouyu.png"
     }
   ],
-  "updated_at": "2026-11-09T14:31:06+00:00"
+  "updated_at": "2026-11-11T09:33:24+00:00",
+  "attempts": [
+    {
+      "key": "trial_v03_zhugeliang",
+      "hash": "dbf198d9b46edd9c",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "uncertain",
+      "at": "2026-11-11T08:12:53+00:00",
+      "error": "ConnectTimeout"
+    },
+    {
+      "key": "trial_v03_zhugeliang",
+      "hash": "dbf198d9b46edd9c",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "uncertain",
+      "at": "2026-11-11T08:18:14+00:00",
+      "error": "ConnectError"
+    },
+    {
+      "key": "trial_v03_zhugeliang",
+      "hash": "dbf198d9b46edd9c",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T08:36:15+00:00"
+    },
+    {
+      "key": "trial_v03_guanyu",
+      "hash": "1172a879377ffda2",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T08:36:44+00:00"
+    },
+    {
+      "key": "trial_v03_change",
+      "hash": "6078007c9b462d5d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T08:37:14+00:00"
+    },
+    {
+      "key": "trial_v03_scene_tower",
+      "hash": "824f56243643dd29",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "status": "generated",
+      "at": "2026-11-11T08:37:36+00:00"
+    },
+    {
+      "key": "city_v03_complete",
+      "hash": "d14c50c019b24d09",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "status": "uncertain",
+      "at": "2026-11-11T09:18:55+00:00",
+      "error": "ConnectError"
+    },
+    {
+      "key": "city_v03_complete",
+      "hash": "d14c50c019b24d09",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1536x1024",
+      "status": "generated",
+      "at": "2026-11-11T09:22:04+00:00"
+    },
+    {
+      "key": "trial_v03_baisuzhen",
+      "hash": "b67590d5aa892757",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:24:01+00:00"
+    },
+    {
+      "key": "trial_v03_dufu",
+      "hash": "97dfd8d64b4ee4bc",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:24:47+00:00"
+    },
+    {
+      "key": "trial_v03_houyi",
+      "hash": "869922f7f34daeb7",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:25:16+00:00"
+    },
+    {
+      "key": "trial_v03_huatuo",
+      "hash": "92ee453c96e7c5c2",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:25:52+00:00"
+    },
+    {
+      "key": "trial_v03_jingwei",
+      "hash": "63b2abacce5119d0",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:26:19+00:00"
+    },
+    {
+      "key": "trial_v03_libai",
+      "hash": "ecdd2504e9d7c022",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:26:58+00:00"
+    },
+    {
+      "key": "trial_v03_nezha",
+      "hash": "2f26edc40621eed7",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:27:18+00:00"
+    },
+    {
+      "key": "trial_v03_yangjian",
+      "hash": "3d57283c85c0e284",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:27:43+00:00"
+    },
+    {
+      "key": "trial_v03_yuefei",
+      "hash": "436b3bf86c0d4f0b",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:28:30+00:00"
+    },
+    {
+      "key": "trial_v03_zhangfei",
+      "hash": "cf44dfa0002e062a",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:29:27+00:00"
+    },
+    {
+      "key": "trial_v03_zhangheng",
+      "hash": "38cc405b23f4166a",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:31:29+00:00"
+    },
+    {
+      "key": "trial_v03_zhaoyun",
+      "hash": "2f37962258d0b241",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:32:02+00:00"
+    },
+    {
+      "key": "trial_v03_zhouyu",
+      "hash": "3fd82c0b2d6b1fa4",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-11T09:32:33+00:00"
+    }
+  ]
 }

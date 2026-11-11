@@ -13,7 +13,11 @@ from datetime import datetime
 from app.domain.affix import draw, pick_group
 from app.domain.injuries import apply_injury, attack_multiplier
 from app.domain.rng import Pcg32
-from app.models.save import ActiveRun, DiscipleState, GameState, RunNode
+from app.domain.progression import LEVEL_GROWTH, REALM_GROWTH
+from app.models.save import (
+    ActiveRun, BattleSummary, DiscipleState, GameState,
+    RunCombatant, RunNode, RunPartySnapshot,
+)
 
 MAX_PARTY = 5
 
@@ -68,22 +72,60 @@ def party_power(
     bonus: dict[str, float] | None = None,
 ) -> float:
     """队伍战力：攻击为主，防御与气血加权，等级线性放大，可叠加羁绊加成。"""
-    bonus = bonus or {}
+    members = tuple(
+        combatant(disciple, templates[disciple.template_id])
+        for disciple in party if disciple.template_id in templates
+    )
+    return combat_power(members, bonus or {})
+
+
+def combatant(disciple: DiscipleState, template: dict) -> RunCombatant:
+    """只记录公式需要的数字，不保留会自然消退的时间戳或可变引用。"""
+    base = template["base_stats"]
+    return RunCombatant(
+        id=disciple.id, template_id=disciple.template_id,
+        attack=base["atk"] * attack_multiplier(disciple.injury_stacks),
+        defense=base["def"], health=base["hp"],
+        growth=1 + LEVEL_GROWTH * (disciple.level - 1) + REALM_GROWTH * (disciple.realm - 1),
+    )
+
+
+def combat_power(members: tuple[RunCombatant, ...], bonus: dict[str, float]) -> float:
+    """从固定参战属性与本局效果计算战力。"""
     atk_mult = 1 + bonus.get("atk", 0.0)
     def_mult = 1 + bonus.get("def", 0.0)
     hp_mult = 1 + bonus.get("hp", 0.0)
+    spd_mult = 1 + bonus.get("spd", 0.0)
 
     total = 0.0
-    for disciple in party:
-        template = templates.get(disciple.template_id)
-        if template is None:
-            continue
-        base = template["base_stats"]
-        attack = base["atk"] * attack_multiplier(disciple.injury_stacks) * atk_mult
+    for member in members:
         total += (
-            attack + base["def"] * 0.5 * def_mult + base["hp"] * 0.1 * hp_mult
-        ) * (1 + 0.1 * (disciple.level - 1))
+            member.attack * atk_mult + member.defense * 0.5 * def_mult
+            + member.health * 0.1 * hp_mult
+        ) * (member.growth + (spd_mult - 1) * 0.2)
     return total
+
+
+def ensure_party_snapshot(
+    state: GameState, templates: dict[str, dict], bonds: dict[str, dict],
+) -> None:
+    """旧出征首次恢复时捕获现存值，必须在惰性消伤前调用；不消费随机数。"""
+    run = state.active_run
+    if run is None or run.party_snapshot is not None:
+        return
+    by_id = {d.id: d for d in state.disciples}
+    party = [by_id[disciple_id] for disciple_id in run.party if disciple_id in by_id]
+    bonus = bond_bonus([d.template_id for d in party], bonds)
+    for key, value in state.bonuses.items():
+        bonus[key] = bonus.get(key, 0.0) + value
+    run.party_snapshot = RunPartySnapshot(
+        combatants=tuple(
+            combatant(disciple, templates[disciple.template_id])
+            for disciple in party if disciple.template_id in templates
+        ),
+        atk_bonus=bonus.get("atk", 0.0), def_bonus=bonus.get("def", 0.0),
+        hp_bonus=bonus.get("hp", 0.0), spd_bonus=bonus.get("spd", 0.0),
+    )
 
 
 def enemy_power(step: int, mode: dict) -> int:
@@ -153,6 +195,7 @@ def start_run(
     mode: dict,
     now: datetime,
     seed: int | None = None,
+    bonds: dict[str, dict] | None = None,
 ) -> str | None:
     """开始一次出征；成功返回 None，失败返回原因。"""
     if state.active_run is not None:
@@ -165,12 +208,15 @@ def start_run(
         return "行动力不足"
 
     by_id = {d.id: d for d in state.disciples}
+    duty_ids = {slot.disciple_id for slot in state.duty_slots}
     for disciple_id in party_ids:
         disciple = by_id.get(disciple_id)
         if disciple is None:
             return f"弟子 {disciple_id} 不存在"
         if disciple.busy:
             return f"弟子 {disciple_id} 正在出征"
+        if disciple_id in duty_ids:
+            return f"弟子 {disciple_id} 正在值守，请先撤下"
         if disciple.template_id not in templates:
             return f"弟子 {disciple_id} 模板未配置"
 
@@ -192,6 +238,7 @@ def start_run(
         started_at=now,
     )
     state.active_run.rng_cursor = rng.cursor
+    ensure_party_snapshot(state, templates, bonds or {})
     return None
 
 
@@ -216,25 +263,35 @@ def choose(
     if not 0 <= choice_index < len(run.choices):
         return "无效的节点选择"
 
+    ensure_party_snapshot(state, templates, bonds)
+    party_snapshot = run.party_snapshot
     node = run.choices[choice_index]
     run.nodes.append(node)
     run.choices = []
 
-    party = [d for d in state.disciples if d.id in run.party]
-    bonus = bond_bonus(run.party, bonds)
+    bonus = {
+        "atk": party_snapshot.atk_bonus, "def": party_snapshot.def_bonus,
+        "hp": party_snapshot.hp_bonus, "spd": party_snapshot.spd_bonus,
+    }
     for key, value in affix_bonus(run.affixes, affix_pool).items():
         bonus[key] = bonus.get(key, 0.0) + value
-    for key, value in state.bonuses.items():
-        bonus[key] = bonus.get(key, 0.0) + value
+    hp_before = run.hp
     result = fight(
-        party_power(party, templates, bonus), node.power, run.hp, mode["damage_scale"]
+        combat_power(party_snapshot.combatants, bonus), node.power, run.hp, mode["damage_scale"]
     )
     run.hp = max(0, run.hp - result.damage)
+    loot = node_reward(node.kind, mode, len(run.nodes) - 1) if result.won else {}
+    run.last_battle = BattleSummary(
+        id=f"{run.run_seed}:{len(run.nodes)}",
+        party_power=round(result.party_power, 4), enemy_power=result.enemy_power,
+        hp_before=hp_before, hp_after=run.hp, damage=hp_before - run.hp,
+        won=result.won, loot=loot, node=node,
+    )
 
     if not result.won:
         return None
 
-    for key, value in node_reward(node.kind, mode, len(run.nodes) - 1).items():
+    for key, value in loot.items():
         run.pending_loot[key] = run.pending_loot.get(key, 0.0) + value
 
     if len(run.nodes) >= mode["node_count"]:
@@ -309,13 +366,15 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
         else defeat_loot(run.pending_loot, cleared, mode)
     )
     for key in list(loot):
-        if key not in ("cultivation", "spirit_stone"):
+        if key not in ("cultivation", "spirit_stone", "reputation", "stamina"):
             loot[key] = int(loot[key])
 
     state.resources.cultivation += loot.get("cultivation", 0.0)
     state.resources.spirit_stone += loot.get("spirit_stone", 0.0)
+    state.resources.reputation += loot.get("reputation", 0.0)
+    state.resources.stamina += loot.get("stamina", 0.0)
     for key, value in loot.items():
-        if key in ("cultivation", "spirit_stone"):
+        if key in ("cultivation", "spirit_stone", "reputation", "stamina"):
             continue
         state.inventory[key] = state.inventory.get(key, 0) + int(value)
     state.tower_floor = max(state.tower_floor, cleared)

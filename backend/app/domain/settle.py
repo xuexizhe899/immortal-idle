@@ -16,6 +16,10 @@ from app.models.save import GameState
 BASE_CULTIVATION_PER_HOUR = 1.0
 BASE_SPIRIT_STONE_PER_HOUR = 0.5
 BASE_STAMINA_PER_HOUR = 0.5
+BASE_MATERIALS_PER_HOUR = {
+    "ling_cao": 0.5, "yun_mu": 0.25, "han_tie": 0.25,
+    "jiao_gu": 0.15, "xuan_jing": 0.1, "jiu_ye": 0.1,
+}
 
 # 离线最多补算 12 小时，超出部分丢弃
 IDLE_CAP_HOURS = 12.0
@@ -33,6 +37,7 @@ class SettleReport:
     cultivation: float = 0.0
     spirit_stone: float = 0.0
     stamina: float = 0.0
+    materials: dict[str, int] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
 
 
@@ -78,7 +83,13 @@ def settle(state: GameState, last_settled_at: datetime, now: datetime) -> Settle
         report.elapsed_hours = (now - window_start).total_seconds() / 3600
         report.dropped_hours = raw_hours - report.elapsed_hours
 
-    for seg_start, seg_end, rates in rate_segments(state, window_start, now):
+    material_gains = dict.fromkeys(BASE_MATERIALS_PER_HOUR, 0.0)
+    extra_recovery_hours = 0.0
+    for seg_start, seg_end, duty_rates in rate_segments(state, window_start, now):
+        rates = {
+            key: duty_rates.get(key, 0.0) + state.bonuses.get(key, 0.0)
+            for key in set(duty_rates) | set(state.bonuses)
+        }
         hours = (seg_end - seg_start).total_seconds() / 3600
         if hours <= 0:
             continue
@@ -91,12 +102,25 @@ def settle(state: GameState, last_settled_at: datetime, now: datetime) -> Settle
         report.stamina += (
             BASE_STAMINA_PER_HOUR * (1 + rates.get("stamina_rate", 0.0)) * hours
         )
+        for material, base in BASE_MATERIALS_PER_HOUR.items():
+            material_gains[material] += base * (1 + rates.get("material_rate", 0.0)) * hours
+        extra_recovery_hours += max(0.0, rates.get("injury_rate", 0.0)) * hours
 
     state.resources.cultivation += report.cultivation
     state.resources.spirit_stone += report.spirit_stone
     state.resources.stamina += report.stamina
 
+    for material, gain in material_gains.items():
+        total = gain + state.material_remainders.get(material, 0.0)
+        count = int(total + 1e-9)
+        state.material_remainders[material] = max(0.0, total - count)
+        if count:
+            state.inventory[material] = state.inventory.get(material, 0) + count
+            report.materials[material] = count
+
     for disciple in state.disciples:
+        if disciple.injured_until is not None:
+            disciple.injured_until -= timedelta(hours=extra_recovery_hours)
         if disciple.injured_until is not None and disciple.injured_until <= now:
             disciple.injury_stacks = 0
             disciple.injured_until = None

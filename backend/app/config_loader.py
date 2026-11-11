@@ -55,6 +55,12 @@ def load_materials() -> dict[str, dict]:
 
 
 @lru_cache(maxsize=1)
+def load_skills() -> dict[str, dict]:
+    """技能仅用于图鉴，当前总战力引擎不执行技能。"""
+    return _load_dir(CONFIG_DIR / "skills")
+
+
+@lru_cache(maxsize=1)
 def load_city() -> dict:
     """主城布局：背景图与建筑热区坐标。"""
     return json.loads((CONFIG_DIR / "ui" / "city.json").read_text(encoding="utf-8"))

@@ -8,6 +8,7 @@ from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.save import CURRENT_SCHEMA_VERSION, GameState, SaveExport, SaveSlotMeta
+from app.domain.progression import new_game_state
 from app.repositories.tables import save_slots, save_snapshots
 
 
@@ -42,7 +43,7 @@ class SaveRepository:
     async def create_slot(self, name: str, state: GameState | None = None) -> int:
         """新建存档槽并返回 slot_id。"""
         now = utcnow().isoformat()
-        state = state or GameState()
+        state = state if state is not None else new_game_state()
         result = await self.session.execute(
             insert(save_slots).values(
                 owner_id=1,
@@ -80,23 +81,26 @@ class SaveRepository:
         return datetime.fromisoformat(record[0]) if record else None
 
     async def save_state(
-        self, slot_id: int, state: GameState, expected_revision: int
+        self, slot_id: int, state: GameState, expected_revision: int,
+        *, settled_at: datetime | None = None,
     ) -> bool:
         """CAS 写入：revision 不匹配则不覆盖，返回是否写入成功。"""
         now = utcnow().isoformat()
+        values = {
+            "state_json": state.model_dump_json(),
+            "schema_version": state.schema_version,
+            "revision": save_slots.c.revision + 1,
+            "updated_at": now,
+        }
+        if settled_at is not None:
+            values["last_settled_at"] = settled_at.isoformat()
         result = await self.session.execute(
             update(save_slots)
             .where(
                 save_slots.c.slot_id == slot_id,
                 save_slots.c.revision == expected_revision,
             )
-            .values(
-                state_json=state.model_dump_json(),
-                schema_version=state.schema_version,
-                revision=save_slots.c.revision + 1,
-                updated_at=now,
-                last_settled_at=now,
-            )
+            .values(**values)
         )
         await self.session.commit()
         return result.rowcount == 1

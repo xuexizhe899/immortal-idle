@@ -5,7 +5,7 @@
   "origin": "sanguo",
   "rarity": 3,
   "lean": "attack",
-  "asset_id": "zhaoyun",
+  "asset_id": "trial-v03/zhaoyun",
   "base_stats": {
     "hp": 115,
     "atk": 20,

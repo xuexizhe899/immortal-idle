@@ -1,47 +1,59 @@
-"""静态目录接口：前端展示用的名称映射，避免前端硬编码中文名。"""
+"""展示目录：只暴露配置里真实存在的信息与已实现规则。"""
 
 from fastapi import APIRouter
 
 from app.config_loader import (
-    load_affixes,
-    load_city,
-    load_disciples,
-    load_materials,
-    load_recipes,
+    load_affixes, load_bonds, load_city, load_disciples,
+    load_materials, load_modes, load_recipes, load_skills,
 )
+from app.domain.duty import MAX_DUTY_SLOTS
+from app.domain.injuries import ATTACK_PENALTY_PER_STACK, HOURS_PER_STACK, MAX_INJURY_STACKS
+from app.domain.progression import (
+    LEVEL_GROWTH, REALM_GROWTH, UPGRADE_CULTIVATION_BASE, UPGRADE_SPIRIT_STONE_BASE,
+)
+from app.domain.run_engine import MAX_PARTY
+from app.domain.settle import (
+    BASE_CULTIVATION_PER_HOUR, BASE_MATERIALS_PER_HOUR,
+    BASE_SPIRIT_STONE_PER_HOUR, BASE_STAMINA_PER_HOUR, IDLE_CAP_HOURS,
+)
+from app.models.api import CatalogResponse
 
 router = APIRouter(tags=["catalog"])
+GROUP_NAMES = {"fengrui": "锋锐", "jianshou": "坚守", "qimou": "奇谋"}
 
 
-@router.get("/catalog")
-async def catalog() -> dict:
-    """返回弟子、词条、配方的展示信息。"""
-    return {
-        "disciples": {
-            key: {
-                "name": item["name"],
-                "title": item.get("title", ""),
-                "lean": item["lean"],
-                "rarity": item["rarity"],
-                "unlock_cost": item.get("unlock_cost", {}),
-            }
-            for key, item in load_disciples().items()
-        },
-        "affixes": {
-            item["id"]: {"name": item["name"], "group": item["group"]}
+@router.get("/catalog", response_model=CatalogResponse)
+async def catalog() -> CatalogResponse:
+    bonds = load_bonds()
+    return CatalogResponse(
+        disciples=load_disciples(),
+        affixes={
+            item["id"]: {**item, "group_name": GROUP_NAMES.get(item["group"], item["group"])}
             for item in load_affixes()
         },
-        "recipes": {
-            key: {
-                "name": item["name"],
-                "kind": item["kind"],
-                "inputs": item["inputs"],
-                "special": item.get("special"),
-            }
-            for key, item in load_recipes().items()
+        recipes=load_recipes(),
+        materials={key: item["name"] for key, item in load_materials().items()},
+        bonds={
+            key: {**item, "requires": item.get("requires", len(item["members"]))}
+            for key, item in bonds.items()
         },
-        "materials": {
-            key: item["name"] for key, item in load_materials().items()
+        skills={key: {**item, "implemented": False} for key, item in load_skills().items()},
+        mode=load_modes()["tower"],
+        rules={
+            "max_party": MAX_PARTY, "max_duty": MAX_DUTY_SLOTS,
+            "idle_cap_hours": IDLE_CAP_HOURS,
+            "injury_attack_penalty": ATTACK_PENALTY_PER_STACK,
+            "injury_hours_per_stack": HOURS_PER_STACK,
+            "max_injury_stacks": MAX_INJURY_STACKS,
+            "level_growth": LEVEL_GROWTH, "realm_growth": REALM_GROWTH,
+            "upgrade_cultivation_base": UPGRADE_CULTIVATION_BASE,
+            "upgrade_spirit_stone_base": UPGRADE_SPIRIT_STONE_BASE,
         },
-        "city": load_city(),
-    }
+        production={
+            "cultivation": BASE_CULTIVATION_PER_HOUR,
+            "spirit_stone": BASE_SPIRIT_STONE_PER_HOUR,
+            "stamina": BASE_STAMINA_PER_HOUR,
+            "materials": BASE_MATERIALS_PER_HOUR,
+        },
+        city=load_city(),
+    )

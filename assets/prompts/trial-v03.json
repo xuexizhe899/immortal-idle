@@ -1,0 +1,39 @@
+{
+  "preset": "trial-v03",
+  "notes": "四张风格试稿：诸葛亮、关羽、嫦娥与问道塔战斗场景。沿用 v0.3 主城光照与颗粒；人物洋红底用于本地透明抠图，试稿审阅后再决定批量。",
+  "output_subdir": "trial-v03",
+  "master_dir": "assets/masters/trial-v03",
+  "items": [
+    {
+      "key": "trial_v03_zhugeliang",
+      "kind": "portrait",
+      "file": "zhugeliang.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Zhuge Liang, adult Chinese Three Kingdoms strategist, calm long-haired scholar with a neat dark beard, tall traditional scholar headdress, layered jade-green and muted ivory robes, holding one white feather fan at chest level. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including headdress and feet, clear separated silhouette, relaxed standing three-quarter pose, entire figure within generous empty margins. Warm afternoon key light from upper left, subtle cool shadow side. Exactly one character, no scenery, no lettering, no weapon effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no shadow, no gradient and no pink garment details. Palette: jade, ivory, dark teal and warm wood browns. Fine deliberate pixel clusters, readable at 512px character height."
+    },
+    {
+      "key": "trial_v03_guanyu",
+      "kind": "portrait",
+      "file": "guanyu.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Guan Yu, adult Chinese Three Kingdoms warrior with a dignified deep-red face and long black beard, strong broad-shouldered silhouette, dark teal lamellar armor over a jade-green robe with restrained warm bronze fittings, traditional cloth cap, holding one long guandao polearm with the blade fully visible within the image. Detailed pixel-art material shading consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including head, weapon and feet, clear separated silhouette, relaxed standing three-quarter pose, entire figure within generous empty margins. Warm afternoon key light from upper left, subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects. Background is perfectly flat pure magenta #FF00FF with no shadow, no gradient and no pink garment details. Fine deliberate pixel clusters, readable at 512px character height."
+    },
+    {
+      "key": "trial_v03_change",
+      "kind": "portrait",
+      "file": "change.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Chang'e, adult Chinese moon goddess, poised woman with long dark hair arranged in a traditional bun with a small crescent-shaped gold ornament, elegant long ivory and pale-blue flowing robes with muted jade details, holding a small moon-shaped ivory disk, graceful narrow silhouette distinct from the scholar and armored warrior. Detailed pixel-art fabric shading consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hairstyle and feet, calm standing three-quarter pose, all sleeves fully within generous empty margins. Warm afternoon key light from upper left, subtle cool shadow side. Exactly one character, no rabbit, no scenery, no lettering, no glow halo or scattered particles. Background is perfectly flat pure magenta #FF00FF with no shadow, no gradient and no pink garment details. Fine deliberate pixel clusters, readable at 512px character height."
+    },
+    {
+      "key": "trial_v03_scene_tower",
+      "kind": "scene",
+      "file": "scene_tower_trial.png",
+      "size": "1536x1024",
+      "subject": "An ancient Chinese trial pagoda battle platform above a sea of clouds, matching the existing detailed-pixel-art immortal sect city. Dark teal tiled roof corners and warm wooden columns frame the far left and right edges, weathered white jade paving forms a wide uncluttered battle floor across the lower middle, engraved subtle circular motif, distant layered mountains and drifting clouds visible through the open architecture. Three-quarter slightly elevated view with clear platform thickness and grounding. Warm afternoon sunlight from upper left with restrained cast shadows, jade-gray and warm wood palette. Keep the middle 65 percent open and readable for two opposing parties. No characters, no enemies, no buildings in the center, no text, no interface, no signs, no borders."
+    }
+  ]
+}

@@ -1,175 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-
 import { useGameStore } from '../stores/game'
-
-const RATE_LABELS: Record<string, string> = {
-  cultivation_rate: '修为',
-  spirit_stone_rate: '灵石',
-  stamina_rate: '行动力',
-  material_rate: '材料',
-  injury_rate: '伤势消退',
-}
-
-const store = useGameStore()
-const slots = computed(() => store.state?.duty_slots ?? [])
-const onDuty = computed(() => new Set(slots.value.map((slot) => slot.disciple_id)))
-const rates = computed(() => store.state?.duty_events?.at(-1)?.rates ?? {})
-
-function nameOf(templateId: string): string {
-  return store.catalog?.disciples[templateId]?.name ?? templateId
-}
-
-function slotName(index: number): string {
-  const slot = slots.value[index]
-  return slot ? nameOf(slot.disciple_id) : '空'
-}
-
-async function toggle(discipleId: string) {
-  if (onDuty.value.has(discipleId)) {
-    await store.unassignDuty(discipleId)
-  } else {
-    await store.assignDuty(discipleId)
-  }
-}
+import { imageOf,leanNames,leanDescriptions,number,statNames,type DisplayCatalog } from '../components/gameDisplay'
+defineProps<{readOnly?:boolean}>()
+const store=useGameStore()
+const catalog=computed(()=>store.catalog as DisplayCatalog|null)
+const slots=computed(()=>store.state?.duty_slots??[])
+const onDuty=computed(()=>new Set(slots.value.map(s=>s.disciple_id)))
+const rates=computed(()=>store.state?.duty_events?.at(-1)?.rates??{})
+const production=computed(()=>store.production)
+function member(index:number){return store.disciples.find(d=>d.id===slots.value[index]?.disciple_id)}
+async function toggle(id:string){if(onDuty.value.has(id)) await store.unassignDuty(id);else await store.assignDuty(id)}
 </script>
-
-<template>
-  <div class="duty">
-    <div class="panel-head">
-      <h2>值守编制</h2>
-      <span class="hint">{{ onDuty.size }} / 6</span>
-    </div>
-
-    <div class="slots">
-      <span
-        v-for="i in 6"
-        :key="i"
-        class="slot"
-        :class="{ filled: slots[i - 1] }"
-      >
-        {{ slotName(i - 1) }}
-      </span>
-    </div>
-
-    <div class="rates">
-      <span v-for="(value, key) in rates" :key="key" class="rate">
-        {{ RATE_LABELS[key] ?? key }} +{{ (value * 100).toFixed(1) }}%
-      </span>
-      <span v-if="!Object.keys(rates).length" class="hint">无加成</span>
-    </div>
-
-    <div class="list">
-      <div v-for="d in store.disciples" :key="d.id" class="row">
-        <span class="name">{{ nameOf(d.template_id) }}</span>
-        <span v-if="d.busy" class="hint">出征中</span>
-        <button
-          v-else
-          class="mini"
-          type="button"
-          :disabled="store.busy"
-          @click="toggle(d.id)"
-        >
-          {{ onDuty.has(d.id) ? '下岗' : '上岗' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
+<template><div class="section-heading"><div><h3>各司其职，宗门自兴</h3><p class="muted">弟子值守持续增益产出；带伤弟子也可值守。</p></div><span class="badge">{{ slots.length }} / 6 席</span></div><div class="duty-slots"><div v-for="i in 6" :key="i" class="duty-slot" :class="{filled:member(i-1)}"><template v-if="member(i-1)"><img :src="imageOf(member(i-1)!.template_id,catalog)" alt="" class="pixel-art" /><strong>{{ catalog?.disciples[member(i-1)!.template_id]?.name }}</strong><span>{{ leanNames[catalog?.disciples[member(i-1)!.template_id]?.lean??''] }} · 境界 {{ member(i-1)!.realm }}</span><button class="btn btn-small btn-quiet" :disabled="readOnly||store.busy" @click="toggle(member(i-1)!.id)">卸下值守</button></template><template v-else><span class="slot-number">{{ String(i).padStart(2,'0') }}</span><strong>待安排</strong><span>选择下方弟子上岗</span></template></div></div><div class="production-panel"><div class="section-heading"><h4>当前每小时产出</h4><span class="muted">收取时按实际值守分段结算</span></div><div class="production-grid"><div v-for="key in ['cultivation','spirit_stone','stamina'] as const" :key="key"><span>{{ statNames[key] }}</span><strong>+{{ number(production?.[key],2) }}<small>/时</small></strong></div><div v-for="(value,id) in production?.materials" :key="id"><span>{{ catalog?.materials[id]??id }}</span><strong>+{{ number(value,2) }}<small>/时</small></strong></div></div><div class="chips rate-chips"><span v-for="(value,key) in rates" :key="key" class="badge badge-muted">{{ statNames[key]??key }} +{{ number(value*100,1) }}%</span></div></div><div class="section-heading"><h3>可用弟子</h3><span class="muted">出征与值守互斥</span></div><div class="duty-roster"><div v-for="d in store.disciples" :key="d.id" class="duty-row"><img :src="imageOf(d.template_id,catalog)" alt="" class="pixel-art" /><div class="duty-person"><strong>{{ catalog?.disciples[d.template_id]?.name }}</strong><span>{{ leanDescriptions[catalog?.disciples[d.template_id]?.lean??''] }}</span></div><span v-if="d.injury_stacks" class="badge badge-danger">有伤可值守</span><button class="btn btn-small" :class="{'btn-primary':!onDuty.has(d.id)}" :disabled="readOnly||store.busy||d.busy||(!onDuty.has(d.id)&&slots.length>=6)" @click="toggle(d.id)">{{ d.busy?'出征中':onDuty.has(d.id)?'下岗':slots.length>=6?'编制已满':'安排上岗' }}</button></div></div></template>
 <style scoped>
-.panel-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.panel-head h2 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.hint {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.slots {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.slot {
-  padding: 10px 6px;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  color: var(--muted);
-  font-size: 12px;
-  text-align: center;
-}
-
-.slot.filled {
-  border-style: solid;
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.rates {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px 0 12px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 12px;
-}
-
-.rate {
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.row:last-child {
-  border-bottom: none;
-}
-
-.name {
-  font-size: 14px;
-}
-
-.mini {
-  padding: 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.mini:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+.section-heading p{margin:4px 0 0}.duty-slots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:20px 0}.duty-slot{min-height:158px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#ebe8d9;border:1px dashed #b6bba2;padding:8px 5px}.duty-slot.filled{border-style:solid;border-color:#adbea1;background:#e5e9d7}.duty-slot>img{width:64px;height:75px;object-fit:cover;object-position:top}.duty-slot>strong{font-size:12px;margin-top:5px}.duty-slot>span{font-size:9px;color:var(--muted)}.duty-slot .slot-number{font:32px 'SimSun',serif;color:#b9c0aa;margin-bottom:10px}.duty-slot .btn{font-size:9px;padding:2px 5px;min-height:26px}.production-panel{padding:18px;background:#ebe8d8;border:1px solid #d0c8ac;margin-bottom:24px}.production-panel h4{margin:0}.production-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px}.production-grid>div>span{display:block;color:var(--muted);font-size:11px}.production-grid strong{font-size:21px;font-weight:500;color:var(--jade)}.production-grid small{font-size:10px;color:var(--muted);margin-left:5px}.rate-chips{margin-top:14px}.duty-row{display:flex;align-items:center;gap:14px;border-bottom:1px solid #d9d0b8;padding:10px 0}.duty-row>img{width:44px;height:52px;object-fit:cover;object-position:top;background:#e9e5d3}.duty-person{flex:1}.duty-person strong{display:block;font-family:'SimSun',serif;font-size:15px}.duty-person span{display:block;color:var(--muted);font-size:10px}
+@media(max-width:640px){.duty-slots{grid-template-columns:repeat(3,minmax(0,1fr))}.duty-slot{min-height:145px}.duty-row{gap:9px}.duty-row>.badge{display:none}.production-panel .section-heading{align-items:flex-start;flex-direction:column;gap:4px}.production-panel{padding:14px}.production-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.production-grid strong{font-size:18px}.duty-row>.btn{font-size:10px;padding-inline:8px}.duty-person span{max-width:150px}}
 </style>

@@ -1,84 +1,60 @@
-"""值守编制接口：查看、上岗、下岗。"""
-
-from __future__ import annotations
-
-from datetime import datetime, timezone
+"""值守接口：变更前按旧速率补算，返回完整权威快照。"""
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 
 from app.api.saves import get_repo
-from app.config_loader import load_disciples
-from app.domain.duty import assign, compute_rates, members_of, unassign
+from app.api.state import commit_mutation, prepare_mutation, snapshot
+from app.config_loader import load_bonds, load_disciples
+from app.domain.duty import assign, rates_of, unassign
+from app.models.api import DutyResponse, RevisionRequest
 from app.models.save import GameState
 from app.repositories.saves import SaveRepository
 
 router = APIRouter(prefix="/saves/{slot_id}/duty", tags=["duty"])
 
 
-class DutyChangeRequest(BaseModel):
-    """上岗 / 下岗请求，revision 用于 CAS。"""
-
-    revision: int
+class DutyChangeRequest(RevisionRequest):
     disciple_id: str
 
 
-def utcnow() -> datetime:
-    """当前 UTC 时间。"""
-    return datetime.now(timezone.utc)
-
-
-def duty_payload(state: GameState, revision: int) -> dict:
-    """把编制与加成打包成接口返回结构。"""
-    return {
-        "revision": revision,
-        "duty": [slot.model_dump(mode="json") for slot in state.duty_slots],
-        "rates": compute_rates(members_of(state, load_disciples())),
-    }
+def duty_payload(state: GameState, revision: int) -> DutyResponse:
+    return DutyResponse(
+        **snapshot(state, revision).model_dump(), duty=state.duty_slots,
+        rates=rates_of(state, load_disciples(), load_bonds()),
+    )
 
 
 async def change_duty(
-    slot_id: int, payload: DutyChangeRequest, repo: SaveRepository, join: bool
-) -> dict:
-    """上岗 / 下岗的共用流程：读档 → 校验 revision → 变更 → CAS 写回。"""
-    loaded = await repo.get_state(slot_id)
-    if loaded is None:
-        raise HTTPException(status_code=404, detail="存档不存在")
-    state, revision = loaded
-    if payload.revision != revision:
-        raise HTTPException(status_code=409, detail="revision 冲突，请重新读取")
-
+    slot_id: int, payload: DutyChangeRequest, repo: SaveRepository, join: bool,
+) -> DutyResponse:
+    command = await prepare_mutation(slot_id, repo, payload.revision)
     change = assign if join else unassign
-    error = change(state, payload.disciple_id, load_disciples(), utcnow())
+    error = change(
+        command.state, payload.disciple_id, load_disciples(), command.settled_at, load_bonds(),
+    )
     if error:
         raise HTTPException(status_code=400, detail=error)
-
-    if not await repo.save_state(slot_id, state, revision):
-        raise HTTPException(status_code=409, detail="revision 冲突，请重新读取")
-    return duty_payload(state, revision + 1)
+    await commit_mutation(slot_id, command, repo)
+    return duty_payload(command.state, command.revision + 1)
 
 
-@router.get("")
-async def get_duty(slot_id: int, repo: SaveRepository = Depends(get_repo)) -> dict:
-    """查看当前值守编制与产出加成。"""
+@router.get("", response_model=DutyResponse)
+async def get_duty(slot_id: int, repo: SaveRepository = Depends(get_repo)) -> DutyResponse:
     loaded = await repo.get_state(slot_id)
     if loaded is None:
         raise HTTPException(status_code=404, detail="存档不存在")
-    state, revision = loaded
-    return duty_payload(state, revision)
+    return duty_payload(*loaded)
 
 
-@router.post("/assign")
+@router.post("/assign", response_model=DutyResponse)
 async def assign_duty(
-    slot_id: int, payload: DutyChangeRequest, repo: SaveRepository = Depends(get_repo)
-) -> dict:
-    """把弟子加入值守编制。"""
+    slot_id: int, payload: DutyChangeRequest, repo: SaveRepository = Depends(get_repo),
+) -> DutyResponse:
     return await change_duty(slot_id, payload, repo, join=True)
 
 
-@router.post("/unassign")
+@router.post("/unassign", response_model=DutyResponse)
 async def unassign_duty(
-    slot_id: int, payload: DutyChangeRequest, repo: SaveRepository = Depends(get_repo)
-) -> dict:
-    """把弟子移出值守编制。"""
+    slot_id: int, payload: DutyChangeRequest, repo: SaveRepository = Depends(get_repo),
+) -> DutyResponse:
     return await change_duty(slot_id, payload, repo, join=False)

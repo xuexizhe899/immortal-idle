@@ -1,1 +1,14 @@
-{"background": "/assets/scenes/city_terrain.png", "aspect": 1.5, "notes": "分层主城：background 为无建筑地形，热区带 sprite（透明建筑图）与 anim（动效名）。坐标均为百分比，x/y 热区中心，w/h 尺寸。sprite 缺失时前端自动退回纯热区。", "hotspots": [{"id": "library", "name": "藏经阁", "panel": "codex", "x": 18, "y": 18, "w": 16, "h": 22, "sprite": "/assets/buildings/sprite_library.png", "anim": "library"}, {"id": "main_hall", "name": "宗门主殿", "panel": "sect", "x": 50, "y": 28, "w": 26, "h": 32, "sprite": "/assets/buildings/sprite_main_hall.png", "anim": "sect"}, {"id": "dock", "name": "远行码头", "panel": "expedition", "x": 86, "y": 22, "w": 20, "h": 22, "sprite": "/assets/buildings/sprite_dock.png", "anim": "dock"}, {"id": "tower", "name": "问道塔", "panel": "tower", "x": 90, "y": 60, "w": 14, "h": 42, "sprite": "/assets/buildings/sprite_tower.png", "anim": "tower"}, {"id": "drill", "name": "演武场", "panel": "duty", "x": 22, "y": 50, "w": 24, "h": 26, "sprite": "/assets/buildings/sprite_drill.png", "anim": "duty"}, {"id": "forge", "name": "炼器炉", "panel": "forge", "x": 43, "y": 74, "w": 14, "h": 20, "sprite": "/assets/buildings/sprite_forge.png", "anim": "forge"}, {"id": "alchemy", "name": "炼丹房", "panel": "alchemy", "x": 60, "y": 74, "w": 16, "h": 22, "sprite": "/assets/buildings/sprite_alchemy.png", "anim": "alchemy"}]}
+{
+  "background": "/assets/city-v03/scene_city_complete.png",
+  "aspect": 1.5,
+  "notes": "七建筑完整主城：背景已包含全部建筑，不叠加旧sprite。x/y为实图热区中心百分比，w/h为点击尺寸；标签位于热区下沿。天色在前端叠加，不影响玩法时钟。",
+  "hotspots": [
+    { "id": "library", "name": "藏经阁", "panel": "codex", "x": 21, "y": 24, "w": 26, "h": 27, "anim": "library" },
+    { "id": "main_hall", "name": "宗门主殿", "panel": "sect", "x": 50, "y": 20, "w": 30, "h": 35, "anim": "sect" },
+    { "id": "dock", "name": "远行码头", "panel": "expedition", "x": 83, "y": 24, "w": 27, "h": 29, "anim": "dock" },
+    { "id": "drill", "name": "演武场", "panel": "duty", "x": 21, "y": 49, "w": 34, "h": 27, "anim": "duty" },
+    { "id": "tower", "name": "问道塔", "panel": "tower", "x": 74, "y": 45, "w": 18, "h": 40, "anim": "tower" },
+    { "id": "forge", "name": "炼器炉", "panel": "forge", "x": 37, "y": 71, "w": 22, "h": 20, "anim": "forge" },
+    { "id": "alchemy", "name": "炼丹房", "panel": "alchemy", "x": 61, "y": 71, "w": 25, "h": 20, "anim": "alchemy" }
+  ]
+}

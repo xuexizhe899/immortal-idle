@@ -1,44 +1,51 @@
-"""弟子接口：疗伤。"""
-
-from __future__ import annotations
+"""弟子成长与遗留疗伤丹物品入口。"""
 
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.saves import get_repo
+from app.api.state import commit_mutation, prepare_mutation, snapshot
 from app.domain.injuries import heal
+from app.domain.progression import is_on_run, upgrade
+from app.models.api import GameSnapshot, RevisionRequest, UpgradeResponse
 from app.repositories.saves import SaveRepository
 
 router = APIRouter(prefix="/saves/{slot_id}/disciples", tags=["disciples"])
-
 HEALING_PILL = "healing_pill"
 
 
-@router.post("/{disciple_id}/heal")
-async def heal_disciple(
-    slot_id: int, disciple_id: str, repo: SaveRepository = Depends(get_repo)
-) -> dict:
-    """消耗一颗疗伤丹，立即清除该弟子的全部伤势。"""
-    loaded = await repo.get_state(slot_id)
-    if loaded is None:
-        raise HTTPException(status_code=404, detail="存档不存在")
-    state, revision = loaded
+@router.post("/{disciple_id}/upgrade", response_model=UpgradeResponse)
+async def upgrade_disciple(
+    slot_id: int, disciple_id: str, payload: RevisionRequest,
+    repo: SaveRepository = Depends(get_repo),
+) -> UpgradeResponse:
+    command = await prepare_mutation(slot_id, repo, payload.revision)
+    costs, error = upgrade(command.state, disciple_id)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    await commit_mutation(slot_id, command, repo)
+    disciple = next(d for d in command.state.disciples if d.id == disciple_id)
+    return UpgradeResponse(
+        **snapshot(command.state, command.revision + 1).model_dump(),
+        disciple=disciple, costs=costs,
+    )
 
-    disciple = next((d for d in state.disciples if d.id == disciple_id), None)
+
+@router.post("/{disciple_id}/heal", response_model=GameSnapshot)
+async def heal_disciple(
+    slot_id: int, disciple_id: str, payload: RevisionRequest,
+    repo: SaveRepository = Depends(get_repo),
+) -> GameSnapshot:
+    command = await prepare_mutation(slot_id, repo, payload.revision)
+    disciple = next((d for d in command.state.disciples if d.id == disciple_id), None)
     if disciple is None:
         raise HTTPException(status_code=404, detail="弟子不存在")
-    if state.inventory.get(HEALING_PILL, 0) < 1:
+    if is_on_run(command.state, disciple):
+        raise HTTPException(status_code=400, detail="出征中的弟子暂不可疗伤")
+    if command.state.inventory.get(HEALING_PILL, 0) < 1:
         raise HTTPException(status_code=400, detail="疗伤丹不足")
-
-    state.inventory[HEALING_PILL] -= 1
-    if state.inventory[HEALING_PILL] <= 0:
-        del state.inventory[HEALING_PILL]
+    command.state.inventory[HEALING_PILL] -= 1
+    if not command.state.inventory[HEALING_PILL]:
+        del command.state.inventory[HEALING_PILL]
     heal(disciple)
-
-    if not await repo.save_state(slot_id, state, revision):
-        raise HTTPException(status_code=409, detail="revision 冲突，请重试")
-
-    return {
-        "revision": revision + 1,
-        "injury_stacks": disciple.injury_stacks,
-        "healing_pill": state.inventory.get(HEALING_PILL, 0),
-    }
+    await commit_mutation(slot_id, command, repo)
+    return snapshot(command.state, command.revision + 1)

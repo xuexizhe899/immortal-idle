@@ -26,7 +26,7 @@ deploy/     Dockerfile / compose / Caddyfile
 
 ```bash
 cd backend
-"C:/Users/lxz/AppData/Local/Programs/Python/Python311/python.exe" -m venv .venv
+python -m venv .venv
 .venv/Scripts/python.exe -m pip install -e ".[dev]"
 .venv/Scripts/python.exe -m alembic upgrade head
 .venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
@@ -42,8 +42,11 @@ npm run dev
 
 **首次启动前端前必须先生成一次接口类型**，否则 `src/generated/` 为空：
 
-```bash
-bash tools/gen_types.sh
+```powershell
+cd backend
+.venv/Scripts/python.exe scripts/export_openapi.py
+cd ../frontend
+npm run gen:api
 ```
 
 ## 常用命令
@@ -64,3 +67,9 @@ bash tools/gen_types.sh
 - 本机不装游戏引擎、不装 Docker Desktop、不装本地生图环境
 - Python 依赖只装在项目内 `backend/.venv`，不污染系统环境与其他 venv
 - 密钥只放本地 `.env`，不进仓库
+
+## 主城与玩法打磨
+
+主城七座建筑分别承载宗门总览、弟子/招贤、值守、爬塔、炼丹、炼器和远征开放状态。存档管理在主殿内；进行中的出征可返回宗门查看，再继续原进度。晨昼暮夜随本地时间变化，也可在“天色”入口预览，不影响服务端收益。
+
+当前战斗按队伍总战力确定结果，PixiJS 只播放真实结果的短演出。人物招式标为资料预览；出发时保存队伍战斗快照，刷新与自然消伤不会改变本局战力。本次完整修改汇总见 `CHANGELOG-2026-11-11.md`，任务记录见 `tasks/T14-frontend-polish.md`。

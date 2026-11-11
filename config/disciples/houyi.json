@@ -5,7 +5,7 @@
   "origin": "myth",
   "rarity": 2,
   "lean": "attack",
-  "asset_id": "houyi",
+  "asset_id": "trial-v03/houyi",
   "base_stats": {
     "hp": 105,
     "atk": 19,

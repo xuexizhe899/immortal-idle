@@ -1,237 +1,28 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
+import { computed,ref } from 'vue'
 import BattleStage from '../components/BattleStage.vue'
+import GameIcon from '../components/GameIcon.vue'
+import { effectText,imageOf,number,resourceName,type DisplayCatalog } from '../components/gameDisplay'
 import { useGameStore } from '../stores/game'
-
-const KIND_LABELS: Record<string, string> = {
-  battle: '遭遇',
-  elite: '强敌',
-  boss: '首领',
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  choosing_node: '选择去路',
-  choosing_affix: '选择词条',
-  defeated: '已失败',
-  cleared: '已通关',
-}
-
-const store = useGameStore()
-const run = computed(() => store.run?.run ?? null)
-const status = computed(() => store.status)
-
-const statusLabel = computed(() => STATUS_LABELS[status.value] ?? '准备中')
-
-const hpPercent = computed(() => {
-  const current = run.value
-  if (!current || current.max_hp <= 0) return 0
-  return Math.max(0, Math.round((current.hp / current.max_hp) * 100))
-})
-
-function affixName(id: string): string {
-  return store.catalog?.affixes[id]?.name ?? id
-}
-
-async function choose(index: number) {
-  await store.choose(index)
-}
-
-async function pick(id: string) {
-  await store.pickAffix(id)
-}
-
-async function finish() {
-  await store.settleRun()
-}
+defineEmits<{returnCity:[]}>()
+const store=useGameStore();const catalog=computed(()=>store.catalog as DisplayCatalog|null);const run=computed(()=>store.run?.run);const playing=ref(false)
+const statusNames:Record<string,string>={choosing_node:'选择前行之路',choosing_affix:'领悟新的道法',defeated:'此行暂歇',cleared:'问道功成'}
+const statusLabel=computed(()=>statusNames[store.status]??'整装待发')
+const party=computed(()=>(run.value?.party??[]).map(id=>{const d=store.disciples.find(d=>d.id===id);return{id,name:catalog.value?.disciples[d?.template_id??id]?.name??id,image:imageOf(d?.template_id??id,catalog.value)}}))
+const layers=computed(()=>run.value?.nodes?.length??0)
+const total=computed(()=>catalog.value?.mode?.node_count??0)
+const hpPercent=computed(()=>run.value?.max_hp?Math.max(0,run.value.hp/run.value.max_hp*100):0)
+const groupCounts=computed(()=>{const counts:Record<string,number>={};for(const id of run.value?.affixes??[]){const group=catalog.value?.affixes[id]?.group;if(group)counts[group]=(counts[group]??0)+1}return counts})
+const kinds:Record<string,string>={battle:'遭遇',elite:'强敌',boss:'首领'}
+const ended=computed(()=>store.status==='cleared'||store.status==='defeated')
 </script>
-
-<template>
-  <section class="panel">
-    <div class="panel-head">
-      <h2>出征</h2>
-      <span class="hint">{{ statusLabel }}</span>
-    </div>
-
-    <div v-if="run" class="hp">
-      <div class="bar"><span :style="{ width: `${hpPercent}%` }"></span></div>
-      <span class="hp-text">{{ run.hp }} / {{ run.max_hp }}</span>
-    </div>
-
-    <BattleStage
-      v-if="run"
-      :hp="run.hp"
-      :max-hp="run.max_hp"
-      :layer="run.nodes?.length ?? 0"
-    />
-
-    <div v-if="run && (run.affixes ?? []).length" class="chips">
-      <span v-for="id in run.affixes ?? []" :key="id" class="chip">{{ affixName(id) }}</span>
-    </div>
-  </section>
-
-  <section v-if="status === 'choosing_node'" class="panel">
-    <h2>第 {{ (run?.nodes?.length ?? 0) + 1 }} 层 · 选择去路</h2>
-    <div class="choices">
-      <button
-        v-for="(node, index) in run?.choices ?? []"
-        :key="`${node.enemy}-${index}`"
-        class="choice"
-        type="button"
-        :disabled="store.busy"
-        @click="choose(index)"
-      >
-        <span class="kind">{{ KIND_LABELS[node.kind] ?? node.kind }}</span>
-        <span class="power">战力 {{ node.power }}</span>
-        <span class="reward">修为 {{ (node.reward?.cultivation ?? 0).toFixed(1) }}</span>
-      </button>
-    </div>
-  </section>
-
-  <section v-else-if="status === 'choosing_affix'" class="panel">
-    <h2>三选一</h2>
-    <p class="hint">同组词条更容易凑成套</p>
-    <div class="choices">
-      <button
-        v-for="id in run?.affix_options ?? []"
-        :key="id"
-        class="choice"
-        type="button"
-        :disabled="store.busy"
-        @click="pick(id)"
-      >
-        {{ affixName(id) }}
-      </button>
-    </div>
-  </section>
-
-  <section v-else class="panel">
-    <h2>{{ status === 'cleared' ? '通关' : '失败' }}</h2>
-    <p class="hint">共到达 {{ run?.nodes?.length ?? 0 }} 层</p>
-    <button class="primary" type="button" :disabled="store.busy" @click="finish">
-      结算
-    </button>
-  </section>
-</template>
-
+<template><div v-if="run" class="run-page"><div class="run-title"><div><span class="eyebrow">TOWER EXPEDITION</span><h2>问道塔 <span>第 {{ Math.min(layers+(store.status==='choosing_node'?1:0),total||Infinity) }} 层</span></h2><p class="muted">{{ statusLabel }} · 出征进度会自动保存</p></div><div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-small" :disabled="store.busy" @click="$emit('returnCity')"><GameIcon name="home" />返回宗门</button><div class="tower-count"><strong>{{ layers }}</strong><span>/ {{ total }} 层</span></div></div></div><div class="floor-progress"><span v-for="i in total" :key="i" :class="{done:i<=layers,current:i===layers+1&&!ended,boss:i===total}"><i></i><small v-if="i%5===0||i===1">{{ i }}</small></span></div><div class="run-layout"><div class="run-main"><div class="run-health"><div><GameIcon name="leaf" /><strong>队伍气血</strong><span>{{ run.hp }} / {{ run.max_hp }}</span></div><div class="progress-track"><span :style="{width:`${hpPercent}%`}"></span></div></div><BattleStage :party="party" :result="store.battleResult" :hp="run.hp" :max-hp="run.max_hp" @playing="playing=$event" />
+  <section v-if="store.status==='choosing_node'" class="decision-section"><div class="section-heading"><div><span class="eyebrow">CHOOSE YOUR PATH</span><h3>前路有岔，各循其道</h3></div><span class="muted">选择一条路线继续</span></div><div class="node-choices"><button v-for="(node,index) in run.choices" :key="`${node.enemy}-${index}`" class="node-card" :class="node.kind" :disabled="store.busy||playing" @click="store.choose(index)"><span class="node-index">{{ String(index+1).padStart(2,'0') }}</span><GameIcon :name="node.kind==='boss'?'tower':'sword'" /><span class="badge" :class="node.kind==='battle'?'badge-muted':'badge-gold'">{{ kinds[node.kind]??node.kind }}</span><h4>{{ node.kind==='boss'?'守塔首领':node.kind==='elite'?'精锐灵卫':'巡山灵卫' }}</h4><p>敌方战力 <b>{{ node.power }}</b></p><div class="node-loot"><span v-for="(n,key) in node.reward" :key="key">{{ resourceName(key,catalog) }} +{{ number(n,1) }}</span></div><span class="node-enter">前往挑战 <GameIcon name="chevron" /></span></button></div></section>
+  <section v-else-if="store.status==='choosing_affix'" class="decision-section"><div class="section-heading"><div><span class="eyebrow">A MOMENT OF ENLIGHTENMENT</span><h3>一念通明，三择其一</h3></div></div><p class="muted">此行道法仅在本次出征生效，同组词条可形成协同。</p><div class="affix-choices"><button v-for="id in run.affix_options" :key="id" class="affix-card" :disabled="store.busy||playing" @click="store.pickAffix(id)"><span class="affix-symbol">悟</span><span class="badge badge-gold">{{ catalog?.affixes[id]?.group_name??catalog?.affixes[id]?.group }}</span><h4>{{ catalog?.affixes[id]?.name??id }}</h4><p v-for="(e,i) in catalog?.affixes[id]?.effects" :key="i">{{ effectText(e) }}</p><small>已有同组 {{ groupCounts[catalog?.affixes[id]?.group??'']??0 }} 项</small><span class="affix-pick">领悟此道 <GameIcon name="chevron" /></span></button></div></section>
+  <section v-else-if="ended" class="run-ending paper"><span class="eyebrow">{{ store.status==='cleared'?'THE SUMMIT IS REACHED':'EVERY JOURNEY IS A BEGINNING' }}</span><h3>{{ store.status==='cleared'?'登临绝顶，问道功成':'暂别高塔，整顿再来' }}</h3><p>此次到达 {{ layers }} 层。{{ store.status==='cleared'?'将战利品带回宗门，开启下一段修行。':'落败仍有部分收益，结算后可回宗门疗伤。' }}</p><button class="btn btn-primary" :disabled="store.busy||playing" @click="store.settleRun()"><GameIcon name="bag" />结算并返回宗门</button></section>
+  </div><aside class="run-sidebar"><section class="run-supply"><span class="eyebrow">EXPEDITION LOOT</span><h3>此行战利品</h3><div v-for="(n,key) in run.pending_loot" :key="key" class="loot-row"><span>{{ resourceName(key,catalog) }}</span><strong>{{ number(n,1) }}</strong></div><p v-if="!Object.keys(run.pending_loot??{}).length" class="muted">首战告捷后将在此累积。</p><p class="loot-note">待出征结束后带回；落败按规则折算部分收益。</p></section><section class="run-build"><div class="section-heading"><h3>已悟道法</h3><span class="badge">{{ run.affixes?.length }}</span></div><article v-for="(id,i) in run.affixes" :key="`${id}-${i}`"><span class="build-group">{{ catalog?.affixes[id]?.group_name??catalog?.affixes[id]?.group }}</span><strong>{{ catalog?.affixes[id]?.name??id }}</strong><p v-for="(e,j) in catalog?.affixes[id]?.effects" :key="j">{{ effectText(e) }}</p></article><p v-if="!run.affixes?.length" class="muted">每次获胜，皆有新的领悟。</p></section></aside></div></div></template>
 <style scoped>
-.panel-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.panel-head h2,
-.panel h2 {
-  margin: 0 0 10px;
-  font-size: 16px;
-}
-
-.panel-head h2 {
-  margin-bottom: 0;
-}
-
-.hint {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.hp {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.bar {
-  position: relative;
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: #e6e2d9;
-  overflow: hidden;
-}
-
-.bar span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.2s ease;
-}
-
-.hp-text {
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.chip {
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.choices {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-}
-
-.choice {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.choice:hover:not(:disabled) {
-  border-color: var(--accent);
-}
-
-.choice:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.kind {
-  font-size: 15px;
-}
-
-.power,
-.reward {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.primary {
-  padding: 10px 22px;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-  font: inherit;
-  cursor: pointer;
-}
-
-.primary:disabled {
-  border-color: var(--border);
-  background: var(--border);
-  cursor: not-allowed;
-}
+.run-page{max-width:1400px;margin:0 auto;padding:28px 40px 50px}.run-title{display:flex;justify-content:space-between;align-items:center}.run-title h2{font-size:27px;letter-spacing:.1em;margin:4px 0}.run-title h2>span{font:13px system-ui;color:var(--muted);letter-spacing:0;margin-left:16px}.run-title p{margin:0}.tower-count{display:flex;align-items:baseline;gap:8px}.tower-count strong{font:40px 'SimSun',serif;color:var(--jade)}.tower-count span{font-size:12px;color:var(--muted)}.floor-progress{display:flex;margin:22px 0 38px;gap:5px}.floor-progress>span{position:relative;flex:1;height:5px;background:#cdd0b9}.floor-progress>span.done{background:#5f8563}.floor-progress>span.current{background:#ba9a55}.floor-progress small{position:absolute;top:9px;left:50%;font-size:8px;color:var(--muted)}.floor-progress .boss{background:#baa77a}.run-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:26px}.run-health{margin-bottom:13px}.run-health>div:first-child{display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:7px;color:var(--jade)}.run-health .game-icon{width:15px;height:15px}.run-health span{margin-left:auto;font-size:11px;color:var(--muted)}.run-health .progress-track{height:7px}.decision-section{margin-top:28px}.decision-section .eyebrow{font-size:8px}.decision-section h3{font-size:21px;margin-top:4px}.decision-section>.muted{margin-top:-5px}.node-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.node-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:23px;background:#f7f1df;border:1px solid #c0b69b;box-shadow:0 4px 0 #b6b59c33;transition:border-color .15s,background .15s}.node-card:hover:not(:disabled){border-color:var(--jade);background:#f7f6e7}.node-card>.game-icon{width:29px;height:29px;color:#8c9a77;margin-bottom:14px}.node-card.elite>.game-icon,.node-card.boss>.game-icon{color:#a57d41}.node-index{position:absolute;right:18px;top:18px;color:#d1c6a9;font:27px 'SimSun',serif}.node-card h4{font-size:21px;margin:11px 0 8px}.node-card>p{font-size:11px;color:var(--muted);margin-bottom:15px}.node-card>p b{color:var(--ink);font-size:15px;margin-left:5px}.node-loot{display:flex;flex-direction:column;gap:5px;font-size:10px;color:#687e5e;padding:10px 0 17px;border-top:1px solid #d8cfb5;width:100%}.node-enter,.affix-pick{margin-top:auto;display:flex;align-items:center;justify-content:space-between;width:100%;font-size:11px;color:var(--jade)}.node-enter>.game-icon,.affix-pick>.game-icon{width:15px;height:15px}.affix-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.affix-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:265px;padding:20px 15px;border:1px solid #c4b78f;background:linear-gradient(#f3ecd6,#fcf7e9)}.affix-card:hover:not(:disabled){border-color:var(--jade);box-shadow:0 0 0 2px #73966122}.affix-symbol{font:40px 'SimSun',serif;color:#c0ad75;align-self:center;margin-bottom:13px}.affix-card>.badge{font-size:9px}.affix-card h4{font-size:21px;margin:9px 0}.affix-card p{font-size:11px;color:var(--jade);margin-bottom:8px}.affix-card small{color:var(--muted);font-size:9px;margin-bottom:20px}.affix-pick{padding-top:12px;border-top:1px solid #d5c9a9}.run-sidebar>section{padding:20px;background:#f4eddb;border:1px solid #c7bd9e}.run-sidebar h3{font-size:18px;margin:4px 0 18px}.run-supply>.eyebrow{font-size:7px}.loot-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #d9cfb4;font-size:11px}.loot-row strong{font-weight:500;color:var(--jade)}.loot-note{font-size:9px;color:var(--muted);margin:15px 0 0}.run-build{margin-top:18px}.run-build .section-heading{margin-bottom:10px}.run-build .section-heading h3{margin:0}.run-build article{border-top:1px solid #d9cfb4;padding:12px 0}.build-group{display:block;font-size:8px;color:var(--gold)}.run-build article>strong{font:14px 'SimSun',serif}.run-build article>p{font-size:10px;color:var(--jade);margin:5px 0 0}.run-ending{margin-top:24px;text-align:center;padding:32px 24px}.run-ending h3{font-size:26px;margin:8px 0 12px}.run-ending p{font-size:12px;color:var(--muted);margin-bottom:23px}
+@media(max-width:1000px){.run-page{padding:24px}.run-layout{grid-template-columns:minmax(0,1fr) 220px;gap:18px}.run-sidebar>section{padding:16px}.affix-choices{gap:8px}.affix-card{padding:16px 11px}}
+@media(max-width:720px){.run-page{padding:20px 14px 36px}.run-layout{grid-template-columns:1fr}.run-sidebar{display:grid;grid-template-columns:1fr 1fr;gap:12px}.run-build{margin-top:0}.run-title h2{font-size:23px}.run-title h2>span{display:block;margin:4px 0 0;font-size:11px}.run-title .eyebrow{font-size:7px}.tower-count strong{font-size:31px}.floor-progress{gap:3px;margin-bottom:33px}.node-card{padding:17px 14px}.node-card h4{font-size:19px}.decision-section h3{font-size:19px}.decision-section .section-heading>.muted{display:none}.affix-choices{grid-template-columns:1fr}.affix-card{min-height:0;display:grid;grid-template-columns:55px 1fr auto;gap:5px 10px;align-items:center;padding:16px}.affix-symbol{grid-row:1 / 5;margin:0;font-size:33px}.affix-card>.badge{grid-column:2;width:fit-content}.affix-card h4{grid-column:2;font-size:20px;margin:4px 0}.affix-card p{grid-column:2;margin:0}.affix-card small{grid-column:2;margin:3px 0 0}.affix-pick{grid-column:3;grid-row:1 / 5;border:0;padding:0;font-size:0}.affix-pick .game-icon{width:20px;height:20px}.run-sidebar h3{font-size:16px}.run-sidebar>section{padding:14px}.run-ending h3{font-size:22px}.run-ending .eyebrow{font-size:7px}.run-ending>.btn{width:100%}}
 </style>

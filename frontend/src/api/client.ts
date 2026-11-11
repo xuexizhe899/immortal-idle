@@ -2,191 +2,88 @@ import type { components } from '../generated/api'
 
 type Schemas = components['schemas']
 
-export type GameState = Schemas['GameState']
+export type GameState = Schemas['GameState-Output']
 export type SaveSlotMeta = Schemas['SaveSlotMeta']
-export type ActiveRun = Schemas['ActiveRun']
-export type RunNode = Schemas['RunNode']
+export type DiscipleState = Schemas['DiscipleState-Output']
+export type ActiveRun = Schemas['ActiveRun-Output']
+export type RunNode = Schemas['RunNode-Output']
+export type Catalog = Schemas['CatalogResponse']
+export type CityLayout = Schemas['CityLayout']
+export type CityHotspot = Schemas['CityHotspot']
+export type SaveContent = Schemas['GameSnapshot']
+export type RunPayload = Schemas['RunResponse']
+export type SettleResult = Schemas['SettleResponse']
+export type RunSettleResult = Schemas['RunSettleResponse']
+export type DutyChange = Schemas['DutyResponse']
+export type DutyPayload = DutyChange
+export type RecruitResult = Schemas['RecruitResponse']
+export type CraftResult = Schemas['CraftResponse']
+export type UpgradeResult = Schemas['UpgradeResponse']
+export type Production = Schemas['ProductionCatalog']
+export type BattleResult = Schemas['BattleSummary-Output']
 
-export interface SaveContent {
-  revision: number
-  state: GameState
-}
+export class ApiError extends Error {
+  readonly status: number
+  readonly uncertain: boolean
 
-export interface RunPayload {
-  revision: number
-  status: string
-  run: ActiveRun | null
-}
-
-export interface SettleResult {
-  revision: number
-  elapsed_hours: number
-  dropped_hours: number
-  gained: { cultivation: number; spirit_stone: number; stamina: number }
-  warnings: string[]
-  state: GameState
-}
-
-export interface RunSettleResult {
-  revision: number
-  cleared: number
-  victory: boolean
-  loot: Record<string, number>
-  state: GameState
-}
-
-export interface DutyPayload {
-  revision: number
-  duty: { disciple_id: string; assigned_at: string }[]
-  rates: Record<string, number>
-}
-
-export interface CityHotspot {
-  id: string
-  name: string
-  panel: string
-  x: number
-  y: number
-  w: number
-  h: number
-  sprite?: string
-  anim?: string
-}
-
-export interface CityLayout {
-  background: string
-  aspect: number
-  hotspots: CityHotspot[]
-}
-
-export interface Catalog {
-  disciples: Record<
-    string,
-    { name: string; title: string; lean: string; rarity: number; unlock_cost: { reputation: number } }
-  >
-  affixes: Record<string, { name: string; group: string }>
-  recipes: Record<
-    string,
-    { name: string; kind: string; inputs: Record<string, number>; special?: string | null }
-  >
-  materials: Record<string, string>
-  city: CityLayout
-}
-
-export type DiscipleState = Schemas['DiscipleState']
-
-export interface DutyChange {
-  revision: number
-  duty: { disciple_id: string; assigned_at: string }[]
-  rates: Record<string, number>
-}
-
-export interface RecruitResult {
-  revision: number
-  reputation: number
-  disciple: DiscipleState
-}
-
-export interface CraftResult {
-  revision: number
-  bonuses: Record<string, number>
-  inventory: Record<string, number>
+  constructor(message: string, status: number, uncertain = false) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.uncertain = uncertain
+  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...init,
-  })
-
-  if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as { detail?: string } | null
-    throw new Error(body?.detail ?? `请求失败（HTTP ${response.status}）`)
+  const controller = new AbortController()
+  const timeout = window.setTimeout(() => controller.abort(), 20_000)
+  try {
+    const response = await fetch(`/api${path}`, {
+      ...init,
+      headers: { 'Content-Type': 'application/json', ...init?.headers },
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      const body: unknown = await response.json().catch(() => null)
+      const detail = body && typeof body === 'object' && 'detail' in body ? body.detail : null
+      const message = typeof detail === 'string'
+        ? detail
+        : response.status === 422 ? '操作信息已失效，请刷新后重试。' : `请求失败（${response.status}），请稍后重试。`
+      throw new ApiError(message, response.status)
+    }
+    return await response.json() as T
+  } catch (cause) {
+    if (cause instanceof ApiError) throw cause
+    throw new ApiError(controller.signal.aborted
+      ? '连接超时，正在确认最新进度。'
+      : '暂时无法连接宗门，请检查网络后重试。', 0, init?.method === 'POST' || init?.method === 'DELETE')
+  } finally {
+    window.clearTimeout(timeout)
   }
+}
 
-  return (await response.json()) as T
+function post<T>(path: string, payload?: unknown): Promise<T> {
+  return request<T>(path, { method: 'POST', body: payload === undefined ? undefined : JSON.stringify(payload) })
 }
 
 export const api = {
   catalog: () => request<Catalog>('/catalog'),
-
   listSaves: () => request<SaveSlotMeta[]>('/saves'),
-
-  createSave: (name: string) =>
-    request<{ slot_id: number }>('/saves', {
-      method: 'POST',
-      body: JSON.stringify({ name }),
-    }),
-
+  createSave: (name: string) => post<{ slot_id: number }>('/saves', { name }),
   getSave: (slotId: number) => request<SaveContent>(`/saves/${slotId}`),
-
-  settle: (slotId: number) =>
-    request<SettleResult>(`/saves/${slotId}/settle`, { method: 'POST' }),
-
+  settle: (slotId: number, revision?: number) => post<SettleResult>(`/saves/${slotId}/settle`, revision ? { revision } : undefined),
   getRun: (slotId: number) => request<RunPayload>(`/saves/${slotId}/run`),
-
-  startRun: (slotId: number, party: string[]) =>
-    request<RunPayload>(`/saves/${slotId}/run/start`, {
-      method: 'POST',
-      body: JSON.stringify({ party }),
-    }),
-
-  choose: (slotId: number, choice: number) =>
-    request<RunPayload>(`/saves/${slotId}/run/choose`, {
-      method: 'POST',
-      body: JSON.stringify({ choice }),
-    }),
-
-  pickAffix: (slotId: number, affixId: string) =>
-    request<RunPayload>(`/saves/${slotId}/run/affix`, {
-      method: 'POST',
-      body: JSON.stringify({ affix_id: affixId }),
-    }),
-
-  settleRun: (slotId: number) =>
-    request<RunSettleResult>(`/saves/${slotId}/run/settle`, { method: 'POST' }),
-
-  assignDuty: (slotId: number, revision: number, discipleId: string) =>
-    request<DutyChange>(`/saves/${slotId}/duty/assign`, {
-      method: 'POST',
-      body: JSON.stringify({ revision, disciple_id: discipleId }),
-    }),
-
-  unassignDuty: (slotId: number, revision: number, discipleId: string) =>
-    request<DutyChange>(`/saves/${slotId}/duty/unassign`, {
-      method: 'POST',
-      body: JSON.stringify({ revision, disciple_id: discipleId }),
-    }),
-
-  recruit: (slotId: number, templateId: string) =>
-    request<RecruitResult>(`/saves/${slotId}/recruit`, {
-      method: 'POST',
-      body: JSON.stringify({ template_id: templateId }),
-    }),
-
-  craft: (slotId: number, recipeId: string, target: string | null) =>
-    request<CraftResult>(`/saves/${slotId}/craft`, {
-      method: 'POST',
-      body: JSON.stringify({ recipe_id: recipeId, target }),
-    }),
-
-  duplicateSave: (slotId: number, name: string) =>
-    request<{ slot_id: number }>(`/saves/${slotId}/duplicate`, {
-      method: 'POST',
-      body: JSON.stringify({ name }),
-    }),
-
-  deleteSave: (slotId: number) =>
-    request<{ ok: boolean }>(`/saves/${slotId}`, { method: 'DELETE' }),
-
-  exportSave: (slotId: number) =>
-    request<{ name: string; schema_version: number; state: GameState }>(
-      `/saves/${slotId}/export`,
-    ),
-
-  importSave: (payload: unknown) =>
-    request<{ slot_id: number }>('/saves/import', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+  startRun: (slotId: number, party: string[], revision: number) => post<RunPayload>(`/saves/${slotId}/run/start`, { party, revision }),
+  choose: (slotId: number, choice: number, revision: number) => post<RunPayload>(`/saves/${slotId}/run/choose`, { choice, revision }),
+  pickAffix: (slotId: number, affixId: string, revision: number) => post<RunPayload>(`/saves/${slotId}/run/affix`, { affix_id: affixId, revision }),
+  settleRun: (slotId: number, revision: number) => post<RunSettleResult>(`/saves/${slotId}/run/settle`, { revision }),
+  assignDuty: (slotId: number, revision: number, discipleId: string) => post<DutyChange>(`/saves/${slotId}/duty/assign`, { revision, disciple_id: discipleId }),
+  unassignDuty: (slotId: number, revision: number, discipleId: string) => post<DutyChange>(`/saves/${slotId}/duty/unassign`, { revision, disciple_id: discipleId }),
+  recruit: (slotId: number, templateId: string, revision: number) => post<RecruitResult>(`/saves/${slotId}/recruit`, { template_id: templateId, revision }),
+  craft: (slotId: number, recipeId: string, target: string | null, revision: number) => post<CraftResult>(`/saves/${slotId}/craft`, { recipe_id: recipeId, target, revision }),
+  upgrade: (slotId: number, discipleId: string, revision: number) => post<UpgradeResult>(`/saves/${slotId}/disciples/${encodeURIComponent(discipleId)}/upgrade`, { revision }),
+  duplicateSave: (slotId: number, name: string) => post<{ slot_id: number }>(`/saves/${slotId}/duplicate`, { name }),
+  deleteSave: (slotId: number) => request<{ ok: boolean }>(`/saves/${slotId}`, { method: 'DELETE' }),
+  exportSave: (slotId: number) => request<Schemas['SaveExport']>(`/saves/${slotId}/export`),
+  importSave: (payload: unknown) => post<{ slot_id: number }>('/saves/import', payload),
 }

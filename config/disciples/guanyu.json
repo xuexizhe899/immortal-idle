@@ -5,7 +5,7 @@
   "origin": "sanguo",
   "rarity": 3,
   "lean": "attack",
-  "asset_id": "guanyu",
+  "asset_id": "trial-v03/guanyu",
   "base_stats": {
     "hp": 120,
     "atk": 22,

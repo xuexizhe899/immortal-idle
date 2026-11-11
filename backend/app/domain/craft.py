@@ -15,6 +15,8 @@ def craft(
     state: GameState, recipe_id: str, target: str | None, recipes: dict[str, dict]
 ) -> str | None:
     """炼制一件配方；成功返回 None，失败返回原因。"""
+    if state.active_run is not None:
+        return "请先完成当前出征再炼制"
     recipe = recipes.get(recipe_id)
     if recipe is None:
         return "配方不存在"

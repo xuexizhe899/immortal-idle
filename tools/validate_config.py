@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -33,11 +34,91 @@ YIELD_STATS = {
 }
 STATS = COMBAT_STATS | YIELD_STATS
 RECIPE_KINDS = {"pill", "artifact"}
+CITY_PANELS = {"codex", "sect", "expedition", "tower", "duty", "forge", "alchemy"}
 
 
 def is_number(value: object) -> bool:
     """判断是否为数字，排除 bool（bool 是 int 的子类，会被误判）。"""
     return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def is_finite_number(value: object) -> bool:
+    """JSON 解码器允许 NaN/Infinity，坐标不得接受这类值。"""
+    return is_number(value) and (isinstance(value, int) or math.isfinite(value))
+
+
+def check_city_asset(value: object, where: str, assets_dir: Path, errors: list[str]) -> None:
+    """主城资产必须是 public/assets 内可落盘验证的本地路径。"""
+    if (
+        not isinstance(value, str) or not value.startswith("/assets/")
+        or any(char in value for char in ("\\", "?", "#"))
+    ):
+        errors.append(f"{where}: 必须是 /assets/ 开头的本地资产路径")
+        return
+    asset_root = assets_dir.resolve()
+    target = (asset_root / value.removeprefix("/assets/")).resolve()
+    if not target.is_relative_to(asset_root):
+        errors.append(f"{where}: 资产路径不得越出 frontend/public/assets")
+    elif not target.is_file():
+        errors.append(f"{where}: 本地资产不存在 '{value}'")
+
+
+def check_city(config_dir: Path, assets_dir: Path, errors: list[str]) -> None:
+    """主城可选；存在时校验真实图片和可点击区域，避免 CI 漏掉错图/错热区。"""
+    path = config_dir / "ui" / "city.json"
+    if not path.exists():
+        return
+    where = "config/ui/city.json"
+    try:
+        city = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeError, OSError) as exc:
+        errors.append(f"{where}: JSON 读取失败 - {exc}")
+        return
+    if not isinstance(city, dict):
+        errors.append(f"{where}: 顶层必须是对象")
+        return
+    check_city_asset(city.get("background"), f"{where}: background", assets_dir, errors)
+    aspect = city.get("aspect")
+    if not is_finite_number(aspect) or aspect <= 0:
+        errors.append(f"{where}: aspect 必须是有限正数")
+    hotspots = city.get("hotspots")
+    if not isinstance(hotspots, list) or not hotspots:
+        errors.append(f"{where}: hotspots 必须是非空数组")
+        return
+    seen: set[str] = set()
+    for index, hotspot in enumerate(hotspots):
+        pos = f"{where}: hotspots[{index}]"
+        if not isinstance(hotspot, dict):
+            errors.append(f"{pos}: 必须是对象")
+            continue
+        hotspot_id = hotspot.get("id")
+        if not isinstance(hotspot_id, str) or not hotspot_id.strip():
+            errors.append(f"{pos}: id 必须是非空字符串")
+        elif hotspot_id in seen:
+            errors.append(f"{pos}: id '{hotspot_id}' 重复")
+        else:
+            seen.add(hotspot_id)
+        panel = hotspot.get("panel")
+        if not isinstance(panel, str) or panel not in CITY_PANELS:
+            errors.append(f"{pos}: panel 必须是七个已知入口之一 {sorted(CITY_PANELS)}")
+        if hotspot.get("sprite") is not None:
+            check_city_asset(hotspot["sprite"], f"{pos}.sprite", assets_dir, errors)
+        valid_coordinates = True
+        for key in ("x", "y", "w", "h"):
+            value = hotspot.get(key)
+            valid = is_finite_number(value) and (
+                0 <= value <= 100 if key in ("x", "y") else 0 < value <= 100
+            )
+            if not valid:
+                errors.append(f"{pos}.{key}: 必须是有效的有限百分比（中心 0..100，尺寸 >0..100）")
+                valid_coordinates = False
+        if valid_coordinates:
+            x, y, width, height = (hotspot[key] for key in ("x", "y", "w", "h"))
+            if not (
+                width / 2 <= x <= 100 - width / 2
+                and height / 2 <= y <= 100 - height / 2
+            ):
+                errors.append(f"{pos}: 热区边界必须完整位于 0..100 的主城范围内")
 
 
 def load_collection(config_dir: Path, name: str, errors: list[str]) -> dict[str, dict]:
@@ -113,6 +194,7 @@ def validate(
     assets_dir = assets_dir or ASSETS_DIR
     errors: list[str] = []
     pending = load_pending(config_dir)
+    check_city(config_dir, assets_dir, errors)
 
     skills = load_collection(config_dir, "skills", errors)
     disciples = load_collection(config_dir, "disciples", errors)

@@ -1,167 +1,25 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
+import { computed, ref, watch } from 'vue'
 import { useGameStore } from '../stores/game'
-
-const props = defineProps<{ kind?: string }>()
-
-const store = useGameStore()
-const target = ref('')
-
-const recipes = computed(() => store.catalog?.recipes ?? {})
-const inventory = computed(() => store.state?.inventory ?? {})
-const bonuses = computed(() => store.state?.bonuses ?? {})
-
-const list = computed(() =>
-  Object.entries(recipes.value).filter(([, r]) => !props.kind || r.kind === props.kind),
-)
-
-function needsTarget(id: string): boolean {
-  return ['heal', 'realm'].includes(recipes.value[id]?.special ?? '')
-}
-
-function inputText(inputs: Record<string, number>): string {
-  return Object.entries(inputs)
-    .map(([id, count]) => `${store.catalog?.materials[id] ?? id}×${count}`)
-    .join('，')
-}
-
-function canCraft(inputs: Record<string, number>): boolean {
-  return Object.entries(inputs).every(
-    ([id, count]) => (inventory.value[id] ?? 0) >= count,
-  )
-}
-
-async function craft(id: string) {
-  await store.craft(id, needsTarget(id) ? target.value : null)
-}
+import { effectText,number,resourceName,imageOf,injuryText,type DisplayCatalog } from '../components/gameDisplay'
+import GameIcon from '../components/GameIcon.vue'
+const props=defineProps<{kind?:string;readOnly?:boolean}>()
+const store=useGameStore();const catalog=computed(()=>store.catalog as DisplayCatalog|null)
+const selectedId=ref('');const target=ref('');const feedback=ref('')
+const recipes=computed(()=>Object.entries(catalog.value?.recipes??{}).filter(([,r])=>!props.kind||r.kind===props.kind))
+const recipe=computed(()=>catalog.value?.recipes[selectedId.value])
+const inputs=computed(()=>Object.entries(recipe.value?.inputs??{}))
+const needsTarget=computed(()=>['heal','realm'].includes(recipe.value?.special??''))
+const targetDisciple=computed(()=>store.disciples.find(d=>d.id===target.value))
+const missing=computed(()=>inputs.value.filter(([id,count])=>(store.state?.inventory?.[id]??0)<count))
+const reason=computed(()=>props.readOnly ? '出征期间仅可查阅配方，结算后可继续炼制' : missing.value.length ? `缺少 ${missing.value.map(([id,n])=>`${resourceName(id,catalog.value)} ${n-(store.state?.inventory?.[id]??0)}`).join('、')}` : needsTarget.value&&!target.value?'请选择服用弟子':targetDisciple.value?.busy?'弟子正在出征，暂不可服用':'')
+const inventory=computed(()=>Object.entries(store.state?.inventory??{}).filter(([,n])=>n>0))
+watch(recipes,list=>{selectedId.value=list[0]?.[0]??'';feedback.value=''},{immediate:true})
+watch(selectedId,()=>{feedback.value='';target.value=''})
+async function craft(){if(!recipe.value||reason.value)return;const name=recipe.value.name;await store.craft(selectedId.value,needsTarget.value?target.value:null);if(!store.error)feedback.value=`${name}炼制成功，效果已生效。`}
 </script>
-
-<template>
-  <div class="craft">
-    <div class="bonus-line">
-      <span class="hint">全局加成：</span>
-      <span v-for="(value, key) in bonuses" :key="key" class="chip">
-        {{ key }} +{{ (value * 100).toFixed(0) }}%
-      </span>
-      <span v-if="!Object.keys(bonuses).length" class="hint">暂无</span>
-    </div>
-
-    <div class="list">
-      <div v-for="[id, r] in list" :key="id" class="row">
-        <span class="name">{{ r.name }}</span>
-        <span class="inputs">{{ inputText(r.inputs) }}</span>
-        <button
-          class="mini"
-          type="button"
-          :disabled="store.busy || !canCraft(r.inputs) || (needsTarget(id) && !target)"
-          @click="craft(id)"
-        >
-          炼制
-        </button>
-      </div>
-    </div>
-
-    <div class="target-line">
-      <span class="hint">疗伤 / 破境的目标：</span>
-      <select v-model="target" class="select">
-        <option value="">未选择</option>
-        <option v-for="d in store.disciples" :key="d.id" :value="d.id">
-          {{ store.catalog?.disciples[d.template_id]?.name ?? d.id }}
-        </option>
-      </select>
-    </div>
-  </div>
-</template>
-
+<template><div class="craft-layout"><div class="recipe-list"><button v-for="[id,r] in recipes" :key="id" :class="{active:selectedId===id}" @click="selectedId=id"><span class="recipe-icon"><GameIcon :name="r.kind==='pill'?'flame':'stone'" /></span><span><strong>{{ r.name }}</strong><small>{{ r.kind==='pill'?'丹药':'法器' }}</small></span><span class="recipe-check" v-if="Object.entries(r.inputs).every(([id,n])=>(store.state?.inventory?.[id]??0)>=n)">可炼</span></button></div><div v-if="recipe" class="recipe-detail"><span class="eyebrow">{{ props.kind==='pill'?'ALCHEMY · 丹道':'ARTIFACTS · 器道' }}</span><h3>{{ recipe.name }}</h3><div class="recipe-effects"><template v-if="recipe.special==='heal'"><strong>疗愈伤势</strong><p>立即清除所选弟子的全部伤势。</p></template><template v-else-if="recipe.special==='realm'"><strong>助益破境</strong><p>提升所选弟子的境界。</p></template><template v-else><strong v-for="(e,i) in recipe.effects" :key="i">{{ effectText(e) }}</strong><p>炼制完成后获得永久加成。</p></template></div><h4>所需材料</h4><div class="ingredient-list"><div v-for="[id,n] in inputs" :key="id" :class="{missing:(store.state?.inventory?.[id]??0)<n}"><span>{{ resourceName(id,catalog) }}</span><strong>{{ number(store.state?.inventory?.[id]) }} <small>/ {{ n }}</small></strong></div></div><div v-if="needsTarget" class="target-picker"><label for="craft-target" class="field-label">选择服用弟子</label><select id="craft-target" v-model="target"><option value="">请选择弟子</option><option v-for="d in store.disciples" :key="d.id" :value="d.id" :disabled="d.busy">{{ catalog?.disciples[d.template_id]?.name }} · {{ d.busy?'出征中':recipe.special==='heal'?`伤势 ${d.injury_stacks} 层`:`境界 ${d.realm}` }}</option></select><div v-if="targetDisciple" class="target-preview"><img :src="imageOf(targetDisciple.template_id,catalog)" alt="" class="pixel-art" /><span>{{ recipe.special==='heal'?injuryText(targetDisciple):`当前境界 ${targetDisciple.realm}` }}</span></div></div><p v-if="reason" class="craft-reason">{{ reason }}</p><div v-if="feedback" class="notice-box" role="status">{{ feedback }}</div><button class="btn btn-primary craft-button" :disabled="store.busy||!!reason" @click="craft"><GameIcon :name="props.kind==='pill'?'flame':'stone'" />{{ needsTarget?'炼制并服用':'开始炼制' }}</button><p class="muted">炼制后直接应用效果，消耗的材料将从行囊扣除。</p></div></div><details class="inventory-details"><summary>宗门行囊 <span>{{ inventory.length }} 种材料</span></summary><div class="inventory-grid"><div v-for="[id,n] in inventory" :key="id"><span>{{ resourceName(id,catalog) }}</span><strong>{{ number(n) }}</strong></div><p v-if="!inventory.length" class="muted">行囊尚空，出征问道塔可获得材料。</p></div></details><div v-if="Object.keys(store.state?.bonuses??{}).length" class="permanent-bonuses"><h4>已获得的永久加成</h4><div class="chips"><span v-for="(v,key) in store.state?.bonuses" :key="key" class="badge">{{ effectText({stat:key,mode:'add_pct',value:v}) }}</span></div></div></template>
 <style scoped>
-.hint {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.bonus-line {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--border);
-}
-
-.chip {
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.row:last-child {
-  border-bottom: none;
-}
-
-.name {
-  width: 76px;
-  flex: none;
-  font-size: 14px;
-}
-
-.inputs {
-  flex: 1;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.mini {
-  flex: none;
-  padding: 4px 12px;
-  border: 2px solid var(--border);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.mini:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.mini:hover:not(:disabled) {
-  background: var(--border);
-  color: var(--surface);
-}
-
-.target-line {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 2px solid var(--border);
-}
-
-.select {
-  padding: 4px 8px;
-  border: 2px solid var(--border);
-  background: var(--surface);
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-}
+.craft-layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:25px}.recipe-list{display:flex;flex-direction:column;gap:5px}.recipe-list>button{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1px solid transparent;background:#ece8d7;text-align:left;min-height:65px}.recipe-list>button.active{border-color:#9cae8c;background:#e1e7d3}.recipe-icon{width:32px;height:35px;display:grid;place-items:center;color:var(--gold);background:#f7f0da;border:1px solid #d1c29b}.recipe-list strong{font-size:13px;display:block}.recipe-list small{font-size:9px;color:var(--muted)}.recipe-check{margin-left:auto;font-size:9px;color:var(--jade)}.recipe-detail{padding:22px;background:#efe9d8;border:1px solid #d0c5a5}.recipe-detail>.eyebrow{font-size:8px}.recipe-detail h3{font-size:27px;margin:6px 0 14px}.recipe-effects{padding:14px;border-left:2px solid #93a67c;background:#e3e7d4;margin-bottom:20px}.recipe-effects strong{display:block;font-size:13px;color:var(--jade)}.recipe-effects p{margin:4px 0 0;font-size:11px;color:var(--muted)}.recipe-detail h4{margin:0 0 10px;font-size:14px}.ingredient-list{margin-bottom:20px}.ingredient-list>div{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #d8ceb4;font-size:12px}.ingredient-list strong{color:var(--jade);font-weight:500}.ingredient-list small{color:var(--muted)}.ingredient-list .missing strong{color:var(--danger)}.target-picker select{width:100%}.target-preview{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11px;color:var(--muted)}.target-preview>img{width:34px;height:40px;object-fit:cover;object-position:top}.craft-reason{color:var(--danger);font-size:11px;margin:16px 0 10px}.craft-button{width:100%;margin:14px 0}.recipe-detail>.muted{font-size:10px;margin:0}.inventory-details{margin-top:24px;border:1px solid #d0c5a5;background:#eee9da}.inventory-details summary{cursor:pointer;padding:12px 16px;font-size:13px}.inventory-details summary span{float:right;font-size:11px;color:var(--muted)}.inventory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:0 16px 16px}.inventory-grid>div{display:flex;justify-content:space-between;padding:8px 10px;background:#e4e3d2;font-size:11px}.inventory-grid strong{color:var(--jade)}.permanent-bonuses{padding-top:20px}.permanent-bonuses h4{font-size:13px;margin-bottom:10px}
+@media(max-width:640px){.craft-layout{grid-template-columns:1fr;gap:14px}.recipe-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.recipe-list>button{padding:8px;gap:7px;min-height:60px}.recipe-list strong{font-size:12px}.recipe-icon{width:25px;height:29px}.recipe-detail{padding:17px}.inventory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.recipe-check{font-size:8px}}
 </style>

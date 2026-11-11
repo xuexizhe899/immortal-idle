@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from app.models.save import GameState, SaveExport, SaveSlotMeta
+from app.models.api import GameSnapshot
+from app.api.state import snapshot
 from app.repositories.saves import SaveRepository
 
 router = APIRouter(prefix="/saves", tags=["saves"])
@@ -68,14 +70,14 @@ async def import_slot(
     return {"slot_id": slot_id}
 
 
-@router.get("/{slot_id}")
-async def get_slot(slot_id: int, repo: SaveRepository = Depends(get_repo)) -> dict:
+@router.get("/{slot_id}", response_model=GameSnapshot)
+async def get_slot(slot_id: int, repo: SaveRepository = Depends(get_repo)) -> GameSnapshot:
     """读取存档内容与当前 revision。"""
     loaded = await repo.get_state(slot_id)
     if loaded is None:
         raise HTTPException(status_code=404, detail="存档不存在")
     state, revision = loaded
-    return {"revision": revision, "state": state.model_dump(mode="json")}
+    return snapshot(state, revision)
 
 
 @router.put("/{slot_id}")

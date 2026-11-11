@@ -190,3 +190,85 @@ def test_mode_pool_reference_is_reported(tree: tuple[Path, Path]) -> None:
     )
     errors = vc.validate(config, assets)
     assert any("enemy_pool[0] 'ghost_enemy'" in e for e in errors)
+
+
+@pytest.fixture()
+def city_tree(tree: tuple[Path, Path]) -> tuple[Path, Path]:
+    """独立验证完整背景与可选建筑 sprite 两种主城布局。"""
+    config, assets = tree
+    (assets / "city").mkdir()
+    (assets / "city" / "complete.png").write_bytes(b"PNG")
+    (assets / "city" / "tower.png").write_bytes(b"PNG")
+    write_json(config / "ui" / "city.json", {
+        "background": "/assets/city/complete.png", "aspect": 1.5,
+        "hotspots": [{
+            "id": "tower", "name": "问道塔", "panel": "tower",
+            "x": 50, "y": 50, "w": 20, "h": 40,
+        }],
+    })
+    return config, assets
+
+
+def edit_hotspot(config: Path, **changes: object) -> None:
+    path = config / "ui" / "city.json"
+    city = json.loads(path.read_text(encoding="utf-8"))
+    city["hotspots"][0].update(changes)
+    write_json(path, city)
+
+
+def test_city_background_and_optional_sprite_are_validated(city_tree):
+    config, assets = city_tree
+    assert vc.validate(config, assets) == []
+    edit_hotspot(config, sprite="/assets/city/tower.png")
+    assert vc.validate(config, assets) == []
+    (assets / "city" / "tower.png").unlink()
+    assert any("hotspots[0].sprite: 本地资产不存在" in error for error in vc.validate(config, assets))
+
+
+def test_city_missing_background_reports_asset_path(city_tree):
+    config, assets = city_tree
+    (assets / "city" / "complete.png").unlink()
+    errors = vc.validate(config, assets)
+    assert any("background: 本地资产不存在 '/assets/city/complete.png'" in error for error in errors)
+
+
+@pytest.mark.parametrize("background", [
+    "https://example.com/city.png", "/assets/../../outside.png", "/assets/city/complete.png?v=1",
+])
+def test_city_rejects_remote_or_escaping_asset_paths(city_tree, background):
+    config, assets = city_tree
+    patch(config / "ui" / "city.json", background=background)
+    assert any("background:" in error for error in vc.validate(config, assets))
+
+
+def test_city_duplicate_hotspot_id_and_unknown_panel_are_reported(city_tree):
+    config, assets = city_tree
+    path = config / "ui" / "city.json"
+    city = json.loads(path.read_text(encoding="utf-8"))
+    city["hotspots"].append({**city["hotspots"][0], "panel": "storage"})
+    write_json(path, city)
+    errors = vc.validate(config, assets)
+    assert any("id 'tower' 重复" in error for error in errors)
+    assert any("hotspots[1]: panel" in error for error in errors)
+
+
+@pytest.mark.parametrize(("key", "value"), [
+    ("x", float("nan")), ("y", float("inf")), ("w", True),
+    ("h", 0), ("x", -1), ("y", 101), ("w", 101), ("h", "20"),
+])
+def test_city_rejects_nonfinite_or_invalid_percentages(city_tree, key, value):
+    config, assets = city_tree
+    edit_hotspot(config, **{key: value})
+    assert any(f"hotspots[0].{key}:" in error for error in vc.validate(config, assets))
+
+
+def test_city_rejects_hotspot_extending_outside_background(city_tree):
+    config, assets = city_tree
+    edit_hotspot(config, x=3, w=20)
+    assert any("热区边界" in error for error in vc.validate(config, assets))
+
+
+def test_city_malformed_json_is_reported_without_crashing(city_tree):
+    config, assets = city_tree
+    (config / "ui" / "city.json").write_text("{oops", encoding="utf-8")
+    assert any("config/ui/city.json: JSON 读取失败" in error for error in vc.validate(config, assets))

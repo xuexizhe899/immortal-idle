@@ -5,7 +5,7 @@
   "origin": "sanguo",
   "rarity": 2,
   "lean": "craft",
-  "asset_id": "huatuo",
+  "asset_id": "trial-v03/huatuo",
   "base_stats": {
     "hp": 95,
     "atk": 13,

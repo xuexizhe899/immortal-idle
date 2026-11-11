@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from app.models.save import DiscipleState, DutyEvent, DutySlot, GameState
+from app.domain.progression import is_on_run
 
 MAX_DUTY_SLOTS = 6
 
@@ -74,8 +75,28 @@ def members_of(state: GameState, templates: dict[str, dict]) -> list[DutyMember]
     return members
 
 
+def rates_of(
+    state: GameState, templates: dict[str, dict], bonds: dict[str, dict] | None = None,
+) -> dict[str, float]:
+    """值守倾向与已经触发的值守羁绊共同决定当期速率。"""
+    rates = compute_rates(members_of(state, templates))
+    by_id = {d.id: d for d in state.disciples}
+    active = {
+        by_id[slot.disciple_id].template_id
+        for slot in state.duty_slots if slot.disciple_id in by_id
+    }
+    for bond in (bonds or {}).values():
+        if len(active & set(bond["members"])) < bond.get("requires", len(bond["members"])):
+            continue
+        for effect in bond.get("effects", []):
+            if effect["scope"] == "duty" and effect["mode"] == "add_pct":
+                rates[effect["stat"]] = rates.get(effect["stat"], 0.0) + effect["value"]
+    return rates
+
+
 def assign(
-    state: GameState, disciple_id: str, templates: dict[str, dict], now: datetime
+    state: GameState, disciple_id: str, templates: dict[str, dict], now: datetime,
+    bonds: dict[str, dict] | None = None,
 ) -> str | None:
     """把弟子加入值守编制；成功返回 None，失败返回原因。"""
     disciple = next((d for d in state.disciples if d.id == disciple_id), None)
@@ -87,16 +108,17 @@ def assign(
         return "该弟子已在值守"
     if len(state.duty_slots) >= MAX_DUTY_SLOTS:
         return f"值守编制已满（{MAX_DUTY_SLOTS} 人）"
-    if disciple.busy:
+    if is_on_run(state, disciple):
         return "该弟子正在出征"
 
     state.duty_slots.append(DutySlot(disciple_id=disciple_id, assigned_at=now))
-    record_event(state, templates, now)
+    record_event(state, templates, now, bonds)
     return None
 
 
 def unassign(
-    state: GameState, disciple_id: str, templates: dict[str, dict], now: datetime
+    state: GameState, disciple_id: str, templates: dict[str, dict], now: datetime,
+    bonds: dict[str, dict] | None = None,
 ) -> str | None:
     """把弟子移出值守编制；成功返回 None，失败返回原因。"""
     remaining = [slot for slot in state.duty_slots if slot.disciple_id != disciple_id]
@@ -104,12 +126,15 @@ def unassign(
         return "该弟子不在值守"
 
     state.duty_slots = remaining
-    record_event(state, templates, now)
+    record_event(state, templates, now, bonds)
     return None
 
 
-def record_event(state: GameState, templates: dict[str, dict], now: datetime) -> None:
+def record_event(
+    state: GameState, templates: dict[str, dict], now: datetime,
+    bonds: dict[str, dict] | None = None,
+) -> None:
     """记录一次编制变更事件，供惰性结算按时间段拆分。"""
     state.duty_events.append(
-        DutyEvent(at=now, rates=compute_rates(members_of(state, templates)))
+        DutyEvent(at=now, rates=rates_of(state, templates, bonds))
     )

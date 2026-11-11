@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from app.models.save import DiscipleState, GameState
+from app.domain.progression import is_on_run
 
 # 已拥有时再招募，消耗原价的这个比例来提升境界
 REALM_UP_RATIO = 0.5
@@ -22,6 +23,9 @@ def recruit(
     base_cost = template.get("unlock_cost", {}).get("reputation", 0.0)
 
     if template_id in state.unlocks:
+        owned = next((d for d in state.disciples if d.template_id == template_id), None)
+        if owned is not None and is_on_run(state, owned):
+            return "出征中的弟子暂不可提升境界"
         cost = base_cost * REALM_UP_RATIO
         if state.resources.reputation < cost:
             return f"声望不足（需要 {cost:g}）"

@@ -1,83 +1,25 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-
-defineProps<{ title: string }>()
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import GameIcon from './GameIcon.vue'
+defineProps<{ title: string; subtitle?: string; wide?: boolean }>()
 const emit = defineEmits<{ close: [] }>()
-
+const sheet = ref<HTMLElement | null>(null)
+let previousFocus: HTMLElement | null = null
+let previousOverflow = ''
 function onKey(event: KeyboardEvent) {
-  if (event.key === 'Escape') emit('close')
+  if (event.key === 'Escape') { event.preventDefault(); emit('close') }
+  if (event.key !== 'Tab' || !sheet.value) return
+  const targets = Array.from(sheet.value.querySelectorAll<HTMLElement>('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')).filter(el => el.getClientRects().length > 0)
+  const first = targets[0]; const last = targets.at(-1)
+  if (!first || !last) { event.preventDefault(); sheet.value.focus(); return }
+  if (event.shiftKey && (document.activeElement === first || document.activeElement === sheet.value)) { event.preventDefault(); last.focus() }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
 }
-
-onMounted(() => window.addEventListener('keydown', onKey))
-onUnmounted(() => window.removeEventListener('keydown', onKey))
+onMounted(async () => { previousFocus = document.activeElement as HTMLElement | null; previousOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden'; window.addEventListener('keydown', onKey); await nextTick(); sheet.value?.focus() })
+onUnmounted(() => { document.body.style.overflow = previousOverflow; window.removeEventListener('keydown', onKey); if (previousFocus?.isConnected) previousFocus.focus() })
 </script>
-
-<template>
-  <div class="overlay" @click.self="$emit('close')">
-    <section class="sheet">
-      <header class="sheet-head">
-        <h2>{{ title }}</h2>
-        <button class="close" type="button" @click="$emit('close')">关闭</button>
-      </header>
-      <div class="sheet-body">
-        <slot />
-      </div>
-    </section>
-  </div>
-</template>
-
+<template><Teleport to="body"><div class="modal-overlay" @click.self="$emit('close')"><section ref="sheet" class="modal-sheet" :class="{ wide }" role="dialog" aria-modal="true" :aria-label="title" tabindex="-1"><header class="modal-head"><div><span class="eyebrow">云岫仙宗 · {{ subtitle ?? '宗门事务' }}</span><h2>{{ title }}</h2></div><button class="modal-close btn btn-quiet" aria-label="关闭面板" @click="$emit('close')"><GameIcon name="close" /></button></header><div class="modal-body"><slot /></div></section></div></Teleport></template>
 <style scoped>
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(20, 20, 26, 0.5);
-}
-
-.sheet {
-  display: flex;
-  flex-direction: column;
-  width: min(760px, 100%);
-  max-height: 86vh;
-  border: 2px solid var(--border);
-  background: var(--surface);
-  box-shadow: 6px 6px 0 rgba(20, 20, 26, 0.35);
-}
-
-.sheet-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 2px solid var(--border);
-}
-
-.sheet-head h2 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.close {
-  padding: 4px 12px;
-  border: 2px solid var(--border);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.close:hover {
-  background: var(--border);
-  color: var(--surface);
-}
-
-.sheet-body {
-  padding: 16px;
-  overflow-y: auto;
-}
+.modal-overlay{position:fixed;inset:0;z-index:40;padding:30px;background:#18362b92;backdrop-filter:blur(5px);display:grid;place-items:center}.modal-sheet{display:flex;flex-direction:column;width:min(820px,100%);max-height:min(88dvh,950px);background:var(--surface);border:1px solid #d7caa5;box-shadow:0 28px 100px #0e201c66,inset 0 0 0 5px #e6deca;outline:0}.modal-sheet.wide{width:min(1100px,100%)}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:21px 26px 18px;border-bottom:1px solid var(--border);flex:none}.modal-head h2{margin:3px 0 0;font-size:25px;letter-spacing:.08em}.modal-body{padding:24px 26px;overflow-y:auto;min-height:0;overscroll-behavior:contain}.modal-close{width:40px;height:40px;padding:8px}
+@media(max-width:640px){.modal-overlay{padding:10px;align-items:stretch}.modal-sheet{max-height:calc(100dvh - 20px);width:100%}.modal-head{padding:16px}.modal-head h2{font-size:22px}.modal-body{padding:18px 14px}.modal-head .eyebrow{font-size:8px}}
 </style>

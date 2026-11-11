@@ -1,0 +1,112 @@
+{
+  "preset": "disciples-v03-remaining",
+  "notes": "用户审阅三张v0.3试稿后授权补齐其余13名弟子；保留原三张，统一细像素、左上暖光、全身透明轮廓。",
+  "output_subdir": "trial-v03",
+  "master_dir": "assets/masters/trial-v03",
+  "items": [
+    {
+      "key": "trial_v03_baisuzhen",
+      "kind": "portrait",
+      "file": "baisuzhen.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Bai Suzhen, adult Chinese white-snake spirit in human form, graceful poised woman with long black hair, a jade hairpin shaped like a leaf, ivory-white layered long robes with very pale jade embroidery, holding a slim folded white parasol close to her body, elegant serene expression. No snake body and no animals. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_dufu",
+      "kind": "portrait",
+      "file": "dufu.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Du Fu, older Tang dynasty Chinese poet, lean weathered face and short greying beard, simple worn muted blue-grey scholar robe and cloth head wrap, holding one rolled parchment in both hands, contemplative patient expression, modest slightly stooped silhouette. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_houyi",
+      "kind": "portrait",
+      "file": "houyi.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Hou Yi, adult Chinese mythical archer, athletic tall man with tied dark hair, bronze-and-dark-teal leather armor with warm russet sash, holding a full-height traditional curved bow and wearing one restrained quiver, determined expression. Bow completely inside frame, no arrows flying. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_huatuo",
+      "kind": "portrait",
+      "file": "huatuo.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Hua Tuo, elderly Chinese physician with white beard and kind attentive face, simple sage-grey and ivory robes, a small wooden medicine case at the waist and one tied bundle of herbs in his hands, distinctive stooped healer silhouette, no magical glow. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_jingwei",
+      "kind": "portrait",
+      "file": "jingwei.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Jingwei, Chinese mythical bird maiden in human form, young adult woman with dark feather-accented hair, short ochre-and-muted-teal feather mantle over a plain ivory robe, carrying a few small stones in one cupped hand and a woven pebble pouch, gentle determined expression. Human arms and legs, no wings spread, no bird companions. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_libai",
+      "kind": "portrait",
+      "file": "libai.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Li Bai, adult Tang dynasty Chinese wandering poet swordsman, slender relaxed man with loosely tied dark hair and a slight moustache, flowing ivory robe with muted indigo sash, sheathed sword diagonally on his back and one small brown wine gourd at the waist, holding a narrow rolled poem, serene half-smile. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_nezha",
+      "kind": "portrait",
+      "file": "nezha.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Nezha, Chinese mythic young warrior deity, athletic adolescent with dark hair in two compact buns, fierce confident expression, restrained red sash and warm bronze light armor over muted ivory short robes, holding one fire-tipped spear with no actual flames, small gold ring at the waist. Normal heroic adolescent proportions, not a toddler or chibi, both feet planted, no wheels and no floating ribbons outside frame. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_yangjian",
+      "kind": "portrait",
+      "file": "yangjian.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Yang Jian Erlang Shen, adult Chinese mythic warrior deity, tall commanding man with a clearly visible small vertical third eye on forehead, tied dark hair, silver and dark-teal armor, ivory cape with restrained jade trim, holding a three-pointed double-edged polearm with its full blade visible, no dog companion and no magic aura. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_yuefei",
+      "kind": "portrait",
+      "file": "yuefei.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Yue Fei, adult Song dynasty Chinese general, stern resolute face with a short neat beard, heavy dark iron lamellar armor and a muted crimson cloak, traditional military helmet with a short red tassel, holding one straight spear, broad stable defensive silhouette, no banners or writing. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_zhangfei",
+      "kind": "portrait",
+      "file": "zhangfei.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Zhang Fei, adult Three Kingdoms Chinese general, powerfully stocky broad man with thick wild black beard and fierce round eyes, dark iron lamellar armor with a brown-red sash, holding one long serpent-headed spear, rugged defensive silhouette distinct from Guan Yu, no helmet hiding the face. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_zhangheng",
+      "kind": "portrait",
+      "file": "zhangheng.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Zhang Heng, adult Han dynasty Chinese scholar inventor, focused thoughtful man with neat moustache and scholarly cap, deep indigo-blue layered robe with warm bronze trim, holding a small bronze ringed astronomical instrument in both hands, a slim measuring tool at waist, no lettering or diagrams floating around him. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_zhaoyun",
+      "kind": "portrait",
+      "file": "zhaoyun.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Zhao Yun, handsome young adult Three Kingdoms Chinese general, calm clean-shaven face, polished silver-white lamellar armor with muted pale-blue details and a white cloak, tied dark hair under a compact silver helmet, holding one long straight silver spear, upright agile silhouette, no horse. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    },
+    {
+      "key": "trial_v03_zhouyu",
+      "kind": "portrait",
+      "file": "zhouyu.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "Zhou Yu, refined adult Three Kingdoms Chinese scholar-general, clean-shaven handsome face and tied long dark hair, elegant muted burgundy robe over dark-teal light armor with warm bronze fittings, holding a narrow feather fan and wearing a sheathed sword, composed confident expression, distinct from a plain scholarly green-robed strategist. Detailed pixel-art material shading and folds consistent with an isometric xianxia sect city, NOT super-deformed chibi. Full body including hair or helmet, all weapons, sleeves and feet; clear separated silhouette, calm standing three-quarter pose, generous empty margins so nothing is cropped. Warm afternoon key light from upper left and a subtle cool shadow side. Exactly one character, no scenery, no lettering, no magical effects, no floating objects. Background is perfectly flat pure magenta #FF00FF with no cast shadow, no gradient and no pink or magenta garment details. Fine deliberate pixel clusters, readable at 512px character height. Keep proportions, material detail and lighting consistent with the approved detailed-pixel-art scholar, armored warrior and moon-goddess trials."
+    }
+  ]
+}
