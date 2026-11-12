@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>丈八蛇矛</title>
+  <rect x="30" y="16" width="4" height="44" fill="#46565B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,3 39,9 34,15 41,21 35,28 29,24 34,18 28,12 32,7" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,8 36,11 33,15 37,20 33,24 31,21 34,17 31,13" fill="#C9D6D9"/>
+  <rect x="26" y="27" width="12" height="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="38" width="6" height="3" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="48" width="6" height="3" fill="#3F7359" stroke="#22342C" stroke-width="2"/>
+  <rect x="27" y="59" width="10" height="3" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+</svg>

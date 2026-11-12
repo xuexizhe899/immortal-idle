@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 from app.config_loader import (
     load_affixes, load_bonds, load_city, load_disciples,
-    load_materials, load_modes, load_recipes, load_skills, load_enemies,
+    load_materials, load_modes, load_recipes, load_skills, load_enemies, load_weapons,
 )
 from app.domain.duty import MAX_DUTY_SLOTS
 from app.domain.injuries import ATTACK_PENALTY_PER_STACK, HOURS_PER_STACK, MAX_INJURY_STACKS
@@ -32,6 +32,15 @@ async def catalog() -> CatalogResponse:
             for item in load_affixes()
         },
         recipes=load_recipes(),
+        weapons={
+            key: {
+                "name": item["name"], "template_id": item["template_id"],
+                "stats": item["stats"], "inputs": item["inputs"],
+                "unlock_floor": item["unlock"]["floor"],
+                "unlock_level": item["unlock"]["level"],
+            }
+            for key, item in load_weapons().items()
+        },
         materials={key: item["name"] for key, item in load_materials().items()},
         bonds={
             key: {**item, "requires": item.get("requires", len(item["members"]))}

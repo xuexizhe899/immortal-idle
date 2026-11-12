@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>射日神弓</title>
+  <polygon points="20,6 11,20 11,44 20,58 24,54 16,42 16,22 24,10" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <polygon points="17,10 13,22 13,42 17,54 19,52 15,42 15,22 19,12" fill="#E8D08A"/>
+  <rect x="13" y="12" width="2" height="40" fill="#EFE5CB"/>
+  <rect x="24" y="30" width="24" height="3" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <polygon points="48,26 58,31 48,36" fill="#C9D6D9" stroke="#22342C" stroke-width="2"/>
+  <polygon points="27,27 31,31 26,33" fill="#A9473B"/>
+  <polygon points="27,34 31,31 26,36" fill="#A9473B"/>
+  <circle cx="46" cy="12" r="6" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="44" y="3" width="3" height="4" fill="#E8D08A"/>
+  <rect x="44" y="17" width="3" height="4" fill="#E8D08A"/>
+  <rect x="37" y="10" width="4" height="3" fill="#E8D08A"/>
+</svg>

@@ -46,15 +46,18 @@ def test_recruit_rejects_unknown_template() -> None:
     assert recruit(state, "ghost", TEMPLATES) == "弟子模板不存在"
 
 
-def test_recruit_owned_raises_realm() -> None:
-    """已拥有时再招募，改成提升境界并收半价。"""
+def test_recruit_owned_is_rejected() -> None:
+    """已拥有时招募只提示培养，不再自动提升境界。"""
     state = make_state(300)
 
     recruit(state, "d1", TEMPLATES)
-    assert recruit(state, "d1", TEMPLATES) is None
+    before = state.resources.reputation
 
-    assert state.disciples[0].realm == 2
-    assert state.resources.reputation == pytest.approx(150)
+    error = recruit(state, "d1", TEMPLATES)
+
+    assert "已拥有" in (error or "")
+    assert state.disciples[0].realm == 1
+    assert state.resources.reputation == before
 
 
 def test_recruit_owned_does_not_duplicate() -> None:
@@ -67,10 +70,11 @@ def test_recruit_owned_does_not_duplicate() -> None:
     assert len(state.disciples) == 1
 
 
-def test_recruit_owned_needs_half_cost() -> None:
-    """升境界也要付半价，声望不够照样拒绝。"""
+def test_recruit_owned_does_not_spend_half_cost() -> None:
+    """已拥有时招募被拒绝，不扣声望。"""
     state = make_state(120)
 
     recruit(state, "d1", TEMPLATES)
-    assert "声望不足" in (recruit(state, "d1", TEMPLATES) or "")
-    assert state.disciples[0].realm == 1
+    before = state.resources.reputation
+    assert "已拥有" in (recruit(state, "d1", TEMPLATES) or "")
+    assert state.resources.reputation == before

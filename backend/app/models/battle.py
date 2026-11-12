@@ -67,6 +67,8 @@ class BattleUnit(BaseModel):
     speed: float
     active: SkillDefinition
     passive: SkillDefinition
+    # 伤害、治疗、护盾的常驻乘区加成（专武等），与被动技能加成相加。
+    bonuses: dict[str, float] = Field(default_factory=dict)
 
 
 class BattleStatus(BaseModel):

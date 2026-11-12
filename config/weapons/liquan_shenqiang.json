@@ -1,0 +1,19 @@
+{
+  "id": "liquan_shenqiang",
+  "name": "沥泉神枪",
+  "template_id": "yuefei",
+  "inputs": {
+    "han_tie": 3,
+    "yun_mu": 2,
+    "jiao_gu": 2
+  },
+  "stats": {
+    "def": 0.09,
+    "hp": 0.07,
+    "shielding": 0.07
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

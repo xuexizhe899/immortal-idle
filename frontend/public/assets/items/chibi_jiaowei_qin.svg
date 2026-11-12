@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>赤壁焦尾琴</title>
+  <polygon points="10,24 46,18 54,26 54,36 46,44 14,42" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <polygon points="14,27 45,22 50,28 50,34 44,40 17,38" fill="#C58A53"/>
+  <polygon points="10,24 5,30 10,41 14,42" fill="#16241F" stroke="#22342C" stroke-width="2"/>
+  <rect x="18" y="29" width="28" height="2" fill="#EFE5CB"/>
+  <rect x="18" y="33" width="28" height="2" fill="#EFE5CB"/>
+  <rect x="20" y="37" width="24" height="2" fill="#EFE5CB"/>
+  <rect x="40" y="28" width="3" height="10" fill="#A78132"/>
+  <rect x="22" y="28" width="2" height="10" fill="#A78132"/>
+  <rect x="52" y="30" width="2" height="9" fill="#A9473B"/>
+  <rect x="51" y="38" width="4" height="3" fill="#C9A24B"/>
+  <circle cx="30" cy="26" r="2" fill="#C9A24B"/>
+</svg>

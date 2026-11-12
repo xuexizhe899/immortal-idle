@@ -23,5 +23,16 @@
         "coefficient": 0.9
       }
     ]
+  },
+  "passive": {
+    "id": "tower_master-pressure",
+    "name": "真灵威压",
+    "type": "passive",
+    "description": "真灵威压使自身伤害提高10%。",
+    "effects": [],
+    "condition": "always",
+    "bonuses": {
+      "damage": 0.1
+    }
   }
 }

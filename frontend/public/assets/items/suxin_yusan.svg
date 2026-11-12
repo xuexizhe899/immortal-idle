@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>素心玉伞</title>
+  <polygon points="8,26 32,7 56,26 51,30 46,26 41,30 36,26 31,30 26,26 21,30 16,26 11,30" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <polygon points="12,26 32,11 52,26 48,28 32,16 16,28" fill="#CFE8D8"/>
+  <rect x="31" y="26" width="3" height="30" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <rect x="26" y="55" width="13" height="3" fill="#6E4528" stroke="#22342C" stroke-width="2"/>
+  <rect x="25" y="58" width="5" height="3" fill="#C9A24B"/>
+  <circle cx="32" cy="8" r="3" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <rect x="14" y="25" width="2" height="4" fill="#A78132"/>
+  <rect x="48" y="25" width="2" height="4" fill="#A78132"/>
+  <rect x="30" y="36" width="5" height="2" fill="#C9A24B"/>
+</svg>

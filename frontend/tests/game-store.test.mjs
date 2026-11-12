@@ -26,22 +26,22 @@ test('an accepted departure with a lost response consumes stamina once and synch
   assert.match(session.store.error, /确认最新进度/)
 })
 
-test('a committed craft with a lost response does not spend materials or apply its permanent bonus twice', async t => {
+test('a committed craft with a lost response does not spend materials or store the pill twice', async t => {
   const session = harness()
   t.after(() => session.cleanup())
   await session.store.bootstrap()
   session.respond('POST', '/saves/1/craft', request => {
-    assert.deepEqual(request.body, { recipe_id: 'ju_qi_dan', target: null, revision: 1 })
-    session.saved.set(1, snapshot({ revision: 2, inventory: { ling_cao: 3 }, bonuses: { cultivation_rate: .08 } }))
+    assert.deepEqual(request.body, { recipe_id: 'ju_qi_dan', revision: 1 })
+    session.saved.set(1, snapshot({ revision: 2, inventory: { ling_cao: 3, ju_qi_dan: 1 } }))
     throw new TypeError('Response lost')
   })
 
-  await session.store.craft('ju_qi_dan', null)
+  await session.store.craft('ju_qi_dan')
 
   assert.equal(session.count('POST', '/saves/1/craft'), 1)
   assert.equal(session.count('GET', '/saves/1'), 1)
   assert.equal(session.store.state.inventory.ling_cao, 3)
-  assert.equal(session.store.state.bonuses.cultivation_rate, .08)
+  assert.equal(session.store.state.inventory.ju_qi_dan, 1)
   assert.equal(session.store.notice, null, 'an unconfirmed response must not produce a second success message')
   assert.equal(session.store.busy, false)
 })
@@ -79,17 +79,17 @@ test('a second consuming command is ignored while the first request is pending',
   const reply = deferred()
   session.respond('POST', '/saves/1/craft', () => reply.promise)
 
-  const first = session.store.craft('ju_qi_dan', null)
+  const first = session.store.craft('ju_qi_dan')
   assert.equal(session.store.busy, true)
-  await session.store.craft('ju_qi_dan', null)
+  await session.store.craft('ju_qi_dan')
   await session.store.recruit('beta')
   assert.equal(session.count('POST', '/saves/1/craft'), 1)
   assert.equal(session.count('POST', '/saves/1/recruit'), 0)
-  reply.resolve(json({ ...snapshot({ revision: 2, inventory: { ling_cao: 3 } }), bonuses: {}, inventory: { ling_cao: 3 } }))
+  reply.resolve(json({ ...snapshot({ revision: 2, inventory: { ling_cao: 3, ju_qi_dan: 1 } }), bonuses: {}, inventory: { ling_cao: 3, ju_qi_dan: 1 } }))
   await first
 
   assert.equal(session.store.busy, false)
-  assert.equal(session.store.state.inventory.ling_cao, 3)
+  assert.equal(session.store.state.inventory.ju_qi_dan, 1)
 })
 
 test('switching saves restores each saved party and removes duplicate, missing, and duty members', async t => {
@@ -156,6 +156,67 @@ test('deleting the current save with a lost response recovers an existing save w
   assert.match(session.store.error, /确认最新进度/)
 })
 
+test('using a pill applies the server snapshot and refreshes that disciple training', async t => {
+  const session = harness()
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  const preview = {
+    disciple_id: 'alpha', level: 1, realm: 1, level_cap: 3, max_realm: 3,
+    legacy_over_cap: false,
+    current: { level: 1, realm: 1, health: 100, attack: 11, defense: 5, speed: 10, duty_rates: {} },
+    next_level: null, next_realm: null,
+  }
+  session.respond('GET', '/saves/1/disciples/alpha/training', () => json(preview))
+  session.respond('POST', '/saves/1/items/use', request => {
+    assert.deepEqual(request.body, { item_id: 'ju_qi_dan', target: 'alpha', revision: 1 })
+    return json({
+      ...snapshot({ revision: 2, inventory: { ling_cao: 5 }, disciples: [disciple('alpha', { bonuses: { atk: .05 } })] }),
+      disciple: disciple('alpha', { bonuses: { atk: .05 } }),
+      item_id: 'ju_qi_dan',
+    })
+  })
+
+  await session.store.usePill('ju_qi_dan', 'alpha')
+
+  assert.equal(session.count('POST', '/saves/1/items/use'), 1)
+  assert.equal(session.count('GET', '/saves/1/disciples/alpha/training'), 1)
+  assert.equal(session.store.state.disciples[0].bonuses.atk, .05)
+  assert.equal(session.store.notice, '甲弟子已服用聚气丹。')
+  assert.equal(session.store.training?.disciple_id, 'alpha')
+})
+
+test('equipping a weapon uses the server weapon list and preserves a lost-response sync', async t => {
+  const session = harness()
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  const weapon = {
+    id: 'w1', name: '青龙偃月刀', template_id: 'alpha', template_name: '甲弟子',
+    stats: { atk: .1, damage: .05 }, inputs: { han_tie: 1 },
+    unlock_floor: 8, unlock_level: 3, owned: true, in_inventory: false,
+    equipped_by: 'alpha', reason: '', craftable: false,
+  }
+  const preview = {
+    disciple_id: 'alpha', level: 3, realm: 1, level_cap: 3, max_realm: 3,
+    legacy_over_cap: false,
+    current: { level: 3, realm: 1, health: 120, attack: 20, defense: 7, speed: 10, duty_rates: {} },
+    next_level: null, next_realm: null,
+  }
+  session.respond('GET', '/saves/1/disciples/alpha/training', () => json(preview))
+  session.respond('POST', '/saves/1/weapons/equip', request => {
+    assert.deepEqual(request.body, { weapon_id: 'w1', disciple_id: 'alpha', revision: 1 })
+    session.saved.set(1, snapshot({ revision: 2, disciples: [disciple('alpha', { equipment: ['w1'] })] }))
+    return json({ ...session.saved.get(1), weapons: [weapon] })
+  })
+
+  await session.store.equipWeapon('w1', 'alpha')
+
+  assert.equal(session.count('POST', '/saves/1/weapons/equip'), 1)
+  assert.equal(session.count('GET', '/saves/1/disciples/alpha/training'), 1)
+  assert.deepEqual([...session.store.state.disciples[0].equipment], ['w1'])
+  assert.equal(session.store.weapons[0].equipped_by, 'alpha')
+  assert.equal(session.store.notice, '青龙偃月刀已装备。')
+})
+
 test('repeating the same notice registers a fresh feedback event so it can appear again', async t => {
   const ids = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta']
   const session = harness({ 1: snapshot({ disciples: ids.map(id => disciple(id)) }) })
@@ -206,4 +267,51 @@ test('six-person formation retains explicit position order across save switching
   session.store.moveParty('alpha', 1)
   assert.deepEqual([...session.store.party], ordered, 'an active expedition locks positions')
   assert.equal(session.count('POST', '/saves/1/run/start'), 1)
+})
+
+test('a training preview loads and a breakthrough refreshes state and preview', async t => {
+  const session = harness()
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  const preview = {
+    disciple_id: 'alpha', level: 1, realm: 1, level_cap: 3, max_realm: 3,
+    legacy_over_cap: false,
+    current: { level: 1, realm: 1, health: 100, attack: 10, defense: 5, speed: 10, duty_rates: {} },
+    next_level: null, next_realm: null,
+  }
+  session.respond('GET', '/saves/1/disciples/alpha/training', () => json(preview))
+  await session.store.loadTraining('alpha')
+  assert.equal(session.store.training?.disciple_id, 'alpha')
+
+  const advanced = { disciple: disciple('alpha', { level: 3, realm: 2 }), costs: { reputation: 110 } }
+  session.saved.set(1, snapshot({ revision: 2, disciples: [advanced.disciple] }))
+  session.respond('POST', '/saves/1/disciples/alpha/breakthrough', request => {
+    assert.deepEqual(request.body, { revision: 1 })
+    return json({ ...session.saved.get(1), ...advanced })
+  })
+  await session.store.breakthrough('alpha')
+
+  assert.equal(session.store.state?.disciples[0].realm, 2)
+  assert.equal(session.count('POST', '/saves/1/disciples/alpha/breakthrough'), 1)
+  assert.equal(session.store.training?.disciple_id, 'alpha')
+})
+
+test('a committed breakthrough with a lost response synchronizes without replaying the command', async t => {
+  const session = harness()
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  const advanced = { disciple: disciple('alpha', { level: 3, realm: 2 }), costs: { reputation: 110 } }
+  session.respond('POST', '/saves/1/disciples/alpha/breakthrough', request => {
+    assert.deepEqual(request.body, { revision: 1 })
+    session.saved.set(1, snapshot({ revision: 2, disciples: [advanced.disciple] }))
+    throw new TypeError('Response lost')
+  })
+
+  await session.store.breakthrough('alpha')
+
+  assert.equal(session.count('POST', '/saves/1/disciples/alpha/breakthrough'), 1)
+  assert.equal(session.count('GET', '/saves/1'), 1)
+  assert.equal(session.store.state?.disciples[0].realm, 2)
+  assert.match(session.store.error, /确认最新进度/)
+  assert.equal(session.store.busy, false)
 })

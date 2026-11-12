@@ -80,7 +80,7 @@ def test_six_members_are_allowed_but_seven_and_duplicates_are_rejected():
 def test_round_limit_run_is_ended_even_when_aggregate_hp_is_positive():
     template = {"hero": {"id": "hero", "base_stats": {"hp": 100000, "atk": 1, "def": 1, "spd": 1}}}
     enemy = {"dummy": {"id": "dummy", "name": "木桩", "base_stats": {"hp": 100000, "atk": 1, "def": 1, "spd": 1}}}
-    mode = {**load_modes()["tower"], "encounters": {"battle": ["dummy"], "elite": ["dummy"], "boss": ["dummy"]}}
+    mode = {**load_modes()["tower"], "encounters": {"battle": ["dummy"], "elite": ["dummy"], "boss": ["dummy"]}, "encounter_variants": {}}
     state = GameState(resources=Resources(stamina=3), disciples=[DiscipleState(id="hero", template_id="hero")])
     start_run(state, ["hero"], template, mode, datetime.now(timezone.utc), seed=1, enemies=enemy, affix_pool=[], skills={})
     assert choose(state, 0) is None

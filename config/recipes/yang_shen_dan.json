@@ -5,6 +5,7 @@
   "inputs": {
     "xuan_jing": 2
   },
+  "max_uses": 1,
   "effects": [
     {
       "stat": "stamina_rate",

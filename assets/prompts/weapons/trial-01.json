@@ -1,0 +1,48 @@
+{
+  "task": "T19",
+  "usage": "专武 64×64 SVG 手绘造型、材质与纹样参考；不进入游戏运行时，不作为正式插画交付。",
+  "style_version": "0.3.0",
+  "requested_model": "gpt-image-2.6-sunburst",
+  "model_selector_available": false,
+  "budget_calls": 20,
+  "trial_count": 4,
+  "generated_at": "2026-11-12T14:52:47+00:00",
+  "items": [
+    {
+      "key": "t19_weapon_qinglong_yanyuedao_v1",
+      "weapon_id": "qinglong_yanyuedao",
+      "name": "青龙偃月刀",
+      "file": "assets/masters/weapons/qinglong_yanyuedao.jpg",
+      "hash": "95e134c1eb175f6b",
+      "bytes": 155406,
+      "prompt": "游戏道具设定参考图：一把青龙偃月刀，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，长柄竖直略斜，偃月形宽刃位于画面上部，深青铁刃、青玉龙纹、暖木长柄、克制金色箍环与红缨。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_zhangba_shemao_v1",
+      "weapon_id": "zhangba_shemao",
+      "name": "丈八蛇矛",
+      "file": "assets/masters/weapons/zhangba_shemao.jpg",
+      "hash": "3b2363c0111a2680",
+      "bytes": 118928,
+      "prompt": "游戏道具设定参考图：丈八蛇矛，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，深铁长杆，杆首为蛇形曲折的银灰矛刃，矛刃边缘有青玉纹样，杆身三道青玉束带与克制金色箍环，杆尾骨质配重。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_qingnang_yaoxiang_v1",
+      "weapon_id": "qingnang_yaoxiang",
+      "name": "青囊药箱",
+      "file": "assets/masters/weapons/qingnang_yaoxiang.jpg",
+      "hash": "9f72123e3d1fd3df",
+      "bytes": 241394,
+      "prompt": "游戏道具设定参考图：青囊药箱，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，手提木制药箱，圆角箱体、拱形深铁提梁、箱盖与箱身之间金色扣件，正面青玉十字药纹，侧面一只小抽屉，箱角包金，顶部斜插一束灵草。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character."
+    },
+    {
+      "key": "t19_weapon_baiyu_shan_v1",
+      "weapon_id": "baiyu_shan",
+      "name": "白羽扇",
+      "file": "assets/masters/weapons/baiyu_shan.jpg",
+      "hash": "2406e7f595fa2cc3",
+      "bytes": 190116,
+      "prompt": "游戏道具设定参考图：白羽扇，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，展开的白色羽扇，层叠象牙白羽片呈扇形铺开，羽片边缘带极浅青玉色，暖木扇柄，青玉扇钉与克制金色包边，柄尾系一小段青绿流苏。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character."
+    }
+  ]
+}

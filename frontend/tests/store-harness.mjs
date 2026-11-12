@@ -31,7 +31,7 @@ const { useGameStore } = await import(storeUrl)
 export const preferencesKey = 'immortal-idle.preferences.v1'
 
 export function disciple(id, extra = {}) {
-  return { id, template_id: id, level: 1, exp: 0, realm: 1, stats: {}, equipment: [], injury_stacks: 0, injured_until: null, busy: false, ...extra }
+  return { id, template_id: id, level: 1, exp: 0, realm: 1, stats: {}, bonuses: {}, equipment: [], pill_uses: {}, injury_stacks: 0, injured_until: null, busy: false, ...extra }
 }
 
 export function snapshot({ disciples = [disciple('alpha')], revision = 1, stamina = 3, activeRun = null, duty = [], inventory = { ling_cao: 5 }, bonuses = {}, reputation = 500 } = {}) {
@@ -86,9 +86,16 @@ export function harness(slots = { 1: snapshot() }, preferences = {}) {
     if (method === 'GET' && path === '/catalog') return json({
       rules: { max_party: 6, max_duty: 6 },
       disciples: { alpha: { name: '甲弟子' }, beta: { name: '乙弟子' }, gamma: { name: '丙弟子' } },
-      recipes: { ju_qi_dan: { name: '聚气丹' } },
+      recipes: { ju_qi_dan: { name: '聚气丹', kind: 'pill' } },
+      weapons: {},
     })
     if (method === 'GET' && path === '/saves') return json([...saved.keys()].map(metadata))
+    const weapons = /^\/saves\/(\d+)\/weapons$/.exec(path)
+    if (method === 'GET' && weapons) {
+      const content = saved.get(Number(weapons[1]))
+      if (!content) return json({ detail: '存档不存在' }, 404)
+      return json({ revision: content.revision, weapons: [] })
+    }
     const match = /^\/saves\/(\d+)(\/settle)?$/.exec(path)
     if (match) {
       const content = saved.get(Number(match[1]))

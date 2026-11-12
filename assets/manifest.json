@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "calls": 58,
+  "calls": 84,
   "items": [
     {
       "key": "disciple_zhugeliang",
@@ -1486,9 +1486,517 @@
         }
       },
       "master": "assets/masters/trial-v03/zhouyu.png"
+    },
+    {
+      "key": "art_foundation_stone_guard_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/stone_guard.png",
+      "hash": "e7ce96a47e080f32",
+      "requested_hash": "e7ce96a47e080f32",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single ancient Chinese stone-armored spirit sentinel guarding an immortal trial tower. A nonhuman heavy guardian assembled from weathered warm gray granite blocks, broad angular shoulders, a compact sturdy torso and short thick armored legs, with adult warrior proportions, NOT a toy or chibi. One distinct asymmetric chipped stone helmet with a narrow dark eye slit and two small muted amber eyes. Oxidized bronze joints and restraining bands, sparse deep jade seal inlays embedded in stone, a short dark teal waist cloth. It carries one large square-headed stone war hammer held diagonally downward on the right, complete hammer head and handle entirely inside the canvas. Open off-hand on the left, a clear gap separating both arms from the torso, firmly planted feet. The visual hierarchy is strong blocky silhouette, sculpted stone planes, then a few restrained cracks. This is a COMMON guardian: imposing weight but no crown, no halo, no floating ornaments. Full body isolated, standing in a three-quarter view facing slightly left toward opposing player characters. Fine deliberate pixel clusters with substantial three-tone stone planes and a few crisp bronze highlights, consistent with the existing jade-and-ivory xianxia character roster. Warm afternoon light from upper left, cool dark teal shadow faces, readable dark contour without a thick cartoon outline. Entire head, hammer and both feet within generous empty margins; no cast ground shadow, no scenery, no rocks on the ground, no text. Perfectly uniform pure solid magenta #FF00FF background for chroma key, including between limbs. No pink or purple details on the guardian. Final runtime sprite will be 512px tall and shown as small as 80px tall: silhouette and hammer must remain readable, do not fill stone surfaces with tiny random noise.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T13:55:49+00:00",
+      "bytes": 1784406,
+      "elapsed_ms": 30692,
+      "usage": {
+        "input_tokens": 533,
+        "output_tokens": 164,
+        "total_tokens": 697,
+        "input_tokens_details": {
+          "text_tokens": 533,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 164,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/stone_guard.png"
+    },
+    {
+      "key": "art_foundation_tower_master_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/tower_master.png",
+      "hash": "3a38ce21e8ec4ff3",
+      "requested_hash": "3a38ce21e8ec4ff3",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single ancient Chinese immortal trial-tower master spirit, a solemn nonhuman final guardian called the Spirit of Inquiry. Tall dignified adult figure, full-body three-quarter standing view facing slightly left. Its face is a smooth weathered ivory jade ceremonial mask with narrow warm-gold eye slits, not a human face or a skull. A distinctive narrow dark bronze three-pronged crown and a restrained circular broken-jade ring behind the upper shoulders, with clear empty spaces and no huge halo outside the silhouette. Layered deep teal ceremonial robes with strong angular shoulders, white-jade chest plates and warm bronze clasps, a long split ivory inner robe with a visible pair of dark armored feet. One hand holds an upright slender bronze-and-jade ritual staff with a small angular ring finial; the other hand rests open in a calm commanding pose. The visual hierarchy is tall crown-and-robe silhouette, ivory mask and chest, then restrained geometric seal carvings without writing. It must look unmistakably more ceremonial and powerful than a common stone guardian, through elegant vertical proportions and distinctive regalia, not visual clutter or excessive glow. Precise high-resolution pixel art, deliberate fabric and jade pixel clusters, limited deep teal, ivory, warm bronze, muted gold and cool shadow palette matching the existing xianxia roster. Warm afternoon light from upper left, crisp readable light and shadow planes. Complete crown, ring, staff and both feet inside generous empty margins. No scenery, no floor, no pedestal, no cast ground shadow, no lettering, no UI, no magical particles, no detached flying objects. Perfectly flat solid pure magenta #FF00FF background for chroma key; no pink or purple garment details. Runtime sprite will be 512px high and displayed as small as 80px: retain clear mask, crown, staff and robe shapes, do not use a huge staff or ring that makes the body tiny.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T13:56:20+00:00",
+      "bytes": 1729430,
+      "elapsed_ms": 31337,
+      "usage": {
+        "input_tokens": 563,
+        "output_tokens": 178,
+        "total_tokens": 741,
+        "input_tokens_details": {
+          "text_tokens": 563,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 178,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/tower_master.png"
+    },
+    {
+      "key": "art_foundation_cloud_archer_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/cloud_archer.png",
+      "hash": "e80c495b13245d80",
+      "requested_hash": "e80c495b13245d80",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single ancient Chinese xianxia tower sentinel called Liuyun Bow Guard, a lightly armored adult human archer. Full body in a calm three-quarter standing view facing slightly left, narrow agile adult proportions rather than a toy or chibi. A low dark teal cloth headwrap, clear mature face, short tied hair, layered muted moss-green tunic with ivory lapels, warm brown leather chest harness, bronze wrist guards, dark narrow trousers and sturdy boots. One unmistakable tall curved warm-wood longbow is held lowered beside the body, with a clearly visible bowstring; a compact quiver of ivory-fletched arrows rises behind one shoulder. Both hands are distinct and the bow is separated from the torso by a clean magenta gap. Visual hierarchy: tall curved bow and quiver, light narrow body, cloth folds and restrained bronze fittings. Match the established 0.3.0 fine-pixel xianxia roster, intentional crisp pixel clusters, upper-left warm afternoon lighting and cool teal shadow planes. Entire head, bow tips, arrow fletching and both boots inside generous empty margins on the 1024x1536 portrait canvas. For this cutout omit any ground shadow: no shadow, ground, floor, scenery, lettering, UI, particles or extra units. Perfectly flat uniform pure magenta #FF00FF background including all gaps; no pink or purple on the subject. Runtime sprite is 512px high and shown at 94px high: preserve readable bow, quiver and slim silhouette without tiny noisy ornament or oversized accessories shrinking the body.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:16:50+00:00",
+      "bytes": 1624578,
+      "elapsed_ms": 49177,
+      "usage": {
+        "input_tokens": 497,
+        "output_tokens": 162,
+        "total_tokens": 659,
+        "input_tokens_details": {
+          "text_tokens": 497,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 162,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/cloud_archer.png"
+    },
+    {
+      "key": "art_foundation_jade_warden_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/jade_warden.png",
+      "hash": "7b67a65154e9d0e7",
+      "requested_hash": "7b67a65154e9d0e7",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single ancient Chinese xianxia tower guardian called Yuheng Warden, a heavily armored adult humanoid sentinel. Full body in three-quarter standing view facing slightly left, broad shoulders and a grounded heavy stance with realistic adult warrior proportions. Thick overlapping dark jade and pale celadon armor plates, dark teal undercloth, restrained aged bronze bindings, a low angular enclosed helmet with a narrow ivory eye slit and no large crown. A massive elongated kite-shaped jade shield is held on the left, with a simple raised central ridge and small bronze boss, clearly separated from the armored torso. The other hand holds an upright long halberd with a compact bronze crescent blade and jade spear point, fully contained on the right. Both armored feet visible below the shield and robe. Visual hierarchy: broad shield-and-shoulder silhouette, thick jade plates, upright halberd; avoid delicate robes or tiny inscriptions. Match established 0.3.0 fine-pixel xianxia style, deliberate hard-edged pixel clusters, upper-left warm afternoon light and cool green shadow planes. Whole helmet, shield, halberd and both boots within generous margins of a 1024x1536 portrait canvas; do not let the polearm dwarf the body. Omit ground shadow for this cutout: no ground, floor, pedestal, cast shadow, scenery, text, particles, UI or extra units. Perfectly uniform flat pure magenta #FF00FF background, also inside all limb and weapon gaps, no pink or purple armor details. Runtime height 512px, displayed at 94px: shield, heavy torso and halberd must read as distinct large forms.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:17:19+00:00",
+      "bytes": 1428779,
+      "elapsed_ms": 29315,
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 161,
+        "total_tokens": 674,
+        "input_tokens_details": {
+          "text_tokens": 513,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 161,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/jade_warden.png"
+    },
+    {
+      "key": "art_foundation_cinder_blade_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/cinder_blade.png",
+      "hash": "98f3468c2d1be793",
+      "requested_hash": "98f3468c2d1be793",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single ancient Chinese xianxia sentinel called Red-Furnace Saber Guard, a stocky adult human warrior in compact forged armor. Full body in a three-quarter standing view facing slightly left. Broad grounded shoulders, weathered mature face, short dark beard and tied hair beneath a plain charcoal iron half-helmet. Armor is charcoal-black beaten iron with distinct dull oxblood-red lacquered plates, deep warm-brown belts and a few worn bronze rivets; the red is dark earthy red, never pink or magenta. One large broad single-edged Chinese dao saber is held diagonally downward beside the body: a substantial warm-gray steel blade with a squared curved tip, simple dark bronze guard and cloth-wrapped handle. The free hand is open and separate from the torso. Heavy split armored skirt and both stout boots visible. Visual hierarchy: broad single saber, compact forged shoulder plates and sturdy stance. No second weapon, flames, lava, flying sparks or elaborate helmet horns. Keep the established 0.3.0 fine-pixel xianxia style through crisp deliberate pixel clusters and restrained jade-gray steel highlights, upper-left warm afternoon light and cool shadow planes. The complete head, saber edge and tip, both hands and feet fit within generous margins of a 1024x1536 portrait canvas. Omit every cast ground shadow; no ground, floor, environment, text, UI or additional units. Uniform pure flat magenta #FF00FF background throughout and between limbs. No pink or purple subject details. Runtime height 512px shown at 94px: prioritize the dark forged silhouette and bright broad blade over small surface scratches.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:17:43+00:00",
+      "bytes": 1600258,
+      "elapsed_ms": 24212,
+      "usage": {
+        "input_tokens": 508,
+        "output_tokens": 167,
+        "total_tokens": 675,
+        "input_tokens_details": {
+          "text_tokens": 508,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 167,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/cinder_blade.png"
+    },
+    {
+      "key": "art_foundation_bamboo_swordsman_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/bamboo_swordsman.png",
+      "hash": "5ef9ba5f8a65478e",
+      "requested_hash": "5ef9ba5f8a65478e",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single ancient Chinese xianxia wandering swordsman called Bamboo-Hidden Swordsman, a tall slender adult human figure. Full-body three-quarter standing pose facing slightly left, upright relaxed balance, adult anatomy and no chibi proportions. A modest shallow woven bamboo rain hat gives the head a clear low triangular silhouette without hiding the full face; narrow mature face with a small dark hair knot. A long pale moss-green robe over an ivory inner garment, dark teal belt, simple warm-brown forearm wraps and dark cloth boots. Long robe panels divide cleanly to show both legs and feet, no broad cape. One straight slender steel jian with a short warm-bronze guard is held downward off the right side, blade clearly separate from the robe; the other hand rests calmly near the waist. Visual hierarchy: shallow bamboo hat, long narrow pale robe, straight exposed sword. No forest, bamboo plants, floating leaves or detached objects. Match existing 0.3.0 fine-pixel xianxia roster, deliberate fabric pixel clusters rather than smooth painting, upper-left warm afternoon light with cool teal shaded folds. Whole hat brim, blade tip, robe hem and both boots must remain inside generous margins of the 1024x1536 portrait canvas; the hat and sword must not shrink the figure. No cast ground shadow, ground plane, floor, scenery, writing, UI or extra units. Perfectly uniform pure solid magenta #FF00FF background including gaps, no pink or purple in the figure. Runtime sprite 512px high shown at 94px: maintain unmistakable hat, slender robe and straight sword forms.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:18:15+00:00",
+      "bytes": 1646526,
+      "elapsed_ms": 31338,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 173,
+        "total_tokens": 680,
+        "input_tokens_details": {
+          "text_tokens": 507,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 173,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/bamboo_swordsman.png"
+    },
+    {
+      "key": "art_foundation_frost_crane_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/frost_crane.png",
+      "hash": "5f90501325c9aef6",
+      "requested_hash": "5f90501325c9aef6",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single nonhuman sacred crane called Frost-Feather Crane Spirit for an ancient Chinese xianxia game, an anatomical bird rather than a human wearing crane armor. Full body in a three-quarter standing view facing slightly left. An elegant upright S-curved long neck, slender pointed dark blue-gray beak, alert muted amber eye and a low swept-back ivory feather crest. White and ivory body feathers organized into a few large crisp feather planes, soft blue-gray folded wing panels and deep teal tips; long dark blue-gray bird legs ending in distinct complete three-toed feet. Both wings are folded tightly against the compact body, no spread wings, no broad fan tail; the complete body must remain the visual focus. A tiny restrained warm-bronze neck clasp is the only ornament, no saddle, weapon or human clothing. Clear negative gaps between beak, neck, body and legs, with a stable grounded stance. Match the established 0.3.0 fine-pixel xianxia art through hard deliberate feather pixel clusters, limited ivory/blue-gray/teal palette, warm upper-left afternoon lighting and readable cool shadow sides. Entire beak, crest, folded wings, tail, both legs and every toe inside generous margins of a 1024x1536 portrait canvas. No ice platform, snow, mist, ground, cast shadow, scenery, text, UI or additional birds. Pure perfectly flat uniform magenta #FF00FF background, no pink or purple feathers. Final sprite 512px high and displayed at 94px: prioritize long neck, pointed beak and folded-wing silhouette; no tiny feather noise or large wings shrinking the torso.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:18:48+00:00",
+      "bytes": 1496770,
+      "elapsed_ms": 33744,
+      "usage": {
+        "input_tokens": 512,
+        "output_tokens": 178,
+        "total_tokens": 690,
+        "input_tokens_details": {
+          "text_tokens": 512,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 178,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/frost_crane.png"
+    },
+    {
+      "key": "art_foundation_vine_spirit_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/vine_spirit.png",
+      "hash": "efbe12aab5566b86",
+      "requested_hash": "efbe12aab5566b86",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single nonhuman woodland spirit called Green-Vine Wood Demon for an ancient Chinese xianxia trial tower. Full body in a three-quarter upright standing view facing slightly left. A knotted warm-brown tree-trunk torso with a clear asymmetrical hollow face, two small muted amber eyes, low branching wooden antlers, two long thick vine-and-bark arms ending in broad widely separated wooden fingers, and sturdy split root legs with complete blunt root feet. This is living wood, not a person in a tree costume: no human face, clothes, armor, weapon or beard. Patches of deep moss-green foliage sit in restrained clusters on one shoulder and the upper back; exposed bark planes remain dominant, no giant leafy canopy. Distinct clean spaces between antler branches, both arms and torso, fingers and root legs; broad hands and forked roots should be recognizable at small size. Match established 0.3.0 fine-pixel xianxia style with intentional hard bark pixel clusters, warm wood, jade moss and cool teal recesses, warm upper-left afternoon light and clear shaded planes. Entire antlers, fingertips, root feet and all moss clusters fit within generous margins on the 1024x1536 portrait canvas. No trailing vines extending off-canvas, forest, grass, dirt, stones, ground plane, cast ground shadow, text, UI, particles or extra creatures. Perfectly uniform flat pure magenta #FF00FF background including holes and branch gaps, no pink or purple plant details. Runtime sprite 512px high shown at 94px: emphasize branch-antler head, wide vine hands and root-leg silhouette rather than tiny bark noise.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:19:12+00:00",
+      "bytes": 1583033,
+      "elapsed_ms": 24097,
+      "usage": {
+        "input_tokens": 515,
+        "output_tokens": 174,
+        "total_tokens": 689,
+        "input_tokens_details": {
+          "text_tokens": 515,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 174,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/vine_spirit.png"
+    },
+    {
+      "key": "art_foundation_bronze_beast_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/bronze_beast.png",
+      "hash": "b7837315b25f43d0",
+      "requested_hash": "b7837315b25f43d0",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single nonhuman four-legged bronze guardian beast called Bronze-Horn Suppression Beast from an ancient Chinese xianxia tower. Full-body standing three-quarter view facing slightly left, an unmistakable quadruped combining the sturdy body and great curved horns of a bull with a restrained stone-lion-like chest and square open muzzle. Broad compact torso, two large thick curved bronze horns swept upward and inward entirely within the canvas, a heavy square jaw with a few blunt ivory teeth, large geometric brows, four substantial short legs with complete squared cloven guardian feet, and one short curled bronze tail close to the rear body. Ancient warm bronze body planes with sparse jade-green verdigris in joints and deep teal recesses, a short sculpted bronze mane and a few bold geometric relief bands without writing. No human limbs, wings, rider, saddle, extra heads or long flowing tail. Both near legs and offset far legs should read clearly rather than merging into one block. Match existing 0.3.0 fine-pixel xianxia material language, deliberate hard metal pixel clusters, warm upper-left afternoon light and crisp cool shadow faces. Center the complete beast, horns, muzzle, four feet and short tail on a 1024x1536 portrait canvas with generous margins; preserve quadruped anatomy and do not stretch the body into a human vertical shape. No pedestal, ground plane, cast ground shadow, scenery, dust, text, UI, particles or extra units. Perfectly uniform pure solid magenta #FF00FF background in every gap; no pink or purple body details. Runtime image 512px high, displayed at 94px: prioritize curved horns, square muzzle and heavy four-legged silhouette.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:19:33+00:00",
+      "bytes": 1553109,
+      "elapsed_ms": 20665,
+      "usage": {
+        "input_tokens": 521,
+        "output_tokens": 165,
+        "total_tokens": 686,
+        "input_tokens_details": {
+          "text_tokens": 521,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 165,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/bronze_beast.png"
+    },
+    {
+      "key": "art_foundation_lantern_wraith_v1",
+      "kind": "portrait",
+      "file": "assets/raw/art-foundation-enemies/lantern_wraith.png",
+      "hash": "c79a8bc41618226b",
+      "requested_hash": "c79a8bc41618226b",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "style_version": "0.3.0",
+      "prompt": "detailed pixel art character sprite, high-resolution pixel art like modern indie games (Eastward quality), crisp hard pixel edges, no anti-aliasing, limited palette with careful dithering, three-quarter view full body, standing on subtle pixel ground shadow, warm afternoon light from upper left with clear light and shadow sides for volume, teal-gray and warm wood palette with jade green accents, clean readable silhouette, pure flat solid magenta background (#FF00FF) for chroma-key extraction, no text, no watermark, no border, no card frame. Subject: A single ancient Chinese xianxia otherworldly figure called Soul-Guiding Lantern Envoy. Full body in a three-quarter standing view facing slightly left, a tall thin adult humanoid with a narrow elongated ivory ceremonial mask, two small dark eye slits and no exposed skull or human face. A close dark indigo-teal hood frames the mask; a long narrow deep indigo-blue outer robe has clean heavy vertical folds, an ivory inner strip, a simple warm-brown waist cord and a split hem revealing two slender dark shoes. One extended long sleeve ends in a visible pale hand holding a compact warm-copper Chinese lantern by its short arched handle. The lantern has an angular copper frame, muted amber light panels and a solid readable shape clearly separated from the robe, no bright bloom or light haze. The other sleeve hangs in a distinct narrow shape beside the torso. The figure stands upright, not flying; no trailing cloud, smoke, giant veil, detached fabric or broad cape. Visual hierarchy: slim hooded vertical silhouette, narrow ivory mask, warm-copper lantern. Match established 0.3.0 fine-pixel xianxia art, crisp deliberate cloth pixel clusters and restrained bronze highlights, warm upper-left afternoon lighting and cool shaded folds. Entire hood, sleeve ends, lantern and handle, robe hem and both shoes fit inside generous margins of the 1024x1536 portrait canvas. No ground, cast ground shadow, scenery, mist, spectral swarm, writing, UI or extra units. Perfectly flat uniform pure magenta #FF00FF background including all gaps; robe is blue-teal, never purple, and no pink details. Runtime sprite 512px high shown at 94px: retain mask and lantern contrast without tiny decoration.. Avoid: photorealistic photo, smooth painterly rendering, plastic 3d render, anti-aliasing, smooth gradients, chibi, oversaturated colors, neon, lens flare, text, watermark, signature, logo, multiple characters, cropped limbs, extra fingers, cluttered background, card border, UI elements",
+      "created_at": "2026-11-12T14:20:00+00:00",
+      "bytes": 1318678,
+      "elapsed_ms": 26503,
+      "usage": {
+        "input_tokens": 534,
+        "output_tokens": 178,
+        "total_tokens": 712,
+        "input_tokens_details": {
+          "text_tokens": 534,
+          "image_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "text_tokens": 0,
+          "image_tokens": 178,
+          "reasoning_tokens": 0
+        }
+      },
+      "master": "assets/masters/art-foundation-enemies/lantern_wraith.png"
+    },
+    {
+      "key": "t19_weapon_qinglong_yanyuedao_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/qinglong_yanyuedao.jpg",
+      "hash": "95e134c1eb175f6b",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：一把青龙偃月刀，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，长柄竖直略斜，偃月形宽刃位于画面上部，深青铁刃、青玉龙纹、暖木长柄、克制金色箍环与红缨。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 155406,
+      "status": "generated",
+      "at": "2026-11-12T14:52:47+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_zhangba_shemao_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/zhangba_shemao.jpg",
+      "hash": "3b2363c0111a2680",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：丈八蛇矛，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，深铁长杆，杆首为蛇形曲折的银灰矛刃，矛刃边缘有青玉纹样，杆身三道青玉束带与克制金色箍环，杆尾骨质配重。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 118928,
+      "status": "generated",
+      "at": "2026-11-12T14:52:47+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_qingnang_yaoxiang_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/qingnang_yaoxiang.jpg",
+      "hash": "9f72123e3d1fd3df",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：青囊药箱，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，手提木制药箱，圆角箱体、拱形深铁提梁、箱盖与箱身之间金色扣件，正面青玉十字药纹，侧面一只小抽屉，箱角包金，顶部斜插一束灵草。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 241394,
+      "status": "generated",
+      "at": "2026-11-12T14:52:47+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_baiyu_shan_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/baiyu_shan.jpg",
+      "hash": "2406e7f595fa2cc3",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：白羽扇，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，展开的白色羽扇，层叠象牙白羽片呈扇形铺开，羽片边缘带极浅青玉色，暖木扇柄，青玉扇钉与克制金色包边，柄尾系一小段青绿流苏。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 190116,
+      "status": "generated",
+      "at": "2026-11-12T14:52:47+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_longdan_liangyinqiang_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/longdan_liangyinqiang.jpg",
+      "hash": "1b8a7a4bcf945b12",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：龙胆亮银枪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，笔直暖木长杆，亮银枪刃，龙首形护手与青玉纹样，枪缨为克制的蓝绿色，金色箍环与枪尾配重。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 126311,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_sheri_shengong_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/sheri_shengong.jpg",
+      "hash": "2ff03ace14c963cf",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：射日神弓，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，木金弓臂、绷紧弓弦、一支搭在弦上的箭，弓身中央金色日轮纹，弓梢青玉饰片，箭羽为克制红色。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 169983,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_yuehua_yulun_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/yuehua_yulun.jpg",
+      "hash": "dc1121aa2b4fce65",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：月华玉轮，细像素仙侠风，沿用 0.3.0 风格基线。完整单件法器居中，圆形青玉轮盘，弦月浮雕、云气纹与金色轮轴，轮缘浅青高光，底部小玉座。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 193211,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_suxin_yusan_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/suxin_yusan.jpg",
+      "hash": "1b64b9d38ee11b91",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：素心玉伞，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，象牙白伞面，分片伞骨，竹木伞柄，青玉伞珠与克制金色伞缘，伞骨层次清楚。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 139286,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_liquan_shenqiang_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/liquan_shenqiang.jpg",
+      "hash": "6c3e11089aa5c34a",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：沥泉神枪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，泉浪形银灰枪刃，寒铁长杆，水波纹青玉箍，克制金色护手与枪尾配重，刃口浅青高光。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 128439,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_huo_jian_qiang_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/huo_jian_qiang.jpg",
+      "hash": "07235ef4e259ae28",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：火尖枪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，火焰形枪刃，红与金色像素色块克制搭配，深木长杆，红缨与金色箍环，枪尖有轻微青玉镶边。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 158487,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_sanjian_liangrendao_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/sanjian_liangrendao.jpg",
+      "hash": "d370ece74aad7559",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：三尖两刃刀，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，三尖刀锋，两侧双刃展开，金色护手环，暖木长杆，刃面银灰与青玉纹样，枪尾金色配重。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 132720,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_chibi_jiaowei_qin_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/chibi_jiaowei_qin.jpg",
+      "hash": "7b5bcc43750d9bcf",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：赤壁焦尾琴，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，古琴琴身，焦黑尾端，七根浅色琴弦，暖木琴面，红缨与金色琴徽，琴身有克制青玉纹样。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 233485,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_huntian_yi_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/huntian_yi.jpg",
+      "hash": "d14b6a9458f648c7",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：浑天仪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件法器居中，多层青玉圆环、金色转轴、暖木底座，环上刻度与星点，结构清楚，玉环有浅青高光。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 256651,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_qinglian_jian_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/qinglian_jian.jpg",
+      "hash": "0952cf6b5b07621d",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：青莲剑，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，青玉剑身，莲瓣护手，暖木剑柄，金色剑首，剑穗为克制红色，剑身有浅青高光与莲纹。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character.",
+      "bytes": 158415,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_shisheng_shujuan_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/shisheng_shujuan.jpg",
+      "hash": "40a4876abf2792b8",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：诗圣书卷，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，展开的象牙白卷轴，暖木轴杆，金色轴头，卷面墨色诗行与朱红小印，旁边一支毛笔，构图清楚。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, readable text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 187412,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
+    },
+    {
+      "key": "t19_weapon_xianshi_lingyu_v1",
+      "kind": "weapon_reference",
+      "file": "assets/masters/weapons/xianshi_lingyu.jpg",
+      "hash": "29e8eeea9e766ba2",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1920x1920",
+      "prompt": "游戏道具设定参考图：衔石灵羽，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，一根修长灵羽，青玉羽脉与象牙白羽片，根部衔着几块碎石，金色束环与一小段红线，羽片层次清楚。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character.",
+      "bytes": 177306,
+      "status": "generated",
+      "at": "2026-11-12T15:08:00+00:00",
+      "note": "T19 专武 64×64 SVG 手绘参考，不进入游戏运行时"
     }
   ],
-  "updated_at": "2026-11-11T09:33:24+00:00",
+  "updated_at": "2026-11-12T14:20:00+00:00",
   "attempts": [
     {
       "key": "trial_v03_zhugeliang",
@@ -1660,6 +2168,86 @@
       "size": "1024x1536",
       "status": "generated",
       "at": "2026-11-11T09:32:33+00:00"
+    },
+    {
+      "key": "art_foundation_stone_guard_v1",
+      "hash": "e7ce96a47e080f32",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T13:55:18+00:00"
+    },
+    {
+      "key": "art_foundation_tower_master_v1",
+      "hash": "3a38ce21e8ec4ff3",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T13:55:49+00:00"
+    },
+    {
+      "key": "art_foundation_cloud_archer_v1",
+      "hash": "e80c495b13245d80",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:16:01+00:00"
+    },
+    {
+      "key": "art_foundation_jade_warden_v1",
+      "hash": "7b67a65154e9d0e7",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:16:50+00:00"
+    },
+    {
+      "key": "art_foundation_cinder_blade_v1",
+      "hash": "98f3468c2d1be793",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:17:19+00:00"
+    },
+    {
+      "key": "art_foundation_bamboo_swordsman_v1",
+      "hash": "5ef9ba5f8a65478e",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:17:43+00:00"
+    },
+    {
+      "key": "art_foundation_frost_crane_v1",
+      "hash": "5f90501325c9aef6",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:18:15+00:00"
+    },
+    {
+      "key": "art_foundation_vine_spirit_v1",
+      "hash": "efbe12aab5566b86",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:18:48+00:00"
+    },
+    {
+      "key": "art_foundation_bronze_beast_v1",
+      "hash": "b7837315b25f43d0",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:19:13+00:00"
+    },
+    {
+      "key": "art_foundation_lantern_wraith_v1",
+      "hash": "c79a8bc41618226b",
+      "model": "gpt-image-2.6-sunburst",
+      "size": "1024x1536",
+      "status": "generated",
+      "at": "2026-11-12T14:19:33+00:00"
     }
   ]
 }

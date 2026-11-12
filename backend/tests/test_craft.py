@@ -1,8 +1,8 @@
-"""炼制测试：材料扣除、永久加成与特殊配方。"""
+"""炼制测试：丹药入行囊、法器立即提供宗门加成。"""
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pytest
 
@@ -20,6 +20,7 @@ RECIPES = {
         "effects": [
             {"stat": "atk", "mode": "add_pct", "value": 0.05, "scope": "permanent"}
         ],
+        "max_uses": 3,
     },
     "heal_pill": {
         "id": "heal_pill",
@@ -29,83 +30,90 @@ RECIPES = {
         "effects": [],
         "special": "heal",
     },
-    "realm_pill": {
-        "id": "realm_pill",
-        "name": "破境丹",
-        "kind": "pill",
-        "inputs": {"xuan_jing": 1},
-        "effects": [],
-        "special": "realm",
+    "artifact": {
+        "id": "artifact",
+        "name": "青锋剑",
+        "kind": "artifact",
+        "inputs": {"han_tie": 3},
+        "effects": [
+            {"stat": "atk", "mode": "add_pct", "value": 0.08, "scope": "permanent"}
+        ],
     },
 }
 
 
 def make_state(**inventory: int) -> GameState:
-    """构造带材料与一名受伤弟子的存档。"""
+    """构造带材料与一名弟子的存档。"""
     return GameState(
         inventory=dict(inventory),
-        disciples=[
-            DiscipleState(
-                id="d1",
-                template_id="t",
-                injury_stacks=2,
-                injured_until=NOW + timedelta(hours=8),
-            )
-        ],
+        disciples=[DiscipleState(id="d1", template_id="t")],
     )
 
 
-def test_craft_consumes_materials_and_adds_bonus() -> None:
-    """炼制扣材料，永久加成记入 bonuses。"""
+def test_pill_craft_stores_item_instead_of_consuming_it() -> None:
+    """丹药炼成后进入行囊，不写宗门加成。"""
     state = make_state(ling_cao=3)
 
-    assert craft(state, "pill", None, RECIPES) is None
+    assert craft(state, "pill", RECIPES) is None
     assert state.inventory["ling_cao"] == 1
-    assert state.bonuses["atk"] == pytest.approx(0.05)
+    assert state.inventory["pill"] == 1
+    assert state.bonuses == {}
 
 
 def test_craft_removes_empty_material_entry() -> None:
     """材料刚好用完时，库存里不留 0。"""
     state = make_state(ling_cao=2)
 
-    craft(state, "pill", None, RECIPES)
+    craft(state, "pill", RECIPES)
 
     assert "ling_cao" not in state.inventory
 
 
 def test_craft_rejects_missing_materials() -> None:
-    """材料不足时不扣材料也不加成。"""
+    """材料不足时不扣材料也不产出。"""
     state = make_state(ling_cao=1)
 
-    assert "材料不足" in (craft(state, "pill", None, RECIPES) or "")
+    assert "材料不足" in (craft(state, "pill", RECIPES) or "")
     assert state.inventory["ling_cao"] == 1
-    assert state.bonuses == {}
+    assert "pill" not in state.inventory
 
 
 def test_craft_rejects_unknown_recipe() -> None:
     """配方不存在直接报错。"""
     state = make_state(ling_cao=5)
-    assert craft(state, "ghost", None, RECIPES) == "配方不存在"
+    assert craft(state, "ghost", RECIPES) == "配方不存在"
 
 
-def test_special_recipe_needs_target() -> None:
-    """疗伤丹与破境丹必须指定弟子。"""
-    state = make_state(ling_cao=2)
-    assert craft(state, "heal_pill", None, RECIPES) == "该配方需要指定弟子"
+def test_artifact_craft_applies_permanent_bonus() -> None:
+    """普通器方继续提供宗门永久加成。"""
+    state = make_state(han_tie=3)
+
+    assert craft(state, "artifact", RECIPES) is None
+    assert state.inventory.get("han_tie") is None
+    assert state.bonuses["atk"] == pytest.approx(0.08)
 
 
-def test_heal_pill_clears_injury() -> None:
-    """疗伤丹清空伤势与到期时间。"""
-    state = make_state(ling_cao=1)
+def test_artifact_cannot_be_crafted_twice() -> None:
+    """普通器方只打造一次，避免永久加成重复叠加。"""
+    state = make_state(han_tie=6)
 
-    assert craft(state, "heal_pill", "d1", RECIPES) is None
-    assert state.disciples[0].injury_stacks == 0
-    assert state.disciples[0].injured_until is None
+    assert craft(state, "artifact", RECIPES) is None
+    assert state.crafted_recipes == ["artifact"]
+    assert craft(state, "artifact", RECIPES) == "该法器已打造，无法重复炼制"
+    assert state.inventory["han_tie"] == 3
+    assert state.bonuses["atk"] == pytest.approx(0.08)
 
 
-def test_realm_pill_raises_realm() -> None:
-    """破境丹让指定弟子境界 +1。"""
-    state = make_state(xuan_jing=1)
+def test_craft_is_locked_during_active_run() -> None:
+    """出征进行中不能炼制；不消耗材料。"""
+    state = make_state(ling_cao=3)
+    state.active_run = _active_run()
 
-    assert craft(state, "realm_pill", "d1", RECIPES) is None
-    assert state.disciples[0].realm == 2
+    assert "出征" in (craft(state, "pill", RECIPES) or "")
+    assert state.inventory["ling_cao"] == 3
+
+
+def _active_run():
+    from app.models.save import ActiveRun
+
+    return ActiveRun(run_seed=1, started_at=NOW)

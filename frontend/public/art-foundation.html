@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>器物与灵卫 · 美术试稿审阅</title>
+  <style>
+    :root{color-scheme:light;--paper:#e8e5d8;--sheet:#f8f3e6;--ink:#273e36;--muted:#65766b;--line:#c6bda3;--jade:#426854;--gold:#94793f;--dark:#233a33}
+    *{box-sizing:border-box}
+    html{scroll-padding-top:24px}
+    body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.65 "Microsoft YaHei","PingFang SC",sans-serif}
+    a{color:inherit;text-underline-offset:4px}
+    a:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+    .masthead,main,footer{width:min(1240px,calc(100% - 48px));margin-inline:auto}
+    .masthead{padding:42px 0 28px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+    .stamp{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:2px 9px;font-size:11px;letter-spacing:.14em}
+    h1,h2,h3{font-family:"STSong","SimSun",serif;font-weight:600}
+    h1{font-size:clamp(30px,4vw,44px);line-height:1.2;letter-spacing:.12em;margin:15px 0 12px}
+    .lede{max-width:650px;margin:0;color:var(--muted)}
+    .folio{text-align:right;color:var(--muted);font-size:12px}
+    .folio strong{display:block;color:var(--gold);font-weight:400;letter-spacing:.2em}
+    nav{display:flex;gap:22px;margin-top:16px;justify-content:flex-end}
+    main{padding-bottom:20px}
+    .section-heading{display:flex;justify-content:space-between;gap:18px;align-items:baseline;margin:32px 0 16px}
+    h2{margin:0;font-size:25px;letter-spacing:.1em}
+    .section-heading span{font-size:12px;color:var(--muted)}
+    .intro{margin:0 0 20px;color:var(--muted);max-width:850px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+    .sheet{min-width:0;border:1px solid var(--line);background:var(--sheet);box-shadow:3px 3px 0 #d9d3bf;padding:20px}
+    .sheet-head{display:flex;justify-content:space-between;align-items:start;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px}
+    .serial{font-size:10px;letter-spacing:.18em;color:var(--gold)}
+    h3{font-size:24px;margin:2px 0 0;letter-spacing:.08em}
+    .status{font-size:10px;border:1px solid #b7b497;color:#697354;padding:3px 7px;white-space:nowrap}
+    .intent{margin:0 0 15px;font-size:12px;color:var(--muted)}
+    .old-row{display:flex;align-items:center;gap:18px;margin-bottom:14px;padding:10px 12px;border:1px dashed var(--line)}
+    .old-row p{margin:0;font-size:11px;color:var(--muted)}
+    .old-row strong{display:block;color:var(--ink);font-size:12px;font-weight:500}
+    .surfaces{display:grid;gap:10px}
+    .surface{padding:12px;border:1px solid #d0c6ab;background:#f0e8d3}
+    .surface.dark{background:var(--dark);border-color:#4c6153;color:#e7e2cf}
+    .surface-title{display:block;font-size:10px;letter-spacing:.16em;opacity:.75;margin-bottom:8px}
+    .surface-content{display:grid;grid-template-columns:minmax(0,1fr) 144px;gap:12px;align-items:center}
+    .icon-sizes{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+    figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+    .image-window{display:grid;place-items:center;position:relative;flex:0 0 auto}
+    .image-window img{grid-area:1/1;display:block;object-fit:contain;image-rendering:pixelated}
+    .image-window img.loading,.image-window img.failed{visibility:hidden}
+    .missing{grid-area:1/1;font:9px/1.4 "Microsoft YaHei",sans-serif;text-align:center;overflow-wrap:anywhere;opacity:.6}
+    .missing[hidden]{display:none}
+    figcaption{font-size:10px;opacity:.7;white-space:nowrap}
+    .check{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+    .concept-note{font-size:11px;color:#8a6336;margin:0 0 14px;padding:8px 10px;background:#eee2c8;border-left:2px solid var(--gold)}
+    .enemy-sizes{display:flex;align-items:end;justify-content:space-around;gap:12px;flex-wrap:wrap}
+    .enemy-sizes .image-window{align-items:end}
+    .enemy-sizes img{object-position:center bottom}
+    .enemy-sheet .surface{padding-top:18px;padding-bottom:16px}
+    .review-note{margin-top:26px;padding:18px 20px;border-block:1px solid var(--line);color:var(--muted);font-size:12px}
+    .review-note strong{color:var(--ink);font-weight:500}
+    footer{padding:0 0 36px;color:var(--muted);font-size:11px;display:flex;justify-content:space-between;gap:20px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}.masthead{grid-template-columns:1fr}.folio{text-align:left}nav{justify-content:flex-start}}
+    @media(max-width:480px){.masthead,main,footer{width:calc(100% - 28px)}.masthead{padding-top:26px;gap:16px}h1{font-size:30px}.section-heading{align-items:start}.section-heading span{max-width:125px;text-align:right}.sheet{padding:14px}.surface{padding:10px}.surface-content{gap:8px}.icon-sizes{gap:8px}.enemy-sizes{gap:9px}.sheet-head{gap:8px}h3{font-size:22px}.status{font-size:9px;padding:3px 5px}.old-row{gap:14px}footer{display:block}footer p{margin:6px 0}}
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <div>
+      <span class="stamp">美术前置 · 代表试稿</span>
+      <h1>器物与灵卫</h1>
+      <p class="lede">先看清轮廓，再看材质与细节。本页收录四件器物与十种敌人外观，其中四种对应现有敌人，六种仅为美术储备。</p>
+    </div>
+    <div class="folio"><strong>待人工审阅</strong><span>仅供素材对照，不代表玩法已开放</span><nav aria-label="审阅分类"><a href="#items">丹药与武器</a><a href="#enemies">守塔敌人</a></nav></div>
+  </header>
+  <main>
+    <section id="items" aria-labelledby="items-heading">
+      <div class="section-heading"><h2 id="items-heading">一 · 丹药与武器</h2><span>小图辨识 / 大图材质</span></div>
+      <p class="intro">小图使用独立的图标版本；144px 展示图保留更多瓷釉、丹纹和金属细节。请分别查看浅底与深底，不只比较放大后的精细程度。</p>
+      <div class="grid" id="item-grid"></div>
+    </section>
+    <section id="enemies" aria-labelledby="enemies-heading">
+      <div class="section-heading"><h2 id="enemies-heading">二 · 敌人外观 · 共十种</h2><span>旧尺寸 80px / 手机 94px / 桌面 112px / 对照 192px</span></div>
+      <p class="intro">四种现有敌人仅审阅外观；另外六种为美术储备，尚无战斗机制和关卡投放。请比较人形、灵物与首领的轮廓、体量和材质。下方为素材尺寸对照，游戏内遮挡和背景融合仍需人工查看。</p>
+      <div class="grid" id="enemy-grid"></div>
+    </section>
+    <aside class="review-note"><strong>审阅重点：</strong>缩小后是否仍可辨认，透明边缘是否干净，光照是否统一，普通与专属、灵卫与首领是否有清楚的身份差异。素材出现不代表已通过视觉验收；缺图会直接标明，不以其他图片替代。</aside>
+    <noscript><p class="review-note">此页需要 JavaScript 组装本地素材对照。请启用 JavaScript 后重新打开；页面不会读取存档或调用生图服务。</p></noscript>
+  </main>
+  <footer><p>开发审阅页 · 不加入正式游戏导航</p><p>全部图片来自本地文件；页面不读取存档、不改变游戏状态。</p></footer>
+  <script>
+    const items = [
+      { id: 'liao_shang_dan', name: '疗伤丹', category: '丹药', intent: '温润白瓷与草药封口，强调疗愈和随身药器的质感。', check: '检查葫芦轮廓、封口与药性标记，24px 时是否仍有明确主体。' },
+      { id: 'po_jing_dan', name: '破境丹', category: '丹药', intent: '朱砂丹体与青铜丹盒，靠结构和材质区别于疗伤丹。', check: '检查丹体与容器的层次，丹纹是否清楚而不过密。' },
+      { id: 'qing_feng_jian', name: '青锋剑', category: '普通武器', intent: '斜向剑身、分明刃面与护手，表达可信的金属结构。', check: '检查刃脊、护手与剑柄，缩小时不能只剩一条亮线。' },
+      { id: 'guanyu_signature', name: '关羽专武', category: '外观概念', intent: '以偃月刀形、龙脊和暖铜配件建立人物关联。', check: '检查偃月刀剪影和长柄比例；大图细节不能挤压小图辨识度。', concept: true },
+    ]
+    const enemies = [
+      { id: 'stone_guard', name: '石甲灵卫', category: '现有敌人 · 岩甲', intent: '厚重岩甲、青铜连接件与方头战锤，首先传达重量和稳定。', check: '检查头、肩、战锤和双脚是否完整；80px 时应能看出岩甲与战锤。' },
+      { id: 'cloud_archer', name: '流云弓卫', category: '现有敌人 · 弓卫', intent: '轻装、弓身与箭囊形成纤长轮廓，区别于厚重岩甲守卫。', check: '检查弓弦、手部和箭囊是否清楚；小尺寸下应能辨认弓手身份。' },
+      { id: 'jade_warden', name: '玉衡守将', category: '现有敌人 · 玉甲', intent: '玉甲、大盾与长戟形成稳重的左右结构，以材质和装备区分守将。', check: '检查盾、戟与身体的分离，玉甲明暗是否有体积而不过亮。' },
+      { id: 'cinder_blade', name: '赤炉刀卫', category: '美术储备 · 锻甲', intent: '炭黑暗赤锻甲与宽刀，保留有分量的甲片和金属刃面。', check: '检查暗甲在深底上是否完整，宽刀剪影与岩甲战锤是否清楚区分。', reserve: true },
+      { id: 'bamboo_swordsman', name: '竹隐剑客', category: '美术储备 · 剑客', intent: '竹笠、修长袍与直剑，以自然材质和纵向线条建立剑客外观。', check: '检查竹笠与头部、袖袍与直剑的间隙，避免缩小后连成一片。', reserve: true },
+      { id: 'frost_crane', name: '霜羽鹤灵', category: '美术储备 · 鹤灵', intent: '非人形白羽与蓝灰长颈，依靠喙、颈、羽翼和鹤足形成辨识度。', check: '检查长颈、喙、羽翼和足部完整，白羽在浅底上仍需保留清楚轮廓。', reserve: true },
+      { id: 'vine_spirit', name: '青藤木魈', category: '美术储备 · 木魈', intent: '枝角、木纹与藤臂构成不规则木质形体，避免仅以绿色表达人外之物。', check: '检查枝角和藤臂是否彼此分离；木纹应支持体积，不成为密集噪点。', reserve: true },
+      { id: 'bronze_beast', name: '铜角镇兽', category: '美术储备 · 镇兽', intent: '青铜曲角与四足兽身，以横向体量、角形和金属材质区别人形敌人。', check: '检查曲角、背部与四足结构，缩小后仍应看清四足兽的重心。', reserve: true },
+      { id: 'lantern_wraith', name: '引魂灯使', category: '美术储备 · 灯使', intent: '瘦高罩袍、窄面具与手提铜灯，靠留白和悬挂道具形成独特外观。', check: '检查面具、手臂与铜灯的分离，暗袍在深底下不能失去主体。', reserve: true },
+      { id: 'tower_master', name: '问道真灵', category: '现有敌人 · 首领', intent: '修长冠袍、象牙白面具与仪杖，靠形体和仪态建立首领身份。', check: '检查冠、玉环、面具和仪杖；与普通灵卫并排时身份应清楚。' },
+    ]
+
+    function element(tag, className, text) {
+      const node = document.createElement(tag)
+      if (className) node.className = className
+      if (text) node.textContent = text
+      return node
+    }
+
+    function sample(src, size, caption, name) {
+      const figure = element('figure')
+      const frame = element('div', 'image-window')
+      frame.style.width = `${size}px`
+      frame.style.height = `${size}px`
+      const pending = element('span', 'missing', '载入中')
+      const image = element('img', 'loading')
+      image.width = image.height = size
+      image.alt = `${name}，${caption}`
+      image.addEventListener('load', () => { image.className = ''; pending.hidden = true })
+      image.addEventListener('error', () => { image.className = 'failed'; pending.textContent = '缺图 · 待素材'; pending.hidden = false })
+      image.src = src
+      frame.append(image, pending)
+      figure.append(frame, element('figcaption', '', caption))
+      return figure
+    }
+
+    function sheetHead(item, index) {
+      const head = element('header', 'sheet-head')
+      const title = element('div')
+      title.append(element('span', 'serial', `${String(index + 1).padStart(2, '0')} / ${item.category}`), element('h3', '', item.name))
+      head.append(title, element('span', 'status', '待人工审阅'))
+      return head
+    }
+
+    for (const [index, item] of items.entries()) {
+      const card = element('article', 'sheet')
+      card.append(sheetHead(item, index), element('p', 'intent', item.intent))
+      if (item.concept) card.append(element('p', 'concept-note', '仅为关羽专武外观概念；获取、装备与数值尚未在本页实现。'))
+      else {
+        const old = element('div', 'old-row')
+        const label = element('p')
+        label.append(element('strong', '', '现有版本'), document.createTextNode('保留原图作轮廓与细节对照。'))
+        old.append(sample(`assets/items/${item.id}.svg`, 48, '原图 48px', item.name), label)
+        card.append(old)
+      }
+      const pair = element('div', 'surfaces')
+      for (const dark of [false, true]) {
+        const surface = element('div', `surface${dark ? ' dark' : ''}`)
+        const content = element('div', 'surface-content')
+        const sizes = element('div', 'icon-sizes')
+        for (const size of [24, 32, 48]) sizes.append(sample(`assets/art-foundation/items/${item.id}.svg`, size, `${size}px`, item.name))
+        content.append(sizes, sample(`assets/art-foundation/items/${item.id}_display.svg`, 144, '展示 144px', item.name))
+        surface.append(element('span', 'surface-title', dark ? '深青底 · 透明边缘' : '象牙底 · 小图辨识'), content)
+        pair.append(surface)
+      }
+      card.append(pair, element('p', 'check', item.check))
+      document.getElementById('item-grid').append(card)
+    }
+
+    for (const [index, enemy] of enemies.entries()) {
+      const card = element('article', 'sheet enemy-sheet')
+      card.append(sheetHead(enemy, index), element('p', 'intent', enemy.intent))
+      card.append(element('p', 'concept-note', enemy.reserve
+        ? '美术储备：尚未配置战斗机制，也未投放问道塔。'
+        : '现有敌人：本页展示外观素材，不新增或改变战斗机制。'))
+      for (const dark of [false, true]) {
+        const surface = element('div', `surface${dark ? ' dark' : ''}`)
+        const sizes = element('div', 'enemy-sizes')
+        for (const size of [80, 94, 112, 192]) sizes.append(sample(`assets/art-foundation/enemies/${enemy.id}.png`, size, `${size}px`, enemy.name))
+        surface.append(element('span', 'surface-title', dark ? '深青底 · 轮廓与边缘' : '象牙底 · 体量与细节'), sizes)
+        card.append(surface)
+      }
+      card.append(element('p', 'check', enemy.check))
+      document.getElementById('enemy-grid').append(card)
+    }
+  </script>
+</body>
+</html>

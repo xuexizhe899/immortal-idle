@@ -1,4 +1,4 @@
-"""炼制命令：配方效果立即生效，服务端先结算旧产出。"""
+"""炼制命令：丹药炼成入行囊，法器立即提供宗门永久加成。"""
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -14,7 +14,6 @@ router = APIRouter(prefix="/saves/{slot_id}/craft", tags=["craft"])
 
 class CraftRequest(RevisionRequest):
     recipe_id: str
-    target: str | None = None
 
 
 @router.post("", response_model=CraftResponse)
@@ -22,7 +21,7 @@ async def craft_recipe(
     slot_id: int, payload: CraftRequest, repo: SaveRepository = Depends(get_repo),
 ) -> CraftResponse:
     command = await prepare_mutation(slot_id, repo, payload.revision)
-    error = craft(command.state, payload.recipe_id, payload.target, load_recipes())
+    error = craft(command.state, payload.recipe_id, load_recipes())
     if error:
         raise HTTPException(status_code=400, detail=error)
     await commit_mutation(slot_id, command, repo)

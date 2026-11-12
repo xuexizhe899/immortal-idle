@@ -184,6 +184,73 @@ def test_mode_pool_reference_is_reported(tree: tuple[Path, Path]) -> None:
     assert any("enemy_pool[0] 'ghost_enemy'" in e for e in errors)
 
 
+def add_weapon_material(config: Path) -> None:
+    """专武材料先落一份合法定义。"""
+    write_json(
+        config / "materials" / "han_tie.json",
+        {"id": "han_tie", "name": "寒铁", "tier": 1},
+    )
+
+
+def write_weapon(config: Path, name: str, **changes: object) -> None:
+    data = {
+        "id": name,
+        "name": "测试专武",
+        "template_id": "d1",
+        "inputs": {"han_tie": 1},
+        "stats": {"atk": .1, "damage": .05},
+        "unlock": {"floor": 8, "level": 3},
+    }
+    data.update(changes)
+    write_json(config / "weapons" / f"{name}.json", data)
+
+
+def test_valid_weapon_definition_is_accepted(tree: tuple[Path, Path]) -> None:
+    """合法专武引用已有弟子、材料与已实现属性。"""
+    config, assets = tree
+    add_weapon_material(config)
+    write_weapon(config, "w1")
+    assert vc.validate(config, assets) == []
+
+
+def test_weapon_rejects_missing_template_and_material(tree: tuple[Path, Path]) -> None:
+    """弟子或材料引用不存在时必须报错。"""
+    config, assets = tree
+    write_weapon(config, "w1", template_id="ghost", inputs={"ghost": 1})
+    errors = vc.validate(config, assets)
+    assert any("template_id 'ghost' 不存在" in e for e in errors)
+    assert any("材料 'ghost' 不存在" in e for e in errors)
+
+
+def test_weapon_rejects_duplicate_template_and_bad_stats(tree: tuple[Path, Path]) -> None:
+    """每名弟子只能有一把专武，属性只接受已实现乘区。"""
+    config, assets = tree
+    add_weapon_material(config)
+    write_weapon(config, "w1")
+    write_weapon(config, "w2", stats={"atk": .1, "luck": .2})
+    errors = vc.validate(config, assets)
+    assert any("每名弟子只能有一把" in e for e in errors)
+    assert any("未实现属性 'luck'" in e for e in errors)
+
+
+def test_pill_special_and_max_uses_are_validated(tree: tuple[Path, Path]) -> None:
+    """未实现的丹药效果与非丹药次数上限必须报错。"""
+    config, assets = tree
+    write_json(config / "recipes" / "odd.json", {
+        "id": "odd", "name": "怪丹", "kind": "pill",
+        "inputs": {"han_tie": 1}, "effects": [], "special": "teleport",
+    })
+    write_json(config / "recipes" / "artifact.json", {
+        "id": "artifact", "name": "法器", "kind": "artifact",
+        "inputs": {"han_tie": 1}, "max_uses": 2,
+        "effects": [{"stat": "atk", "mode": "add_pct", "value": .1, "scope": "permanent"}],
+    })
+    add_weapon_material(config)
+    errors = vc.validate(config, assets)
+    assert any("未实现的丹药效果 'teleport'" in e for e in errors)
+    assert any("只有丹药可以设置 max_uses" in e for e in errors)
+
+
 @pytest.mark.parametrize("action", [
     {"kind": "damage", "target": "enemy_first", "count": 7},
     {"kind": "damage", "target": "random_enemy"},
@@ -241,6 +308,28 @@ def test_enemy_encounter_requires_real_templates_and_at_most_six_units(tree):
     errors = vc.validate(config, assets)
     assert any("敌人 'ghost' 不存在" in error for error in errors)
     assert sum("敌方需要 1..6 人" in error for error in errors) == 2
+
+
+def test_enemy_encounter_variants_and_multipliers_are_validated(tree):
+    config, assets = tree
+    write_json(config / "enemies" / "guard.json", {
+        "id": "guard", "name": "守卫", "base_stats": {"hp": 10, "atk": 1, "def": 1, "spd": 1},
+    })
+    write_json(config / "modes" / "tower.json", {
+        "id": "tower", "name": "塔", "enabled": True,
+        "encounters": {"battle": ["guard"], "elite": ["guard"], "boss": ["guard"]},
+        "kind_stat_multiplier": {"battle": 1, "elite": 4, "boss": 1},
+        "encounter_variants": {
+            "battle": [["guard"], ["ghost"]],
+            "elite": [["guard"] * 7],
+            "event": [["guard"]],
+        },
+    })
+    errors = vc.validate(config, assets)
+    assert any("kind_stat_multiplier.elite" in error for error in errors)
+    assert any("敌人 'ghost' 不存在" in error for error in errors)
+    assert any("敌方需要 1..6 人" in error for error in errors)
+    assert any("未知类型 'event'" in error for error in errors)
 
 
 def test_invalid_enemy_stats_and_embedded_skill_are_rejected(tree):

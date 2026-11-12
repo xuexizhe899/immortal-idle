@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>衔石灵羽</title>
+  <rect x="31" y="6" width="2" height="46" fill="#D8C9A6" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,8 43,16 38,24 32,20" fill="#CFE8D8" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,18 45,28 38,35 32,29" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,27 42,38 35,43 32,37" fill="#3F7359" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,10 21,18 26,26 32,21" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,20 19,30 26,37 32,30" fill="#DCCFB0" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,29 22,39 28,44 32,38" fill="#8CC4A2" stroke="#22342C" stroke-width="2"/>
+  <rect x="22" y="49" width="20" height="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="24,55 31,52 34,58 27,61" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <polygon points="35,53 42,55 40,61 34,60" fill="#66797E" stroke="#22342C" stroke-width="2"/>
+  <rect x="38" y="47" width="2" height="7" fill="#A9473B"/>
+</svg>

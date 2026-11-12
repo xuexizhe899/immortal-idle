@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192" shape-rendering="crispEdges" role="img">
+  <title>疗伤丹</title>
+  <desc>XX · 本地程序绘制 · 细像素修仙物品美术样稿 · display</desc>
+  <polygon points="82,34 110,34 110,46 119,54 126,66 128,79 124,89 113,99 122,107 133,118 140,134 141,151 136,165 126,175 112,179 76,179 62,174 52,164 47,151 48,136 54,121 65,109 78,100 67,90 62,80 63,67 69,54 82,45" fill="#243B38"/>
+  <polygon points="83,38 107,38 107,48 116,57 122,68 123,79 119,87 108,97 106,102 118,111 129,122 135,136 136,150 131,162 122,170 109,174 77,174 65,170 57,161 52,149 53,137 59,124 68,114 82,104 83,98 72,88 67,79 68,68 74,57 83,48" fill="#EDE8D2"/>
+  <polygon points="108,48 118,58 123,70 123,79 116,91 105,99 107,106 121,117 130,131 133,145 131,156 123,166 111,171 102,171 111,162 115,149 114,136 108,124 96,113 94,102 100,91 107,83 110,72 107,62" fill="#C5D0BD"/>
+  <polygon points="122,123 132,137 133,148 128,161 118,169 106,171 116,158 120,145 117,131" fill="#8FA99B"/>
+  <polygon points="78,56 85,51 91,51 87,62 83,74 84,83 78,86 73,79 73,70" fill="#FAF5E2"/>
+  <polygon points="63,129 73,118 82,115 84,120 76,131 71,146 71,157 64,157 59,146" fill="#FAF5E2"/>
+  <polygon points="73,166 85,170 101,170 101,173 78,173 68,169" fill="#C5D0BD"/>
+  <rect x="77" y="96" width="34" height="6" fill="#713E35"/>
+  <rect x="75" y="94" width="37" height="5" fill="#A35844"/>
+  <rect x="78" y="95" width="22" height="2" fill="#D29268"/>
+  <polygon points="103,98 111,101 117,114 114,122 110,117 109,109" fill="#713E35"/>
+  <polygon points="100,99 106,102 108,114 104,129 100,125 104,113" fill="#A35844"/>
+  <polygon points="93,99 105,99 108,108 104,118 95,123 86,115 87,105" fill="#715B40"/>
+  <polygon points="94,101 102,101 105,108 101,115 95,118 90,113 91,106" fill="#D7B979"/>
+  <rect x="95" y="106" width="5" height="2" fill="#A77B4D"/>
+  <rect x="94" y="110" width="7" height="2" fill="#A77B4D"/>
+  <polygon points="80,36 81,25 86,21 105,21 112,25 111,36" fill="#715B40" stroke="#243B38" stroke-width="2" stroke-linejoin="miter"/>
+  <rect x="84" y="26" width="23" height="6" fill="#A77B4D"/>
+  <rect x="86" y="23" width="18" height="3" fill="#D7B979"/>
+  <rect x="87" y="33" width="17" height="3" fill="#713E35"/>
+  <polygon points="92,23 83,18 78,11 80,6 87,9 92,16 97,21" fill="#36584F"/>
+  <polygon points="96,22 98,11 106,5 115,5 112,13 104,19" fill="#537D70"/>
+  <polygon points="99,20 104,12 110,9 105,16" fill="#94B8A0"/>
+  <polyline points="81,10 86,14 91,20" fill="none" stroke="#537D70" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="77,141 80,134 85,132 89,136 87,141 82,145" fill="#C5D0BD"/>
+  <polyline points="80,138 83,137 86,138" fill="none" stroke="#8FA99B" stroke-width="2" stroke-linejoin="miter"/>
+  <rect x="111" y="71" width="3" height="8" fill="#FAF5E2"/>
+  <rect x="58" y="140" width="2" height="7" fill="#EDE8D2"/>
+</svg>

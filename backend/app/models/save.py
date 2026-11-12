@@ -34,7 +34,11 @@ class DiscipleState(BaseModel):
     exp: int = 0
     realm: int = 1
     stats: dict[str, float] = Field(default_factory=dict)
+    # 个人永久加成（丹药等），加区小数；与宗门 bonuses 分开，出发时再合并。
+    bonuses: dict[str, float] = Field(default_factory=dict)
     equipment: list[str] = Field(default_factory=list)
+    # 个人丹药使用次数，用于每种丹药的服用上限；旧档默认空。
+    pill_uses: dict[str, int] = Field(default_factory=dict)
     injury_stacks: int = 0
     injured_until: datetime | None = None
     busy: bool = False
@@ -128,6 +132,8 @@ class GameState(BaseModel):
     inventory: dict[str, int] = Field(default_factory=dict)
     material_remainders: dict[str, float] = Field(default_factory=dict)
     bonuses: dict[str, float] = Field(default_factory=dict)
+    # 已打造的一次性器方；丹药可重复炼制，不写入这里。
+    crafted_recipes: list[str] = Field(default_factory=list)
     unlocks: list[str] = Field(default_factory=list)
     tower_floor: int = 0
     active_run: ActiveRun | None = None

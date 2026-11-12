@@ -9,10 +9,12 @@ from app.api.craft import router as craft_router
 from app.api.disciples import router as disciples_router
 from app.api.duty import router as duty_router
 from app.api.health import router as health_router
+from app.api.items import router as items_router
 from app.api.recruit import router as recruit_router
 from app.api.run import router as run_router
 from app.api.saves import router as saves_router
 from app.api.settle import router as settle_router
+from app.api.weapons import router as weapons_router
 from app.db import create_engine, create_session_factory
 
 
@@ -38,6 +40,8 @@ app.include_router(catalog_router, prefix="/api")
 app.include_router(craft_router, prefix="/api")
 app.include_router(disciples_router, prefix="/api")
 app.include_router(duty_router, prefix="/api")
+app.include_router(items_router, prefix="/api")
 app.include_router(recruit_router, prefix="/api")
 app.include_router(run_router, prefix="/api")
 app.include_router(settle_router, prefix="/api")
+app.include_router(weapons_router, prefix="/api")

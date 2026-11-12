@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>浑天仪</title>
+  <rect x="30" y="44" width="4" height="12" fill="#6E4528" stroke="#22342C" stroke-width="2"/>
+  <polygon points="22,58 42,58 38,54 26,54" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="30" r="20" fill="none" stroke="#4E9F97" stroke-width="3"/>
+  <circle cx="32" cy="30" r="13" fill="none" stroke="#86CFC4" stroke-width="3"/>
+  <circle cx="32" cy="30" r="6" fill="#C6EDE5" stroke="#22342C" stroke-width="2"/>
+  <rect x="11" y="28" width="42" height="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="30" y="10" width="4" height="40" fill="#A78132"/>
+  <circle cx="32" cy="30" r="2" fill="#C9A24B"/>
+  <circle cx="18" cy="18" r="2" fill="#E8D08A"/>
+  <circle cx="46" cy="42" r="2" fill="#E8D08A"/>
+</svg>

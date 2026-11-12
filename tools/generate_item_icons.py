@@ -452,6 +452,263 @@ def art_xuan_tie_jia() -> list[str]:
     ]
 
 
+def art_qinglong_yanyuedao() -> list[str]:
+    """青龙偃月刀：长柄、偃月刀身、青龙纹与红缨。"""
+    return [
+        rect(29, 18, 6, 42, WOOD),
+        poly([(35, 5), (48, 10), (52, 24), (44, 38), (35, 32), (40, 22), (38, 14)], IRON_LIGHT),
+        poly([(40, 9), (46, 13), (48, 23), (43, 32), (40, 28), (44, 21), (42, 14)], IRON_PALE, stroke=None),
+        poly([(37, 20), (43, 22), (41, 28), (35, 27), (33, 23)], JADE),
+        circle(39, 24, 2, GOLD, stroke=None),
+        rect(24, 32, 17, 4, GOLD),
+        rect(29, 42, 6, 2, GOLD_DEEP, stroke=None),
+        rect(29, 50, 6, 2, GOLD_DEEP, stroke=None),
+        rect(26, 58, 12, 3, GOLD),
+        rect(36, 34, 3, 10, RED, stroke=None),
+        rect(35, 43, 5, 3, GOLD, stroke=None),
+    ]
+
+
+def art_zhangba_shemao() -> list[str]:
+    """丈八蛇矛：蛇形矛刃、深铁长杆与青玉束带。"""
+    return [
+        rect(30, 16, 4, 44, IRON_DEEP),
+        poly([(32, 3), (39, 9), (34, 15), (41, 21), (35, 28), (29, 24), (34, 18), (28, 12), (32, 7)], IRON_LIGHT),
+        poly([(32, 8), (36, 11), (33, 15), (37, 20), (33, 24), (31, 21), (34, 17), (31, 13)], IRON_PALE, stroke=None),
+        rect(26, 27, 12, 3, GOLD),
+        rect(29, 38, 6, 3, JADE),
+        rect(29, 48, 6, 3, JADE_DEEP),
+        rect(27, 59, 10, 3, BONE),
+    ]
+
+
+def art_qingnang_yaoxiang() -> list[str]:
+    """青囊药箱：提梁木箱、青玉药纹与金扣。"""
+    return [
+        rect(14, 26, 36, 26, WOOD),
+        rect(12, 20, 40, 8, WOOD_LIGHT),
+        rect(24, 12, 16, 4, IRON),
+        rect(24, 16, 3, 5, IRON_DEEP),
+        rect(37, 16, 3, 5, IRON_DEEP),
+        rect(30, 32, 4, 14, JADE_DEEP),
+        rect(24, 36, 16, 4, JADE_DEEP),
+        rect(14, 26, 3, 3, GOLD, stroke=None),
+        rect(47, 26, 3, 3, GOLD, stroke=None),
+        rect(26, 24, 12, 3, GOLD, stroke=None),
+        poly([(20, 34), (25, 31), (27, 37), (22, 40)], JADE_PALE, stroke=None),
+        rect(31, 55, 2, 4, WOOD_DEEP, stroke=None),
+    ]
+
+
+def art_baiyu_shan() -> list[str]:
+    """白羽扇：展开的白羽扇面、暖木柄与青玉扇钉。"""
+    return [
+        poly([(20, 8), (25, 44), (17, 42), (14, 26)], IVORY),
+        poly([(27, 6), (30, 45), (22, 45), (20, 22)], IVORY_DEEP),
+        poly([(37, 6), (35, 45), (29, 45), (31, 20)], IVORY),
+        poly([(44, 10), (41, 44), (35, 45), (38, 18)], IVORY_DEEP),
+        poly([(20, 8), (25, 44), (21, 43), (17, 24)], JADE_PALE, stroke=None),
+        poly([(37, 6), (35, 45), (32, 45), (33, 20)], JADE_PALE, stroke=None),
+        rect(30, 45, 4, 13, WOOD),
+        rect(29, 50, 6, 2, GOLD_DEEP, stroke=None),
+        rect(27, 57, 10, 3, GOLD),
+        circle(32, 45, 3, JADE),
+    ]
+
+
+def art_longdan_liangyinqiang() -> list[str]:
+    """龙胆亮银枪：亮银枪刃、龙首护手与蓝缨。"""
+    return [
+        rect(30, 16, 4, 44, WOOD_DEEP),
+        poly([(32, 3), (38, 12), (35, 30), (29, 30), (26, 12)], IRON_PALE),
+        poly([(32, 7), (35, 13), (33, 28), (31, 28), (30, 13)], IRON_LIGHT, stroke=None),
+        poly([(23, 28), (41, 28), (44, 34), (32, 40), (20, 34)], JADE_DEEP),
+        circle(32, 33, 2, GOLD, stroke=None),
+        rect(36, 34, 3, 10, SPIRIT, stroke=None),
+        rect(35, 43, 5, 2, GOLD, stroke=None),
+        rect(28, 38, 8, 2, GOLD, stroke=None),
+        rect(27, 59, 10, 3, GOLD_DEEP),
+    ]
+
+
+def art_sheri_shengong() -> list[str]:
+    """射日神弓：木金弓臂、弓弦、箭矢与烈日。"""
+    return [
+        poly([(20, 6), (11, 20), (11, 44), (20, 58), (24, 54), (16, 42), (16, 22), (24, 10)], WOOD),
+        poly([(17, 10), (13, 22), (13, 42), (17, 54), (19, 52), (15, 42), (15, 22), (19, 12)], GOLD_LIGHT, stroke=None),
+        rect(13, 12, 2, 40, BONE_LIGHT, stroke=None),
+        rect(24, 30, 24, 3, IRON_LIGHT),
+        poly([(48, 26), (58, 31), (48, 36)], IRON_PALE),
+        poly([(27, 27), (31, 31), (26, 33)], RED, stroke=None),
+        poly([(27, 34), (31, 31), (26, 36)], RED, stroke=None),
+        circle(46, 12, 6, GOLD),
+        rect(44, 3, 3, 4, GOLD_LIGHT, stroke=None),
+        rect(44, 17, 3, 4, GOLD_LIGHT, stroke=None),
+        rect(37, 10, 4, 3, GOLD_LIGHT, stroke=None),
+    ]
+
+
+def art_yuehua_yulun() -> list[str]:
+    """月华玉轮：青玉轮盘、弦月纹与云气。"""
+    return [
+        circle(32, 30, 20, CRYSTAL_PALE),
+        circle(32, 30, 16, CRYSTAL_LIGHT, stroke=None),
+        circle(32, 30, 7, CRYSTAL, stroke=None),
+        poly([(39, 11), (45, 18), (44, 27), (37, 33), (41, 25), (39, 17)], IVORY, stroke=None),
+        poly([(20, 38), (27, 34), (33, 38), (27, 42)], CRYSTAL, stroke=None),
+        poly([(34, 44), (41, 40), (47, 44), (41, 48)], CRYSTAL_DEEP, stroke=None),
+        rect(30, 50, 4, 6, GOLD, stroke=None),
+        circle(32, 30, 2, GOLD, stroke=None),
+        rect(12, 28, 3, 4, GOLD_LIGHT, stroke=None),
+        rect(49, 28, 3, 4, GOLD_LIGHT, stroke=None),
+    ]
+
+
+def art_suxin_yusan() -> list[str]:
+    """素心玉伞：象牙伞面、竹骨、玉伞珠与暖木柄。"""
+    return [
+        poly([(8, 26), (32, 7), (56, 26), (51, 30), (46, 26), (41, 30), (36, 26), (31, 30), (26, 26), (21, 30), (16, 26), (11, 30)], IVORY),
+        poly([(12, 26), (32, 11), (52, 26), (48, 28), (32, 16), (16, 28)], JADE_PALE, stroke=None),
+        rect(31, 26, 3, 30, WOOD),
+        rect(26, 55, 13, 3, WOOD_DEEP),
+        rect(25, 58, 5, 3, GOLD, stroke=None),
+        circle(32, 8, 3, JADE),
+        rect(14, 25, 2, 4, GOLD_DEEP, stroke=None),
+        rect(48, 25, 2, 4, GOLD_DEEP, stroke=None),
+        rect(30, 36, 5, 2, GOLD, stroke=None),
+    ]
+
+
+def art_liquan_shenqiang() -> list[str]:
+    """沥泉神枪：泉浪枪刃、寒铁长杆与水纹。"""
+    return [
+        rect(30, 18, 4, 42, IRON_DEEP),
+        poly([(32, 3), (40, 9), (34, 15), (42, 22), (33, 30), (25, 26), (32, 20), (24, 14), (30, 8)], IRON_LIGHT),
+        poly([(32, 7), (37, 11), (33, 15), (38, 21), (33, 26), (29, 23), (33, 19), (28, 14)], CRYSTAL_PALE, stroke=None),
+        circle(24, 24, 2, CRYSTAL, stroke=None),
+        circle(39, 27, 2, CRYSTAL, stroke=None),
+        rect(24, 31, 17, 4, GOLD),
+        rect(29, 44, 6, 2, CRYSTAL, stroke=None),
+        rect(27, 59, 10, 3, GOLD_DEEP),
+    ]
+
+
+def art_huo_jian_qiang() -> list[str]:
+    """火尖枪：火焰枪刃、深木长杆与红缨。"""
+    return [
+        rect(30, 22, 4, 36, WOOD_DEEP),
+        poly([(32, 2), (40, 10), (36, 16), (44, 24), (33, 32), (27, 25), (32, 18), (24, 12), (30, 7)], RED),
+        poly([(32, 8), (37, 13), (33, 18), (38, 24), (33, 28), (30, 23), (33, 18), (29, 13)], GOLD_LIGHT, stroke=None),
+        rect(23, 31, 18, 4, GOLD),
+        rect(29, 36, 6, 2, GOLD_DEEP, stroke=None),
+        rect(31, 40, 2, 10, RED, stroke=None),
+        rect(27, 59, 10, 3, GOLD),
+    ]
+
+
+def art_sanjian_liangrendao() -> list[str]:
+    """三尖两刃刀：三尖刀锋、两侧刀刃与金环护手。"""
+    return [
+        rect(30, 24, 4, 34, WOOD),
+        poly([(32, 2), (36, 12), (32, 20), (28, 12)], IRON_LIGHT),
+        poly([(23, 7), (28, 14), (22, 22), (18, 14)], IRON),
+        poly([(41, 7), (46, 14), (40, 22), (36, 14)], IRON),
+        poly([(36, 15), (44, 22), (36, 29), (34, 22)], IRON_LIGHT),
+        poly([(28, 15), (20, 22), (28, 29), (30, 22)], IRON_LIGHT),
+        rect(21, 29, 22, 4, GOLD),
+        circle(20, 31, 3, GOLD),
+        circle(44, 31, 3, GOLD),
+        rect(29, 44, 6, 2, GOLD_DEEP, stroke=None),
+        rect(27, 58, 10, 3, GOLD_DEEP),
+    ]
+
+
+def art_chibi_jiaowei_qin() -> list[str]:
+    """赤壁焦尾琴：琴身、焦尾、琴弦与红缨。"""
+    return [
+        poly([(10, 24), (46, 18), (54, 26), (54, 36), (46, 44), (14, 42)], WOOD),
+        poly([(14, 27), (45, 22), (50, 28), (50, 34), (44, 40), (17, 38)], WOOD_LIGHT, stroke=None),
+        poly([(10, 24), (5, 30), (10, 41), (14, 42)], INK_DEEP),
+        rect(18, 29, 28, 2, BONE_LIGHT, stroke=None),
+        rect(18, 33, 28, 2, BONE_LIGHT, stroke=None),
+        rect(20, 37, 24, 2, BONE_LIGHT, stroke=None),
+        rect(40, 28, 3, 10, GOLD_DEEP, stroke=None),
+        rect(22, 28, 2, 10, GOLD_DEEP, stroke=None),
+        rect(52, 30, 2, 9, RED, stroke=None),
+        rect(51, 38, 4, 3, GOLD, stroke=None),
+        circle(30, 26, 2, GOLD, stroke=None),
+    ]
+
+
+def art_huntian_yi() -> list[str]:
+    """浑天仪：多层玉环、金轴与暖木底座。"""
+    return [
+        rect(30, 44, 4, 12, WOOD_DEEP),
+        poly([(22, 58), (42, 58), (38, 54), (26, 54)], WOOD),
+        circle(32, 30, 20, "none", stroke=CRYSTAL, width=3),
+        circle(32, 30, 13, "none", stroke=CRYSTAL_LIGHT, width=3),
+        circle(32, 30, 6, CRYSTAL_PALE),
+        rect(11, 28, 42, 3, GOLD),
+        rect(30, 10, 4, 40, GOLD_DEEP, stroke=None),
+        circle(32, 30, 2, GOLD, stroke=None),
+        circle(18, 18, 2, GOLD_LIGHT, stroke=None),
+        circle(46, 42, 2, GOLD_LIGHT, stroke=None),
+    ]
+
+
+def art_qinglian_jian() -> list[str]:
+    """青莲剑：青玉剑身、莲瓣护手与暖木柄。"""
+    return [
+        poly([(32, 3), (38, 16), (36, 40), (28, 40), (26, 16)], JADE_LIGHT),
+        poly([(32, 7), (35, 17), (34, 38), (32, 38), (31, 17)], JADE_PALE, stroke=None),
+        poly([(32, 40), (25, 44), (21, 50), (27, 49), (32, 45), (37, 49), (43, 50), (39, 44)], JADE),
+        circle(32, 46, 3, GOLD),
+        rect(30, 50, 4, 8, WOOD),
+        rect(29, 53, 6, 2, GOLD_DEEP, stroke=None),
+        rect(26, 57, 12, 3, GOLD),
+        rect(38, 49, 2, 8, RED, stroke=None),
+        rect(37, 56, 4, 2, GOLD, stroke=None),
+    ]
+
+
+def art_shisheng_shujuan() -> list[str]:
+    """诗圣书卷：展开卷轴、诗行、朱印与毛笔。"""
+    return [
+        rect(14, 16, 36, 30, PAPER),
+        rect(10, 12, 7, 38, IVORY_DEEP),
+        rect(47, 12, 7, 38, IVORY_DEEP),
+        rect(10, 12, 7, 3, GOLD, stroke=None),
+        rect(47, 12, 7, 3, GOLD, stroke=None),
+        rect(10, 47, 7, 3, GOLD, stroke=None),
+        rect(47, 47, 7, 3, GOLD, stroke=None),
+        rect(20, 21, 24, 2, INK_DEEP, stroke=None),
+        rect(20, 27, 24, 2, INK_DEEP, stroke=None),
+        rect(20, 33, 17, 2, INK_DEEP, stroke=None),
+        rect(20, 39, 21, 2, INK_DEEP, stroke=None),
+        rect(41, 34, 5, 5, RED, stroke=None),
+        rect(23, 51, 21, 3, WOOD),
+        poly([(44, 51), (53, 56), (46, 59)], INK_DEEP),
+        rect(22, 51, 3, 3, GOLD, stroke=None),
+    ]
+
+
+def art_xianshi_lingyu() -> list[str]:
+    """衔石灵羽：长羽、青玉羽脉与衔在根部的碎石。"""
+    return [
+        rect(31, 6, 2, 46, BONE),
+        poly([(32, 8), (43, 16), (38, 24), (32, 20)], JADE_PALE),
+        poly([(32, 18), (45, 28), (38, 35), (32, 29)], JADE),
+        poly([(32, 27), (42, 38), (35, 43), (32, 37)], JADE_DEEP),
+        poly([(32, 10), (21, 18), (26, 26), (32, 21)], IVORY),
+        poly([(32, 20), (19, 30), (26, 37), (32, 30)], IVORY_DEEP),
+        poly([(32, 29), (22, 39), (28, 44), (32, 38)], JADE_LIGHT),
+        rect(22, 49, 20, 3, GOLD),
+        poly([(24, 55), (31, 52), (34, 58), (27, 61)], IRON_LIGHT),
+        poly([(35, 53), (42, 55), (40, 61), (34, 60)], IRON),
+        rect(38, 47, 2, 7, RED, stroke=None),
+    ]
+
+
 ART: dict[str, Callable[[], list[str]]] = {
     "qing_feng_jian": art_qing_feng_jian,
     "liao_shang_dan": art_liao_shang_dan,
@@ -471,17 +728,33 @@ ART: dict[str, Callable[[], list[str]]] = {
     "liu_yun_xue": art_liu_yun_xue,
     "po_mo_fu": art_po_mo_fu,
     "xuan_tie_jia": art_xuan_tie_jia,
+    "qinglong_yanyuedao": art_qinglong_yanyuedao,
+    "zhangba_shemao": art_zhangba_shemao,
+    "qingnang_yaoxiang": art_qingnang_yaoxiang,
+    "baiyu_shan": art_baiyu_shan,
+    "longdan_liangyinqiang": art_longdan_liangyinqiang,
+    "sheri_shengong": art_sheri_shengong,
+    "yuehua_yulun": art_yuehua_yulun,
+    "suxin_yusan": art_suxin_yusan,
+    "liquan_shenqiang": art_liquan_shenqiang,
+    "huo_jian_qiang": art_huo_jian_qiang,
+    "sanjian_liangrendao": art_sanjian_liangrendao,
+    "chibi_jiaowei_qin": art_chibi_jiaowei_qin,
+    "huntian_yi": art_huntian_yi,
+    "qinglian_jian": art_qinglian_jian,
+    "shisheng_shujuan": art_shisheng_shujuan,
+    "xianshi_lingyu": art_xianshi_lingyu,
 }
 
-KIND_ORDER = {"material": 0, "pill": 1, "artifact": 2}
+KIND_ORDER = {"material": 0, "pill": 1, "artifact": 2, "weapon": 3}
 
 
 def load_items() -> list[dict[str, str]]:
-    """读取真实配置，返回按材料、丹药、法器排序的道具清单。"""
+    """读取真实配置，返回按材料、丹药、法器、专武排序的道具清单。"""
     items: list[dict[str, str]] = []
     seen: set[str] = set()
 
-    folders = (("recipes", None), ("materials", "material"))
+    folders = (("recipes", None), ("materials", "material"), ("weapons", "weapon"))
     for folder, forced_kind in folders:
         for path in sorted((CONFIG_DIR / folder).glob("*.json")):
             data = json.loads(path.read_text(encoding="utf-8"))

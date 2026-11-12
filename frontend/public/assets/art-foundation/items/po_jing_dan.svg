@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>破境丹</title>
+  <desc>XX · 本地程序绘制 · 细像素修仙物品美术样稿 · icon</desc>
+  <polygon points="11,37 18,31 45,31 53,37 53,51 45,58 19,58 11,51" fill="#715B40" stroke="#243B38" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="13,38 20,34 44,34 51,38 44,44 20,44" fill="#A77B4D" stroke="#243B38" stroke-width="1" stroke-linejoin="miter"/>
+  <polygon points="15,39 22,36 42,36 49,39 43,42 21,42" fill="#36584F"/>
+  <polygon points="20,12 27,7 37,7 44,12 47,21 44,30 38,35 27,35 20,30 17,21" fill="#713E35" stroke="#243B38" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="22,12 28,9 36,9 41,13 44,21 41,28 36,32 27,32 22,28 20,21" fill="#A35844"/>
+  <polygon points="23,14 28,11 33,11 29,16 25,19 22,18" fill="#D29268"/>
+  <polyline points="27,27 27,22 33,17 38,18 38,23 32,27 32,31" fill="none" stroke="#D7B979" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="13,43 21,47 43,47 51,43 51,50 44,55 20,55 13,50" fill="#36584F"/>
+  <polyline points="17,47 22,50 42,50 47,47" fill="none" stroke="#A77B4D" stroke-width="2" stroke-linejoin="miter"/>
+  <rect x="29" y="47" width="6" height="7" fill="#D7B979"/>
+  <rect x="31" y="48" width="2" height="3" fill="#715B40"/>
+</svg>

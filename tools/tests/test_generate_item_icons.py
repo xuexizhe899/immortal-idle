@@ -24,6 +24,10 @@ EXPECTED_IDS = {
     "po_jing_dan", "yang_shen_dan",
     "hu_xin_jing", "ju_ling_pei", "liu_yun_xue", "po_mo_fu",
     "qing_feng_jian", "xuan_tie_jia",
+    "qinglong_yanyuedao", "zhangba_shemao", "qingnang_yaoxiang", "baiyu_shan",
+    "longdan_liangyinqiang", "sheri_shengong", "yuehua_yulun", "suxin_yusan",
+    "liquan_shenqiang", "huo_jian_qiang", "sanjian_liangrendao", "chibi_jiaowei_qin",
+    "huntian_yi", "qinglian_jian", "shisheng_shujuan", "xianshi_lingyu",
 }
 
 
@@ -38,7 +42,7 @@ class ItemIconGeneratorTests(unittest.TestCase):
     def test_every_configured_item_has_art_and_manifest_entry(self) -> None:
         items = gen.load_items()
         self.assertEqual({item["id"] for item in items}, EXPECTED_IDS)
-        self.assertEqual(len(items), 18)
+        self.assertEqual(len(items), 34)
         self.assertEqual(set(gen.ART), EXPECTED_IDS)
 
         gen.generate(items, self.output)

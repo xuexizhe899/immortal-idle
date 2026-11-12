@@ -1,0 +1,24 @@
+{
+  "preset": "art-foundation-enemies",
+  "notes": "美术前置代表试稿：石甲灵卫与问道真灵。沿用0.3.0公共风格；本任务模型gpt-image-2.6-sunburst，上限40次。先做两张，不自动扩批；原图保留master，待用户审阅。",
+  "output_subdir": "art-foundation-enemies",
+  "master_dir": "assets/masters/art-foundation-enemies",
+  "items": [
+    {
+      "key": "art_foundation_stone_guard_v1",
+      "kind": "portrait",
+      "file": "stone_guard.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "A single ancient Chinese stone-armored spirit sentinel guarding an immortal trial tower. A nonhuman heavy guardian assembled from weathered warm gray granite blocks, broad angular shoulders, a compact sturdy torso and short thick armored legs, with adult warrior proportions, NOT a toy or chibi. One distinct asymmetric chipped stone helmet with a narrow dark eye slit and two small muted amber eyes. Oxidized bronze joints and restraining bands, sparse deep jade seal inlays embedded in stone, a short dark teal waist cloth. It carries one large square-headed stone war hammer held diagonally downward on the right, complete hammer head and handle entirely inside the canvas. Open off-hand on the left, a clear gap separating both arms from the torso, firmly planted feet. The visual hierarchy is strong blocky silhouette, sculpted stone planes, then a few restrained cracks. This is a COMMON guardian: imposing weight but no crown, no halo, no floating ornaments. Full body isolated, standing in a three-quarter view facing slightly left toward opposing player characters. Fine deliberate pixel clusters with substantial three-tone stone planes and a few crisp bronze highlights, consistent with the existing jade-and-ivory xianxia character roster. Warm afternoon light from upper left, cool dark teal shadow faces, readable dark contour without a thick cartoon outline. Entire head, hammer and both feet within generous empty margins; no cast ground shadow, no scenery, no rocks on the ground, no text. Perfectly uniform pure solid magenta #FF00FF background for chroma key, including between limbs. No pink or purple details on the guardian. Final runtime sprite will be 512px tall and shown as small as 80px tall: silhouette and hammer must remain readable, do not fill stone surfaces with tiny random noise."
+    },
+    {
+      "key": "art_foundation_tower_master_v1",
+      "kind": "portrait",
+      "file": "tower_master.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "A single ancient Chinese immortal trial-tower master spirit, a solemn nonhuman final guardian called the Spirit of Inquiry. Tall dignified adult figure, full-body three-quarter standing view facing slightly left. Its face is a smooth weathered ivory jade ceremonial mask with narrow warm-gold eye slits, not a human face or a skull. A distinctive narrow dark bronze three-pronged crown and a restrained circular broken-jade ring behind the upper shoulders, with clear empty spaces and no huge halo outside the silhouette. Layered deep teal ceremonial robes with strong angular shoulders, white-jade chest plates and warm bronze clasps, a long split ivory inner robe with a visible pair of dark armored feet. One hand holds an upright slender bronze-and-jade ritual staff with a small angular ring finial; the other hand rests open in a calm commanding pose. The visual hierarchy is tall crown-and-robe silhouette, ivory mask and chest, then restrained geometric seal carvings without writing. It must look unmistakably more ceremonial and powerful than a common stone guardian, through elegant vertical proportions and distinctive regalia, not visual clutter or excessive glow. Precise high-resolution pixel art, deliberate fabric and jade pixel clusters, limited deep teal, ivory, warm bronze, muted gold and cool shadow palette matching the existing xianxia roster. Warm afternoon light from upper left, crisp readable light and shadow planes. Complete crown, ring, staff and both feet inside generous empty margins. No scenery, no floor, no pedestal, no cast ground shadow, no lettering, no UI, no magical particles, no detached flying objects. Perfectly flat solid pure magenta #FF00FF background for chroma key; no pink or purple garment details. Runtime sprite will be 512px high and displayed as small as 80px: retain clear mask, crown, staff and robe shapes, do not use a huge staff or ring that makes the body tiny."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>诗圣书卷</title>
+  <rect x="14" y="16" width="36" height="30" fill="#EFE3C6" stroke="#22342C" stroke-width="2"/>
+  <rect x="10" y="12" width="7" height="38" fill="#DCCFB0" stroke="#22342C" stroke-width="2"/>
+  <rect x="47" y="12" width="7" height="38" fill="#DCCFB0" stroke="#22342C" stroke-width="2"/>
+  <rect x="10" y="12" width="7" height="3" fill="#C9A24B"/>
+  <rect x="47" y="12" width="7" height="3" fill="#C9A24B"/>
+  <rect x="10" y="47" width="7" height="3" fill="#C9A24B"/>
+  <rect x="47" y="47" width="7" height="3" fill="#C9A24B"/>
+  <rect x="20" y="21" width="24" height="2" fill="#16241F"/>
+  <rect x="20" y="27" width="24" height="2" fill="#16241F"/>
+  <rect x="20" y="33" width="17" height="2" fill="#16241F"/>
+  <rect x="20" y="39" width="21" height="2" fill="#16241F"/>
+  <rect x="41" y="34" width="5" height="5" fill="#A9473B"/>
+  <rect x="23" y="51" width="21" height="3" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <polygon points="44,51 53,56 46,59" fill="#16241F" stroke="#22342C" stroke-width="2"/>
+  <rect x="22" y="51" width="3" height="3" fill="#C9A24B"/>
+</svg>

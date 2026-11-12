@@ -17,6 +17,11 @@
     "cultivation": 3.0,
     "reputation": 1.0
   },
+  "kind_stat_multiplier": {
+    "battle": 1.0,
+    "elite": 1.03,
+    "boss": 1.05
+  },
   "rewards": {
     "battle": {
       "cultivation": 10.0,
@@ -51,7 +56,13 @@
     "stone_guard",
     "cloud_archer",
     "jade_warden",
-    "tower_master"
+    "tower_master",
+    "cinder_blade",
+    "bamboo_swordsman",
+    "frost_crane",
+    "vine_spirit",
+    "bronze_beast",
+    "lantern_wraith"
   ],
   "event_pool": [],
   "affix_pool": [],
@@ -71,6 +82,25 @@
       "tower_master",
       "jade_warden",
       "cloud_archer"
+    ]
+  },
+  "encounter_variants": {
+    "battle": [
+      ["stone_guard", "cloud_archer", "stone_guard"],
+      ["bamboo_swordsman", "stone_guard", "cloud_archer"],
+      ["cinder_blade", "stone_guard", "cloud_archer"],
+      ["bamboo_swordsman", "cinder_blade", "cloud_archer"],
+      ["cinder_blade", "frost_crane", "cloud_archer"]
+    ],
+    "elite": [
+      ["jade_warden", "cloud_archer", "stone_guard"],
+      ["bamboo_swordsman", "jade_warden", "cloud_archer"],
+      ["cinder_blade", "jade_warden", "frost_crane"],
+      ["bronze_beast", "vine_spirit", "lantern_wraith", "frost_crane"],
+      ["bronze_beast", "jade_warden", "lantern_wraith", "frost_crane"]
+    ],
+    "boss": [
+      ["tower_master", "jade_warden", "lantern_wraith"]
     ]
   }
 }

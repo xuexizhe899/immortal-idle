@@ -7,12 +7,13 @@ from datetime import datetime
 from math import floor
 import secrets
 
-from app.config_loader import load_affixes, load_enemies, load_skills
+from app.config_loader import load_affixes, load_enemies, load_skills, load_weapons
 from app.domain.affix import draw, pick_group
 from app.domain.battle import simulate_battle
 from app.domain.injuries import apply_injury, attack_multiplier
 from app.domain.progression import LEVEL_GROWTH, REALM_GROWTH
 from app.domain.rng import Pcg32
+from app.domain.weapons import battle_bonuses, combat_bonuses
 from app.models.battle import BattleBond, BattleUnit, EnemyDefinition, SkillDefinition
 from app.models.save import ActiveRun, BattleSummary, DiscipleState, GameState, RunNode, RunPartySnapshot
 
@@ -60,8 +61,12 @@ def basic_skill(template_id: str, passive: bool = False) -> SkillDefinition:
     return SkillDefinition(id=f"{template_id}-{'passive' if passive else 'art'}", name="无常驻加成" if passive else "普通攻击", type="passive" if passive else "active")
 
 
-def combatant(disciple: DiscipleState, template: dict, skills: dict[str, dict], bonuses: dict[str, float], slot: int) -> BattleUnit:
-    """等级、伤势、宗门永久加成及自身常驻属性只在出发时应用一次。"""
+def combatant(
+    disciple: DiscipleState, template: dict, skills: dict[str, dict],
+    bonuses: dict[str, float], slot: int,
+    unit_bonuses: dict[str, float] | None = None,
+) -> BattleUnit:
+    """等级、伤势、个人/宗门永久加成及自身常驻属性只在出发时应用一次。"""
     base = template["base_stats"]
     active = SkillDefinition.model_validate(skills[template["skill"]]) if template.get("skill") in skills else basic_skill(disciple.template_id)
     passive = SkillDefinition.model_validate(skills[template["passive"]]) if template.get("passive") in skills else basic_skill(disciple.template_id, True)
@@ -74,6 +79,7 @@ def combatant(disciple: DiscipleState, template: dict, skills: dict[str, dict], 
         asset_id=template.get("asset_id", ""), slot=slot,
         attack=value("atk") * attack_multiplier(disciple.injury_stacks), defense=value("def"),
         health=max(1, floor(value("hp"))), speed=value("spd"), active=active, passive=passive,
+        bonuses=dict(unit_bonuses or {}),
     )
 
 
@@ -87,8 +93,18 @@ def with_affixes(run: ActiveRun) -> list[BattleUnit]:
     }) for unit in run.party_snapshot.combatants]
 
 
-def enemy_power(step: int, mode: dict) -> int:
-    return round(mode["base_enemy_power"] * (1 + step * mode["enemy_growth"]))
+def enemy_power(step: int, mode: dict, kind: str = "battle") -> int:
+    multiplier = mode.get("kind_stat_multiplier", {}).get(kind, 1.0)
+    return round(mode["base_enemy_power"] * (1 + step * mode["enemy_growth"]) * multiplier)
+
+
+def encounter_roster(mode: dict, kind: str, step: int) -> list[str]:
+    """按已走层数选择编成；旧快照无 variants 时回退到固定 encounters。"""
+    variants = (mode.get("encounter_variants") or {}).get(kind)
+    if variants:
+        index = min(len(variants) - 1, step * len(variants) // max(1, mode["node_count"]))
+        return variants[index]
+    return mode["encounters"][kind]
 
 
 def node_reward(kind: str, mode: dict, step: int) -> dict[str, float]:
@@ -102,22 +118,29 @@ def roll_choices(rng: Pcg32, step: int, mode: dict) -> list[RunNode]:
     nodes = []
     for _ in range(1 if is_boss else mode["choices_per_step"]):
         kind = "boss" if is_boss else "elite" if rng.randint(1, 100) <= mode["elite_chance"] else "battle"
-        nodes.append(RunNode(kind=kind, enemy=f"{kind}_{step}", power=enemy_power(step, mode), reward=node_reward(kind, mode, step)))
+        nodes.append(RunNode(kind=kind, enemy=f"{kind}_{step}", power=enemy_power(step, mode, kind), reward=node_reward(kind, mode, step)))
     return nodes
 
 
 def enemy_units(run: ActiveRun, node: RunNode) -> list[BattleUnit]:
+    """按当前层段编成创建敌人；精英/首领系数与常驻被动在创建时固化。"""
     snapshot = run.party_snapshot
-    scale = 1 + (len(run.nodes) - 1) * snapshot.mode["enemy_growth"]
+    step = len(run.nodes) - 1
+    scale = 1 + step * snapshot.mode["enemy_growth"]
+    kind_scale = snapshot.mode.get("kind_stat_multiplier", {}).get(node.kind, 1.0)
     units = []
-    for slot, enemy_id in enumerate(snapshot.mode["encounters"][node.kind]):
+    for slot, enemy_id in enumerate(encounter_roster(snapshot.mode, node.kind, step)):
         enemy = snapshot.enemies[enemy_id]
         base = enemy.base_stats
+        passive = enemy.passive or basic_skill(enemy_id, True)
+        own = passive.bonuses if passive.condition == "always" else {}
         units.append(BattleUnit(
             id=f"enemy:{slot}:{enemy_id}", template_id=enemy_id, name=enemy.name, slot=slot,
-            attack=base["atk"] * scale, defense=base["def"] * scale,
-            health=max(1, floor(base["hp"] * scale)), speed=base["spd"],
-            active=enemy.skill or basic_skill(enemy_id), passive=enemy.passive or basic_skill(enemy_id, True),
+            attack=base["atk"] * scale * kind_scale * (1 + own.get("atk", 0)),
+            defense=base["def"] * scale * kind_scale * (1 + own.get("def", 0)),
+            health=max(1, floor(base["hp"] * scale * kind_scale * (1 + own.get("hp", 0)))),
+            speed=base["spd"] * (1 + own.get("spd", 0)),
+            active=enemy.skill or basic_skill(enemy_id), passive=passive,
         ))
     return units
 
@@ -134,7 +157,7 @@ def start_run(
     state: GameState, party_ids: list[str], templates: dict[str, dict], mode: dict, now: datetime,
     seed: int | None = None, bonds: dict[str, dict] | None = None,
     skills: dict[str, dict] | None = None, enemies: dict[str, dict] | None = None,
-    affix_pool: list[dict] | None = None,
+    affix_pool: list[dict] | None = None, weapons: dict[str, dict] | None = None,
 ) -> str | None:
     if state.active_run is not None:
         return "已有进行中的出征"
@@ -157,10 +180,19 @@ def start_run(
         if disciple.template_id not in templates:
             return f"弟子 {disciple_id} 模板未配置"
     members = set(by_id[key].template_id for key in party_ids)
+    weapon_map = weapons if weapons is not None else load_weapons()
     activated = [BattleBond.model_validate(bond) for bond in (bonds or {}).values()
                  if bond.get("modifiers") and len(members & set(bond["members"])) >= bond.get("requires", len(bond["members"]))]
     snapshot = RunPartySnapshot(
-        combatants=tuple(combatant(by_id[key], templates[by_id[key].template_id], skills if skills is not None else load_skills(), state.bonuses, index) for index, key in enumerate(party_ids)),
+        combatants=tuple(
+            combatant(
+                by_id[key], templates[by_id[key].template_id],
+                skills if skills is not None else load_skills(),
+                combat_bonuses(by_id[key], state.bonuses, weapon_map), index,
+                battle_bonuses(by_id[key], weapon_map),
+            )
+            for index, key in enumerate(party_ids)
+        ),
         bonds=tuple(activated), mode=deepcopy(mode),
         enemies={key: EnemyDefinition.model_validate(value) for key, value in (enemies if enemies is not None else load_enemies()).items()},
         affix_pool=deepcopy(affix_pool if affix_pool is not None else load_affixes()),

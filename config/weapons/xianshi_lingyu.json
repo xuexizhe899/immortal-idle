@@ -1,0 +1,19 @@
+{
+  "id": "xianshi_lingyu",
+  "name": "衔石灵羽",
+  "template_id": "jingwei",
+  "inputs": {
+    "han_tie": 3,
+    "yun_mu": 3,
+    "jiao_gu": 1
+  },
+  "stats": {
+    "hp": 0.06,
+    "def": 0.06,
+    "shielding": 0.05
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

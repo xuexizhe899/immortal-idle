@@ -1,0 +1,19 @@
+{
+  "id": "huo_jian_qiang",
+  "name": "火尖枪",
+  "template_id": "nezha",
+  "inputs": {
+    "han_tie": 3,
+    "xuan_jing": 2,
+    "jiao_gu": 1
+  },
+  "stats": {
+    "atk": 0.1,
+    "spd": 0.06,
+    "damage": 0.05
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

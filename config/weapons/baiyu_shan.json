@@ -1,0 +1,19 @@
+{
+  "id": "baiyu_shan",
+  "name": "白羽扇",
+  "template_id": "zhugeliang",
+  "inputs": {
+    "yun_mu": 3,
+    "xuan_jing": 1,
+    "jiu_ye": 1
+  },
+  "stats": {
+    "spd": 0.08,
+    "def": 0.06,
+    "shielding": 0.05
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

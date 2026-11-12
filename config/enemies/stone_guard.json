@@ -6,5 +6,16 @@
     "atk": 13,
     "def": 6,
     "spd": 8
+  },
+  "passive": {
+    "id": "stone_guard-rock",
+    "name": "石甲",
+    "type": "passive",
+    "description": "石甲覆体，防御提高8%。",
+    "effects": [],
+    "condition": "always",
+    "bonuses": {
+      "def": 0.08
+    }
   }
 }

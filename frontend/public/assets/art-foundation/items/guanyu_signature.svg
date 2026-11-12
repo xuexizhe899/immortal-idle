@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>关羽专属偃月刀视觉概念</title>
+  <desc>XX · 本地程序绘制 · 细像素修仙物品美术样稿 · icon</desc>
+  <polygon points="10,57 35,26 40,30 15,62" fill="#243B38"/>
+  <polygon points="12,57 36,28 38,30 14,59" fill="#36584F"/>
+  <polyline points="14,56 32,34" fill="none" stroke="#94B8A0" stroke-width="1" stroke-linejoin="miter"/>
+  <polygon points="33,29 35,19 43,10 53,6 61,6 55,12 54,18 58,24 61,27 57,33 49,36 40,35" fill="#243B38"/>
+  <polygon points="36,27 38,20 45,12 54,9 58,9 52,14 52,21 57,27 54,30 47,33 41,32" fill="#8CABA9"/>
+  <polygon points="39,25 40,20 47,13 55,10 51,15 50,23 55,28 50,30 46,29" fill="#D3DED3"/>
+  <polygon points="35,28 39,24 42,26 44,31 41,35 36,34 33,31" fill="#715B40" stroke="#243B38" stroke-width="1" stroke-linejoin="miter"/>
+  <polygon points="36,28 39,26 41,28 39,30 41,32 38,33 35,31" fill="#D7B979"/>
+  <rect x="39" y="27" width="2" height="2" fill="#172D2C"/>
+  <polyline points="39,25 43,19 46,18 45,23 48,26" fill="none" stroke="#A77B4D" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="26,38 30,34 34,37 31,41" fill="#A77B4D" stroke="#243B38" stroke-width="1" stroke-linejoin="miter"/>
+  <polygon points="9,57 12,55 17,59 14,63 11,63 8,60" fill="#A77B4D" stroke="#243B38" stroke-width="1" stroke-linejoin="miter"/>
+  <polygon points="30,37 34,37 34,45 30,48 29,44" fill="#A35844"/>
+</svg>

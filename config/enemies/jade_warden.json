@@ -24,5 +24,16 @@
         "duration": 2
       }
     ]
+  },
+  "passive": {
+    "id": "jade_warden-bastion",
+    "name": "玉衡",
+    "type": "passive",
+    "description": "玉衡护阵更加坚固，护盾提高12%。",
+    "effects": [],
+    "condition": "always",
+    "bonuses": {
+      "shielding": 0.12
+    }
   }
 }

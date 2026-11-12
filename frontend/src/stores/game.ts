@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import {
   api, ApiError, type Catalog, type GameState, type SaveContent, type RunPayload,
   type RunSettleResult, type SaveSlotMeta, type SettleResult, type Production,
+  type TrainingPreview, type WeaponView,
 } from '../api/client'
 
 const PREFERENCES_KEY = 'immortal-idle.preferences.v1'
@@ -44,6 +45,11 @@ export const useGameStore = defineStore('game', () => {
   const disciples = computed(() => state.value?.disciples ?? [])
   const resources = computed(() => state.value?.resources)
   const battleResult = computed(() => state.value?.active_run?.last_battle ?? null)
+  const training = ref<TrainingPreview | null>(null)
+  const trainingFor = ref<string | null>(null)
+  const trainingLoading = ref(false)
+  let trainingRequest = 0
+  const weapons = ref<WeaponView[]>([])
   const run = computed<RunPayload | null>(() => state.value ? {
     revision: revision.value, state: state.value, status: status.value,
     production: production.value, run: state.value.active_run ?? null, battle_result: battleResult.value,
@@ -83,6 +89,38 @@ export const useGameStore = defineStore('game', () => {
     remember()
   }
 
+  async function loadTraining(discipleId: string): Promise<void> {
+    const id = slotId.value
+    if (id === null) return
+    const request = ++trainingRequest
+    trainingFor.value = discipleId
+    trainingLoading.value = true
+    try {
+      const preview = await api.training(id, discipleId)
+      if (request !== trainingRequest || slotId.value !== id || trainingFor.value !== discipleId) return
+      training.value = preview
+    } catch (cause) {
+      if (request !== trainingRequest) return
+      training.value = null
+      error.value = cause instanceof Error ? cause.message : String(cause)
+    } finally {
+      if (request === trainingRequest) trainingLoading.value = false
+    }
+  }
+
+  async function loadWeapons(silent = false): Promise<void> {
+    const id = slotId.value
+    if (id === null) return
+    try {
+      const result = await api.weapons(id)
+      if (slotId.value === id) weapons.value = result.weapons
+    } catch (cause) {
+      if (slotId.value !== id) return
+      weapons.value = []
+      if (!silent) error.value = cause instanceof Error ? cause.message : String(cause)
+    }
+  }
+
   async function guard<T>(label: string, action: () => Promise<T>): Promise<T | null> {
     if (busy.value) return null
     busy.value = true
@@ -102,6 +140,7 @@ export const useGameStore = defineStore('game', () => {
               saves.value = await api.listSaves()
             }
           } else await readCurrent(slotId.value)
+          void loadWeapons(true)
           error.value = cause.status === 409
             ? '进度已有更新，已为你同步。请确认当前状态后继续。'
             : '已重新确认最新进度，请查看结果后继续。'
@@ -128,12 +167,18 @@ export const useGameStore = defineStore('game', () => {
     lastSettle.value = null
     notice.value = null
     party.value = []
+    training.value = null
+    trainingFor.value = null
+    trainingLoading.value = false
+    trainingRequest += 1
+    weapons.value = []
     if (collect) {
       const result = await api.settle(id)
       applySnapshot(result, id)
       lastSettle.value = result
     } else applySnapshot(await api.getSave(id), id)
     cleanParty(Array.isArray(savedParty) ? savedParty : [])
+    await loadWeapons(true)
     remember()
   }
 
@@ -250,19 +295,72 @@ export const useGameStore = defineStore('game', () => {
   async function recruit(templateId: string): Promise<void> {
     await guard('招贤纳士', async () => {
       const id = currentSlot()
-      const owned = state.value?.unlocks.includes(templateId)
+      if (state.value?.unlocks.includes(templateId)) {
+        notice.value = '已拥有该弟子，请在培养界面突破境界。'
+        return
+      }
       const result = await api.recruit(id, templateId, revision.value)
       applySnapshot(result, id)
       const name = catalog.value?.disciples[templateId]?.name ?? '弟子'
-      notice.value = owned ? `${name}已突破至境界 ${result.disciple.realm}。` : `${name}已加入宗门，可以安排值守或编入队伍。`
+      notice.value = `${name}已加入宗门，可以安排值守或编入队伍。`
+      await loadTraining(result.disciple.id)
     })
   }
 
-  async function craft(recipeId: string, target: string | null): Promise<void> {
+  async function craft(recipeId: string): Promise<void> {
     await guard('炼制', async () => {
       const id = currentSlot()
-      applySnapshot(await api.craft(id, recipeId, target, revision.value), id)
-      notice.value = `${catalog.value?.recipes[recipeId]?.name ?? '配方'}炼制完成，效果已生效。`
+      applySnapshot(await api.craft(id, recipeId, revision.value), id)
+      const recipe = catalog.value?.recipes[recipeId]
+      notice.value = recipe?.kind === 'pill'
+        ? `${recipe?.name ?? '丹药'}已炼成 1 颗，存入行囊。`
+        : `${recipe?.name ?? '法器'}炼制完成，宗门永久加成已生效。`
+    })
+  }
+
+  async function usePill(itemId: string, target: string): Promise<void> {
+    await guard('服用丹药', async () => {
+      const id = currentSlot()
+      const result = await api.useItem(id, itemId, target, revision.value)
+      applySnapshot(result, id)
+      const name = catalog.value?.recipes[result.item_id]?.name ?? '丹药'
+      const discipleName = catalog.value?.disciples[result.disciple.template_id]?.name ?? '弟子'
+      notice.value = `${discipleName}已服用${name}。`
+      await loadTraining(target)
+    })
+  }
+
+  async function craftWeapon(weaponId: string): Promise<void> {
+    await guard('锻造专武', async () => {
+      const id = currentSlot()
+      const result = await api.craftWeapon(id, weaponId, revision.value)
+      applySnapshot(result, id)
+      weapons.value = result.weapons
+      const name = result.weapons.find(weapon => weapon.id === weaponId)?.name ?? '专武'
+      notice.value = `${name}锻造完成，已存入行囊。`
+    })
+  }
+
+  async function equipWeapon(weaponId: string, discipleId: string): Promise<void> {
+    await guard('装备专武', async () => {
+      const id = currentSlot()
+      const result = await api.equipWeapon(id, weaponId, discipleId, revision.value)
+      applySnapshot(result, id)
+      weapons.value = result.weapons
+      const name = result.weapons.find(weapon => weapon.id === weaponId)?.name ?? '专武'
+      notice.value = `${name}已装备。`
+      await loadTraining(discipleId)
+    })
+  }
+
+  async function unequipWeapon(discipleId: string): Promise<void> {
+    await guard('卸下专武', async () => {
+      const id = currentSlot()
+      const result = await api.unequipWeapon(id, discipleId, revision.value)
+      applySnapshot(result, id)
+      weapons.value = result.weapons
+      notice.value = '专武已卸下并放回行囊。'
+      await loadTraining(discipleId)
     })
   }
 
@@ -272,6 +370,17 @@ export const useGameStore = defineStore('game', () => {
       const result = await api.upgrade(id, discipleId, revision.value)
       applySnapshot(result, id)
       notice.value = `修炼完成，等级提升至 ${result.disciple.level}。`
+      await loadTraining(discipleId)
+    })
+  }
+
+  async function breakthrough(discipleId: string): Promise<void> {
+    await guard('境界突破', async () => {
+      const id = currentSlot()
+      const result = await api.breakthrough(id, discipleId, revision.value)
+      applySnapshot(result, id)
+      notice.value = `突破完成，境界提升至 ${result.disciple.realm}。`
+      await loadTraining(discipleId)
     })
   }
 
@@ -324,8 +433,11 @@ export const useGameStore = defineStore('game', () => {
   return {
     slotId, revision, state, run, catalog, lastRun, lastSettle, saves, party, busy, ready,
     operation, error, notice, noticeId, disciples, resources, status, production, battleResult,
+    training, trainingFor, trainingLoading, weapons,
     bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, moveParty, choose, pickAffix,
-    settleRun, assignDuty, unassignDuty, recruit, craft, upgrade, loadSaves, switchSave,
+    settleRun, assignDuty, unassignDuty, recruit, craft, usePill, craftWeapon, equipWeapon, unequipWeapon,
+    loadWeapons, upgrade, breakthrough, loadTraining,
+    loadSaves, switchSave,
     createSave, duplicateSave, deleteSave, importSave,
     dismissNotice: () => { notice.value = null },
     clearError: () => { error.value = null },

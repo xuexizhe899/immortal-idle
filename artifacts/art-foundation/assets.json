@@ -1,0 +1,213 @@
+{
+  "status": "awaiting_manual_review",
+  "model": "gpt-image-2.6-sunburst",
+  "authorized_call_limit": 40,
+  "generation_calls": 10,
+  "assets": [
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/bamboo_swordsman.png",
+      "bytes": 132229,
+      "sha256": "51f68c5c9f5a4f3bfa3832aae29a4bb1a468bb61ef23a0f9ab61b43802395741",
+      "width": 270,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/bronze_beast.png",
+      "bytes": 249784,
+      "sha256": "71e6b61c84ed5e74841571ceaa004844360f34fadad0edc1e2656e3ec55333e4",
+      "width": 414,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/cinder_blade.png",
+      "bytes": 150264,
+      "sha256": "3676c932fe625922ef63213d49fda89bde5bbcb3f28bfd2f43d4054f0595e9c5",
+      "width": 279,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/cloud_archer.png",
+      "bytes": 129885,
+      "sha256": "a1b95ee2b32213f51fea19fb382eb481706201a65942a736a990191da4199e5a",
+      "width": 237,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/frost_crane.png",
+      "bytes": 81940,
+      "sha256": "f83c6e73768140d268ea8ba03d10114b4ce869dce40a78aff1cac569b5a81a1d",
+      "width": 249,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/index.json",
+      "bytes": 2253,
+      "sha256": "3e554025f7b66760ef539026ec0c9790e5b373dec780c8f956494b5e07f3ec0f"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/jade_warden.png",
+      "bytes": 137166,
+      "sha256": "e4947b9fa37c65cb38b600e1cece8599b8cbd426bee2e8d7dea6dfb12e97b460",
+      "width": 311,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/lantern_wraith.png",
+      "bytes": 104836,
+      "sha256": "fcc0d62de49ee9850c60ad5689d2f13e2b1dabad0612c6d32de3e4e03e4835ca",
+      "width": 214,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/stone_guard.png",
+      "bytes": 254917,
+      "sha256": "637e664395679fc701172acf0250b7a3956cfb8bd330a5bdd49aced2fd9a36cd",
+      "width": 450,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/tower_master.png",
+      "bytes": 194036,
+      "sha256": "08f41e7c17c3455858c88253455302545b84aed18c7c552c074b965b3d42d254",
+      "width": 278,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/enemies/vine_spirit.png",
+      "bytes": 156441,
+      "sha256": "f4ebba7310bd11d5462019366e8cd4b2657fdc788dc2891633ca5c33761d3f0a",
+      "width": 284,
+      "height": 512,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/guanyu_signature.svg",
+      "bytes": 1507,
+      "sha256": "0fe2e304775a1a167d620b37f7b5239a5a330523ab26eabadb7b95058369176b"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/guanyu_signature_display.svg",
+      "bytes": 3334,
+      "sha256": "11c17ef677039df496635a9e5b51f4e708e07f20a1e88983907525e476bb3984"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/liao_shang_dan.svg",
+      "bytes": 1330,
+      "sha256": "2c18fa9e1ae0526d6e3e05d26c9e79d88fdb419b9d2b20c88d43c0406dcedb48"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/liao_shang_dan_display.svg",
+      "bytes": 2937,
+      "sha256": "8cd4b6029f15b0cd06c54ba0357ca8cbb8221fffb613b26c991cc5063e07b072"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/po_jing_dan.svg",
+      "bytes": 1368,
+      "sha256": "d41bea369d679478aa8f17a3f182f57f385ad0e3506fe1f21599541fd89d7063"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/po_jing_dan_display.svg",
+      "bytes": 2637,
+      "sha256": "e56e2d36b560d9b012b16f87b7628206219297c092a9eb65c537120827c7801d"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/qing_feng_jian.svg",
+      "bytes": 1328,
+      "sha256": "1202fa613e82a9618db51890f9f070259717843a435ba606c7d8404e8d45c3b2"
+    },
+    {
+      "file": "frontend/public/assets/art-foundation/items/qing_feng_jian_display.svg",
+      "bytes": 2411,
+      "sha256": "caecd39a9ec15b48c961eccbe5a0466d77da574bba55205c82a72299ed97143c"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/bamboo_swordsman.png",
+      "bytes": 1646526,
+      "sha256": "9e06c0e0e8a481fdbcbebee697cde33aa339dc271cf40c808b3e6b6d647c134f",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/bronze_beast.png",
+      "bytes": 1553109,
+      "sha256": "780bb5c2fd50849cbc69d0b6ecb4bf4bb3d5383a6827261a5351026d18ca4846",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/cinder_blade.png",
+      "bytes": 1600258,
+      "sha256": "0249203dbeb5625b1d5b916b6c7eb7e2d493d6441555b34c9fb33ae30f90c662",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/cloud_archer.png",
+      "bytes": 1624578,
+      "sha256": "192cf5e6ec6fcd24a5eb3e9e41ee3d81fb29cd0d8707aae6934fd139adf3a4af",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/frost_crane.png",
+      "bytes": 1496770,
+      "sha256": "a04aad695ffd9cfd5b883804d25687849f76fd39dddc8d8fa100bc78e23183c1",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/jade_warden.png",
+      "bytes": 1428779,
+      "sha256": "4d21906b2ccfcc2f87ef98c1e69cc06f26dc9b9a5263a54f6aae6f429f536e80",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/lantern_wraith.png",
+      "bytes": 1318678,
+      "sha256": "340393828bca63ed6f9cb6adff9a87f514e9d1e45b67db48b29eebdf39e2027b",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/stone_guard.png",
+      "bytes": 1784406,
+      "sha256": "dde967b15886a8048037b7b4b604013b8a354119b1d52c1cb2b1443270ac5f8b",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/tower_master.png",
+      "bytes": 1729430,
+      "sha256": "78f6c97af4ee0ed740e4ae4b4e7ac4988f6f840a9f16ff7bdba185d616f86be2",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/masters/art-foundation-enemies/vine_spirit.png",
+      "bytes": 1583033,
+      "sha256": "3b0e94664a79b9be2bcbe23d0a6d895f22ff21974296d957748dae137077afe2",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB"
+    }
+  ]
+}

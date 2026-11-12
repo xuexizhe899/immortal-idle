@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192" shape-rendering="crispEdges" role="img">
+  <title>青锋剑</title>
+  <desc>XX · 本地程序绘制 · 细像素修仙物品美术样稿 · display</desc>
+  <polygon points="55,131 141,30 172,14 163,48 83,146" fill="#243B38"/>
+  <polygon points="61,129 143,34 166,21 159,46 81,139" fill="#8CABA9"/>
+  <polygon points="62,128 143,34 166,21 144,48 72,135" fill="#D3DED3"/>
+  <polygon points="72,135 144,48 165,23 156,46 80,137" fill="#526F70"/>
+  <polygon points="66,127 139,43 141,44 72,127" fill="#FAF5E2"/>
+  <polygon points="141,35 157,27 147,40 144,40" fill="#FAF5E2"/>
+  <polygon points="80,129 151,46 153,45 84,129" fill="#759590"/>
+  <polygon points="107,82 110,80 112,80 109,84" fill="#D3DED3"/>
+  <polygon points="88,106 91,103 94,103 91,107" fill="#526F70"/>
+  <polygon points="44,112 50,108 58,114 87,141 91,149 86,155 78,152 57,131 46,123" fill="#243B38"/>
+  <polygon points="47,114 51,112 59,118 84,142 87,149 84,151 79,148 55,125 48,121" fill="#A77B4D"/>
+  <polygon points="48,114 51,112 60,119 81,140 80,143 55,122 49,119" fill="#D7B979"/>
+  <polygon points="58,125 65,119 77,130 70,137" fill="#715B40"/>
+  <polygon points="61,125 65,122 73,130 70,133" fill="#36584F"/>
+  <polygon points="28,158 55,129 69,142 42,172" fill="#243B38"/>
+  <polygon points="33,158 56,134 64,142 41,166" fill="#713E35"/>
+  <polygon points="33,157 55,134 58,137 36,160" fill="#A35844"/>
+  <polyline points="49,141 58,149" fill="none" stroke="#A77B4D" stroke-width="3" stroke-linejoin="miter"/>
+  <polyline points="44,147 53,155" fill="none" stroke="#A77B4D" stroke-width="3" stroke-linejoin="miter"/>
+  <polyline points="38,153 47,161" fill="none" stroke="#A77B4D" stroke-width="3" stroke-linejoin="miter"/>
+  <polygon points="22,160 28,156 46,171 44,178 38,182 29,179 21,170" fill="#243B38"/>
+  <polygon points="25,162 29,160 42,172 40,176 36,178 30,175 25,169" fill="#A77B4D"/>
+  <polygon points="25,162 29,160 40,170 36,171 27,166" fill="#D7B979"/>
+  <polygon points="30,168 34,167 38,172 35,175" fill="#36584F"/>
+  <polyline points="84,153 91,159 90,171 84,179" fill="none" stroke="#36584F" stroke-width="4" stroke-linejoin="miter"/>
+  <polyline points="85,154 89,160 88,170" fill="none" stroke="#537D70" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="83,174 89,175 90,184 84,182 80,184" fill="#36584F"/>
+</svg>

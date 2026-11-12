@@ -1,0 +1,45 @@
+{
+  "id": "lantern_wraith",
+  "name": "引魂灯使",
+  "base_stats": {
+    "hp": 75,
+    "atk": 13,
+    "def": 4,
+    "spd": 10
+  },
+  "skill": {
+    "id": "lantern_wraith-flame",
+    "name": "引魂灯焰",
+    "type": "active",
+    "description": "引魂灯焰攻击全体敌人，并降低其攻击10%，持续2轮。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "flame",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "all_enemies",
+        "count": 6,
+        "coefficient": 0.5
+      },
+      {
+        "kind": "buff",
+        "target": "all_enemies",
+        "stat": "atk",
+        "value": -0.1,
+        "duration": 2
+      }
+    ]
+  },
+  "passive": {
+    "id": "lantern_wraith-glow",
+    "name": "灯影",
+    "type": "passive",
+    "description": "灯焰摇曳，自身伤害提高8%。",
+    "effects": [],
+    "condition": "always",
+    "bonuses": {
+      "damage": 0.08
+    }
+  }
+}

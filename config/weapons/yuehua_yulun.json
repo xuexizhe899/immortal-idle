@@ -1,0 +1,18 @@
+{
+  "id": "yuehua_yulun",
+  "name": "月华玉轮",
+  "template_id": "change",
+  "inputs": {
+    "ling_cao": 3,
+    "yun_mu": 2,
+    "jiu_ye": 1
+  },
+  "stats": {
+    "healing": 0.1,
+    "spd": 0.06
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

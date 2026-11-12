@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>白羽扇</title>
+  <polygon points="20,8 25,44 17,42 14,26" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <polygon points="27,6 30,45 22,45 20,22" fill="#DCCFB0" stroke="#22342C" stroke-width="2"/>
+  <polygon points="37,6 35,45 29,45 31,20" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <polygon points="44,10 41,44 35,45 38,18" fill="#DCCFB0" stroke="#22342C" stroke-width="2"/>
+  <polygon points="20,8 25,44 21,43 17,24" fill="#CFE8D8"/>
+  <polygon points="37,6 35,45 32,45 33,20" fill="#CFE8D8"/>
+  <rect x="30" y="45" width="4" height="13" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="50" width="6" height="2" fill="#A78132"/>
+  <rect x="27" y="57" width="10" height="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="45" r="3" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+</svg>

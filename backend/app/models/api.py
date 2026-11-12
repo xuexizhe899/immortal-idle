@@ -64,6 +64,43 @@ class UpgradeResponse(GameSnapshot):
     costs: dict[str, float]
 
 
+class TrainingStats(BaseModel):
+    level: int
+    realm: int
+    health: int
+    attack: float
+    defense: float
+    speed: float
+    duty_rates: dict[str, float] = Field(default_factory=dict)
+
+
+class TrainingStep(BaseModel):
+    kind: Literal["level", "realm"]
+    allowed: bool
+    reason: str = ""
+    costs: dict[str, float] = Field(default_factory=dict)
+    target: TrainingStats | None = None
+    requires_level: int | None = None
+    alternative_recipe_id: str | None = None
+
+
+class TrainingPreview(BaseModel):
+    disciple_id: str
+    level: int
+    realm: int
+    level_cap: int
+    max_realm: int
+    legacy_over_cap: bool = False
+    current: TrainingStats
+    next_level: TrainingStep | None = None
+    next_realm: TrainingStep | None = None
+
+
+class BreakthroughResponse(GameSnapshot):
+    disciple: DiscipleState
+    costs: dict[str, float]
+
+
 class SettleGains(BaseModel):
     cultivation: float
     spirit_stone: float
@@ -112,6 +149,48 @@ class RecipeCatalog(BaseModel):
     inputs: dict[str, int]
     special: str | None = None
     effects: list[Effect] = Field(default_factory=list)
+    max_uses: int | None = None
+
+
+class WeaponCatalog(BaseModel):
+    name: str
+    template_id: str
+    stats: dict[str, float]
+    inputs: dict[str, int]
+    unlock_floor: int
+    unlock_level: int
+
+
+class WeaponView(BaseModel):
+    """专武的静态定义与当前存档归属状态；原因由服务端规则生成。"""
+
+    id: str
+    name: str
+    template_id: str
+    template_name: str
+    stats: dict[str, float]
+    inputs: dict[str, int]
+    unlock_floor: int
+    unlock_level: int
+    owned: bool
+    in_inventory: bool
+    equipped_by: str | None = None
+    reason: str = ""
+    craftable: bool = False
+
+
+class WeaponListResponse(BaseModel):
+    revision: int
+    weapons: list[WeaponView]
+
+
+class WeaponCommandResponse(GameSnapshot):
+    weapons: list[WeaponView]
+
+
+class UseItemResponse(GameSnapshot):
+    disciple: DiscipleState
+    item_id: str
 
 
 class BondCatalog(BaseModel):
@@ -176,13 +255,13 @@ class RulesCatalog(BaseModel):
     realm_growth: float
     upgrade_cultivation_base: float
     upgrade_spirit_stone_base: float
-    craft_applies_immediately: bool = True
 
 
 class CatalogResponse(BaseModel):
     disciples: dict[str, DiscipleCatalog]
     affixes: dict[str, AffixCatalog]
     recipes: dict[str, RecipeCatalog]
+    weapons: dict[str, WeaponCatalog]
     materials: dict[str, str]
     bonds: dict[str, BondCatalog]
     skills: dict[str, SkillCatalog]

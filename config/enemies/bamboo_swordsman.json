@@ -1,0 +1,38 @@
+{
+  "id": "bamboo_swordsman",
+  "name": "竹隐剑客",
+  "base_stats": {
+    "hp": 65,
+    "atk": 13,
+    "def": 4,
+    "spd": 13
+  },
+  "skill": {
+    "id": "bamboo_swordsman-dual",
+    "name": "竹影双刺",
+    "type": "active",
+    "description": "竹影双刺攻击两名气血比例最低的敌人。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "wind",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "enemy_lowest",
+        "count": 2,
+        "coefficient": 0.9
+      }
+    ]
+  },
+  "passive": {
+    "id": "bamboo_swordsman-first",
+    "name": "先声",
+    "type": "passive",
+    "description": "首轮出手时伤害提高10%。",
+    "effects": [],
+    "condition": "first_round",
+    "bonuses": {
+      "damage": 0.1
+    }
+  }
+}

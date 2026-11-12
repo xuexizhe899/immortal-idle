@@ -1,0 +1,19 @@
+{
+  "id": "qingnang_yaoxiang",
+  "name": "青囊药箱",
+  "template_id": "huatuo",
+  "inputs": {
+    "ling_cao": 4,
+    "jiu_ye": 1,
+    "yun_mu": 1
+  },
+  "stats": {
+    "healing": 0.12,
+    "hp": 0.05,
+    "def": 0.05
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

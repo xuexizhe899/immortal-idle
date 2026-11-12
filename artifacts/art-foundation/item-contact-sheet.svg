@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 944 320" width="944" height="320"><rect width="944" height="320" fill="#e8e5d8" /><text x="24" y="32" fill="#273e36" font-family="Microsoft YaHei, sans-serif" font-size="20">丹药与武器 · 代表试稿（待人工审阅）</text><rect x="24" y="52" width="206" height="242" fill="#f8f3e6" stroke="#c6bda3" /><g transform="translate(43 65) scale(.875)" shape-rendering="crispEdges"><polygon points="82,34 110,34 110,46 119,54 126,66 128,79 124,89 113,99 122,107 133,118 140,134 141,151 136,165 126,175 112,179 76,179 62,174 52,164 47,151 48,136 54,121 65,109 78,100 67,90 62,80 63,67 69,54 82,45" fill="#243B38" />
+  <polygon points="83,38 107,38 107,48 116,57 122,68 123,79 119,87 108,97 106,102 118,111 129,122 135,136 136,150 131,162 122,170 109,174 77,174 65,170 57,161 52,149 53,137 59,124 68,114 82,104 83,98 72,88 67,79 68,68 74,57 83,48" fill="#EDE8D2" />
+  <polygon points="108,48 118,58 123,70 123,79 116,91 105,99 107,106 121,117 130,131 133,145 131,156 123,166 111,171 102,171 111,162 115,149 114,136 108,124 96,113 94,102 100,91 107,83 110,72 107,62" fill="#C5D0BD" />
+  <polygon points="122,123 132,137 133,148 128,161 118,169 106,171 116,158 120,145 117,131" fill="#8FA99B" />
+  <polygon points="78,56 85,51 91,51 87,62 83,74 84,83 78,86 73,79 73,70" fill="#FAF5E2" />
+  <polygon points="63,129 73,118 82,115 84,120 76,131 71,146 71,157 64,157 59,146" fill="#FAF5E2" />
+  <polygon points="73,166 85,170 101,170 101,173 78,173 68,169" fill="#C5D0BD" />
+  <rect x="77" y="96" width="34" height="6" fill="#713E35" />
+  <rect x="75" y="94" width="37" height="5" fill="#A35844" />
+  <rect x="78" y="95" width="22" height="2" fill="#D29268" />
+  <polygon points="103,98 111,101 117,114 114,122 110,117 109,109" fill="#713E35" />
+  <polygon points="100,99 106,102 108,114 104,129 100,125 104,113" fill="#A35844" />
+  <polygon points="93,99 105,99 108,108 104,118 95,123 86,115 87,105" fill="#715B40" />
+  <polygon points="94,101 102,101 105,108 101,115 95,118 90,113 91,106" fill="#D7B979" />
+  <rect x="95" y="106" width="5" height="2" fill="#A77B4D" />
+  <rect x="94" y="110" width="7" height="2" fill="#A77B4D" />
+  <polygon points="80,36 81,25 86,21 105,21 112,25 111,36" fill="#715B40" stroke="#243B38" stroke-width="2" stroke-linejoin="miter" />
+  <rect x="84" y="26" width="23" height="6" fill="#A77B4D" />
+  <rect x="86" y="23" width="18" height="3" fill="#D7B979" />
+  <rect x="87" y="33" width="17" height="3" fill="#713E35" />
+  <polygon points="92,23 83,18 78,11 80,6 87,9 92,16 97,21" fill="#36584F" />
+  <polygon points="96,22 98,11 106,5 115,5 112,13 104,19" fill="#537D70" />
+  <polygon points="99,20 104,12 110,9 105,16" fill="#94B8A0" />
+  <polyline points="81,10 86,14 91,20" fill="none" stroke="#537D70" stroke-width="2" stroke-linejoin="miter" />
+  <polygon points="77,141 80,134 85,132 89,136 87,141 82,145" fill="#C5D0BD" />
+  <polyline points="80,138 83,137 86,138" fill="none" stroke="#8FA99B" stroke-width="2" stroke-linejoin="miter" />
+  <rect x="111" y="71" width="3" height="8" fill="#FAF5E2" />
+  <rect x="58" y="140" width="2" height="7" fill="#EDE8D2" />
+</g><text x="38" y="267" fill="#426854" font-family="Microsoft YaHei, sans-serif" font-size="14">疗伤丹</text><rect x="254" y="52" width="206" height="242" fill="#f8f3e6" stroke="#c6bda3" /><g transform="translate(273 65) scale(.875)" shape-rendering="crispEdges"><polygon points="31,113 52,96 139,96 162,113 162,151 142,171 53,171 31,151" fill="#243B38" />
+  <polygon points="35,115 55,101 137,101 158,115 139,132 55,132" fill="#A77B4D" />
+  <polygon points="43,115 58,106 133,106 150,115 135,126 58,126" fill="#D7B979" />
+  <polygon points="49,115 62,110 130,110 143,115 131,121 62,121" fill="#36584F" />
+  <polygon points="35,123 54,137 139,137 158,123 158,149 140,166 55,166 35,149" fill="#715B40" />
+  <polygon points="40,131 57,143 135,143 153,131 153,148 137,161 57,161 40,148" fill="#36584F" />
+  <polygon points="44,137 58,147 133,147 146,139 146,147 133,156 58,156 44,146" fill="#537D70" />
+  <rect x="61" y="151" width="68" height="3" fill="#A77B4D" />
+  <polygon points="60,35 76,24 104,21 125,32 137,48 140,72 132,94 115,111 87,118 64,110 48,92 44,69 48,49" fill="#243B38" />
+  <polygon points="62,39 77,28 103,25 122,35 133,51 135,72 128,92 112,107 88,113 67,105 53,89 49,69 53,51" fill="#713E35" />
+  <polygon points="62,40 78,29 101,27 121,37 130,53 130,70 123,86 109,96 88,99 68,94 55,81 52,64 55,51" fill="#A35844" />
+  <polygon points="63,43 79,33 98,31 105,35 89,39 76,44 65,55 58,67 56,59" fill="#D29268" />
+  <polygon points="61,48 67,44 72,45 67,52 62,55 59,54" fill="#EDE8D2" />
+  <polygon points="118,45 128,56 129,71 120,87 108,94 110,87 119,75 121,60" fill="#8B493C" />
+  <polyline points="71,92 72,80 88,69 88,54 99,45 112,49 113,60 104,66 94,66 83,78 83,91 94,101" fill="none" stroke="#715B40" stroke-width="5" stroke-linejoin="miter" />
+  <polyline points="70,89 70,78 85,67 85,53 97,43 109,47 110,58 102,63 93,63 80,76 80,89 91,99" fill="none" stroke="#D7B979" stroke-width="3" stroke-linejoin="miter" />
+  <polyline points="93,64 102,73 102,83 95,89 88,86" fill="none" stroke="#D7B979" stroke-width="2" stroke-linejoin="miter" />
+  <rect x="89" y="143" width="17" height="24" fill="#243B38" />
+  <rect x="92" y="143" width="11" height="21" fill="#A77B4D" />
+  <rect x="93" y="144" width="9" height="4" fill="#D7B979" />
+  <rect x="96" y="151" width="3" height="6" fill="#715B40" />
+  <polyline points="49,144 56,149 56,156" fill="none" stroke="#D7B979" stroke-width="2" stroke-linejoin="miter" />
+  <polyline points="143,141 136,147 136,154" fill="none" stroke="#A77B4D" stroke-width="2" stroke-linejoin="miter" />
+  <rect x="62" y="139" width="13" height="2" fill="#D7B979" />
+  <rect x="118" y="139" width="11" height="2" fill="#A77B4D" />
+</g><text x="268" y="267" fill="#426854" font-family="Microsoft YaHei, sans-serif" font-size="14">破境丹</text><rect x="484" y="52" width="206" height="242" fill="#f8f3e6" stroke="#c6bda3" /><g transform="translate(503 65) scale(.875)" shape-rendering="crispEdges"><polygon points="55,131 141,30 172,14 163,48 83,146" fill="#243B38" />
+  <polygon points="61,129 143,34 166,21 159,46 81,139" fill="#8CABA9" />
+  <polygon points="62,128 143,34 166,21 144,48 72,135" fill="#D3DED3" />
+  <polygon points="72,135 144,48 165,23 156,46 80,137" fill="#526F70" />
+  <polygon points="66,127 139,43 141,44 72,127" fill="#FAF5E2" />
+  <polygon points="141,35 157,27 147,40 144,40" fill="#FAF5E2" />
+  <polygon points="80,129 151,46 153,45 84,129" fill="#759590" />
+  <polygon points="107,82 110,80 112,80 109,84" fill="#D3DED3" />
+  <polygon points="88,106 91,103 94,103 91,107" fill="#526F70" />
+  <polygon points="44,112 50,108 58,114 87,141 91,149 86,155 78,152 57,131 46,123" fill="#243B38" />
+  <polygon points="47,114 51,112 59,118 84,142 87,149 84,151 79,148 55,125 48,121" fill="#A77B4D" />
+  <polygon points="48,114 51,112 60,119 81,140 80,143 55,122 49,119" fill="#D7B979" />
+  <polygon points="58,125 65,119 77,130 70,137" fill="#715B40" />
+  <polygon points="61,125 65,122 73,130 70,133" fill="#36584F" />
+  <polygon points="28,158 55,129 69,142 42,172" fill="#243B38" />
+  <polygon points="33,158 56,134 64,142 41,166" fill="#713E35" />
+  <polygon points="33,157 55,134 58,137 36,160" fill="#A35844" />
+  <polyline points="49,141 58,149" fill="none" stroke="#A77B4D" stroke-width="3" stroke-linejoin="miter" />
+  <polyline points="44,147 53,155" fill="none" stroke="#A77B4D" stroke-width="3" stroke-linejoin="miter" />
+  <polyline points="38,153 47,161" fill="none" stroke="#A77B4D" stroke-width="3" stroke-linejoin="miter" />
+  <polygon points="22,160 28,156 46,171 44,178 38,182 29,179 21,170" fill="#243B38" />
+  <polygon points="25,162 29,160 42,172 40,176 36,178 30,175 25,169" fill="#A77B4D" />
+  <polygon points="25,162 29,160 40,170 36,171 27,166" fill="#D7B979" />
+  <polygon points="30,168 34,167 38,172 35,175" fill="#36584F" />
+  <polyline points="84,153 91,159 90,171 84,179" fill="none" stroke="#36584F" stroke-width="4" stroke-linejoin="miter" />
+  <polyline points="85,154 89,160 88,170" fill="none" stroke="#537D70" stroke-width="2" stroke-linejoin="miter" />
+  <polygon points="83,174 89,175 90,184 84,182 80,184" fill="#36584F" />
+</g><text x="498" y="267" fill="#426854" font-family="Microsoft YaHei, sans-serif" font-size="14">青锋剑</text><rect x="714" y="52" width="206" height="242" fill="#f8f3e6" stroke="#c6bda3" /><g transform="translate(733 65) scale(.875)" shape-rendering="crispEdges"><polygon points="25,169 111,64 122,73 35,180" fill="#243B38" />
+  <polygon points="29,169 112,68 117,73 34,174" fill="#36584F" />
+  <polygon points="30,168 110,71 112,73 33,170" fill="#94B8A0" />
+  <polygon points="33,171 114,73 117,74 36,174" fill="#172D2C" />
+  <polygon points="103,79 107,56 121,37 140,24 159,17 180,17 172,29 164,37 162,48 168,62 181,75 174,85 159,94 139,99 121,97 111,90" fill="#243B38" />
+  <polygon points="108,78 112,58 124,40 142,28 160,22 173,22 166,31 159,37 157,49 163,65 174,75 170,81 157,89 139,94 123,92 115,87" fill="#526F70" />
+  <polygon points="112,73 116,57 127,42 144,31 160,26 166,26 156,37 153,49 157,63 168,75 163,81 151,86 138,88 126,85" fill="#8CABA9" />
+  <polygon points="116,65 121,52 131,41 146,32 160,28 151,37 147,48 149,63 159,76 150,81 137,81 127,76" fill="#D3DED3" />
+  <polygon points="123,51 133,41 148,32 159,29 149,37 136,42 128,50" fill="#FAF5E2" />
+  <polygon points="165,66 175,75 169,82 157,88 140,93 127,90 127,87 141,89 156,84 167,78" fill="#D3DED3" />
+  <polygon points="145,58 148,59 151,66 149,69 145,65" fill="#AAC3B8" />
+  <polygon points="112,72 118,61 127,57 133,49 141,47 147,52 147,58 140,63 140,69 147,74 144,81 136,84 130,78 123,79 118,87 109,87 105,81" fill="#715B40" stroke="#243B38" stroke-width="2" stroke-linejoin="miter" />
+  <polygon points="111,74 120,65 128,63 135,54 141,52 144,54 143,57 136,60 134,65 137,71 142,75 140,79 136,80 131,74 122,75 115,83 110,83 109,80" fill="#A77B4D" />
+  <polygon points="113,74 120,67 129,65 136,56 140,54 142,55 135,61 131,68 122,69 115,77 111,80" fill="#D7B979" />
+  <polygon points="132,65 138,62 142,64 142,68 138,72 133,70" fill="#36584F" />
+  <rect x="136" y="64" width="3" height="3" fill="#D7B979" />
+  <polygon points="113,80 118,77 123,79 120,84 115,86" fill="#D7B979" />
+  <polyline points="118,72 121,70 125,71" fill="none" stroke="#243B38" stroke-width="2" stroke-linejoin="miter" />
+  <polyline points="126,65 130,64 133,65" fill="none" stroke="#715B40" stroke-width="2" stroke-linejoin="miter" />
+  <polygon points="89,100 96,92 106,100 99,109" fill="#243B38" />
+  <polygon points="92,100 97,95 103,100 98,105" fill="#A77B4D" />
+  <polyline points="94,99 98,97 101,100" fill="none" stroke="#D7B979" stroke-width="2" stroke-linejoin="miter" />
+  <polygon points="72,120 78,113 87,120 81,128" fill="#243B38" />
+  <polygon points="75,120 79,116 84,120 80,125" fill="#715B40" />
+  <polygon points="91,103 97,106 99,119 93,133 88,130 93,116" fill="#713E35" />
+  <polygon points="93,105 96,107 96,117 90,128 90,121 94,114" fill="#A35844" />
+  <polygon points="23,169 28,165 39,174 38,182 31,187 24,181 21,175" fill="#243B38" />
+  <polygon points="26,170 29,169 36,175 35,180 31,183 26,179 25,175" fill="#A77B4D" />
+  <polygon points="26,170 29,169 35,174 32,176 27,174" fill="#D7B979" />
+  <rect x="29" y="177" width="3" height="3" fill="#715B40" />
+  <polyline points="54,143 60,148" fill="none" stroke="#715B40" stroke-width="2" stroke-linejoin="miter" />
+  <polyline points="58,138 64,143" fill="none" stroke="#715B40" stroke-width="2" stroke-linejoin="miter" />
+</g><text x="728" y="267" fill="#426854" font-family="Microsoft YaHei, sans-serif" font-size="14">关羽专武 · 外观概念</text></svg>

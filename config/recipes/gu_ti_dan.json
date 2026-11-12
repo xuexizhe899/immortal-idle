@@ -6,6 +6,7 @@
     "han_tie": 2,
     "yun_mu": 1
   },
+  "max_uses": 3,
   "effects": [
     {
       "stat": "def",

@@ -1,0 +1,19 @@
+{
+  "id": "suxin_yusan",
+  "name": "素心玉伞",
+  "template_id": "baisuzhen",
+  "inputs": {
+    "yun_mu": 3,
+    "han_tie": 2,
+    "jiao_gu": 1
+  },
+  "stats": {
+    "def": 0.09,
+    "hp": 0.07,
+    "shielding": 0.06
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

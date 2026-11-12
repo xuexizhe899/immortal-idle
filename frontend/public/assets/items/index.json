@@ -107,6 +107,102 @@
       "id": "xuan_tie_jia",
       "kind": "artifact",
       "name": "玄铁甲"
+    },
+    {
+      "file": "baiyu_shan.svg",
+      "id": "baiyu_shan",
+      "kind": "weapon",
+      "name": "白羽扇"
+    },
+    {
+      "file": "chibi_jiaowei_qin.svg",
+      "id": "chibi_jiaowei_qin",
+      "kind": "weapon",
+      "name": "赤壁焦尾琴"
+    },
+    {
+      "file": "huntian_yi.svg",
+      "id": "huntian_yi",
+      "kind": "weapon",
+      "name": "浑天仪"
+    },
+    {
+      "file": "huo_jian_qiang.svg",
+      "id": "huo_jian_qiang",
+      "kind": "weapon",
+      "name": "火尖枪"
+    },
+    {
+      "file": "liquan_shenqiang.svg",
+      "id": "liquan_shenqiang",
+      "kind": "weapon",
+      "name": "沥泉神枪"
+    },
+    {
+      "file": "longdan_liangyinqiang.svg",
+      "id": "longdan_liangyinqiang",
+      "kind": "weapon",
+      "name": "龙胆亮银枪"
+    },
+    {
+      "file": "qinglian_jian.svg",
+      "id": "qinglian_jian",
+      "kind": "weapon",
+      "name": "青莲剑"
+    },
+    {
+      "file": "qinglong_yanyuedao.svg",
+      "id": "qinglong_yanyuedao",
+      "kind": "weapon",
+      "name": "青龙偃月刀"
+    },
+    {
+      "file": "qingnang_yaoxiang.svg",
+      "id": "qingnang_yaoxiang",
+      "kind": "weapon",
+      "name": "青囊药箱"
+    },
+    {
+      "file": "sanjian_liangrendao.svg",
+      "id": "sanjian_liangrendao",
+      "kind": "weapon",
+      "name": "三尖两刃刀"
+    },
+    {
+      "file": "sheri_shengong.svg",
+      "id": "sheri_shengong",
+      "kind": "weapon",
+      "name": "射日神弓"
+    },
+    {
+      "file": "shisheng_shujuan.svg",
+      "id": "shisheng_shujuan",
+      "kind": "weapon",
+      "name": "诗圣书卷"
+    },
+    {
+      "file": "suxin_yusan.svg",
+      "id": "suxin_yusan",
+      "kind": "weapon",
+      "name": "素心玉伞"
+    },
+    {
+      "file": "xianshi_lingyu.svg",
+      "id": "xianshi_lingyu",
+      "kind": "weapon",
+      "name": "衔石灵羽"
+    },
+    {
+      "file": "yuehua_yulun.svg",
+      "id": "yuehua_yulun",
+      "kind": "weapon",
+      "name": "月华玉轮"
+    },
+    {
+      "file": "zhangba_shemao.svg",
+      "id": "zhangba_shemao",
+      "kind": "weapon",
+      "name": "丈八蛇矛"
     }
   ]
 }

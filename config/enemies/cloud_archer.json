@@ -23,5 +23,16 @@
         "coefficient": 1.6
       }
     ]
+  },
+  "passive": {
+    "id": "cloud_archer-finish",
+    "name": "乘势",
+    "type": "passive",
+    "description": "对已被降低防御的目标伤害提高10%。",
+    "effects": [],
+    "condition": "target_weakened",
+    "bonuses": {
+      "damage": 0.1
+    }
   }
 }

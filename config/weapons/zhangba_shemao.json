@@ -1,0 +1,19 @@
+{
+  "id": "zhangba_shemao",
+  "name": "丈八蛇矛",
+  "template_id": "zhangfei",
+  "inputs": {
+    "han_tie": 3,
+    "jiao_gu": 2,
+    "yun_mu": 2
+  },
+  "stats": {
+    "hp": 0.08,
+    "def": 0.1,
+    "shielding": 0.08
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

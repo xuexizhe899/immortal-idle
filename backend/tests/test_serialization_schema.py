@@ -15,13 +15,14 @@ def test_serialization_requires_defaults_without_breaking_legacy_input():
     active_run = output_schema["$defs"]["ActiveRun"]
     assert {"party", "nodes", "choices", "affixes", "last_battle"} <= set(active_run["required"])
     disciple = output_schema["$defs"]["DiscipleState"]
-    assert {"level", "realm", "injury_stacks", "stats"} <= set(disciple["required"])
+    assert {"level", "realm", "injury_stacks", "stats", "bonuses", "pill_uses"} <= set(disciple["required"])
 
 
 def test_openapi_uses_output_state_and_complete_nested_catalog():
     schemas = app.openapi()["components"]["schemas"]
     state_ref = schemas["GameSnapshot"]["properties"]["state"]["$ref"]
     output_state = schemas[state_ref.rsplit("/", 1)[-1]]
-    assert {"disciples", "duty_slots", "unlocks", "resources"} <= set(output_state["required"])
-    assert {"effects", "special"} <= set(schemas["RecipeCatalog"]["required"])
+    assert {"disciples", "duty_slots", "unlocks", "resources", "crafted_recipes"} <= set(output_state["required"])
+    assert {"effects", "special", "max_uses"} <= set(schemas["RecipeCatalog"]["required"])
+    assert {"weapons", "recipes"} <= set(schemas["CatalogResponse"]["required"])
     assert "injury_recovery_multiplier" in schemas["ProductionCatalog"]["required"]

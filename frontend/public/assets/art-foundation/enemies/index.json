@@ -1,0 +1,77 @@
+{
+  "style_version": "0.3.0",
+  "review_status": "awaiting_manual_review",
+  "purpose": "Enemy artwork registry only; art_reserve has no combat definition or encounter assignment.",
+  "items": [
+    {
+      "id": "stone_guard",
+      "name": "石甲灵卫",
+      "file": "stone_guard.png",
+      "status": "existing_enemy",
+      "visual_anchors": "岩甲、方锤、宽肩厚腿"
+    },
+    {
+      "id": "cloud_archer",
+      "name": "流云弓卫",
+      "file": "cloud_archer.png",
+      "status": "existing_enemy",
+      "visual_anchors": "轻装、长弓、箭袋"
+    },
+    {
+      "id": "jade_warden",
+      "name": "玉衡守将",
+      "file": "jade_warden.png",
+      "status": "existing_enemy",
+      "visual_anchors": "玉甲、大盾、长戟"
+    },
+    {
+      "id": "cinder_blade",
+      "name": "赤炉刀卫",
+      "file": "cinder_blade.png",
+      "status": "art_reserve",
+      "visual_anchors": "炭黑暗赤锻甲、宽刃单刀"
+    },
+    {
+      "id": "bamboo_swordsman",
+      "name": "竹隐剑客",
+      "file": "bamboo_swordsman.png",
+      "status": "art_reserve",
+      "visual_anchors": "竹笠、修长浅苔绿袍、直剑"
+    },
+    {
+      "id": "frost_crane",
+      "name": "霜羽鹤灵",
+      "file": "frost_crane.png",
+      "status": "art_reserve",
+      "visual_anchors": "白羽蓝灰、折翼长颈鹤"
+    },
+    {
+      "id": "vine_spirit",
+      "name": "青藤木魈",
+      "file": "vine_spirit.png",
+      "status": "art_reserve",
+      "visual_anchors": "枝角、木纹树躯、藤臂根腿"
+    },
+    {
+      "id": "bronze_beast",
+      "name": "铜角镇兽",
+      "file": "bronze_beast.png",
+      "status": "art_reserve",
+      "visual_anchors": "青铜曲角、方口、四足镇兽"
+    },
+    {
+      "id": "lantern_wraith",
+      "name": "引魂灯使",
+      "file": "lantern_wraith.png",
+      "status": "art_reserve",
+      "visual_anchors": "瘦高罩袍、窄面具、暖铜提灯"
+    },
+    {
+      "id": "tower_master",
+      "name": "问道真灵",
+      "file": "tower_master.png",
+      "status": "existing_enemy",
+      "visual_anchors": "高冠、玉面礼甲、断玉环、仪杖"
+    }
+  ]
+}

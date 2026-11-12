@@ -6,6 +6,7 @@
     "ling_cao": 3,
     "jiao_gu": 1
   },
+  "max_uses": 3,
   "effects": [
     {
       "stat": "atk",

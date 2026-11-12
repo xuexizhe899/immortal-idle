@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>三尖两刃刀</title>
+  <rect x="30" y="24" width="4" height="34" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,2 36,12 32,20 28,12" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <polygon points="23,7 28,14 22,22 18,14" fill="#66797E" stroke="#22342C" stroke-width="2"/>
+  <polygon points="41,7 46,14 40,22 36,14" fill="#66797E" stroke="#22342C" stroke-width="2"/>
+  <polygon points="36,15 44,22 36,29 34,22" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <polygon points="28,15 20,22 28,29 30,22" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <rect x="21" y="29" width="22" height="4" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <circle cx="20" cy="31" r="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <circle cx="44" cy="31" r="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="44" width="6" height="2" fill="#A78132"/>
+  <rect x="27" y="58" width="10" height="3" fill="#A78132" stroke="#22342C" stroke-width="2"/>
+</svg>

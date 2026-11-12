@@ -80,6 +80,14 @@ def targets_for(action: BattleAction, actor: Unit, units: list[Unit]) -> list[Un
     return candidates[:action.count]
 
 
+def total_bonus(unit: Unit, passive_bonus: dict[str, float]) -> dict[str, float]:
+    """专武等常驻乘区与被动技能加成相加，不互相覆盖。"""
+    total = dict(unit.definition.bonuses)
+    for stat, value in passive_bonus.items():
+        total[stat] = total.get(stat, 0.0) + value
+    return total
+
+
 def has_effect(action: BattleAction, actor: Unit, target: Unit, source: str, bonus: dict[str, float]) -> bool:
     if action.kind != "shield":
         return True
@@ -156,7 +164,7 @@ def simulate_battle(allies: list[BattleUnit], enemies: list[BattleUnit], member_
             passive = actor.definition.passive
             use_active = actor.turns >= actor.next_active and any(
                 has_effect(action, actor, target, f"{actor.definition.id}:{active.id}:{index}",
-                           passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {})
+                           total_bonus(actor, passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {}))
                 for index, action in enumerate(active.actions) for target in targets_for(action, actor, units)
             )
             skill_id = active.id if use_active else "basic_attack"
@@ -187,7 +195,7 @@ def simulate_battle(allies: list[BattleUnit], enemies: list[BattleUnit], member_
                 for target in targets:
                     if target.hp <= 0:
                         continue
-                    bonus = passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {}
+                    bonus = total_bonus(actor, passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {})
                     effects.append(apply_effect(action, actor, target, round_no, f"{actor.definition.id}:{origin}:{index}", bonus))
             events.append(BattleEvent(
                 sequence=len(events) + 1, round=round_no, actor_id=actor.definition.id,

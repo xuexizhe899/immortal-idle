@@ -1,0 +1,19 @@
+{
+  "id": "huntian_yi",
+  "name": "浑天仪",
+  "template_id": "zhangheng",
+  "inputs": {
+    "yun_mu": 3,
+    "han_tie": 2,
+    "xuan_jing": 1
+  },
+  "stats": {
+    "def": 0.07,
+    "hp": 0.07,
+    "shielding": 0.05
+  },
+  "unlock": {
+    "floor": 8,
+    "level": 3
+  }
+}

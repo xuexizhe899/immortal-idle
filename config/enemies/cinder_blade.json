@@ -1,0 +1,44 @@
+{
+  "id": "cinder_blade",
+  "name": "赤炉刀卫",
+  "base_stats": {
+    "hp": 100,
+    "atk": 15,
+    "def": 7,
+    "spd": 9
+  },
+  "skill": {
+    "id": "cinder_blade-cleave",
+    "name": "裂甲斩",
+    "type": "active",
+    "description": "裂甲斩攻击敌方首位，并降低其防御10%，持续2轮。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "slash",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "enemy_first",
+        "coefficient": 1.3
+      },
+      {
+        "kind": "buff",
+        "target": "enemy_first",
+        "stat": "def",
+        "value": -0.1,
+        "duration": 2
+      }
+    ]
+  },
+  "passive": {
+    "id": "cinder_blade-edge",
+    "name": "赤炉锋",
+    "type": "passive",
+    "description": "对已被降低防御的目标伤害提高15%。",
+    "effects": [],
+    "condition": "target_weakened",
+    "bonuses": {
+      "damage": 0.15
+    }
+  }
+}

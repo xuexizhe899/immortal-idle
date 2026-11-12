@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>青莲剑</title>
+  <polygon points="32,3 38,16 36,40 28,40 26,16" fill="#8CC4A2" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,7 35,17 34,38 32,38 31,17" fill="#CFE8D8"/>
+  <polygon points="32,40 25,44 21,50 27,49 32,45 37,49 43,50 39,44" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="46" r="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="30" y="50" width="4" height="8" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="53" width="6" height="2" fill="#A78132"/>
+  <rect x="26" y="57" width="12" height="3" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="38" y="49" width="2" height="8" fill="#A9473B"/>
+  <rect x="37" y="56" width="4" height="2" fill="#C9A24B"/>
+</svg>

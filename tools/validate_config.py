@@ -39,6 +39,7 @@ ACTION_KINDS = {"damage", "heal", "shield", "buff"}
 ACTION_TARGETS = {"enemy_first", "enemy_lowest", "all_enemies", "ally_lowest", "all_allies", "self", "ally_template"}
 CONDITIONS = {"always", "shielded", "target_weakened", "first_round"}
 PASSIVE_STATS = COMBAT_STATS | {"damage", "healing", "shielding"}
+WEAPON_STATS = COMBAT_STATS | {"damage", "healing", "shielding"}
 
 
 def is_number(value: object) -> bool:
@@ -307,6 +308,7 @@ def validate(
     bonds = load_collection(config_dir, "bonds", errors)
     materials = load_collection(config_dir, "materials", errors)
     recipes = load_collection(config_dir, "recipes", errors)
+    weapons = load_collection(config_dir, "weapons", errors)
     affixes = load_collection(config_dir, "affixes", errors)
     enemies = load_collection(config_dir, "enemies", errors)
     events = load_collection(config_dir, "events", errors)
@@ -469,6 +471,66 @@ def validate(
                 if not isinstance(count, int) or isinstance(count, bool) or count < 1:
                     errors.append(f"{where}: inputs['{material_id}'] 必须是正整数")
         check_effects(recipe, where, errors)
+        max_uses = recipe.get("max_uses")
+        if max_uses is not None:
+            check_integer(max_uses, 1, 10, f"{where}.max_uses", errors)
+            if recipe.get("kind") != "pill":
+                errors.append(f"{where}: 只有丹药可以设置 max_uses")
+        special = recipe.get("special")
+        if special is not None:
+            if recipe.get("kind") != "pill":
+                errors.append(f"{where}: 只有丹药可以使用 special")
+            elif special not in {"heal", "realm"}:
+                errors.append(f"{where}: 未实现的丹药效果 '{special}'")
+            if recipe.get("effects"):
+                errors.append(f"{where}: 特殊丹药不能同时配置 effects")
+        elif recipe.get("kind") == "pill" and not recipe.get("effects"):
+            errors.append(f"{where}: 丹药必须配置 effects 或 special")
+
+    weapon_templates: dict[str, str] = {}
+    for weapon_id, weapon in weapons.items():
+        where = f"config/weapons/{weapon_id}.json"
+        if not isinstance(weapon.get("name"), str):
+            errors.append(f"{where}: 缺少字符串字段 'name'")
+        template_id = weapon.get("template_id")
+        if not isinstance(template_id, str) or template_id not in disciples:
+            errors.append(f"{where}: template_id '{template_id}' 不存在于 config/disciples")
+        elif template_id in weapon_templates:
+            errors.append(
+                f"{where}: 弟子 '{template_id}' 已拥有专武 "
+                f"'{weapon_templates[template_id]}'，每名弟子只能有一把"
+            )
+        else:
+            weapon_templates[template_id] = weapon_id
+
+        stats = weapon.get("stats")
+        if not isinstance(stats, dict) or not stats:
+            errors.append(f"{where}: stats 必须是非空对象")
+        else:
+            for stat, value in stats.items():
+                if stat not in WEAPON_STATS:
+                    errors.append(f"{where}: stats 存在未实现属性 '{stat}'")
+                if not is_finite_number(value) or not 0 < value <= 1:
+                    errors.append(f"{where}: stats.{stat} 必须是 0..1 的有限正数")
+
+        inputs = weapon.get("inputs")
+        if not isinstance(inputs, dict) or not inputs:
+            errors.append(f"{where}: inputs 必须是非空对象")
+        else:
+            for material_id, count in inputs.items():
+                if material_id not in materials:
+                    errors.append(f"{where}: 材料 '{material_id}' 不存在于 config/materials")
+                if not isinstance(count, int) or isinstance(count, bool) or count < 1:
+                    errors.append(f"{where}: inputs['{material_id}'] 必须是正整数")
+
+        unlock = weapon.get("unlock")
+        if not isinstance(unlock, dict):
+            errors.append(f"{where}: unlock 必须是对象")
+        else:
+            for key in ("floor", "level"):
+                value = unlock.get(key)
+                if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+                    errors.append(f"{where}: unlock.{key} 必须是正整数")
 
     for affix_id, affix in affixes.items():
         where = f"config/affixes/{affix_id}.json"
@@ -494,6 +556,34 @@ def validate(
                         for enemy_id in roster:
                             if not isinstance(enemy_id, str) or enemy_id not in enemies:
                                 errors.append(f"{where}.encounters.{kind}: 敌人 '{enemy_id}' 不存在")
+        multipliers = mode.get("kind_stat_multiplier")
+        if multipliers is not None:
+            if not isinstance(multipliers, dict) or set(multipliers) != {"battle", "elite", "boss"}:
+                errors.append(f"{where}: kind_stat_multiplier 必须包含 battle/elite/boss")
+            else:
+                for kind, value in multipliers.items():
+                    if not is_finite_number(value) or not 0.5 <= value <= 3:
+                        errors.append(f"{where}: kind_stat_multiplier.{kind} 必须是 0.5..3 的有限数字")
+        variants = mode.get("encounter_variants")
+        if variants is not None:
+            if not isinstance(variants, dict) or not variants:
+                errors.append(f"{where}: encounter_variants 必须是非空对象")
+            else:
+                for kind, rosters in variants.items():
+                    if kind not in {"battle", "elite", "boss"}:
+                        errors.append(f"{where}: encounter_variants 存在未知类型 '{kind}'")
+                        continue
+                    if not isinstance(rosters, list) or not rosters:
+                        errors.append(f"{where}.encounter_variants.{kind}: 需要至少一段编成")
+                        continue
+                    for index, roster in enumerate(rosters):
+                        pos = f"{where}.encounter_variants.{kind}[{index}]"
+                        if not isinstance(roster, list) or not 1 <= len(roster) <= 6:
+                            errors.append(f"{pos}: 敌方需要 1..6 人")
+                            continue
+                        for enemy_id in roster:
+                            if not isinstance(enemy_id, str) or enemy_id not in enemies:
+                                errors.append(f"{pos}: 敌人 '{enemy_id}' 不存在")
         for pool_name, index, label in (
             ("enemy_pool", enemies, "config/enemies"),
             ("event_pool", events, "config/events"),
@@ -523,7 +613,7 @@ def main() -> int:
 
     summary = ", ".join(
         f"{name}={len(list((CONFIG_DIR / name).glob('*.json')))}"
-        for name in ("skills", "disciples", "bonds", "affixes", "materials", "recipes", "modes")
+        for name in ("skills", "disciples", "bonds", "affixes", "materials", "recipes", "weapons", "modes")
         if (CONFIG_DIR / name).is_dir()
     )
     print(f"[config] ok: {summary}")

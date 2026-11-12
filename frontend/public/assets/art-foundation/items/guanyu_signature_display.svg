@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192" shape-rendering="crispEdges" role="img">
+  <title>关羽专属偃月刀视觉概念</title>
+  <desc>XX · 本地程序绘制 · 细像素修仙物品美术样稿 · display</desc>
+  <polygon points="25,169 111,64 122,73 35,180" fill="#243B38"/>
+  <polygon points="29,169 112,68 117,73 34,174" fill="#36584F"/>
+  <polygon points="30,168 110,71 112,73 33,170" fill="#94B8A0"/>
+  <polygon points="33,171 114,73 117,74 36,174" fill="#172D2C"/>
+  <polygon points="103,79 107,56 121,37 140,24 159,17 180,17 172,29 164,37 162,48 168,62 181,75 174,85 159,94 139,99 121,97 111,90" fill="#243B38"/>
+  <polygon points="108,78 112,58 124,40 142,28 160,22 173,22 166,31 159,37 157,49 163,65 174,75 170,81 157,89 139,94 123,92 115,87" fill="#526F70"/>
+  <polygon points="112,73 116,57 127,42 144,31 160,26 166,26 156,37 153,49 157,63 168,75 163,81 151,86 138,88 126,85" fill="#8CABA9"/>
+  <polygon points="116,65 121,52 131,41 146,32 160,28 151,37 147,48 149,63 159,76 150,81 137,81 127,76" fill="#D3DED3"/>
+  <polygon points="123,51 133,41 148,32 159,29 149,37 136,42 128,50" fill="#FAF5E2"/>
+  <polygon points="165,66 175,75 169,82 157,88 140,93 127,90 127,87 141,89 156,84 167,78" fill="#D3DED3"/>
+  <polygon points="145,58 148,59 151,66 149,69 145,65" fill="#AAC3B8"/>
+  <polygon points="112,72 118,61 127,57 133,49 141,47 147,52 147,58 140,63 140,69 147,74 144,81 136,84 130,78 123,79 118,87 109,87 105,81" fill="#715B40" stroke="#243B38" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="111,74 120,65 128,63 135,54 141,52 144,54 143,57 136,60 134,65 137,71 142,75 140,79 136,80 131,74 122,75 115,83 110,83 109,80" fill="#A77B4D"/>
+  <polygon points="113,74 120,67 129,65 136,56 140,54 142,55 135,61 131,68 122,69 115,77 111,80" fill="#D7B979"/>
+  <polygon points="132,65 138,62 142,64 142,68 138,72 133,70" fill="#36584F"/>
+  <rect x="136" y="64" width="3" height="3" fill="#D7B979"/>
+  <polygon points="113,80 118,77 123,79 120,84 115,86" fill="#D7B979"/>
+  <polyline points="118,72 121,70 125,71" fill="none" stroke="#243B38" stroke-width="2" stroke-linejoin="miter"/>
+  <polyline points="126,65 130,64 133,65" fill="none" stroke="#715B40" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="89,100 96,92 106,100 99,109" fill="#243B38"/>
+  <polygon points="92,100 97,95 103,100 98,105" fill="#A77B4D"/>
+  <polyline points="94,99 98,97 101,100" fill="none" stroke="#D7B979" stroke-width="2" stroke-linejoin="miter"/>
+  <polygon points="72,120 78,113 87,120 81,128" fill="#243B38"/>
+  <polygon points="75,120 79,116 84,120 80,125" fill="#715B40"/>
+  <polygon points="91,103 97,106 99,119 93,133 88,130 93,116" fill="#713E35"/>
+  <polygon points="93,105 96,107 96,117 90,128 90,121 94,114" fill="#A35844"/>
+  <polygon points="23,169 28,165 39,174 38,182 31,187 24,181 21,175" fill="#243B38"/>
+  <polygon points="26,170 29,169 36,175 35,180 31,183 26,179 25,175" fill="#A77B4D"/>
+  <polygon points="26,170 29,169 35,174 32,176 27,174" fill="#D7B979"/>
+  <rect x="29" y="177" width="3" height="3" fill="#715B40"/>
+  <polyline points="54,143 60,148" fill="none" stroke="#715B40" stroke-width="2" stroke-linejoin="miter"/>
+  <polyline points="58,138 64,143" fill="none" stroke="#715B40" stroke-width="2" stroke-linejoin="miter"/>
+</svg>

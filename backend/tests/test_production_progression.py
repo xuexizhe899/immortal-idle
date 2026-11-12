@@ -6,7 +6,9 @@ import pytest
 
 from app.config_loader import load_bonds, load_disciples
 from app.domain.duty import assign
-from app.domain.progression import upgrade
+from app.domain.progression import (
+    MAX_REALM, breakthrough, level_cap, upgrade,
+)
 from app.domain.run_engine import party_power
 from app.domain.settle import settle
 from app.models.save import DiscipleState, DutyEvent, GameState, Resources
@@ -70,3 +72,91 @@ def test_poet_bond_in_duty_is_recorded_and_produces_cultivation():
     assert after - before == pytest.approx(.10 + expected_personal)
     settle(state, T0, T0 + timedelta(hours=1))
     assert state.resources.cultivation == pytest.approx(1 + after)
+
+
+def test_level_upgrade_stops_at_realm_cap_without_spending():
+    disciple = DiscipleState(id="g", template_id="guanyu", level=3)
+    state = GameState(
+        disciples=[disciple],
+        resources=Resources(cultivation=1000, spirit_stone=1000),
+    )
+
+    costs, error = upgrade(state, "g")
+
+    assert "等级上限" in (error or "")
+    assert disciple.level == 3
+    assert state.resources.cultivation == state.resources.spirit_stone == 1000
+    assert costs == {"cultivation": 60, "spirit_stone": 30}
+
+
+def test_breakthrough_requires_level_gate_and_charges_reputation():
+    disciple = DiscipleState(id="g", template_id="guanyu", level=1)
+    state = GameState(
+        disciples=[disciple],
+        resources=Resources(reputation=1000),
+    )
+    templates = load_disciples()
+
+    costs, error = breakthrough(state, "g", templates)
+    assert "需要达到 3 级" in (error or "")
+    assert disciple.realm == 1
+    assert state.resources.reputation == 1000
+
+    disciple.level = 3
+    costs, error = breakthrough(state, "g", templates)
+    assert error is None
+    assert costs == {"reputation": 110}
+    assert disciple.realm == 2
+    assert state.resources.reputation == 890
+
+
+def test_realm_three_breakthrough_uses_three_quarter_ratio():
+    disciple = DiscipleState(id="g", template_id="guanyu", level=6, realm=2)
+    state = GameState(
+        disciples=[disciple],
+        resources=Resources(reputation=1000),
+    )
+
+    costs, error = breakthrough(state, "g", load_disciples())
+
+    assert error is None
+    assert costs == {"reputation": 165}
+    assert disciple.realm == 3
+    assert state.resources.reputation == 835
+    assert level_cap(disciple.realm) == 10
+
+
+def test_old_over_cap_level_is_preserved_and_can_break_through():
+    disciple = DiscipleState(id="g", template_id="guanyu", level=8, realm=1)
+    state = GameState(
+        disciples=[disciple],
+        resources=Resources(cultivation=1000, spirit_stone=1000, reputation=1000),
+    )
+    templates = load_disciples()
+
+    _, error = upgrade(state, "g")
+    assert "等级上限" in (error or "")
+    assert disciple.level == 8
+
+    _, error = breakthrough(state, "g", templates)
+    assert error is None
+    assert disciple.realm == 2
+    assert disciple.level == 8
+
+    _, error = breakthrough(state, "g", templates)
+    assert error is None
+    assert disciple.realm == 3
+    assert disciple.level == 8
+
+
+def test_breakthrough_rejects_at_max_realm():
+    disciple = DiscipleState(id="g", template_id="guanyu", level=10, realm=MAX_REALM)
+    state = GameState(
+        disciples=[disciple],
+        resources=Resources(reputation=1000),
+    )
+
+    _, error = breakthrough(state, "g", load_disciples())
+
+    assert "最高境界" in (error or "")
+    assert disciple.realm == MAX_REALM

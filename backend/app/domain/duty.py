@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from app.models.save import DiscipleState, DutyEvent, DutySlot, GameState
@@ -37,20 +37,24 @@ RATE_KEYS = (
 
 @dataclass(frozen=True)
 class DutyMember:
-    """速率输入：只取影响产出的字段。"""
+    """速率输入：倾向、品质、境界与个人生产加成。"""
 
     lean: str
     rarity: int
     realm: int
+    bonuses: dict[str, float] = field(default_factory=dict)
 
 
 def compute_rates(members: Iterable[DutyMember]) -> dict[str, float]:
-    """把值守弟子折算成五类产出加成（加区，小数）。"""
+    """把值守弟子折算成五类产出加成（加区，小数）。
+
+    个人丹药只放大该弟子在对应产出上的贡献，不改变全宗门基础速率。
+    """
     rates = dict.fromkeys(RATE_KEYS, 0.0)
     for member in members:
         bonus = RARITY_FACTOR.get(member.rarity, 0.0) + member.realm * REALM_BONUS
         for key in LEAN_RATES.get(member.lean, ()):
-            rates[key] += bonus
+            rates[key] += bonus * (1 + member.bonuses.get(key, 0.0))
     return rates
 
 
@@ -70,6 +74,7 @@ def members_of(state: GameState, templates: dict[str, dict]) -> list[DutyMember]
                 lean=template["lean"],
                 rarity=template["rarity"],
                 realm=disciple.realm,
+                bonuses=disciple.bonuses,
             )
         )
     return members

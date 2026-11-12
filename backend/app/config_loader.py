@@ -49,6 +49,12 @@ def load_recipes() -> dict[str, dict]:
 
 
 @lru_cache(maxsize=1)
+def load_weapons() -> dict[str, dict]:
+    """弟子专属武器定义，按 id 索引。"""
+    return _load_dir(CONFIG_DIR / "weapons")
+
+
+@lru_cache(maxsize=1)
 def load_materials() -> dict[str, dict]:
     """材料配置，按 id 索引。"""
     return _load_dir(CONFIG_DIR / "materials")

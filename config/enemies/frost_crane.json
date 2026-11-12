@@ -1,0 +1,38 @@
+{
+  "id": "frost_crane",
+  "name": "霜羽鹤灵",
+  "base_stats": {
+    "hp": 65,
+    "atk": 11,
+    "def": 4,
+    "spd": 11
+  },
+  "skill": {
+    "id": "frost_crane-mend",
+    "name": "霜羽回春",
+    "type": "active",
+    "description": "霜羽回春治疗两名气血比例最低的同伴。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "heal",
+    "actions": [
+      {
+        "kind": "heal",
+        "target": "ally_lowest",
+        "count": 2,
+        "coefficient": 1.0
+      }
+    ]
+  },
+  "passive": {
+    "id": "frost_crane-breath",
+    "name": "霜息",
+    "type": "passive",
+    "description": "霜羽回春的治疗量提高15%。",
+    "effects": [],
+    "condition": "always",
+    "bonuses": {
+      "healing": 0.15
+    }
+  }
+}

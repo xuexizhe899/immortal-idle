@@ -1,8 +1,27 @@
 <script setup lang="ts">
-defineProps<{ kind: string }>()
+import { computed, ref, watch } from 'vue'
+import { enemyImage } from '../presentation/assetPaths'
+
+const props = defineProps<{ kind: string }>()
+const source = computed(() => enemyImage(props.kind))
+const loaded = ref(false)
+const failed = ref(false)
+watch(() => props.kind, () => { loaded.value = false; failed.value = false }, { flush: 'sync' })
+
+function imageLoaded(event: Event) {
+  if ((event.target as HTMLImageElement).getAttribute('src') === source.value) loaded.value = true
+}
+
+function imageFailed(event: Event) {
+  if ((event.target as HTMLImageElement).getAttribute('src') !== source.value) return
+  loaded.value = false
+  failed.value = true
+}
 </script>
 <template>
-  <svg class="enemy-figure" viewBox="0 0 90 100" aria-hidden="true" shape-rendering="crispEdges">
+  <span class="enemy-figure" :data-kind="kind" aria-hidden="true">
+  <img v-if="source && !failed" :key="source" :src="source" alt="" class="enemy-image" :class="{ loaded }" decoding="async" @load="imageLoaded" @error="imageFailed" />
+  <svg v-if="!loaded" class="enemy-fallback" viewBox="0 0 90 100" shape-rendering="crispEdges">
     <ellipse cx="45" cy="95" rx="35" ry="3" fill="#233d3633" />
     <g v-if="kind.includes('archer')" stroke="#263e36" stroke-width="2">
       <path d="m25 23-9 11 5 30 9-3-1-26Z" fill="#8b6743" /><path d="M18 23 15 8m7 16L22 6m4 18 4-15" stroke="#bfab75" /><path d="m12 9 4-5 4 7m0-5 3-4 3 5m1 3 5-4 1 6" fill="#ddd8bc" stroke-width="1" />
@@ -26,5 +45,11 @@ defineProps<{ kind: string }>()
       <path d="m9 58 9-5 9 10-6 9-11-3Z" fill="#a7ac95" /><path d="m68 35 4 54" stroke="#927048" stroke-width="6" /><path d="m58 28 20-5 10 9-2 17-22 4-9-11Z" fill="#737f76" /><path d="m61 31 15-4 9 7-2 8-19 4Z" fill="#adb29c" stroke="none" /><path d="m69 29 3 7-7 6 4 6" fill="none" stroke="#50685a" /><path d="M30 82 26 95h15l2-11m7 0 3 11h14l-7-18" fill="#6a7c6b" /><path d="M27 92h12m15 0h10" stroke="#a5ae95" stroke-width="2" />
     </g>
   </svg>
+  </span>
 </template>
-<style scoped>.enemy-figure{display:block;width:100%;height:100%;overflow:visible}</style>
+<style scoped>
+.enemy-figure{position:relative;display:block;width:100%;height:100%;overflow:visible}
+.enemy-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;image-rendering:pixelated;opacity:0}
+.enemy-image.loaded{opacity:1}
+.enemy-fallback{display:block;width:100%;height:100%;overflow:visible}
+</style>

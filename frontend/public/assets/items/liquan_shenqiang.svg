@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>沥泉神枪</title>
+  <rect x="30" y="18" width="4" height="42" fill="#46565B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,3 40,9 34,15 42,22 33,30 25,26 32,20 24,14 30,8" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,7 37,11 33,15 38,21 33,26 29,23 33,19 28,14" fill="#C6EDE5"/>
+  <circle cx="24" cy="24" r="2" fill="#4E9F97"/>
+  <circle cx="39" cy="27" r="2" fill="#4E9F97"/>
+  <rect x="24" y="31" width="17" height="4" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="44" width="6" height="2" fill="#4E9F97"/>
+  <rect x="27" y="59" width="10" height="3" fill="#A78132" stroke="#22342C" stroke-width="2"/>
+</svg>

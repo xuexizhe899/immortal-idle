@@ -1,0 +1,122 @@
+{
+  "task": "T19",
+  "usage": "专武 64×64 SVG 手绘造型、材质与纹样参考；不进入游戏运行时，不作为正式插画交付。",
+  "style_version": "0.3.0",
+  "requested_model": "gpt-image-2.6-sunburst",
+  "model_selector_available": false,
+  "budget_calls": 20,
+  "batch": 2,
+  "batch_count": 12,
+  "cumulative_calls": 16,
+  "generated_at": "2026-11-12T15:08:00+00:00",
+  "items": [
+    {
+      "key": "t19_weapon_longdan_liangyinqiang_v1",
+      "weapon_id": "longdan_liangyinqiang",
+      "name": "龙胆亮银枪",
+      "file": "assets/masters/weapons/longdan_liangyinqiang.jpg",
+      "hash": "1b8a7a4bcf945b12",
+      "bytes": 126311,
+      "prompt": "游戏道具设定参考图：龙胆亮银枪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，笔直暖木长杆，亮银枪刃，龙首形护手与青玉纹样，枪缨为克制的蓝绿色，金色箍环与枪尾配重。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_sheri_shengong_v1",
+      "weapon_id": "sheri_shengong",
+      "name": "射日神弓",
+      "file": "assets/masters/weapons/sheri_shengong.jpg",
+      "hash": "2ff03ace14c963cf",
+      "bytes": 169983,
+      "prompt": "游戏道具设定参考图：射日神弓，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，木金弓臂、绷紧弓弦、一支搭在弦上的箭，弓身中央金色日轮纹，弓梢青玉饰片，箭羽为克制红色。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_yuehua_yulun_v1",
+      "weapon_id": "yuehua_yulun",
+      "name": "月华玉轮",
+      "file": "assets/masters/weapons/yuehua_yulun.jpg",
+      "hash": "dc1121aa2b4fce65",
+      "bytes": 193211,
+      "prompt": "游戏道具设定参考图：月华玉轮，细像素仙侠风，沿用 0.3.0 风格基线。完整单件法器居中，圆形青玉轮盘，弦月浮雕、云气纹与金色轮轴，轮缘浅青高光，底部小玉座。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character."
+    },
+    {
+      "key": "t19_weapon_suxin_yusan_v1",
+      "weapon_id": "suxin_yusan",
+      "name": "素心玉伞",
+      "file": "assets/masters/weapons/suxin_yusan.jpg",
+      "hash": "1b64b9d38ee11b91",
+      "bytes": 139286,
+      "prompt": "游戏道具设定参考图：素心玉伞，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，象牙白伞面，分片伞骨，竹木伞柄，青玉伞珠与克制金色伞缘，伞骨层次清楚。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character."
+    },
+    {
+      "key": "t19_weapon_liquan_shenqiang_v1",
+      "weapon_id": "liquan_shenqiang",
+      "name": "沥泉神枪",
+      "file": "assets/masters/weapons/liquan_shenqiang.jpg",
+      "hash": "6c3e11089aa5c34a",
+      "bytes": 128439,
+      "prompt": "游戏道具设定参考图：沥泉神枪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，泉浪形银灰枪刃，寒铁长杆，水波纹青玉箍，克制金色护手与枪尾配重，刃口浅青高光。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_huo_jian_qiang_v1",
+      "weapon_id": "huo_jian_qiang",
+      "name": "火尖枪",
+      "file": "assets/masters/weapons/huo_jian_qiang.jpg",
+      "hash": "07235ef4e259ae28",
+      "bytes": 158487,
+      "prompt": "游戏道具设定参考图：火尖枪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，火焰形枪刃，红与金色像素色块克制搭配，深木长杆，红缨与金色箍环，枪尖有轻微青玉镶边。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_sanjian_liangrendao_v1",
+      "weapon_id": "sanjian_liangrendao",
+      "name": "三尖两刃刀",
+      "file": "assets/masters/weapons/sanjian_liangrendao.jpg",
+      "hash": "d370ece74aad7559",
+      "bytes": 132720,
+      "prompt": "游戏道具设定参考图：三尖两刃刀，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，三尖刀锋，两侧双刃展开，金色护手环，暖木长杆，刃面银灰与青玉纹样，枪尾金色配重。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_chibi_jiaowei_qin_v1",
+      "weapon_id": "chibi_jiaowei_qin",
+      "name": "赤壁焦尾琴",
+      "file": "assets/masters/weapons/chibi_jiaowei_qin.jpg",
+      "hash": "7b5bcc43750d9bcf",
+      "bytes": 233485,
+      "prompt": "游戏道具设定参考图：赤壁焦尾琴，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，古琴琴身，焦黑尾端，七根浅色琴弦，暖木琴面，红缨与金色琴徽，琴身有克制青玉纹样。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character."
+    },
+    {
+      "key": "t19_weapon_huntian_yi_v1",
+      "weapon_id": "huntian_yi",
+      "name": "浑天仪",
+      "file": "assets/masters/weapons/huntian_yi.jpg",
+      "hash": "d14b6a9458f648c7",
+      "bytes": 256651,
+      "prompt": "游戏道具设定参考图：浑天仪，细像素仙侠风，沿用 0.3.0 风格基线。完整单件法器居中，多层青玉圆环、金色转轴、暖木底座，环上刻度与星点，结构清楚，玉环有浅青高光。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character."
+    },
+    {
+      "key": "t19_weapon_qinglian_jian_v1",
+      "weapon_id": "qinglian_jian",
+      "name": "青莲剑",
+      "file": "assets/masters/weapons/qinglian_jian.jpg",
+      "hash": "0952cf6b5b07621d",
+      "bytes": 158415,
+      "prompt": "游戏道具设定参考图：青莲剑，细像素仙侠风，沿用 0.3.0 风格基线。完整单件武器居中，青玉剑身，莲瓣护手，暖木剑柄，金色剑首，剑穗为克制红色，剑身有浅青高光与莲纹。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple weapons, hands, character."
+    },
+    {
+      "key": "t19_weapon_shisheng_shujuan_v1",
+      "weapon_id": "shisheng_shujuan",
+      "name": "诗圣书卷",
+      "file": "assets/masters/weapons/shisheng_shujuan.jpg",
+      "hash": "40a4876abf2792b8",
+      "bytes": 187412,
+      "prompt": "游戏道具设定参考图：诗圣书卷，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，展开的象牙白卷轴，暖木轴杆，金色轴头，卷面墨色诗行与朱红小印，旁边一支毛笔，构图清楚。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, readable text, watermark, UI, frame, multiple items, hands, character."
+    },
+    {
+      "key": "t19_weapon_xianshi_lingyu_v1",
+      "weapon_id": "xianshi_lingyu",
+      "name": "衔石灵羽",
+      "file": "assets/masters/weapons/xianshi_lingyu.jpg",
+      "hash": "29e8eeea9e766ba2",
+      "bytes": 177306,
+      "prompt": "游戏道具设定参考图：衔石灵羽，细像素仙侠风，沿用 0.3.0 风格基线。完整单件物品居中，一根修长灵羽，青玉羽脉与象牙白羽片，根部衔着几块碎石，金色束环与一小段红线，羽片层次清楚。硬边像素簇，无平滑抗锯齿，青绿、象牙白、暖木与克制金色，左上方暖光，清晰但克制的投影。纯深青灰背景，主体完整不裁切，四周留白，无人物、无文字、无 UI、无边框、无水印。用于后续手绘 64×64 SVG 图标的造型、材质与纹样参考。Avoid: photorealistic, smooth gradients, blur, text, watermark, UI, frame, multiple items, hands, character."
+    }
+  ]
+}

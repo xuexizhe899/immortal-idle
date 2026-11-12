@@ -64,6 +64,24 @@ def test_rates_are_additive_not_multiplicative() -> None:
     assert rates["cultivation_rate"] == pytest.approx(0.20)
 
 
+def test_personal_bonus_only_scales_that_members_contribution() -> None:
+    """个人丹药放大该弟子对应产出的贡献，不影响其他弟子。"""
+    rates = compute_rates([
+        DutyMember(lean="attack", rarity=3, realm=1, bonuses={"cultivation_rate": .1}),
+        DutyMember(lean="attack", rarity=3, realm=1),
+    ])
+    assert rates["cultivation_rate"] == pytest.approx(0.11 + 0.10)
+
+
+def test_personal_bonus_on_unrelated_rate_has_no_effect() -> None:
+    """防御倾向弟子服用回灵丹不会凭空产生修为产出。"""
+    rates = compute_rates([
+        DutyMember(lean="defense", rarity=3, realm=1, bonuses={"cultivation_rate": .1}),
+    ])
+    assert rates["cultivation_rate"] == 0.0
+    assert rates["spirit_stone_rate"] == pytest.approx(0.10)
+
+
 def test_assign_adds_slot_and_event() -> None:
     """上岗后编制与事件流各增加一条。"""
     state = make_state("d_attack")

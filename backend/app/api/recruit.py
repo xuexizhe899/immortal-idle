@@ -1,4 +1,4 @@
-"""招募命令：声望解锁，重复招募提升境界。"""
+"""招募命令：声望解锁新弟子；已拥有角色的境界提升走培养命令。"""
 
 from fastapi import APIRouter, Depends, HTTPException
 

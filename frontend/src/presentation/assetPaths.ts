@@ -40,8 +40,31 @@ export const ITEM_ICON_IDS = new Set([
   'po_jing_dan', 'yang_shen_dan',
   'hu_xin_jing', 'ju_ling_pei', 'liu_yun_xue', 'po_mo_fu',
   'qing_feng_jian', 'xuan_tie_jia',
+  'qinglong_yanyuedao', 'zhangba_shemao', 'qingnang_yaoxiang', 'baiyu_shan',
+  'longdan_liangyinqiang', 'sheri_shengong', 'yuehua_yulun', 'suxin_yusan',
+  'liquan_shenqiang', 'huo_jian_qiang', 'sanjian_liangrendao', 'chibi_jiaowei_qin',
+  'huntian_yi', 'qinglian_jian', 'shisheng_shujuan', 'xianshi_lingyu',
 ])
 
 export function itemIconPath(id?: string | null): string {
   return id && ITEM_ICON_IDS.has(id) ? `${ASSET_ROOT}/items/${id}.svg` : ''
+}
+
+// 三件既有物品先接入精修试稿；关羽专武只作审阅概念，不进入可用物品注册表。
+const ITEM_ARTWORK_IDS = new Set(['liao_shang_dan', 'po_jing_dan', 'qing_feng_jian'])
+
+export function itemArtworkPath(id?: string | null, variant: 'icon' | 'display' = 'icon'): string {
+  if (!id || !ITEM_ARTWORK_IDS.has(id)) return itemIconPath(id)
+  return `${ASSET_ROOT}/art-foundation/items/${id}${variant === 'display' ? '_display' : ''}.svg`
+}
+
+// 资源登记不等于敌人已加入遭遇；新增六种形象先作美术储备，战斗定义仍来自服务端。
+const ENEMY_ARTWORK_IDS = new Set([
+  'stone_guard', 'cloud_archer', 'jade_warden', 'tower_master',
+  'cinder_blade', 'bamboo_swordsman', 'frost_crane',
+  'vine_spirit', 'bronze_beast', 'lantern_wraith',
+])
+
+export function enemyImage(templateId: string): string {
+  return ENEMY_ARTWORK_IDS.has(templateId) ? `${ASSET_ROOT}/art-foundation/enemies/${templateId}.png` : ''
 }

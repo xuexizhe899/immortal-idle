@@ -1,0 +1,44 @@
+{
+  "id": "bronze_beast",
+  "name": "铜角镇兽",
+  "base_stats": {
+    "hp": 170,
+    "atk": 14,
+    "def": 11,
+    "spd": 5
+  },
+  "skill": {
+    "id": "bronze_beast-charge",
+    "name": "铜角冲阵",
+    "type": "active",
+    "description": "铜角冲阵攻击全体敌人，并为自身施加护盾。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "stone",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "all_enemies",
+        "count": 6,
+        "coefficient": 0.65
+      },
+      {
+        "kind": "shield",
+        "target": "self",
+        "coefficient": 1.2,
+        "duration": 2
+      }
+    ]
+  },
+  "passive": {
+    "id": "bronze_beast-bone",
+    "name": "铜骨",
+    "type": "passive",
+    "description": "铜骨铸身，气血提高10%。",
+    "effects": [],
+    "condition": "always",
+    "bonuses": {
+      "hp": 0.1
+    }
+  }
+}
