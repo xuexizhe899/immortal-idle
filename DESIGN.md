@@ -54,6 +54,8 @@
 
 分层职责、允许依赖、新增文件归属与资产引用统一见 [ARCHITECTURE.md](ARCHITECTURE.md)。以下仅列当前主要位置；规范中的目标目录按真实迁移逐步建立。
 
+人物、场景与主城的公共画风、身份一致性、提示词要求和图像验收见 [ART_DIRECTION.md](ART_DIRECTION.md)。
+
 ```
 immortal-idle/
   ARCHITECTURE.md             # 分层、依赖、目录与资产规范
@@ -347,6 +349,8 @@ idle -> preparing(选队/补给/扣行动力/生成 seed)
 ---
 
 ## 8. 美术资产管线
+
+本节记录早期计划与试稿历史，不再作为当前新增图像的完整风格验收规范；以 [ART_DIRECTION.md](ART_DIRECTION.md) 为准。当前生图脚本尚未接入 master 图像参考编辑，历史任务卡的完成勾选不代表身份回喂能力已实现。
 
 ### 8.1 资产清单
 

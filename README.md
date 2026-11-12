@@ -1,6 +1,6 @@
 # 修仙放置 x 休闲肉鸽
 
-自用、非盈利的单机多档放置 roguelite。玩法决策见 [DESIGN.md](DESIGN.md)，分层、目录与资产引用规范见 [ARCHITECTURE.md](ARCHITECTURE.md)，任务拆分见 `tasks/`。
+自用、非盈利的单机多档放置 roguelite。玩法决策见 [DESIGN.md](DESIGN.md)，分层和目录规范见 [ARCHITECTURE.md](ARCHITECTURE.md)，生图风格与验收见 [ART_DIRECTION.md](ART_DIRECTION.md)，任务拆分见 `tasks/`。
 
 ## 技术栈
 
