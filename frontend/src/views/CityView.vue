@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import GameIcon from '../components/GameIcon.vue'
-import CityAtmosphere from '../components/CityAtmosphere.vue'
-import { phases, useDayCycle } from '../components/dayCycle'
-import PanelModal from '../components/PanelModal.vue'
-import CityDock from '../components/CityDock.vue'
-import { effectText, number, type DisplayCatalog } from '../components/gameDisplay'
+import CityDock from '../components/game/CityDock.vue'
+import PanelModal from '../components/ui/PanelModal.vue'
+import GameIcon from '../components/ui/GameIcon.vue'
+import { sceneImage } from '../presentation/assetPaths'
+import { effectText, type DisplayCatalog } from '../presentation/gameText'
+import CityAtmosphere from '../rendering/CityAtmosphere.vue'
+import { phases, useDayCycle } from '../rendering/dayCycle'
+import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
 import CodexPanel from './CodexPanel.vue'
 import CraftPanel from './CraftPanel.vue'
@@ -20,6 +22,7 @@ const viewport = ref<HTMLDivElement | null>(null)
 onMounted(() => { if (viewport.value) viewport.value.scrollLeft = (viewport.value.scrollWidth - viewport.value.clientWidth) / 2 })
 const catalog = computed(() => store.catalog as DisplayCatalog | null)
 const city = computed(() => catalog.value?.city)
+const cityBackground = computed(() => sceneImage(city.value?.background))
 const activeRun = computed(() => store.state?.active_run ?? null)
 const runEnded = computed(() => store.status === 'cleared' || store.status === 'defeated')
 const runStep = computed(() => (activeRun.value?.nodes.length ?? 0) + (runEnded.value || store.status === 'choosing_affix' ? 0 : 1))
@@ -77,13 +80,13 @@ function hideBroken(event: Event) { (event.target as HTMLImageElement).style.vis
 <template>
   <div class="city-page" :style="sceneStyle">
     <section class="city-scene" aria-label="宗门主城" :style="{ '--map-aspect': city?.aspect ?? 1.5 }">
-      <div v-if="city" class="scene-extension" :style="{ backgroundImage: `url(${city.background})` }" aria-hidden="true"></div>
+      <div v-if="city" class="scene-extension" :style="{ backgroundImage: `url(${cityBackground})` }" aria-hidden="true"></div>
       <div ref="viewport" class="city-viewport" tabindex="0" aria-label="宗门地图，手机可左右滑动查看殿阁">
         <div v-if="city" class="city-map" :style="{ aspectRatio: String(city.aspect) }">
-          <img :src="city.background" alt="云海之上的宗门，石径通向各座殿阁" class="city-background pixel-art" draggable="false" />
+          <img :src="cityBackground" alt="云海之上的宗门，石径通向各座殿阁" class="city-background pixel-art" draggable="false" />
           <CityAtmosphere />
           <button v-for="spot in city.hotspots" :key="spot.id" class="building-hotspot" :class="{ 'is-tower': spot.panel === 'tower' }" :style="{ left:`${spot.x}%`,top:`${spot.y}%`,width:`${spot.w}%`,height:`${spot.h}%`,zIndex: Math.round(spot.y) }" :aria-label="`${spot.name}，${statusOf(spot.panel)}`" :title="`${statusOf(spot.panel)} · ${secondaryStatusOf(spot.panel)}`" @click="open(spot.panel)">
-            <img v-if="spot.sprite" :src="spot.sprite" alt="" class="building-sprite pixel-art" draggable="false" @error="hideBroken" />
+            <img v-if="spot.sprite" :src="sceneImage(spot.sprite)" alt="" class="building-sprite pixel-art" draggable="false" @error="hideBroken" />
             <span class="building-label"><strong>{{ spot.name }}</strong><small v-if="spot.panel === 'tower'">{{ activeRun ? towerLabel : `最高 ${store.state?.tower_floor ?? 0} 层` }}</small><small v-else-if="spot.panel === 'expedition'">尚未开放</small></span>
           </button>
         </div>

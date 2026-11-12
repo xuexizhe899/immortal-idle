@@ -83,7 +83,10 @@ immortal-idle/
   frontend/
     src/
       views/                 # 页面与功能面板
-      components/            # 当前平铺 UI、业务组件、演出及展示辅助
+      components/            # 通用 UI（ui/）与业务组件（game/）
+      rendering/             # 战报播放、敌人与技能特效、昼夜视觉
+      presentation/          # 游戏文案映射与资源路径解析
+      shared/                # 纯数值格式化等基础函数
       stores/                # Pinia 响应镜像、命令与偏好
       api/                   # HTTP 客户端与类型别名
       generated/             # 生成的 TS 类型，忽略且不手改

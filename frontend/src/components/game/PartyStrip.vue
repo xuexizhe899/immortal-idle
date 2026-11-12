@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import GameIcon from './GameIcon.vue'
-import { imageOf, type DisplayCatalog } from './gameDisplay'
-import { useGameStore } from '../stores/game'
+import { discipleImage } from '../../presentation/assetPaths'
+import { type DisplayCatalog } from '../../presentation/gameText'
+import { useGameStore } from '../../stores/game'
+import GameIcon from '../ui/GameIcon.vue'
 
 defineProps<{ compact?: boolean; reorder?: boolean }>()
 defineEmits<{ edit: []; prepare: [] }>()
@@ -18,7 +19,7 @@ const limit = computed(() => catalog.value?.rules.max_party ?? 6)
       <div v-for="i in limit" :key="i" class="slot-wrap">
         <button class="party-slot" :aria-label="members[i - 1] ? `第${i}位 ${catalog?.disciples[members[i - 1]!.template_id]?.name ?? '弟子'}，调整阵容` : `第${i}位，添加出征弟子`" @click="$emit('edit')">
           <b class="slot-number">{{ i }}</b>
-          <template v-if="members[i - 1]"><img :src="imageOf(members[i - 1]!.template_id, catalog)" alt="" class="pixel-art" decoding="async" /><span>{{ catalog?.disciples[members[i - 1]!.template_id]?.name }}</span></template>
+          <template v-if="members[i - 1]"><img :src="discipleImage(members[i - 1]!.template_id, catalog)" alt="" class="pixel-art" decoding="async" /><span>{{ catalog?.disciples[members[i - 1]!.template_id]?.name }}</span></template>
           <template v-else><GameIcon name="plus" /><span>待安排</span></template>
         </button>
         <div v-if="reorder && members[i - 1]" class="slot-moves">

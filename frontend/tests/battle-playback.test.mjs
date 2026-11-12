@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import ts from 'typescript'
 
-const source = await readFile(new URL('../src/components/battlePlayback.ts', import.meta.url), 'utf8')
+const source = await readFile(new URL('../src/rendering/battlePlayback.ts', import.meta.url), 'utf8')
 const output = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
 const { battleUnitsAt, effectLabel, playbackIndices } = await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`)
 

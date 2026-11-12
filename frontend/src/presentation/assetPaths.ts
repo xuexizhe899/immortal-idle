@@ -1,0 +1,47 @@
+import type { Catalog } from '../api/client'
+
+// 运行资源统一放在 public/assets；配置只保存资源键或站内 URL，版本目录与扩展名在这里补齐。
+const ASSET_ROOT = '/assets'
+const IMAGE_EXTENSION = /\.(?:png|jpe?g|webp|svg)$/i
+
+// 人物 asset_id 约定为不带扩展名的 PNG 键（如 trial-v03/zhugeliang）；
+// 已是站内 URL 的输入原样返回，键自带扩展名时不再重复拼接。
+export function characterImage(asset?: string | null): string {
+  const value = asset?.trim()
+  if (!value) return ''
+  if (value.startsWith('/')) return value
+  return `${ASSET_ROOT}/${value}${IMAGE_EXTENSION.test(value) ? '' : '.png'}`
+}
+
+// 宗门、图鉴按当前 catalog 取立绘；模板缺失时以模板 ID 作旧版根目录资源键。
+export function discipleImage(templateId: string, catalog?: Catalog | null): string {
+  return characterImage(catalog?.disciples[templateId]?.asset_id ?? templateId)
+}
+
+// 出征以出发时固化的 asset_id 为准，只有旧档快照缺该字段时才回退当前 catalog。
+export function snapshotDiscipleImage(assetId: string | undefined, templateId: string, catalog?: Catalog | null): string {
+  return characterImage(assetId || catalog?.disciples[templateId]?.asset_id || templateId)
+}
+
+// 场景与建筑配置已是带扩展名的站内 URL；无前导斜杠时视为 public/assets 下的键。
+export function sceneImage(source?: string | null): string {
+  const value = source?.trim()
+  if (!value) return ''
+  return value.startsWith('/') ? value : `${ASSET_ROOT}/${value}`
+}
+
+export const TOWER_SCENE_IMAGE = sceneImage('trial-v03/scene_tower_trial.png')
+export const TOWER_SPRITE_IMAGE = sceneImage('buildings/sprite_tower.png')
+
+// 与 config/recipes 和 config/materials 对齐；未知 ID 不发起请求，直接显示占位。
+export const ITEM_ICON_IDS = new Set([
+  'han_tie', 'jiao_gu', 'jiu_ye', 'ling_cao', 'xuan_jing', 'yun_mu',
+  'gu_ti_dan', 'hui_ling_dan', 'ju_qi_dan', 'liao_shang_dan',
+  'po_jing_dan', 'yang_shen_dan',
+  'hu_xin_jing', 'ju_ling_pei', 'liu_yun_xue', 'po_mo_fu',
+  'qing_feng_jian', 'xuan_tie_jia',
+])
+
+export function itemIconPath(id?: string | null): string {
+  return id && ITEM_ICON_IDS.has(id) ? `${ASSET_ROOT}/items/${id}.svg` : ''
+}

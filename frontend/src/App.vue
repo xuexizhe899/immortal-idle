@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import GameIcon from './components/GameIcon.vue'
-import NoticeBubble from './components/NoticeBubble.vue'
-import { number } from './components/gameDisplay'
+import GameIcon from './components/ui/GameIcon.vue'
+import NoticeBubble from './components/ui/NoticeBubble.vue'
+import { number } from './shared/format'
 import { useGameStore } from './stores/game'
 import CityView from './views/CityView.vue'
 import RunView from './views/RunView.vue'

@@ -74,7 +74,7 @@ backend\.venv\Scripts\python.exe tools\generate_item_icons.py
 
 开发时可用 `--only qing_feng_jian` 单独更新图标；已有完整输出目录的清单会保留其余道具，新的预览目录只登记实际生成的文件。
 
-输出 `frontend/public/assets/items/<id>.svg` 和清单 `index.json`；总览页在 Vite 启动后访问 `/item-icons.html`。新增道具时，先在 `config/recipes` 或 `config/materials` 添加配置，再在 `tools/generate_item_icons.py` 的 `ART` 中补同名绘图函数，并同步 `frontend/src/components/itemIcons.ts` 的 ID 列表。重复运行只按内容更新本脚本负责的文件，不清空资产目录。
+输出 `frontend/public/assets/items/<id>.svg` 和清单 `index.json`；总览页在 Vite 启动后访问 `/item-icons.html`。新增道具时，先在 `config/recipes` 或 `config/materials` 添加配置，再在 `tools/generate_item_icons.py` 的 `ART` 中补同名绘图函数，并同步 `frontend/src/presentation/assetPaths.ts` 的 ID 列表。重复运行只按内容更新本脚本负责的文件，不清空资产目录。
 
 ## 约束
 

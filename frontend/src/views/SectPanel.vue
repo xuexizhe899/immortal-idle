@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed,ref } from 'vue'
+import GameIcon from '../components/ui/GameIcon.vue'
+import { statNames,resourceName, type DisplayCatalog } from '../presentation/gameText'
+import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
-import { number,statNames,resourceName, type DisplayCatalog } from '../components/gameDisplay'
-import GameIcon from '../components/GameIcon.vue'
 import SaveSlotsPanel from './SaveSlotsPanel.vue'
 const store=useGameStore();const tab=ref('overview')
 const catalog = computed(() => store.catalog as DisplayCatalog | null)

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed,ref } from 'vue'
-import BattleStage from '../components/BattleStage.vue'
-import GameIcon from '../components/GameIcon.vue'
-import { effectText,imageOf,number,resourceName,type DisplayCatalog } from '../components/gameDisplay'
+import { snapshotDiscipleImage } from '../presentation/assetPaths'
+import { effectText,resourceName,type DisplayCatalog } from '../presentation/gameText'
+import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
+import BattleStage from '../rendering/BattleStage.vue'
+import GameIcon from '../components/ui/GameIcon.vue'
 defineEmits<{returnCity:[]}>()
 const store=useGameStore();const catalog=computed(()=>store.catalog as DisplayCatalog|null);const run=computed(()=>store.run?.run);const playing=ref(false)
 const statusNames:Record<string,string>={choosing_node:'选择前行之路',choosing_affix:'领悟新的道法',defeated:'此行暂歇',cleared:'问道功成'}
 const statusLabel=computed(()=>statusNames[store.status]??'整装待发')
-const party=computed(()=>(run.value?.party??[]).map(id=>{const fixed=run.value?.party_snapshot?.combatants.find(d=>d.id===id);const d=store.disciples.find(d=>d.id===id);const asset=fixed?.asset_id;return{id,name:fixed?.name??catalog.value?.disciples[d?.template_id??id]?.name??id,image:asset?`/assets/${asset}${asset.endsWith('.png')?'':'.png'}`:imageOf(d?.template_id??id,catalog.value)}}))
+const party=computed(()=>(run.value?.party??[]).map(id=>{const fixed=run.value?.party_snapshot?.combatants.find(d=>d.id===id);const d=store.disciples.find(d=>d.id===id);const template=d?.template_id??id;return{id,name:fixed?.name??catalog.value?.disciples[template]?.name??id,image:snapshotDiscipleImage(fixed?.asset_id,template,catalog.value)}}))
 const layers=computed(()=>run.value?.nodes?.length??0)
 const total=computed(()=>catalog.value?.mode?.node_count??0)
 const hpPercent=computed(()=>run.value?.max_hp?Math.max(0,run.value.hp/run.value.max_hp*100):0)

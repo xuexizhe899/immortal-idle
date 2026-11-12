@@ -2,7 +2,7 @@
 
 生效日期：2026-11-12。本文是模块分层、依赖方向、数据归属与资产引用的统一规范；玩法决策见 [DESIGN.md](DESIGN.md)，生图风格与验收见 [ART_DIRECTION.md](ART_DIRECTION.md)，执行与交付约束见 [AGENTS.md](AGENTS.md)。
 
-本规范约束新增代码与后续迁移。第 8 节记录尚未归位的现有实现；本次只确定规范，不代表已完成代码搬迁。保持 Vue、Pinia、FastAPI、整档存档与现有契约管线，不增加第二套玩法状态或通用框架。
+本规范约束新增代码与后续迁移。资源路径、展示函数拆分与组件归属已于 2026-11-12 落实；第 8 节只记录尚未归位的存量偏差。保持 Vue、Pinia、FastAPI、整档存档与现有契约管线，不增加第二套玩法状态或通用框架。
 
 ## 1. 分层职责
 
@@ -45,7 +45,7 @@
 
 ### 3.1 目录归属
 
-下表中的“目标”目录本次不创建空壳；有真实代码迁入或新增时才创建。当前平铺的组件继续工作，迁移时同步更新引用与测试。
+下表按真实代码归位；新增模块按职责选择目录，不创建空壳。
 
 | 目录 | 状态 | 职责与例子 |
 |---|---|---|
@@ -54,15 +54,15 @@
 | `src/stores/` | 已有 | 响应镜像、命令串联、并发与错误处理、跨页选择；当前保留一个 game store |
 | `src/api/` | 已有 | 请求与响应传输、超时、HTTP 错误、契约类型别名；不依赖 store 或组件 |
 | `src/generated/` | 已有，生成 | OpenAPI 输出，只供类型使用 |
-| `src/components/ui/` | 目标 | 通用弹窗、反馈气泡等；通过 props/emits 表达交互，不了解弟子或存档 |
-| `src/components/game/` | 目标 | 弟子卡、编队条、技能详情、道具图标等业务组件；组合 UI、展示转换和渲染 |
-| `src/presentation/` | 目标 | `gameText.ts` 等业务展示函数，以及 `assetPaths.ts` 资源解析；纯输入输出，无请求、store、DOM 或计时器 |
-| `src/rendering/` | 目标 | `BattleStage.vue`、`battlePlayback.ts`、`SkillVfx.vue`、`EnemyFigure.vue`、`CityAtmosphere.vue`、`dayCycle.ts` 等演出与视觉生命周期 |
-| `src/shared/` | 目标 | 如 `format.ts` 中纯数值格式化；只依赖标准库，不依赖游戏类型、Vue、浏览器存储或上层模块 |
+| `src/components/ui/` | 已有 | 通用弹窗、反馈气泡等；通过 props/emits 表达交互，不了解弟子或存档 |
+| `src/components/game/` | 已有 | 弟子卡、编队条、技能详情、道具图标等业务组件；组合 UI、展示转换和渲染 |
+| `src/presentation/` | 已有 | `gameText.ts` 等业务展示函数，以及 `assetPaths.ts` 资源解析；纯输入输出，无请求、store、DOM 或计时器 |
+| `src/rendering/` | 已有 | `BattleStage.vue`、`battlePlayback.ts`、`SkillVfx.vue`、`EnemyFigure.vue`、`CityAtmosphere.vue`、`dayCycle.ts` 等演出与视觉生命周期 |
+| `src/shared/` | 已有 | 如 `format.ts` 中纯数值格式化；只依赖标准库，不依赖游戏类型、Vue、浏览器存储或上层模块 |
 | `src/style.css` | 已有 | 全局主题变量、基础排版及确有复用的样式；页面布局和特效样式就近 scoped |
 | `src/assets/` | 已有 | 由构建工具 import 的少量界面静态素材；游戏立绘与场景放 `public/assets/` |
 
-`src/components/` 根目录目前混放 UI、业务、演出和辅助函数，是过渡位置；新增独立模块按上表归属。只被一个组件使用的私有辅助函数优先就近保留。
+`src/components/` 只保留 `ui/` 与 `game/` 两个子目录，不再新增平铺组件；演出与视觉生命周期放 `rendering/`。只被一个组件使用的私有辅助函数优先就近保留。
 
 ### 3.2 允许的运行时依赖
 
@@ -155,7 +155,7 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 | `assets/manifest.json` | 脱敏生成记录与去重依据，记录来源；当前不是运行时资源注册表 |
 | `assets/raw/` | 生图原始输出，沿用 gitignore；成功即落盘，筛选后才进入运行目录 |
 | `frontend/public/assets/` | 正式运行资源；当前主用 `trial-v03/`、`city-v03/` 与 `items/` |
-| `frontend/src/rendering/`（目标） | Vue / SVG / CSS / Canvas 程序美术源码；现有源码暂在 components |
+| `frontend/src/rendering/` | Vue / SVG / CSS / Canvas 程序美术源码与视觉生命周期 |
 | `tools/`、`tools/tests/` | 资产生成与处理、内容草稿、契约辅助、配置与 RNG 校验、离线测量及其测试 |
 | `artifacts/<任务>/` | 草稿、对比图、截图、测量报告和验收记录；可审阅但不进入运行时依赖 |
 | `docs/plans/`、`docs/reviews/`、`tasks/` | 方案、审查与任务记录；完成状态须有代码及本次证据支持 |
@@ -179,7 +179,7 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 
 图标、材料、丹药、技能特效、护盾与状态几何优先使用 SVG / CSS / Canvas；人物和复杂场景使用经筛选、裁切和压缩的本地位图。程序绘图源码与生成命令一同保留；运行文件与来源记录保持可追溯。
 
-道具图标继续由 `tools/generate_item_icons.py` 生成，业务 ID、绘图定义、输出 `items/<id>.svg`、`items/index.json` 和前端允许的 ID 列表必须一致。当前 ID 列表位于 `components/itemIcons.ts`；归位后由 presentation 管理，组件只显示图标及本地占位。
+道具图标继续由 `tools/generate_item_icons.py` 生成，业务 ID、绘图定义、输出 `items/<id>.svg`、`items/index.json` 和前端允许的 ID 列表必须一致。当前 ID 列表位于 `presentation/assetPaths.ts`，组件只显示图标及本地占位。
 
 新增资产先核对复用，再生成或绘制；处理完成后检查透明边缘、小尺寸辨识、体积、引用和失败占位。按当前页面加载资源，非首屏列表延迟加载；不预载 master 或全部历史版本。生图调用规则沿用 AGENTS 第 6、7 节，正式页面运行时不请求生图接口。
 
@@ -203,17 +203,14 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 
 ## 8. 现状差距与迁移顺序
 
-以下均为已核对的待办，不是本次已完成事项。每步单独保持行为与契约不变，更新所有调用及测试；不得顺带调整玩法或清理无关素材。
+以下为尚未归位的存量偏差。每步单独保持行为与契约不变，更新所有调用及测试；不得顺带调整玩法或清理无关素材。
 
 | 顺序 | 现状 | 后续归位与完成条件 |
 |---|---|---|
-| 1 | `components/gameDisplay.ts` 的 `imageOf`、`BattleStage.vue` 与 `RunView.vue` 重复拼接图片 URL；`itemIcons.ts` 独立维护道具路径 | 归并到 `presentation/assetPaths.ts`，覆盖人物键、主城 URL、固定快照与未知图标；调用方不再重复解析 |
-| 2 | `gameDisplay.ts` 混有通用数字格式化、领域文案及资产路径 | 分别进入 shared、presentation；保持现有玩家文案与格式；不保留第二份实现 |
-| 3 | `components/` 平铺通用 UI、业务卡片与演出，`dayCycle.ts` 含视觉生命周期 | 按第 3 节归位，保持 props/emits 和状态连接职责，更新引用并验收桌面、390px 与减少动态效果 |
-| 4 | `views/SaveSlotsPanel.vue` 直接调用 `api.exportSave` | 读取归入只读 store action 并返回导出数据；Blob、下载对象 URL 与文件交互留在面板，不把导出内容作为新的游戏状态源 |
-| 5 | 多个路由从 `api/saves.py` 引用 `get_repo` | 请求依赖归入明确的 `api/dependencies.py`，路由不再依赖其他业务路由文件来获取会话 |
-| 6 | `SaveRepository.create_slot` 默认调用 `domain.progression.new_game_state` | 新档由命令编排组装后传给仓储；复制、导入保持原资源，测试证明入门资源只发一次 |
-| 7 | `domain/run_engine.py` 在缺省参数时调用配置加载器及 `secrets` 创建初始种子 | 配置和种子改由编排入口显式提供，保持同输入重放、固定快照与 RNG 游标行为 |
+| 1 | `views/SaveSlotsPanel.vue` 直接调用 `api.exportSave` | 读取归入只读 store action 并返回导出数据；Blob、下载对象 URL 与文件交互留在面板，不把导出内容作为新的游戏状态源 |
+| 2 | 多个路由从 `api/saves.py` 引用 `get_repo` | 请求依赖归入明确的 `api/dependencies.py`，路由不再依赖其他业务路由文件来获取会话 |
+| 3 | `SaveRepository.create_slot` 默认调用 `domain.progression.new_game_state` | 新档由命令编排组装后传给仓储；复制、导入保持原资源，测试证明入门资源只发一次 |
+| 4 | `domain/run_engine.py` 在缺省参数时调用配置加载器及 `secrets` 创建初始种子 | 配置和种子改由编排入口显式提供，保持同输入重放、固定快照与 RNG 游标行为 |
 | 条件触发 | `api/state.py` 合并 HTTP 错误映射、共享编排、取时钟与响应投影 | 当前作为明确共享入口保留；出现第二类调用入口或实际维护困难时，提取可独立测试的完整命令流程，HTTP 映射留在 api |
 
-本次同步修正 README 与 DESIGN 中的目录描述：旧 `ui/`、`stage/` 是初始设想，当前是 `views/` 与平铺 `components/`；当前战场使用 Vue / SVG / CSS，PixiJS 依赖仍在但未作为当前战场实现。部署目录和备份恢复脚本尚未落地，不列为已有能力。
+本次同步修正 README 与 DESIGN 中的目录描述：旧 `ui/`、`stage/` 是初始设想，当前是 `views/`、`components/ui`、`components/game`、`rendering`、`presentation` 与 `shared`；当前战场使用 Vue / SVG / CSS，PixiJS 依赖仍在但未作为当前战场实现。部署目录和备份恢复脚本尚未落地，不列为已有能力。

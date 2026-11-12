@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { BattleResult } from '../api/client'
+import { characterImage, TOWER_SCENE_IMAGE } from '../presentation/assetPaths'
 import { battleUnitsAt, effectLabel, playbackIndices, type BattleEvent, type BattleUnit } from './battlePlayback'
 import EnemyFigure from './EnemyFigure.vue'
 import SkillVfx from './SkillVfx.vue'
@@ -34,7 +35,7 @@ const nameById = computed(() => new Map(props.result?.initial_units.map(unit => 
 function image(unit: BattleUnit): string {
   const known = props.party.find(member => member.id === unit.id)?.image
   if (known) return known
-  return unit.asset_id ? `/assets/${unit.asset_id}${unit.asset_id.endsWith('.png') ? '' : '.png'}` : ''
+  return characterImage(unit.asset_id)
 }
 function markBroken(id: string) { failedImages.value = new Set([...failedImages.value, id]) }
 function effectsFor(id: string) { return event.value?.effects.filter(effect => effect.target_id === id) ?? [] }
@@ -110,7 +111,7 @@ onUnmounted(() => {
 </script>
 <template>
   <section class="battle-stage" aria-label="问道塔交锋">
-    <img v-if="!sceneFailed" class="stage-scene pixel-art" src="/assets/trial-v03/scene_tower_trial.png" alt="" draggable="false" @error="sceneFailed = true" />
+    <img v-if="!sceneFailed" class="stage-scene pixel-art" :src="TOWER_SCENE_IMAGE" alt="" draggable="false" @error="sceneFailed = true" />
     <div class="stage-veil"></div>
     <header class="stage-caption"><span class="eyebrow">问道塔 · 同道试炼</span><span>{{ playing && event ? `第 ${event.round} 轮 · ${event.skill_name}` : outcome }}</span></header>
     <div v-if="result" class="battle-armies">

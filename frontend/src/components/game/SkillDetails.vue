@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { DisplaySkill } from './gameDisplay'
-import { number, statNames } from './gameDisplay'
+import { number } from '../../shared/format'
+import { statNames, type DisplaySkill } from '../../presentation/gameText'
 defineProps<{ skill: DisplaySkill; passive?: boolean }>()
 const targets: Record<string,string> = { enemy_first:'首位敌人', enemy_lowest:'气血比例最低的敌人', all_enemies:'敌方', ally_lowest:'气血比例最低的同道', all_allies:'我方', self:'自身', ally_template:'指定同道' }
 const conditions: Record<string,string> = { always:'常驻生效', shielded:'自身有护盾时生效', target_weakened:'目标已被降防时生效', first_round:'首轮行动时生效' }
