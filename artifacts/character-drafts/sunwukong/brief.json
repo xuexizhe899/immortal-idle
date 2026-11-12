@@ -17,34 +17,41 @@
   "visual_prompt": "Sun Wukong the Monkey King, lean agile monkey warrior, golden fillet, fiery golden eyes, tiger-skin skirt, crimson scarf, holding the golden cudgel, standing on a somersault cloud, proud defiant expression, dynamic pose",
   "active": {
     "name": "大闹天宫",
-    "description": "孙悟空抡起金箍棒，一棒扫开天兵阵势，棒风所至群敌退避；出征时攻击大幅提升。",
-    "stat": "atk",
-    "value": 0.24,
-    "scope": "battle",
-    "mode": "add_pct"
+    "description": "孙悟空抡起金箍棒，一棒扫开天兵阵势，对前方两名敌人各造成140%攻击的伤害。",
+    "cooldown": 3,
+    "vfx": "slash",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "enemy_first",
+        "count": 2,
+        "coefficient": 1.4
+      }
+    ]
   },
   "passive": {
     "name": "七十二变",
-    "description": "孙悟空仗着火眼金睛看破敌招，翻腾闪转之间身法愈发迅捷；身法永久提升。",
-    "stat": "spd",
-    "value": 0.1,
-    "scope": "permanent",
-    "mode": "add_pct"
+    "description": "孙悟空仗着火眼金睛看破敌招，对已被降低防御的目标造成伤害提高12%。",
+    "bonuses": {
+      "damage": 0.12
+    },
+    "condition": "target_weakened"
   },
   "bond": {
     "id": "qitian",
     "name": "齐天大圣",
+    "description": "与哪吒同阵时，大闹天宫对已降防目标的伤害系数提高15%。",
     "members": [
       "sunwukong",
       "nezha"
     ],
     "requires": 2,
-    "effects": [
+    "effects": [],
+    "modifiers": [
       {
-        "stat": "atk",
-        "mode": "add_pct",
-        "value": 0.12,
-        "scope": "run"
+        "skill": "sunwukong-art",
+        "condition": "target_weakened",
+        "coefficient_bonus": 0.15
       }
     ]
   },

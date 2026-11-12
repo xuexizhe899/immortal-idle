@@ -2,13 +2,10 @@
   "id": "houyi-passive",
   "name": "神弓",
   "type": "passive",
-  "description": "后羿的被动，提升atk。",
-  "effects": [
-    {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.08,
-      "scope": "permanent"
-    }
-  ]
+  "description": "后羿持神弓凝神，在自身拥有护盾时造成伤害提高18%。",
+  "effects": [],
+  "condition": "shielded",
+  "bonuses": {
+    "damage": 0.18
+  }
 }

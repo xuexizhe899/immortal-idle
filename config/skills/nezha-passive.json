@@ -2,13 +2,10 @@
   "id": "nezha-passive",
   "name": "莲身",
   "type": "passive",
-  "description": "哪吒的被动，提升def。",
-  "effects": [
-    {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "battle"
-    }
-  ]
+  "description": "哪吒以莲身护体，本次出征最大气血提高10%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "hp": 0.1
+  }
 }

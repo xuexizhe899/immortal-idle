@@ -11,6 +11,7 @@ from datetime import datetime
 from pydantic import ConfigDict, Field
 
 from app.models.base import ContractModel as BaseModel
+from app.models.battle import BattleBond, BattleEvent, BattleUnit, BattleUnitState, EnemyDefinition
 
 CURRENT_SCHEMA_VERSION = 1
 
@@ -63,7 +64,7 @@ class RunNode(BaseModel):
 
 
 class BattleSummary(BaseModel):
-    """服务端已结算的一场战斗；前端仅据此播放整体演出。"""
+    """服务端已结算的一场战斗及逐行动战报。"""
 
     id: str
     party_power: float
@@ -71,34 +72,27 @@ class BattleSummary(BaseModel):
     hp_before: int
     hp_after: int
     damage: int
+    healed: int = 0
     won: bool
     loot: dict[str, float] = Field(default_factory=dict)
     node: RunNode
-
-
-class RunCombatant(BaseModel):
-    """出发时已经含伤势折扣的战斗属性，独立于永久层和当前配置。"""
-
-    model_config = ConfigDict(frozen=True)
-
-    id: str
-    template_id: str
-    attack: float
-    defense: float
-    health: float
-    growth: float
+    rounds: int = 0
+    reason: str = "victory"
+    initial_units: list[BattleUnitState] = Field(default_factory=list)
+    final_units: list[BattleUnitState] = Field(default_factory=list)
+    events: list[BattleEvent] = Field(default_factory=list)
 
 
 class RunPartySnapshot(BaseModel):
-    """局内固定战斗输入；只有后来选取的局内词条能改变战力。"""
+    """出发时固化所有战斗和后续节点定义，配置修改不改变本局。"""
 
     model_config = ConfigDict(frozen=True)
 
-    combatants: tuple[RunCombatant, ...]
-    atk_bonus: float
-    def_bonus: float
-    hp_bonus: float
-    spd_bonus: float
+    combatants: tuple[BattleUnit, ...]
+    bonds: tuple[BattleBond, ...] = ()
+    mode: dict = Field(default_factory=dict)
+    affix_pool: list[dict] = Field(default_factory=list)
+    enemies: dict[str, EnemyDefinition] = Field(default_factory=dict)
 
 
 class ActiveRun(BaseModel):
@@ -109,8 +103,10 @@ class ActiveRun(BaseModel):
     mode: str = "tower"
     party: list[str] = Field(default_factory=list)
     party_snapshot: RunPartySnapshot | None = None
-    hp: int = 300
-    max_hp: int = 300
+    hp: int = 0
+    max_hp: int = 0
+    member_hp: dict[str, int] = Field(default_factory=dict)
+    end_reason: str | None = None
     nodes: list[RunNode] = Field(default_factory=list)
     choices: list[RunNode] = Field(default_factory=list)
     affix_options: list[str] = Field(default_factory=list)

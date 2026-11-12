@@ -1,0 +1,28 @@
+{
+  "id": "jade_warden",
+  "name": "玉衡守将",
+  "base_stats": {
+    "hp": 140,
+    "atk": 16,
+    "def": 10,
+    "spd": 7
+  },
+  "skill": {
+    "id": "jade_warden-guard",
+    "name": "玉衡护阵",
+    "type": "active",
+    "description": "为两名同伴施加护盾。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "shield",
+    "actions": [
+      {
+        "kind": "shield",
+        "target": "ally_lowest",
+        "count": 2,
+        "coefficient": 1.2,
+        "duration": 2
+      }
+    ]
+  }
+}

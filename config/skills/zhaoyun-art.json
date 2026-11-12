@@ -2,13 +2,24 @@
   "id": "zhaoyun-art",
   "name": "龙胆",
   "type": "active",
-  "description": "赵云的主动招式，出征时提升atk。",
-  "effects": [
+  "description": "赵云持龙胆冲阵，对敌方首位目标造成170%攻击伤害，并使其防御降低15%，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "slash",
+  "actions": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.2,
-      "scope": "battle"
+      "kind": "damage",
+      "target": "enemy_first",
+      "count": 1,
+      "coefficient": 1.7
+    },
+    {
+      "kind": "buff",
+      "target": "enemy_first",
+      "count": 1,
+      "stat": "def",
+      "value": -0.15,
+      "duration": 2
     }
   ]
 }

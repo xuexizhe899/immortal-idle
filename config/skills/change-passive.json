@@ -2,13 +2,10 @@
   "id": "change-passive",
   "name": "广寒",
   "type": "passive",
-  "description": "嫦娥的被动，提升stamina_rate。",
-  "effects": [
-    {
-      "stat": "stamina_rate",
-      "mode": "add_pct",
-      "value": 0.12,
-      "scope": "duty"
-    }
-  ]
+  "description": "嫦娥守望广寒，月华与自身其他治疗效果提高15%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "healing": 0.15
+  }
 }

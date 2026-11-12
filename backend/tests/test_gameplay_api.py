@@ -39,14 +39,16 @@ async def new_slot(client):
     return slot, content
 
 
-async def test_catalog_exposes_actual_rules_and_skills_are_codex_only(game_client):
+async def test_catalog_exposes_actual_battle_rules_and_skills(game_client):
     client, _ = game_client
     response = await client.get("/api/catalog")
     assert response.status_code == 200
     catalog = response.json()
     assert catalog["disciples"]["guanyu"]["asset_id"] == load_disciples()["guanyu"]["asset_id"]
     assert catalog["affixes"]["po_jun"]["effects"][0]["value"] > 0
-    assert all(not skill["implemented"] for skill in catalog["skills"].values())
+    assert all(skill["implemented"] for skill in catalog["skills"].values())
+    assert catalog["rules"]["max_party"] == 6
+    assert catalog["enemies"]["stone_guard"]["base_stats"]["hp"] > 0
     assert catalog["mode"]["node_count"] == catalog["mode"]["boss_every"] == 20
     assert catalog["rules"]["injured_can_run"] is True
     assert set(catalog["production"]["materials"]) == set(catalog["materials"])
@@ -97,14 +99,15 @@ async def test_new_slot_can_recruit_run_fail_craft_and_run_again(game_client):
     content = crafted.json()
     assert content["state"]["disciples"][0]["injury_stacks"] == 0
     # 首轮失败收益未必足够升级；离线产出提供另一条稳定成长途径。
-    async with factory() as session:
-        await session.execute(update(save_slots).where(save_slots.c.slot_id == slot).values(
-            last_settled_at=(datetime.now(timezone.utc) - timedelta(hours=4)).isoformat(),
-        ))
-        await session.commit()
-    content = (await client.post(f"/api/saves/{slot}/settle", json={
-        "revision": content["revision"],
-    })).json()
+    for _ in range(2):
+        async with factory() as session:
+            await session.execute(update(save_slots).where(save_slots.c.slot_id == slot).values(
+                last_settled_at=(datetime.now(timezone.utc) - timedelta(hours=12)).isoformat(),
+            ))
+            await session.commit()
+        content = (await client.post(f"/api/saves/{slot}/settle", json={
+            "revision": content["revision"],
+        })).json()
     upgraded = await client.post(f"/api/saves/{slot}/disciples/guanyu/upgrade", json={
         "revision": content["revision"],
     })
@@ -135,7 +138,7 @@ async def test_repeat_command_is_rejected_and_refresh_preserves_battle(game_clie
     assert len(restored["run"]["nodes"]) == 1
     assert restored["battle_result"] == content["battle_result"]
     battle = restored["battle_result"]
-    assert battle["hp_before"] - battle["damage"] == battle["hp_after"]
+    assert battle["hp_before"] - battle["damage"] + battle["healed"] == battle["hp_after"]
     assert battle["loot"] == restored["run"]["pending_loot"]
 
 

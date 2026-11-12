@@ -2,13 +2,10 @@
   "id": "jingwei-passive",
   "name": "填海",
   "type": "passive",
-  "description": "精卫的被动，提升material_rate。",
-  "effects": [
-    {
-      "stat": "material_rate",
-      "mode": "add_pct",
-      "value": 0.12,
-      "scope": "duty"
-    }
-  ]
+  "description": "精卫立下填海之志，战斗首回合造成伤害提高20%。",
+  "effects": [],
+  "condition": "first_round",
+  "bonuses": {
+    "damage": 0.2
+  }
 }

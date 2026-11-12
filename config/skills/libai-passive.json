@@ -2,13 +2,10 @@
   "id": "libai-passive",
   "name": "诗仙",
   "type": "passive",
-  "description": "李白的被动，提升material_rate。",
-  "effects": [
-    {
-      "stat": "material_rate",
-      "mode": "add_pct",
-      "value": 0.12,
-      "scope": "duty"
-    }
-  ]
+  "description": "李白自在如诗仙，本次出征身法提高12%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "spd": 0.12
+  }
 }

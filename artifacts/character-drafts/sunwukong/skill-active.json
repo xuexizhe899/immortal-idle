@@ -2,13 +2,16 @@
   "id": "sunwukong-art",
   "name": "大闹天宫",
   "type": "active",
-  "description": "孙悟空抡起金箍棒，一棒扫开天兵阵势，棒风所至群敌退避；出征时攻击大幅提升。",
-  "effects": [
+  "description": "孙悟空抡起金箍棒，一棒扫开天兵阵势，对前方两名敌人各造成140%攻击的伤害。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "slash",
+  "actions": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.24,
-      "scope": "battle"
+      "kind": "damage",
+      "target": "enemy_first",
+      "count": 2,
+      "coefficient": 1.4
     }
   ]
 }

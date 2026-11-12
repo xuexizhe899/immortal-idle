@@ -30,11 +30,15 @@ YIELD_STATS = {
     "spirit_stone_rate",
     "stamina_rate",
     "material_rate",
-    "pill_rate",
+    "injury_rate",
 }
 STATS = COMBAT_STATS | YIELD_STATS
 RECIPE_KINDS = {"pill", "artifact"}
 CITY_PANELS = {"codex", "sect", "expedition", "tower", "duty", "forge", "alchemy"}
+ACTION_KINDS = {"damage", "heal", "shield", "buff"}
+ACTION_TARGETS = {"enemy_first", "enemy_lowest", "all_enemies", "ally_lowest", "all_allies", "self", "ally_template"}
+CONDITIONS = {"always", "shielded", "target_weakened", "first_round"}
+PASSIVE_STATS = COMBAT_STATS | {"damage", "healing", "shielding"}
 
 
 def is_number(value: object) -> bool:
@@ -182,8 +186,110 @@ def check_effects(container: dict, where: str, errors: list[str]) -> None:
             errors.append(
                 f"{pos}: scope '{effect.get('scope')}' 不在 {sorted(EFFECT_SCOPES)}"
             )
-        if not is_number(effect.get("value")):
-            errors.append(f"{pos}: value 必须是数字")
+        if not is_finite_number(effect.get("value")):
+            errors.append(f"{pos}: value 必须是有限数字")
+
+
+def check_integer(value: object, low: int, high: int, where: str, errors: list[str]) -> None:
+    """对执行次数与持续时间设置上限，避免配置制造无限行动。"""
+    if not isinstance(value, int) or isinstance(value, bool) or not low <= value <= high:
+        errors.append(f"{where}: 必须是 {low}..{high} 的整数")
+
+
+def check_actions(actions: object, where: str, errors: list[str], *, minimum: int = 1, maximum: int = 4) -> None:
+    """只接受战斗引擎实际执行的四类动作及确定性选取目标。"""
+    if not isinstance(actions, list) or not minimum <= len(actions) <= maximum:
+        errors.append(f"{where}: 需要 {minimum}..{maximum} 条动作")
+        return
+    for index, action in enumerate(actions):
+        pos = f"{where}[{index}]"
+        if not isinstance(action, dict):
+            errors.append(f"{pos}: 必须是对象")
+            continue
+        unknown = set(action) - {"kind", "target", "count", "coefficient", "duration", "stat", "value", "target_template"}
+        if unknown:
+            errors.append(f"{pos}: 未实现的动作字段 {sorted(unknown)}")
+        kind = action.get("kind")
+        if not isinstance(kind, str) or kind not in ACTION_KINDS:
+            errors.append(f"{pos}: kind 必须是 damage/heal/shield/buff")
+        target = action.get("target")
+        if not isinstance(target, str) or target not in ACTION_TARGETS:
+            errors.append(f"{pos}: 未知 target '{target}'")
+        if target == "ally_template" and not isinstance(action.get("target_template"), str):
+            errors.append(f"{pos}: ally_template 需要 target_template")
+        check_integer(action.get("count", 1), 1, 6, f"{pos}.count", errors)
+        check_integer(action.get("duration", 2), 1, 20, f"{pos}.duration", errors)
+        coefficient = action.get("coefficient", 1)
+        if not is_finite_number(coefficient) or not 0 <= coefficient <= 10:
+            errors.append(f"{pos}.coefficient: 必须是 0..10 的有限数字")
+        if kind == "buff":
+            if not isinstance(action.get("stat"), str) or action.get("stat") not in {"atk", "def", "spd"}:
+                errors.append(f"{pos}.stat: 增减益只接受 atk/def/spd")
+            value = action.get("value")
+            if not is_finite_number(value) or not -.5 <= value <= 1 or value == 0:
+                errors.append(f"{pos}.value: 必须是 -0.5..1 的有限非零数字")
+        elif isinstance(kind, str) and kind in {"damage", "heal", "shield"} and coefficient == 0:
+            errors.append(f"{pos}.coefficient: 伤害、治疗与护盾系数必须大于 0")
+
+
+def check_skill(skill: dict, where: str, errors: list[str]) -> None:
+    """技能仅用 actions/bonuses 执行，禁止旧 effects 与新机制并存造成双算。"""
+    if not isinstance(skill.get("name"), str):
+        errors.append(f"{where}: 缺少字符串字段 'name'")
+    if skill.get("type") not in SKILL_TYPES:
+        errors.append(f"{where}: type '{skill.get('type')}' 不在 {sorted(SKILL_TYPES)}")
+    check_effects(skill, where, errors)
+    if skill.get("effects"):
+        errors.append(f"{where}: 可执行技能的 effects 必须为空，主动使用 actions，被动使用 bonuses")
+    if skill.get("type") == "active":
+        check_integer(skill.get("cooldown"), 1, 20, f"{where}.cooldown", errors)
+        check_actions(skill.get("actions"), f"{where}.actions", errors)
+        if not isinstance(skill.get("vfx"), str) or not skill["vfx"].strip():
+            errors.append(f"{where}.vfx: 必须是非空字符串")
+        if skill.get("bonuses"):
+            errors.append(f"{where}: 主动招式不能携带被动 bonuses")
+    elif skill.get("type") == "passive":
+        bonuses = skill.get("bonuses")
+        if not isinstance(bonuses, dict) or not bonuses:
+            errors.append(f"{where}.bonuses: 必须是非空对象")
+        else:
+            for stat, value in bonuses.items():
+                if stat not in PASSIVE_STATS:
+                    errors.append(f"{where}.bonuses: 未实现的属性 '{stat}'")
+                if not is_finite_number(value) or not 0 <= value <= 1:
+                    errors.append(f"{where}.bonuses.{stat}: 必须是 0..1 的有限数字")
+        if not isinstance(skill.get("condition"), str) or skill.get("condition") not in CONDITIONS:
+            errors.append(f"{where}.condition: 必须是 {sorted(CONDITIONS)}")
+        elif skill["condition"] != "always" and isinstance(bonuses, dict) and COMBAT_STATS & bonuses.keys():
+            errors.append(f"{where}.bonuses: 条件被动只支持 damage/healing/shielding，atk/def/hp/spd 必须使用 always")
+        if skill.get("actions"):
+            errors.append(f"{where}: 被动不能新增行动或连锁触发")
+
+
+def check_modifiers(modifiers: object, where: str, skills: dict[str, dict], errors: list[str]) -> None:
+    """羁绊只修改一次技能，不引入追击事件或递归触发。"""
+    if not isinstance(modifiers, list) or not 1 <= len(modifiers) <= 4:
+        errors.append(f"{where}: 需要 1..4 条技能修饰")
+        return
+    for index, modifier in enumerate(modifiers):
+        pos = f"{where}[{index}]"
+        if not isinstance(modifier, dict):
+            errors.append(f"{pos}: 必须是对象")
+            continue
+        unknown = set(modifier) - {"skill", "condition", "add_targets", "coefficient_bonus", "duration_bonus", "extra_actions"}
+        if unknown:
+            errors.append(f"{pos}: 未实现的技能修饰字段 {sorted(unknown)}")
+        skill_id = modifier.get("skill")
+        if not isinstance(skill_id, str) or skill_id not in skills or skills[skill_id].get("type") != "active":
+            errors.append(f"{pos}.skill: 必须引用已存在的主动技能")
+        if not isinstance(modifier.get("condition", "always"), str) or modifier.get("condition", "always") not in CONDITIONS:
+            errors.append(f"{pos}.condition: 未实现的条件")
+        check_integer(modifier.get("add_targets", 0), 0, 5, f"{pos}.add_targets", errors)
+        check_integer(modifier.get("duration_bonus", 0), 0, 5, f"{pos}.duration_bonus", errors)
+        bonus = modifier.get("coefficient_bonus", 0)
+        if not is_finite_number(bonus) or not 0 <= bonus <= 1:
+            errors.append(f"{pos}.coefficient_bonus: 必须是 0..1 的有限数字")
+        check_actions(modifier.get("extra_actions", []), f"{pos}.extra_actions", errors, minimum=0, maximum=3)
 
 
 def validate(
@@ -208,13 +314,10 @@ def validate(
 
     for skill_id, skill in skills.items():
         where = f"config/skills/{skill_id}.json"
-        if not isinstance(skill.get("name"), str):
-            errors.append(f"{where}: 缺少字符串字段 'name'")
-        if skill.get("type") not in SKILL_TYPES:
-            errors.append(
-                f"{where}: type '{skill.get('type')}' 不在 {sorted(SKILL_TYPES)}"
-            )
-        check_effects(skill, where, errors)
+        check_skill(skill, where, errors)
+        for action in skill.get("actions", []) if isinstance(skill.get("actions", []), list) else []:
+            if isinstance(action, dict) and action.get("target") == "ally_template" and (not isinstance(action.get("target_template"), str) or action.get("target_template") not in disciples):
+                errors.append(f"{where}: target_template 必须引用已有弟子")
 
     for disciple_id, disciple in disciples.items():
         where = f"config/disciples/{disciple_id}.json"
@@ -289,6 +392,8 @@ def validate(
                 errors.append(
                     f"{where}: members[{i}] '{member}' 不存在于 config/disciples"
                 )
+        if len(set(member for member in members if isinstance(member, str))) != len(members):
+            errors.append(f"{where}: members 不能重复")
         requires = bond.get("requires", len(members))
         if (
             not isinstance(requires, int)
@@ -297,6 +402,44 @@ def validate(
         ):
             errors.append(f"{where}: requires 必须是 1..{len(members)} 的整数")
         check_effects(bond, where, errors)
+        modifiers = bond.get("modifiers")
+        if modifiers is not None:
+            check_modifiers(modifiers, f"{where}.modifiers", skills, errors)
+            member_skills = {disciples[member].get("skill") for member in members if isinstance(member, str) and member in disciples}
+            for modifier in modifiers if isinstance(modifiers, list) else []:
+                if not isinstance(modifier, dict):
+                    continue
+                if not isinstance(modifier.get("skill"), str) or modifier.get("skill") not in member_skills:
+                    errors.append(f"{where}: 只能修饰羁绊成员的主动技能")
+                for action in modifier.get("extra_actions", []) if isinstance(modifier.get("extra_actions", []), list) else []:
+                    if isinstance(action, dict) and action.get("target") == "ally_template" and action.get("target_template") not in members:
+                        errors.append(f"{where}: 羁绊额外动作的 target_template 必须是羁绊成员")
+        for effect in bond.get("effects", []) if isinstance(bond.get("effects", []), list) else []:
+            if isinstance(effect, dict) and effect.get("scope") != "duty":
+                errors.append(f"{where}: 出征羁绊使用 modifiers，effects 仅保留值守效果")
+        if not modifiers and not bond.get("effects"):
+            errors.append(f"{where}: 羁绊必须包含可执行的技能修饰或值守效果")
+
+    for enemy_id, enemy in enemies.items():
+        where = f"config/enemies/{enemy_id}.json"
+        if not isinstance(enemy.get("name"), str):
+            errors.append(f"{where}: 缺少字符串字段 'name'")
+        stats = enemy.get("base_stats")
+        if not isinstance(stats, dict) or set(stats) != COMBAT_STATS:
+            errors.append(f"{where}: base_stats 必须包含 hp/atk/def/spd")
+        else:
+            for stat, value in stats.items():
+                if not is_finite_number(value) or value <= 0:
+                    errors.append(f"{where}: base_stats.{stat} 必须是有限正数")
+        for key, kind in (("skill", "active"), ("passive", "passive")):
+            skill = enemy.get(key)
+            if skill is not None:
+                if not isinstance(skill, dict):
+                    errors.append(f"{where}.{key}: 必须是技能对象")
+                else:
+                    check_skill(skill, f"{where}.{key}", errors)
+                    if skill.get("type") != kind:
+                        errors.append(f"{where}.{key}: type 必须是 {kind}")
 
     for material_id, material in materials.items():
         where = f"config/materials/{material_id}.json"
@@ -339,6 +482,18 @@ def validate(
         where = f"config/modes/{mode_id}.json"
         if not isinstance(mode.get("name"), str):
             errors.append(f"{where}: 缺少字符串字段 'name'")
+        encounters = mode.get("encounters")
+        if encounters is not None or (mode.get("enabled") and mode_id == "tower"):
+            if not isinstance(encounters, dict) or set(encounters) != {"battle", "elite", "boss"}:
+                errors.append(f"{where}: encounters 必须包含 battle/elite/boss")
+            else:
+                for kind, roster in encounters.items():
+                    if not isinstance(roster, list) or not 1 <= len(roster) <= 6:
+                        errors.append(f"{where}.encounters.{kind}: 敌方需要 1..6 人")
+                    else:
+                        for enemy_id in roster:
+                            if not isinstance(enemy_id, str) or enemy_id not in enemies:
+                                errors.append(f"{where}.encounters.{kind}: 敌人 '{enemy_id}' 不存在")
         for pool_name, index, label in (
             ("enemy_pool", enemies, "config/enemies"),
             ("event_pool", events, "config/events"),

@@ -39,6 +39,12 @@ MODE = {
         "elite": {"cultivation": 20.0, "spirit_stone": 10.0},
         "boss": {"cultivation": 50.0, "spirit_stone": 25.0},
     },
+    "encounters": {"battle": ["test_enemy"], "elite": ["test_enemy"], "boss": ["test_boss"]},
+}
+
+ENEMIES = {
+    "test_enemy": {"id": "test_enemy", "name": "测试灵卫", "base_stats": {"hp": 35, "atk": 4, "def": 2, "spd": 8}},
+    "test_boss": {"id": "test_boss", "name": "测试首领", "base_stats": {"hp": 5, "atk": 1, "def": 1, "spd": 8}},
 }
 
 BONDS: dict[str, dict] = {}
@@ -72,6 +78,14 @@ def make_state(template_id: str = "d_strong", stamina: float = 3.0) -> GameState
         resources=Resources(stamina=stamina),
         disciples=[DiscipleState(id="d1", template_id=template_id)],
     )
+
+
+_start_run = start_run
+
+
+def start_run(*args, **kwargs):
+    """测试状态机时使用隔离敌人与词条定义，不依赖正式平衡参数。"""
+    return _start_run(*args, enemies=ENEMIES, affix_pool=kwargs.pop("affix_pool", AFFIXES), skills={}, **kwargs)
 
 
 def test_party_power_uses_base_stats() -> None:
@@ -304,10 +318,10 @@ def test_affix_options_share_one_group() -> None:
     templates = load_disciples()
     state = GameState(
         resources=Resources(stamina=3.0),
-        disciples=[DiscipleState(id="guanyu", template_id="guanyu")],
+        disciples=[DiscipleState(id="guanyu", template_id="guanyu", level=10)],
     )
 
-    start_run(state, ["guanyu"], templates, MODE, NOW, seed=3)
+    start_run(state, ["guanyu"], templates, MODE, NOW, seed=3, affix_pool=pool)
     choose(state, 0, templates, pool, MODE, BONDS)
 
     options = set(state.active_run.affix_options)

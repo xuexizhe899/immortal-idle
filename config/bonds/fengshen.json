@@ -6,12 +6,13 @@
     "yangjian"
   ],
   "requires": 2,
-  "effects": [
+  "effects": [],
+  "description": "封神同道：哪吒施展火尖枪时，若首位目标已降防，额外攻击一名敌人。",
+  "modifiers": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "run"
+      "skill": "nezha-art",
+      "condition": "target_weakened",
+      "add_targets": 1
     }
   ]
 }

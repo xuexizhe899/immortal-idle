@@ -56,8 +56,14 @@ def load_materials() -> dict[str, dict]:
 
 @lru_cache(maxsize=1)
 def load_skills() -> dict[str, dict]:
-    """技能仅用于图鉴，当前总战力引擎不执行技能。"""
+    """技能定义同时用于图鉴与出发时的固定战斗输入。"""
     return _load_dir(CONFIG_DIR / "skills")
+
+
+@lru_cache(maxsize=1)
+def load_enemies() -> dict[str, dict]:
+    """敌方真实属性与技能定义。"""
+    return _load_dir(CONFIG_DIR / "enemies")
 
 
 @lru_cache(maxsize=1)

@@ -65,7 +65,7 @@ export const useGameStore = defineStore('game', () => {
     const active = state.value?.active_run
     party.value = active ? [...active.party] : [...new Set(ids)].filter(id =>
       disciples.value.some(d => d.id === id && !d.busy) && !duty.has(id),
-    ).slice(0, catalog.value?.rules.max_party ?? 5)
+    ).slice(0, catalog.value?.rules.max_party ?? 6)
   }
 
   function applySnapshot(snapshot: SaveContent, forSlot: number) {
@@ -184,12 +184,25 @@ export const useGameStore = defineStore('game', () => {
         notice.value = '这位弟子正在值守，请先在演武场卸任。'
         return
       }
-      if (party.value.length >= (catalog.value?.rules.max_party ?? 5)) {
+      if (party.value.length >= (catalog.value?.rules.max_party ?? 6)) {
         notice.value = '队伍已满，请先移除一名弟子。'
         return
       }
       party.value = [...party.value, id]
     }
+    remember()
+  }
+
+  function moveParty(id: string, offset: -1 | 1): void {
+    if (busy.value || status.value !== 'idle') return
+    const from = party.value.indexOf(id)
+    const to = from + offset
+    if (from < 0 || to < 0 || to >= party.value.length) return
+    const ordered = [...party.value]
+    const moving = ordered[from]!
+    ordered[from] = ordered[to]!
+    ordered[to] = moving
+    party.value = ordered
     remember()
   }
 
@@ -311,7 +324,7 @@ export const useGameStore = defineStore('game', () => {
   return {
     slotId, revision, state, run, catalog, lastRun, lastSettle, saves, party, busy, ready,
     operation, error, notice, noticeId, disciples, resources, status, production, battleResult,
-    bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, choose, pickAffix,
+    bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, moveParty, choose, pickAffix,
     settleRun, assignDuty, unassignDuty, recruit, craft, upgrade, loadSaves, switchSave,
     createSave, duplicateSave, deleteSave, importSave,
     dismissNotice: () => { notice.value = null },

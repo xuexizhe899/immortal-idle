@@ -2,13 +2,24 @@
   "id": "yangjian-art",
   "name": "三尖两刃刀",
   "type": "active",
-  "description": "杨戬的主动招式，出征时提升atk。",
-  "effects": [
+  "description": "杨戬以三尖两刃刀破阵，使敌方首位目标防御降低25%，持续2回合，再造成160%攻击伤害。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "slash",
+  "actions": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.24,
-      "scope": "battle"
+      "kind": "buff",
+      "target": "enemy_first",
+      "count": 1,
+      "stat": "def",
+      "value": -0.25,
+      "duration": 2
+    },
+    {
+      "kind": "damage",
+      "target": "enemy_first",
+      "count": 1,
+      "coefficient": 1.6
     }
   ]
 }

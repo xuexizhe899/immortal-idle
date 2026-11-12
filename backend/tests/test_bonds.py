@@ -74,27 +74,25 @@ def test_bonus_raises_party_power() -> None:
 
 
 def test_repo_has_at_least_three_run_bonds() -> None:
-    """仓库里至少 3 组 run 作用域的羁绊。"""
+    """出征羁绊现在是成员技能强化，值守羁绊仍独立。"""
     bonds = load_bonds()
     run_bonds = [
         bond
         for bond in bonds.values()
-        if any(effect["scope"] == "run" for effect in bond["effects"])
+        if bond.get("modifiers")
     ]
 
     assert len(run_bonds) >= 3
 
 
-def test_repo_run_bonds_boost_party_power() -> None:
-    """真实配置里每组 run 羁绊都能提升战力。"""
+def test_repo_run_bonds_modify_member_skills() -> None:
+    """真实羁绊绑定成员技能，不再同时叠加旧的全队百分比。"""
     bonds = load_bonds()
     templates = load_disciples()
 
     for bond in bonds.values():
-        if not any(effect["scope"] == "run" for effect in bond["effects"]):
+        if not bond.get("modifiers"):
             continue
-        party = [
-            DiscipleState(id=member, template_id=member) for member in bond["members"]
-        ]
-        bonus = bond_bonus([d.id for d in party], bonds)
-        assert party_power(party, templates, bonus) > party_power(party, templates, {})
+        member_skills = {templates[member]["skill"] for member in bond["members"]}
+        assert all(modifier["skill"] in member_skills for modifier in bond["modifiers"])
+        assert not any(effect["scope"] == "run" for effect in bond["effects"])

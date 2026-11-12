@@ -2,13 +2,16 @@
   "id": "guanyu-art",
   "name": "青龙偃月",
   "type": "active",
-  "description": "关羽的主动招式，出征时提升atk。",
-  "effects": [
+  "description": "关羽挥出青龙偃月，对敌方首位目标造成240%攻击伤害；武圣对已降防目标更具威势。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "slash",
+  "actions": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.25,
-      "scope": "battle"
+      "kind": "damage",
+      "target": "enemy_first",
+      "count": 1,
+      "coefficient": 2.4
     }
   ]
 }

@@ -2,13 +2,25 @@
   "id": "yuefei-art",
   "name": "精忠",
   "type": "active",
-  "description": "岳飞的主动招式，出征时提升def。",
-  "effects": [
+  "description": "岳飞以精忠守护全体同道，各施加110%攻击的护盾，并提高15%防御，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "shield",
+  "actions": [
     {
+      "kind": "shield",
+      "target": "all_allies",
+      "count": 6,
+      "coefficient": 1.1,
+      "duration": 2
+    },
+    {
+      "kind": "buff",
+      "target": "all_allies",
+      "count": 6,
       "stat": "def",
-      "mode": "add_pct",
-      "value": 0.22,
-      "scope": "battle"
+      "value": 0.15,
+      "duration": 2
     }
   ]
 }

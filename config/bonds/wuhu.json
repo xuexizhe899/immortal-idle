@@ -7,12 +7,32 @@
     "zhaoyun"
   ],
   "requires": 3,
-  "effects": [
+  "effects": [],
+  "description": "五虎聚义：张飞施展燕人咆哮后，关羽、赵云攻击提高15%，持续2回合。",
+  "modifiers": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.12,
-      "scope": "run"
+      "skill": "zhangfei-art",
+      "condition": "always",
+      "extra_actions": [
+        {
+          "kind": "buff",
+          "target": "ally_template",
+          "count": 1,
+          "stat": "atk",
+          "value": 0.15,
+          "duration": 2,
+          "target_template": "guanyu"
+        },
+        {
+          "kind": "buff",
+          "target": "ally_template",
+          "count": 1,
+          "stat": "atk",
+          "value": 0.15,
+          "duration": 2,
+          "target_template": "zhaoyun"
+        }
+      ]
     }
   ]
 }

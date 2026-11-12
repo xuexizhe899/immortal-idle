@@ -2,13 +2,24 @@
   "id": "zhouyu-art",
   "name": "赤壁火攻",
   "type": "active",
-  "description": "周瑜的主动招式，出征时提升atk。",
-  "effects": [
+  "description": "周瑜施展赤壁火攻，对全部敌人造成80%攻击伤害，并使其防御降低10%，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "flame",
+  "actions": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.15,
-      "scope": "battle"
+      "kind": "damage",
+      "target": "all_enemies",
+      "count": 6,
+      "coefficient": 0.8
+    },
+    {
+      "kind": "buff",
+      "target": "all_enemies",
+      "count": 6,
+      "stat": "def",
+      "value": -0.1,
+      "duration": 2
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "id": "tower_master",
+  "name": "问道真灵",
+  "base_stats": {
+    "hp": 220,
+    "atk": 22,
+    "def": 12,
+    "spd": 10
+  },
+  "skill": {
+    "id": "tower_master-wave",
+    "name": "问心震荡",
+    "type": "active",
+    "description": "问心震荡攻击全部敌人。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "jade",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "all_enemies",
+        "count": 6,
+        "coefficient": 0.9
+      }
+    ]
+  }
+}

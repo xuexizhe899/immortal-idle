@@ -43,6 +43,7 @@ MODE = {
         "elite": {"cultivation": 20.0, "spirit_stone": 10.0},
         "boss": {"cultivation": 50.0, "spirit_stone": 25.0},
     },
+    "encounters": {"battle": ["test_enemy"], "elite": ["test_enemy"], "boss": ["test_boss"]},
 }
 
 BONDS: dict[str, dict] = {}
@@ -69,6 +70,17 @@ def make_state(template_id: str = "d_strong") -> GameState:
         resources=Resources(stamina=3.0),
         disciples=[DiscipleState(id="d1", template_id=template_id)],
     )
+
+
+_start_run = start_run
+
+
+def start_run(*args, **kwargs):
+    enemies = {
+        "test_enemy": {"id": "test_enemy", "name": "测试灵卫", "base_stats": {"hp": 35, "atk": 4, "def": 2, "spd": 8}},
+        "test_boss": {"id": "test_boss", "name": "测试首领", "base_stats": {"hp": 5, "atk": 1, "def": 1, "spd": 8}},
+    }
+    return _start_run(*args, enemies=enemies, affix_pool=[], skills={}, **kwargs)
 
 
 def test_attack_multiplier_is_linear_and_capped() -> None:

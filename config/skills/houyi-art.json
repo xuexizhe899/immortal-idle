@@ -2,13 +2,16 @@
   "id": "houyi-art",
   "name": "射日",
   "type": "active",
-  "description": "后羿的主动招式，出征时提升atk。",
-  "effects": [
+  "description": "后羿凝神射日，对气血比例最低的敌人造成230%攻击伤害；神弓在护盾保护下伤害提高。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "arrow",
+  "actions": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.2,
-      "scope": "battle"
+      "kind": "damage",
+      "target": "enemy_lowest",
+      "count": 1,
+      "coefficient": 2.3
     }
   ]
 }

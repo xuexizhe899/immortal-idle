@@ -2,13 +2,10 @@
   "id": "yuefei-passive",
   "name": "岳家军",
   "type": "passive",
-  "description": "岳飞的被动，提升hp。",
-  "effects": [
-    {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.15,
-      "scope": "permanent"
-    }
-  ]
+  "description": "岳飞统率岳家军，本次出征防御提高15%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "def": 0.15
+  }
 }

@@ -9,6 +9,7 @@ from pydantic import Field
 from app.models.base import ContractModel as BaseModel
 
 from app.models.save import ActiveRun, BattleSummary, DiscipleState, DutySlot, GameState
+from app.models.battle import BattleAction, BondModifier, Condition, EnemyDefinition
 
 RunStatus = Literal["idle", "choosing_node", "choosing_affix", "defeated", "cleared"]
 
@@ -118,6 +119,8 @@ class BondCatalog(BaseModel):
     members: list[str]
     requires: int
     effects: list[Effect] = Field(default_factory=list)
+    description: str = ""
+    modifiers: list[BondModifier] = Field(default_factory=list)
 
 
 class SkillCatalog(BaseModel):
@@ -126,6 +129,11 @@ class SkillCatalog(BaseModel):
     description: str = ""
     effects: list[Effect] = Field(default_factory=list)
     implemented: bool = False
+    cooldown: int = 3
+    vfx: str = "strike"
+    actions: list[BattleAction] = Field(default_factory=list)
+    bonuses: dict[str, float] = Field(default_factory=dict)
+    condition: Condition = "always"
 
 
 class CityHotspot(BaseModel):
@@ -178,6 +186,7 @@ class CatalogResponse(BaseModel):
     materials: dict[str, str]
     bonds: dict[str, BondCatalog]
     skills: dict[str, SkillCatalog]
+    enemies: dict[str, EnemyDefinition]
     mode: ModeCatalog
     rules: RulesCatalog
     production: ProductionCatalog

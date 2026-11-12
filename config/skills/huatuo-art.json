@@ -2,13 +2,16 @@
   "id": "huatuo-art",
   "name": "麻沸散",
   "type": "active",
-  "description": "华佗的主动招式，出征时提升def。",
-  "effects": [
+  "description": "华佗以麻沸散稳定伤情，为气血比例最低的两位同道各恢复220%攻击的气血。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "heal",
+  "actions": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.12,
-      "scope": "battle"
+      "kind": "heal",
+      "target": "ally_lowest",
+      "count": 2,
+      "coefficient": 2.2
     }
   ]
 }

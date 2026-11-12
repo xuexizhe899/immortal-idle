@@ -2,13 +2,17 @@
   "id": "dufu-art",
   "name": "沉郁",
   "type": "active",
-  "description": "杜甫的主动招式，出征时提升def。",
-  "effects": [
+  "description": "杜甫以沉郁诗意护持同道，为气血比例最低的两位同道各施加160%攻击的护盾，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "shield",
+  "actions": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "battle"
+      "kind": "shield",
+      "target": "ally_lowest",
+      "count": 2,
+      "coefficient": 1.6,
+      "duration": 2
     }
   ]
 }

@@ -2,13 +2,16 @@
   "id": "nezha-art",
   "name": "火尖枪",
   "type": "active",
-  "description": "哪吒的主动招式，出征时提升atk。",
-  "effects": [
+  "description": "哪吒舞动火尖枪，对敌方首位目标造成210%攻击伤害；封神羁绊可在目标已降防时扩为两人。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "flame",
+  "actions": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.22,
-      "scope": "battle"
+      "kind": "damage",
+      "target": "enemy_first",
+      "count": 1,
+      "coefficient": 2.1
     }
   ]
 }

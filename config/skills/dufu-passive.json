@@ -2,13 +2,10 @@
   "id": "dufu-passive",
   "name": "诗史",
   "type": "passive",
-  "description": "杜甫的被动，提升cultivation_rate。",
-  "effects": [
-    {
-      "stat": "cultivation_rate",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "duty"
-    }
-  ]
+  "description": "杜甫写下诗史，自身施加的护盾提高15%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "shielding": 0.15
+  }
 }

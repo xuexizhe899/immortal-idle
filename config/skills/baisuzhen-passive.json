@@ -2,13 +2,10 @@
   "id": "baisuzhen-passive",
   "name": "千年道行",
   "type": "passive",
-  "description": "白素贞的被动，提升hp。",
-  "effects": [
-    {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.12,
-      "scope": "permanent"
-    }
-  ]
+  "description": "白素贞积累千年道行，本次出征最大气血提高12%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "hp": 0.12
+  }
 }

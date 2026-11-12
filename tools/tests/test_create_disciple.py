@@ -63,8 +63,10 @@ def test_demo_character_is_balanced_and_style_consistent(package: dict) -> None:
     for key in ("active", "passive"):
         assert any(motif in package[key]["description"] for motif in motifs), key
     assert any(motif in package["brief"]["visual"] for motif in motifs)
-    assert package["active"]["effects"][0]["scope"] == "battle"
-    assert package["passive"]["effects"][0]["scope"] == "permanent"
+    assert package["active"]["effects"] == []
+    assert package["active"]["actions"][0]["kind"] == "damage"
+    assert package["passive"]["bonuses"] == {"damage": .12}
+    assert package["bond"]["modifiers"][0]["skill"] == "sunwukong-art"
     assert package["bond"]["members"] == ["sunwukong", "nezha"]
     assert package["art"]["status"] == "pending"
 
@@ -127,7 +129,7 @@ def test_write_draft_creates_reviewable_files(package: dict, tmp_path: Path) -> 
     for name in ("brief.json", "disciple.json", "skill-active.json", "skill-passive.json", "bond.json", "art-prompt.json", "balance-report.md"):
         assert (draft / name).is_file(), name
     report = (draft / "balance-report.md").read_text(encoding="utf-8")
-    assert "目标战力" in report
+    assert "基础参考分" in report
     assert "孙悟空" in report
     assert "金箍棒" in report
 
@@ -186,6 +188,62 @@ def test_force_preserves_existing_character_bonds(brief: dict) -> None:
     assert existing["bonds"]
     package = cd.build_package(brief, force=True)
     assert package["disciple"]["bonds"] == existing["bonds"]
+
+
+@pytest.mark.parametrize("part,changes", [
+    ("active", {"stat": "atk", "scope": "battle", "value": .2}),
+    ("passive", {"bonuses": {"pill_rate": .1}}),
+    ("active", {"actions": [{"kind": "damage", "target": "enemy_first", "count": 7}]}),
+    ("active", {"actions": [{"kind": "buff", "target": "all_allies", "stat": "hp", "value": .1}]}),
+    ("active", {"actions": [{"kind": "damage", "target": "enemy_first", "coefficient": float("inf")}]}),
+])
+def test_rejects_nonexecutable_skill_configuration(brief: dict, part: str, changes: dict) -> None:
+    brief[part].update(changes)
+    with pytest.raises(cd.BriefError):
+        cd.build_package(brief)
+
+
+def test_rejects_unimplemented_duty_bond_output(brief: dict) -> None:
+    brief["bond"].pop("modifiers")
+    brief["bond"]["effects"] = [{"stat": "pill_rate", "scope": "duty", "mode": "add_pct", "value": .1}]
+    with pytest.raises(cd.BriefError, match="产出类属性"):
+        cd.build_package(brief)
+
+
+def test_rejects_modifier_for_nonmember_skill(brief: dict) -> None:
+    brief["bond"]["modifiers"][0]["skill"] = "guanyu-art"
+    with pytest.raises(cd.BriefError, match="羁绊成员"):
+        cd.build_package(brief)
+
+
+def test_defaults_create_executable_actions_and_combat_passive(brief: dict) -> None:
+    brief["active"] = {key: brief["active"][key] for key in ("name", "description")}
+    brief["passive"] = {key: brief["passive"][key] for key in ("name", "description")}
+    package = cd.build_package(brief)
+    assert package["active"]["actions"] == cd.ACTIVE_DEFAULTS["attack"]
+    assert package["passive"]["bonuses"] == {"damage": .12}
+    assert cd.validate_package(package) == []
+
+
+@pytest.mark.parametrize("part,changes", [
+    ("active", {"cooldown": 1}),
+    ("active", {"actions": [{"kind": "damage", "target": "enemy_first", "coefficient": 4}]}),
+    ("active", {"actions": [{"kind": "damage", "target": "all_enemies", "count": 6, "coefficient": 2}]}),
+    ("passive", {"bonuses": {"damage": .5}}),
+])
+def test_generator_rejects_executable_but_excessive_skill_budget(brief, part, changes):
+    brief[part].update(changes)
+    with pytest.raises(cd.BriefError):
+        cd.build_package(brief)
+
+
+@pytest.mark.parametrize("stat", ["atk", "def", "hp", "spd"])
+def test_generator_rejects_conditional_attribute_passives(brief, stat):
+    brief["passive"].update(condition="shielded", bonuses={stat: .15})
+    with pytest.raises(cd.BriefError, match="条件被动只支持"):
+        cd.build_package(brief)
+    brief["passive"]["condition"] = "always"
+    assert cd.validate_package(cd.build_package(brief)) == []
 
 
 def test_regenerating_draft_without_bond_removes_stale_bond(brief: dict, tmp_path: Path) -> None:

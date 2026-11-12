@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
-from app.config_loader import load_bonds, load_disciples, load_modes
+from app.config_loader import load_bonds, load_disciples
 from app.domain.duty import rates_of, record_event
-from app.domain.run_engine import ensure_party_snapshot, run_status
+from app.domain.run_engine import run_status
 from app.domain.settle import (
     BASE_CULTIVATION_PER_HOUR, BASE_MATERIALS_PER_HOUR,
     BASE_SPIRIT_STONE_PER_HOUR, BASE_STAMINA_PER_HOUR, SettleReport, settle,
@@ -20,11 +20,10 @@ from app.repositories.saves import SaveRepository
 def status_of(state: GameState) -> RunStatus:
     if state.active_run is None:
         return "idle"
-    return run_status(state.active_run, load_modes()[state.active_run.mode])
+    return run_status(state.active_run)
 
 
 def snapshot(state: GameState, revision: int) -> GameSnapshot:
-    ensure_party_snapshot(state, load_disciples(), load_bonds())
     rates = rates_of(state, load_disciples(), load_bonds())
     for key, value in state.bonuses.items():
         rates[key] = rates.get(key, 0.0) + value
@@ -65,7 +64,6 @@ async def prepare_mutation(
     if last is None:
         raise HTTPException(status_code=404, detail="存档不存在")
     now = datetime.now(timezone.utc)
-    ensure_party_snapshot(state, load_disciples(), load_bonds())
     report = settle(state, last, now)
     return Mutation(state, current, now, max(last, now), report)
 

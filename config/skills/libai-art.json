@@ -2,13 +2,18 @@
   "id": "libai-art",
   "name": "将进酒",
   "type": "active",
-  "description": "李白的主动招式，出征时提升atk。",
-  "effects": [
+  "description": "李白吟诵将进酒，使全体同道攻击提高12%，持续2回合；诗仙仍可在值守时与杜甫触发诗圣。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "wind",
+  "actions": [
     {
+      "kind": "buff",
+      "target": "all_allies",
+      "count": 6,
       "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.16,
-      "scope": "battle"
+      "value": 0.12,
+      "duration": 2
     }
   ]
 }

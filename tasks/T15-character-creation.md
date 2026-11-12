@@ -18,33 +18,57 @@
   "lean": "attack",
   "profile": "burst",
   "concept": "花果山猴王，桀骜不驯却重情重义，一根金箍棒打上天庭，也在取经路上学会守护同伴。",
-  "motifs": ["金箍棒", "筋斗云", "火眼金睛", "七十二变"],
+  "motifs": [
+    "金箍棒",
+    "筋斗云",
+    "火眼金睛",
+    "七十二变"
+  ],
   "visual": "身形精瘦矫健的猴王，头戴金箍，火眼金睛，虎皮短裙与赤红披帛，手持如意金箍棒，脚踏筋斗云，桀骜张扬。",
   "visual_prompt": "Sun Wukong the Monkey King, lean agile monkey warrior, golden fillet, fiery golden eyes, tiger-skin skirt, crimson scarf, holding the golden cudgel, standing on a somersault cloud, proud defiant expression, dynamic pose",
   "active": {
     "name": "大闹天宫",
-    "description": "孙悟空抡起金箍棒，一棒扫开天兵阵势，棒风所至群敌退避；出征时攻击大幅提升。",
-    "stat": "atk",
-    "value": 0.24,
-    "scope": "battle",
-    "mode": "add_pct"
+    "description": "孙悟空抡起金箍棒，一棒扫开天兵阵势，对前方两名敌人各造成140%攻击的伤害。",
+    "cooldown": 3,
+    "vfx": "slash",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "enemy_first",
+        "count": 2,
+        "coefficient": 1.4
+      }
+    ]
   },
   "passive": {
     "name": "七十二变",
-    "description": "孙悟空仗着火眼金睛看破敌招，翻腾闪转之间身法愈发迅捷；身法永久提升。",
-    "stat": "spd",
-    "value": 0.1,
-    "scope": "permanent",
-    "mode": "add_pct"
+    "description": "孙悟空仗着火眼金睛看破敌招，对已被降低防御的目标造成伤害提高12%。",
+    "bonuses": {
+      "damage": 0.12
+    },
+    "condition": "target_weakened"
   },
   "bond": {
     "id": "qitian",
     "name": "齐天大圣",
-    "members": ["sunwukong", "nezha"],
+    "description": "与哪吒同阵时，大闹天宫对已降防目标的伤害系数提高15%。",
+    "members": [
+      "sunwukong",
+      "nezha"
+    ],
     "requires": 2,
-    "effects": [{ "stat": "atk", "mode": "add_pct", "value": 0.12, "scope": "run" }]
+    "effects": [],
+    "modifiers": [
+      {
+        "skill": "sunwukong-art",
+        "condition": "target_weakened",
+        "coefficient_bonus": 0.15
+      }
+    ]
   },
-  "unlock_cost": { "reputation": 220 },
+  "unlock_cost": {
+    "reputation": 220
+  },
   "asset_id": "trial-v04/sunwukong"
 }
 ```
@@ -92,7 +116,7 @@ npm run build
 
 ## 三、数值平衡规则
 
-基础战力与出征公式一致：`atk + 0.5 × def + 0.1 × hp`。`spd` 不进基础战力，只限制在现有 7–15 区间，避免隐藏超模。
+属性参考分沿用原型公式 `atk + 0.5 × def + 0.1 × hp`，只用于生成时约束基础属性区间，不能预测新版自动战斗的胜负或技能强度。`spd` 限制在 7–15 区间，新战斗中决定出手顺序。
 
 | 品质 | 攻击 | 防御 | 辅助 | 炼制 |
 |---|---|---|---|---|
@@ -105,7 +129,10 @@ npm run build
 - 生成结果要求：与目标偏差 ≤0.6，且落在同品质现有区间 ±2 内；超出直接拒绝。
 - 属性安全范围：气血 80–170、攻击 10–26、防御 6–24、身法 7–15。
 - 招募声望：1 品 80；2 品 130–150；3 品 180–200，可按角色定位在 40–300 内覆盖。
-- 技能效果：主动默认 `add_pct`、`battle`；被动默认 `duty` 或 `permanent`；数值限制在现有范围（主动 8%–28%，被动 6%–18%）。
+- 主动使用 `actions`、`cooldown` 和 `vfx`，支持直接伤害、治疗、护盾、属性增减；被动使用 `bonuses` 与 `condition`。旧 `stat/mode/value/scope` 技能字段直接拒绝。
+- `atk/def/hp/spd` 被动只支持 `always`，在出发时折入自身属性；条件被动只支持本次行动的 `damage/healing/shielding`，条件属性加成会被拒绝，避免生成实际无效的技能。
+- 生成安全预算：主动间隔 2–5 次自身行动，单个效果系数不超过 3，总目标效果预算不超过 10；被动单属性不超过 30%，合计不超过 40%。这些是输入约束，实际平衡仍需同等条件战斗对照。
+- 出征羁绊使用 `modifiers` 指向成员技能，可调整目标数、系数、持续轮数或追加有限效果；值守羁绊仅接受已实现的产出属性，`pill_rate` 不可上线。
 - 报告会列出同组角色、同品质区间、值守产出百分比加成、招募成本和战力偏差，供上线前人工复核。
 
 ## 四、风格与技能文案规则
@@ -115,7 +142,7 @@ npm run build
 - 主动/被动描述至少各命中一个母题；工具会拒绝没有母题的通用文案。
 - 主动/被动名称不能是“攻击/技能/被动/大招”等通用词，也不能同名。
 - `visual` 至少 30 字且命中母题；`visual_prompt` 与全局 `config/style/style.json` 合并成立绘提示，保证细像素修仙风一致。
-- 技能效果只是图鉴资料，当前战斗仍按队伍总战力结算；不要为本流程新增战斗规则。
+- 技能定义供服务端自动战斗执行；新增角色只能使用 T16 已实现的动作、条件和修饰，不通过任意表达式、脚本或递归追击扩展规则。
 
 ## 五、自动校验
 
@@ -135,13 +162,13 @@ npm run build
 
 - [x] 孙悟空样例：3 品攻击/爆发，目标 38.0，实际 38.0；气血 110 / 攻击 22 / 防御 10 / 身法 14。
 - [x] 同组对照：哪吒 33.0、赵云 37.0、杨戬 38.8、关羽 40.0；未超过同品质上限。
-- [x] 主动「大闹天宫」、被动「七十二变」、羁绊「齐天大圣」均命中角色母题。
+- [x] 主动「大闹天宫」是双目标伤害，被动「七十二变」强化对降防目标的伤害，羁绊「齐天大圣」修改对应技能；均命中角色母题。
 - [x] 临时配置校验通过；立绘标记为待生成，未写入正式 16 人名单。
-- [x] 工具测试覆盖平衡、确定性、形态差异、文案母题、重复 id、错误羁绊、apply 安全。
+- [x] 工具测试覆盖属性预算、确定性、形态差异、文案母题、重复 id、错误羁绊、apply 安全及新版执行字段。
 
 ## 七、边界
 
 - 不调用生图 API；立绘需要单独授权后生成，工具只产出风格一致的提示。
-- 不改后端战斗、存档、接口契约；新增弟子仍走现有配置驱动。
+- 新增弟子仍走 T16 的配置驱动，不因单个角色增加另一套战斗规则、存档结构或接口契约。
 - 不把新角色自动塞进既有羁绊；要加入现有羁绊，手动改 `members` 并跑校验。新建羁绊涉及既有角色时，`--apply` 会把这些角色的图鉴羁绊列表同步加上新羁绊 id。
 - 不把暂存样例当作已上线内容；只有 `--apply` 且校验通过才算进入游戏。

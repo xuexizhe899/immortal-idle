@@ -43,9 +43,8 @@ def tree(tmp_path: Path) -> tuple[Path, Path]:
             "id": "s1",
             "name": "S1",
             "type": "active",
-            "effects": [
-                {"stat": "atk", "mode": "add_pct", "value": 0.1, "scope": "battle"}
-            ],
+            "effects": [], "cooldown": 3, "vfx": "strike",
+            "actions": [{"kind": "damage", "target": "enemy_first", "coefficient": 1.8}],
         },
     )
     write_json(
@@ -54,14 +53,7 @@ def tree(tmp_path: Path) -> tuple[Path, Path]:
             "id": "p1",
             "name": "P1",
             "type": "passive",
-            "effects": [
-                {
-                    "stat": "material_rate",
-                    "mode": "add_pct",
-                    "value": 0.1,
-                    "scope": "duty",
-                }
-            ],
+            "effects": [], "bonuses": {"damage": .1}, "condition": "always",
         },
     )
     write_json(
@@ -190,6 +182,76 @@ def test_mode_pool_reference_is_reported(tree: tuple[Path, Path]) -> None:
     )
     errors = vc.validate(config, assets)
     assert any("enemy_pool[0] 'ghost_enemy'" in e for e in errors)
+
+
+@pytest.mark.parametrize("action", [
+    {"kind": "damage", "target": "enemy_first", "count": 7},
+    {"kind": "damage", "target": "random_enemy"},
+    {"kind": "damage", "target": "enemy_first", "coefficient": float("nan")},
+    {"kind": "buff", "target": "all_allies", "stat": "hp", "value": .1},
+    {"kind": "shield", "target": "ally_template", "coefficient": 2},
+    {"kind": ["damage"], "target": {"name": "enemy_first"}},
+    {"kind": "damage", "target": "enemy_first", "repeat": 100},
+])
+def test_invalid_combat_actions_are_rejected(tree, action):
+    config, assets = tree
+    patch(config / "skills" / "s1.json", actions=[action])
+    assert any("config/skills/s1.json" in error for error in vc.validate(config, assets))
+
+
+def test_duty_skills_and_unimplemented_pill_output_are_rejected(tree):
+    config, assets = tree
+    patch(config / "skills" / "p1.json", bonuses={"pill_rate": .1})
+    assert any("未实现的属性 'pill_rate'" in error for error in vc.validate(config, assets))
+    patch(config / "skills" / "p1.json", bonuses={"damage": .1}, effects=[
+        {"stat": "cultivation_rate", "mode": "add_pct", "value": .1, "scope": "duty"},
+    ])
+    assert any("effects 必须为空" in error for error in vc.validate(config, assets))
+
+
+@pytest.mark.parametrize("stat", ["atk", "def", "hp", "spd"])
+@pytest.mark.parametrize("condition", ["shielded", "target_weakened", "first_round"])
+def test_conditional_attributes_are_rejected_instead_of_silently_ignored(tree, stat, condition):
+    config, assets = tree
+    patch(config / "skills" / "p1.json", bonuses={stat: .1}, condition=condition)
+    assert any("条件被动只支持" in error for error in vc.validate(config, assets))
+    patch(config / "skills" / "p1.json", condition="always")
+    assert vc.validate(config, assets) == []
+
+
+def test_bond_modifier_requires_member_active_and_valid_extra_target(tree):
+    config, assets = tree
+    write_json(config / "bonds" / "bond.json", {
+        "id": "bond", "name": "羁绊", "members": ["d1"], "requires": 1, "effects": [],
+        "modifiers": [{"skill": "p1", "extra_actions": [{
+            "kind": "shield", "target": "ally_template", "target_template": "ghost", "coefficient": 1,
+        }]}],
+    })
+    errors = vc.validate(config, assets)
+    assert any("主动技能" in error for error in errors)
+    assert any("必须是羁绊成员" in error for error in errors)
+
+
+def test_enemy_encounter_requires_real_templates_and_at_most_six_units(tree):
+    config, assets = tree
+    write_json(config / "modes" / "tower.json", {
+        "id": "tower", "name": "塔", "enabled": True,
+        "encounters": {"battle": ["ghost"], "elite": ["ghost"] * 7, "boss": []},
+    })
+    errors = vc.validate(config, assets)
+    assert any("敌人 'ghost' 不存在" in error for error in errors)
+    assert sum("敌方需要 1..6 人" in error for error in errors) == 2
+
+
+def test_invalid_enemy_stats_and_embedded_skill_are_rejected(tree):
+    config, assets = tree
+    write_json(config / "enemies" / "guard.json", {
+        "id": "guard", "name": "守卫", "base_stats": {"hp": 10, "atk": -1, "def": 1, "spd": 1},
+        "skill": {"id": "guard-hit", "name": "攻击", "type": "active", "effects": [], "cooldown": 0, "vfx": "strike", "actions": []},
+    })
+    errors = vc.validate(config, assets)
+    assert any("base_stats.atk" in error for error in errors)
+    assert any("cooldown" in error for error in errors)
 
 
 @pytest.fixture()

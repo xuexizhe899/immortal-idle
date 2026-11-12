@@ -84,7 +84,7 @@ export function harness(slots = { 1: snapshot() }, preferences = {}) {
     const handler = handlers.get(`${method} ${path}`)
     if (handler) return await handler(request)
     if (method === 'GET' && path === '/catalog') return json({
-      rules: { max_party: 5, max_duty: 6 },
+      rules: { max_party: 6, max_duty: 6 },
       disciples: { alpha: { name: '甲弟子' }, beta: { name: '乙弟子' }, gamma: { name: '丙弟子' } },
       recipes: { ju_qi_dan: { name: '聚气丹' } },
     })

@@ -6,12 +6,18 @@
     "zhouyu"
   ],
   "requires": 2,
-  "effects": [
+  "effects": [],
+  "description": "水火共谋：八阵图多保护一位同道，赤壁火攻的降防持续额外1回合。",
+  "modifiers": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "run"
+      "skill": "zhugeliang-art",
+      "condition": "always",
+      "add_targets": 1
+    },
+    {
+      "skill": "zhouyu-art",
+      "condition": "always",
+      "duration_bonus": 1
     }
   ]
 }

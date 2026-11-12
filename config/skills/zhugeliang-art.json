@@ -2,13 +2,17 @@
   "id": "zhugeliang-art",
   "name": "八阵图",
   "type": "active",
-  "description": "诸葛亮的主动招式，出征时提升def。",
-  "effects": [
+  "description": "诸葛亮布下八阵图，为气血比例最低的两位同道各施加200%攻击的护盾，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "jade",
+  "actions": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.18,
-      "scope": "battle"
+      "kind": "shield",
+      "target": "ally_lowest",
+      "count": 2,
+      "coefficient": 2,
+      "duration": 2
     }
   ]
 }

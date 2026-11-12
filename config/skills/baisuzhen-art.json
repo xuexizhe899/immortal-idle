@@ -2,13 +2,24 @@
   "id": "baisuzhen-art",
   "name": "水漫金山",
   "type": "active",
-  "description": "白素贞的主动招式，出征时提升def。",
-  "effects": [
+  "description": "白素贞以水漫金山压制敌阵，对全部敌人造成70%攻击伤害，并使其攻击降低15%，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "water",
+  "actions": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.18,
-      "scope": "battle"
+      "kind": "damage",
+      "target": "all_enemies",
+      "count": 6,
+      "coefficient": 0.7
+    },
+    {
+      "kind": "buff",
+      "target": "all_enemies",
+      "count": 6,
+      "stat": "atk",
+      "value": -0.15,
+      "duration": 2
     }
   ]
 }

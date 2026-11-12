@@ -2,13 +2,10 @@
   "id": "yangjian-passive",
   "name": "天眼",
   "type": "passive",
-  "description": "杨戬的被动，提升spd。",
-  "effects": [
-    {
-      "stat": "spd",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "permanent"
-    }
-  ]
+  "description": "杨戬以天眼洞察先机，本次出征身法提高12%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "spd": 0.12
+  }
 }

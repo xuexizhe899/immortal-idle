@@ -26,7 +26,7 @@ CONFIG_DIR = ROOT / "config"
 ASSETS_DIR = ROOT / "frontend" / "public" / "assets"
 DEFAULT_OUT = ROOT / "artifacts" / "character-drafts"
 sys.path.insert(0, str(TOOLS_DIR))
-from validate_config import validate  # noqa: E402
+from validate_config import check_modifiers, check_skill, is_finite_number, validate  # noqa: E402
 
 ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]{2,30}$")
 ORIGINS = {"sanguo", "myth", "history"}
@@ -35,7 +35,7 @@ LEANS = {"attack", "defense", "support", "craft"}
 COMBAT_STATS = {"hp", "atk", "def", "spd"}
 YIELD_STATS = {
     "cultivation_rate", "spirit_stone_rate", "stamina_rate",
-    "material_rate", "pill_rate",
+    "material_rate", "injury_rate",
 }
 GENERIC_SKILL_NAMES = {"攻击", "技能", "被动", "绝招", "大招", "招式", "本领", "法术", "能力"}
 
@@ -98,22 +98,18 @@ COSTS = {
 }
 
 ACTIVE_DEFAULTS = {
-    "attack": ("atk", {1: 0.16, 2: 0.20, 3: 0.24}),
-    "defense": ("def", {1: 0.12, 2: 0.16, 3: 0.20}),
-    "support": ("def", {1: 0.10, 2: 0.14, 3: 0.18}),
-    "craft": ("atk", {1: 0.10, 2: 0.14, 3: 0.18}),
+    "attack": [{"kind": "damage", "target": "enemy_first", "coefficient": 2.0}],
+    "defense": [{"kind": "shield", "target": "ally_lowest", "count": 3, "coefficient": 1.4, "duration": 2}],
+    "support": [{"kind": "buff", "target": "all_allies", "count": 6, "stat": "atk", "value": .12, "duration": 2}],
+    "craft": [{"kind": "heal", "target": "ally_lowest", "count": 2, "coefficient": 1.8}],
 }
-PASSIVE_DEFAULTS = {
-    "attack": ("cultivation_rate", {1: 0.08, 2: 0.10, 3: 0.12}, "duty"),
-    "defense": ("spirit_stone_rate", {1: 0.08, 2: 0.10, 3: 0.12}, "duty"),
-    "support": ("stamina_rate", {1: 0.08, 2: 0.10, 3: 0.12}, "duty"),
-    "craft": ("material_rate", {1: 0.10, 2: 0.12, 3: 0.15}, "duty"),
-}
+PASSIVE_DEFAULTS = {"attack": "damage", "defense": "def", "support": "shielding", "craft": "healing"}
 
 STAT_NAMES = {
     "hp": "气血", "atk": "攻击", "def": "防御", "spd": "身法",
     "cultivation_rate": "修为产出", "spirit_stone_rate": "灵石产出",
-    "stamina_rate": "行动力恢复", "material_rate": "材料产出", "pill_rate": "丹药产出",
+    "stamina_rate": "行动力恢复", "material_rate": "材料产出", "injury_rate": "伤势恢复",
+    "damage": "伤害", "healing": "治疗", "shielding": "护盾",
 }
 ORIGIN_NAMES = {"sanguo": "三国", "myth": "神话", "history": "历史"}
 LEAN_NAMES = {"attack": "攻击", "defense": "防御", "support": "辅助", "craft": "炼制"}
@@ -155,7 +151,7 @@ def is_number(value: object) -> bool:
 
 
 def base_power(stats: dict[str, float]) -> float:
-    """与出征战力一致的单人基础战力：攻击 + 0.5 防御 + 0.1 气血。"""
+    """沿用原型基础参考分校准属性区间，不预测自动战斗胜负。"""
     return stats["atk"] + stats["def"] * 0.5 + stats["hp"] * 0.1
 
 
@@ -163,6 +159,18 @@ def effect_text(effect: dict) -> str:
     """把效果转成报告里的中文短句。"""
     name = STAT_NAMES.get(effect["stat"], effect["stat"])
     return f"{name} +{effect['value'] * 100:.0f}%（{SCOPE_NAMES.get(effect['scope'], effect['scope'])}）"
+
+
+def skill_text(skill: dict) -> str:
+    """报告直接描述执行配置，避免把参考分当作技能强度结论。"""
+    if skill["type"] == "passive":
+        return " / ".join(f"{STAT_NAMES[stat]} +{value:.0%}" for stat, value in skill["bonuses"].items()) + f"；条件 {skill['condition']}"
+    kinds = {"damage": "伤害", "heal": "治疗", "shield": "护盾", "buff": "属性增减"}
+    actions = []
+    for action in skill["actions"]:
+        amount = f"{action['value']:+.0%} {STAT_NAMES[action['stat']]}" if action["kind"] == "buff" else f"{action.get('coefficient', 1):.0%} 攻击"
+        actions.append(f"{kinds[action['kind']]} {amount} × {action.get('count', 1)}；目标 {action['target']}")
+    return " / ".join(actions) + f"；每 {skill['cooldown']} 次自身行动施放"
 
 
 def has_motif(text: str, motifs: list[str]) -> bool:
@@ -182,7 +190,7 @@ def text_field(brief: dict, key: str, label: str, minimum: int, maximum: int | N
 
 
 def validate_effect(effect: dict, *, kind: str) -> dict:
-    """校验招式/被动/羁绊效果，并返回字段顺序固定的副本。"""
+    """只保留已实现的值守羁绊效果；战斗技能改由动作与被动加成执行。"""
     stat = effect.get("stat")
     mode = effect.get("mode", "add_pct")
     scope = effect.get("scope")
@@ -193,36 +201,62 @@ def validate_effect(effect: dict, *, kind: str) -> dict:
         if stat not in YIELD_STATS:
             raise BriefError(f"{kind} 的值守效果只能使用产出类属性")
         low, high = 0.06, 0.18
-    elif scope in {"battle", "run", "permanent"}:
-        if stat not in COMBAT_STATS:
-            raise BriefError(f"{kind} 的战斗/永久效果只能使用 hp/atk/def/spd")
-        low, high = (0.08, 0.28) if kind == "主动招式" else (0.06, 0.18)
     else:
-        raise BriefError(f"{kind} 的 scope 必须是 battle/run/duty/permanent")
-    if not is_number(value) or not low <= value <= high:
+        raise BriefError(f"{kind} 的 effects 只接受 duty，出征羁绊请使用 modifiers")
+    if not is_finite_number(value) or not low <= value <= high:
         raise BriefError(f"{kind} 的数值必须在 {low:.0%}–{high:.0%} 之间")
     return {"stat": stat, "mode": mode, "value": float(value), "scope": scope}
 
 
-def make_skill_effect(kind: str, lean: str, rarity: int, source: dict) -> dict:
-    """按倾向/品质给默认效果，允许角色卡覆盖，但限制在现有范围内。"""
+def make_skill(kind: str, brief: dict) -> dict:
+    """生成与服务端一致的可执行技能，旧百分比资料字段不能静默接入。"""
+    source = brief[kind]
+    allowed = {"name", "description"} | ({"actions", "cooldown", "vfx"} if kind == "active" else {"bonuses", "condition"})
+    unknown = set(source) - allowed
+    if unknown:
+        raise BriefError(f"{kind} 不支持字段 {sorted(unknown)}；主动使用 actions，被动使用 bonuses")
+    skill = {
+        "id": f"{brief['id']}-{'art' if kind == 'active' else 'passive'}",
+        "name": source["name"], "type": kind,
+        "description": source["description"], "effects": [],
+    }
     if kind == "active":
-        stat, values = ACTIVE_DEFAULTS[lean]
-        effect = {"stat": stat, "mode": "add_pct", "value": values[rarity], "scope": "battle"}
-        allowed_scopes = {"battle"}
+        skill.update(
+            cooldown=source.get("cooldown", 3), vfx=source.get("vfx", "strike"),
+            actions=source.get("actions", [dict(action) for action in ACTIVE_DEFAULTS[brief["lean"]]]),
+        )
     else:
-        stat, values, scope = PASSIVE_DEFAULTS[lean]
-        effect = {"stat": stat, "mode": "add_pct", "value": values[rarity], "scope": scope}
-        allowed_scopes = {"duty", "permanent"}
-    for key in ("stat", "mode", "value", "scope"):
-        if key in source:
-            effect[key] = source[key]
-    if effect["scope"] not in allowed_scopes:
-        raise BriefError(f"{'主动招式' if kind == 'active' else '被动'}的 scope 必须是 {sorted(allowed_scopes)}")
-    return validate_effect(effect, kind="主动招式" if kind == "active" else "被动")
+        skill.update(
+            bonuses=source.get("bonuses", {PASSIVE_DEFAULTS[brief["lean"]]: {1: .08, 2: .1, 3: .12}[brief["rarity"]]}),
+            condition=source.get("condition", "always"),
+        )
+    errors: list[str] = []
+    check_skill(skill, kind, errors)
+    if errors:
+        raise BriefError("技能不可执行：" + "；".join(errors))
+    # 内容工具的安全预算比引擎上限更窄；配置可执行不等于适合直接上线。
+    if kind == "active":
+        if not 2 <= skill["cooldown"] <= 5:
+            raise BriefError("生成角色的主动 cooldown 必须在 2–5 次自身行动之间")
+        budget = 0.0
+        for action in skill["actions"]:
+            if action["kind"] == "buff":
+                if abs(action["value"]) > .3:
+                    raise BriefError("生成角色的单条属性增减不能超过 30%")
+                budget += abs(action["value"]) * action.get("count", 1) * 3
+            else:
+                coefficient = action.get("coefficient", 1)
+                if coefficient > 3:
+                    raise BriefError("生成角色的单目标伤害、治疗与护盾系数不能超过 300%")
+                budget += coefficient * action.get("count", 1)
+        if budget > 10:
+            raise BriefError("生成角色的主动总效果预算超过 10，请减少目标、系数或增减益")
+    elif any(value > .3 for value in skill["bonuses"].values()) or sum(skill["bonuses"].values()) > .4:
+        raise BriefError("生成角色被动单属性不能超过 30%，合计不能超过 40%")
+    return skill
 
 
-def make_bond(source: object, new_id: str, disciples: dict[str, dict], bonds: dict[str, dict]) -> dict | None:
+def make_bond(source: object, new_id: str, disciples: dict[str, dict], bonds: dict[str, dict], skills: dict[str, dict]) -> dict | None:
     """生成可选羁绊；不覆盖既有羁绊，避免误改其他角色。"""
     if source is None:
         return None
@@ -247,18 +281,38 @@ def make_bond(source: object, new_id: str, disciples: dict[str, dict], bonds: di
     requires = source.get("requires", len(members))
     if not isinstance(requires, int) or isinstance(requires, bool) or not 1 <= requires <= len(members):
         raise BriefError(f"羁绊 requires 必须是 1–{len(members)} 的整数")
-    raw_effects = source.get("effects")
-    if not isinstance(raw_effects, list) or not 1 <= len(raw_effects) <= 2:
-        raise BriefError("羁绊 effects 需要 1–2 条效果")
+    raw_effects = source.get("effects", [])
+    if not isinstance(raw_effects, list) or len(raw_effects) > 2:
+        raise BriefError("羁绊 effects 最多接受两条值守效果")
     effects = []
     for raw in raw_effects:
         if not isinstance(raw, dict):
             raise BriefError("羁绊效果必须是对象")
         effect = validate_effect(raw, kind="羁绊")
-        if effect["scope"] not in {"run", "duty"}:
-            raise BriefError("羁绊效果 scope 只接受 run 或 duty")
         effects.append(effect)
-    return {"id": bond_id, "name": name, "members": members, "requires": requires, "effects": effects}
+    modifiers = source.get("modifiers", [])
+    if modifiers:
+        errors: list[str] = []
+        check_modifiers(modifiers, "bond.modifiers", skills, errors)
+        member_skills = {f"{new_id}-art"} | {disciples[member]["skill"] for member in members if member in disciples}
+        for modifier in modifiers if isinstance(modifiers, list) else []:
+            if isinstance(modifier, dict) and modifier.get("skill") not in member_skills:
+                errors.append("只能修饰本羁绊成员的主动技能")
+        if errors:
+            raise BriefError("羁绊不可执行：" + "；".join(errors))
+        for modifier in modifiers:
+            if modifier.get("add_targets", 0) > 2 or modifier.get("coefficient_bonus", 0) > .3 or modifier.get("duration_bonus", 0) > 2:
+                raise BriefError("生成羁绊最多追加2个目标、30%系数或2回合持续时间")
+            for action in modifier.get("extra_actions", []):
+                if action["kind"] == "buff" and abs(action["value"]) > .3:
+                    raise BriefError("羁绊额外动作的属性增减不能超过30%")
+                if action["kind"] != "buff" and action.get("coefficient", 1) > 2:
+                    raise BriefError("羁绊额外动作的系数不能超过200%")
+                if action.get("target") == "ally_template" and action.get("target_template") not in members:
+                    raise BriefError("羁绊额外动作的指定目标必须是羁绊成员")
+    if not effects and not modifiers:
+        raise BriefError("羁绊需要 modifiers 技能修饰或已实现的值守 effects")
+    return {"id": bond_id, "name": name, "description": source.get("description", ""), "members": members, "requires": requires, "effects": effects, **({"modifiers": modifiers} if modifiers else {})}
 
 
 def validate_brief(
@@ -431,26 +485,27 @@ def build_report(package: dict, disciples: dict[str, dict]) -> str:
             brief["name"] if member == brief["id"] else disciples.get(member, {}).get("name", member)
             for member in bond["members"]
         ]
-        bond_names = f"- 羁绊：{bond['name']}（{' / '.join(member_names)}，{effect_text(bond['effects'][0])}）"
+        bond_names = f"- 羁绊：{bond['name']}（{' / '.join(member_names)}，{len(bond.get('modifiers', []))} 条技能修饰，{len(bond['effects'])} 条值守效果）"
     lines = [
         f"# 角色数值报告：{brief['name']}",
         "",
         f"- 角色：{brief['name']} · {brief['title']}（{ORIGIN_NAMES[brief['origin']]} / {brief['rarity']} 品 / {LEAN_NAMES[brief['lean']]} / {PROFILE_LABELS[brief['profile']]}）",
-        f"- 目标战力：{brief['power_target']:.2f}（{brief['rarity']} 品{LEAN_NAMES[brief['lean']]}基准）",
-        f"- 实际战力：{power:.2f}（偏差 {(power - brief['power_target']) / brief['power_target'] * 100:+.2f}%）",
+        f"- 目标基础参考分：{brief['power_target']:.2f}（{brief['rarity']} 品{LEAN_NAMES[brief['lean']]}基准）",
+        f"- 实际基础参考分：{power:.2f}（偏差 {(power - brief['power_target']) / brief['power_target'] * 100:+.2f}%）",
         f"- 基础属性：气血 {stats['hp']} / 攻击 {stats['atk']} / 防御 {stats['def']} / 身法 {stats['spd']}",
         f"- 同组对照（{brief['rarity']} 品{LEAN_NAMES[brief['lean']]}）：{peers_text}",
         f"- 同品质范围：{rarity_range}",
         f"- 值守价值：品质系数 {DUTY_RARITY_FACTOR[brief['rarity']]:.3f} + 境界 {DUTY_REALM_BONUS:.2f} = {duty_value:.1%}（{LEAN_DUTY[brief['lean']]}产出加成）",
         f"- 招募声望：{package['disciple']['unlock_cost']['reputation']}",
-        f"- 主动招式：{package['active']['name']}（{effect_text(package['active']['effects'][0])}）",
+        f"- 主动招式：{package['active']['name']}（{skill_text(package['active'])}）",
         f"  {package['active']['description']}",
-        f"- 被动：{package['passive']['name']}（{effect_text(package['passive']['effects'][0])}）",
+        f"- 被动：{package['passive']['name']}（{skill_text(package['passive'])}）",
         f"  {package['passive']['description']}",
         bond_names or "- 羁绊：无",
         f"- 立绘：{'已就绪' if package['art']['status'] == 'ready' else '待生成'}（{brief['asset_id']}）",
         f"- 风格母题：{'、'.join(brief['motifs'])}",
-        f"- 结论：基础战力 {power:.2f}，位于同品质 {rarity_range} 区间内；{relation_text}，符合「{PROFILE_LABELS[brief['profile']]}」定位。",
+        f"- 属性检查：基础参考分 {power:.2f}，位于同品质 {rarity_range} 区间内；{relation_text}，符合「{PROFILE_LABELS[brief['profile']]}」定位。",
+        "- 战斗平衡：参考分仅校准属性，技能与羁绊仍需在同等级、同敌人条件下模拟验收。",
         "",
         "> 草稿目录可直接审阅；立绘完成前请勿 `--apply`，除非显式使用 `--allow-pending`。",
         "> 新羁绊涉及既有角色时，apply 会把这些角色的图鉴羁绊列表同步加上该羁绊。",
@@ -477,9 +532,9 @@ def build_package(brief: dict, *, force: bool = False, config_dir: Path = CONFIG
     ]
     if rarity_powers and not min(rarity_powers) - 2 <= power <= max(rarity_powers) + 2:
         raise BriefError("生成战力超出同品质现有区间，请降低 power_target 或调整品质/倾向")
-    active_effect = make_skill_effect("active", brief["lean"], brief["rarity"], brief["active"])
-    passive_effect = make_skill_effect("passive", brief["lean"], brief["rarity"], brief["passive"])
-    bond = make_bond(brief.get("bond"), brief["id"], disciples, bonds)
+    active = make_skill("active", brief)
+    passive = make_skill("passive", brief)
+    bond = make_bond(brief.get("bond"), brief["id"], disciples, bonds, {**skills, active["id"]: active})
     cost = (brief.get("unlock_cost") or {}).get("reputation", COSTS[(brief["rarity"], brief["lean"])])
     style_path = config_dir / "style" / "style.json"
     if not style_path.is_file():
@@ -506,20 +561,8 @@ def build_package(brief: dict, *, force: bool = False, config_dir: Path = CONFIG
     package = {
         "brief": brief,
         "disciple": disciple,
-        "active": {
-            "id": f"{brief['id']}-art",
-            "name": brief["active"]["name"],
-            "type": "active",
-            "description": brief["active"]["description"],
-            "effects": [active_effect],
-        },
-        "passive": {
-            "id": f"{brief['id']}-passive",
-            "name": brief["passive"]["name"],
-            "type": "passive",
-            "description": brief["passive"]["description"],
-            "effects": [passive_effect],
-        },
+        "active": active,
+        "passive": passive,
         "bond": bond,
         "art": art,
     }

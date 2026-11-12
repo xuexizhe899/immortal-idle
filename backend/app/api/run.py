@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.saves import get_repo
 from app.api.state import commit_mutation, prepare_mutation, snapshot, status_of
-from app.config_loader import load_affixes, load_bonds, load_disciples, load_modes
+from app.config_loader import load_bonds, load_disciples, load_modes
 from app.domain import run_engine
 from app.models.api import RevisionRequest, RunResponse, RunSettleResponse
 from app.models.save import GameState
@@ -62,10 +62,7 @@ async def choose_node(
     slot_id: int, payload: ChooseRequest, repo: SaveRepository = Depends(get_repo),
 ) -> RunResponse:
     command = await prepare_mutation(slot_id, repo, payload.revision)
-    error = run_engine.choose(
-        command.state, payload.choice, load_disciples(), load_affixes(),
-        load_modes()["tower"], load_bonds(),
-    )
+    error = run_engine.choose(command.state, payload.choice)
     if error:
         raise HTTPException(status_code=400, detail=error)
     await commit_mutation(slot_id, command, repo)
@@ -77,7 +74,7 @@ async def pick_affix(
     slot_id: int, payload: AffixRequest, repo: SaveRepository = Depends(get_repo),
 ) -> RunResponse:
     command = await prepare_mutation(slot_id, repo, payload.revision)
-    error = run_engine.pick_affix(command.state, payload.affix_id, load_modes()["tower"])
+    error = run_engine.pick_affix(command.state, payload.affix_id)
     if error:
         raise HTTPException(status_code=400, detail=error)
     await commit_mutation(slot_id, command, repo)

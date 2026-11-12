@@ -157,24 +157,53 @@ test('deleting the current save with a lost response recovers an existing save w
 })
 
 test('repeating the same notice registers a fresh feedback event so it can appear again', async t => {
-  const ids = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta']
+  const ids = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta']
   const session = harness({ 1: snapshot({ disciples: ids.map(id => disciple(id)) }) })
   t.after(() => session.cleanup())
   await session.store.bootstrap()
-  for (const id of ids.slice(0, 5)) session.store.toggleParty(id)
-  assert.equal(session.store.party.length, 5)
+  for (const id of ids.slice(0, 6)) session.store.toggleParty(id)
+  assert.equal(session.store.party.length, 6)
 
-  session.store.toggleParty('zeta')
+  session.store.toggleParty('eta')
   const firstEvent = session.store.noticeId
   assert.equal(session.store.notice, '队伍已满，请先移除一名弟子。')
   assert.ok(firstEvent > 0)
 
-  session.store.toggleParty('zeta')
+  session.store.toggleParty('eta')
   assert.equal(session.store.notice, '队伍已满，请先移除一名弟子。')
   assert.equal(session.store.noticeId, firstEvent + 1, 'identical text must still count as a new notice')
 
   session.store.dismissNotice()
   assert.equal(session.store.notice, null)
-  session.store.toggleParty('zeta')
+  session.store.toggleParty('eta')
   assert.equal(session.store.noticeId, firstEvent + 2)
+})
+
+
+test('six-person formation retains explicit position order across save switching and departure', async t => {
+  const ids = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta']
+  const session = harness({
+    1: snapshot({ disciples: ids.map(id => disciple(id)) }),
+    2: snapshot({ disciples: [disciple('other')] }),
+  })
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  for (const id of ids) session.store.toggleParty(id)
+  assert.deepEqual([...session.store.party], ids.slice(0, 6))
+  assert.match(session.store.notice, /队伍已满/)
+  session.store.moveParty('zeta', -1)
+  session.store.moveParty('alpha', -1)
+  const ordered = ['alpha', 'beta', 'gamma', 'delta', 'zeta', 'epsilon']
+  assert.deepEqual([...session.store.party], ordered)
+  await session.store.switchSave(2)
+  await session.store.switchSave(1)
+  assert.deepEqual([...session.store.party], ordered, 'snapshot refresh must preserve formation rather than roster order')
+  session.respond('POST', '/saves/1/run/start', request => {
+    assert.deepEqual(request.body.party, ordered)
+    return json(snapshot({ revision: 2, disciples: ids.map(id => disciple(id, { busy: ordered.includes(id) })), activeRun: activeRun(ordered) }))
+  })
+  await session.store.startRun([...session.store.party])
+  session.store.moveParty('alpha', 1)
+  assert.deepEqual([...session.store.party], ordered, 'an active expedition locks positions')
+  assert.equal(session.count('POST', '/saves/1/run/start'), 1)
 })

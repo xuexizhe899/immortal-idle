@@ -2,13 +2,17 @@
   "id": "zhangfei-art",
   "name": "燕人咆哮",
   "type": "active",
-  "description": "张飞的主动招式，出征时提升def。",
-  "effects": [
+  "description": "张飞发出燕人咆哮，为全体同道各施加130%攻击的护盾，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "shield",
+  "actions": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.2,
-      "scope": "battle"
+      "kind": "shield",
+      "target": "all_allies",
+      "count": 6,
+      "coefficient": 1.3,
+      "duration": 2
     }
   ]
 }

@@ -2,13 +2,16 @@
   "id": "change-art",
   "name": "月华",
   "type": "active",
-  "description": "嫦娥的主动招式，出征时提升def。",
-  "effects": [
+  "description": "嫦娥洒下月华，为气血比例最低的两位同道各恢复180%攻击的气血。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "heal",
+  "actions": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.15,
-      "scope": "battle"
+      "kind": "heal",
+      "target": "ally_lowest",
+      "count": 2,
+      "coefficient": 1.8
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "id": "cloud_archer",
+  "name": "流云弓卫",
+  "base_stats": {
+    "hp": 65,
+    "atk": 15,
+    "def": 4,
+    "spd": 11
+  },
+  "skill": {
+    "id": "cloud_archer-shot",
+    "name": "穿云箭",
+    "type": "active",
+    "description": "穿云箭攻击气血比例最低的一名敌人。",
+    "effects": [],
+    "cooldown": 3,
+    "vfx": "arrow",
+    "actions": [
+      {
+        "kind": "damage",
+        "target": "enemy_lowest",
+        "count": 1,
+        "coefficient": 1.6
+      }
+    ]
+  }
+}

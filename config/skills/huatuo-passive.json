@@ -2,13 +2,10 @@
   "id": "huatuo-passive",
   "name": "青囊",
   "type": "passive",
-  "description": "华佗的被动，提升pill_rate。",
-  "effects": [
-    {
-      "stat": "pill_rate",
-      "mode": "add_pct",
-      "value": 0.15,
-      "scope": "duty"
-    }
-  ]
+  "description": "华佗熟记青囊医术，自身治疗效果提高20%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "healing": 0.2
+  }
 }

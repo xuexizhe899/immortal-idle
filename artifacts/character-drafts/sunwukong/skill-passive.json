@@ -2,13 +2,10 @@
   "id": "sunwukong-passive",
   "name": "七十二变",
   "type": "passive",
-  "description": "孙悟空仗着火眼金睛看破敌招，翻腾闪转之间身法愈发迅捷；身法永久提升。",
-  "effects": [
-    {
-      "stat": "spd",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "permanent"
-    }
-  ]
+  "description": "孙悟空仗着火眼金睛看破敌招，对已被降低防御的目标造成伤害提高12%。",
+  "effects": [],
+  "bonuses": {
+    "damage": 0.12
+  },
+  "condition": "target_weakened"
 }

@@ -2,13 +2,17 @@
   "id": "zhangheng-art",
   "name": "浑天",
   "type": "active",
-  "description": "张衡的主动招式，出征时提升def。",
-  "effects": [
+  "description": "张衡转动浑天仪，为气血比例最低的三位同道各施加140%攻击的护盾，持续2回合。",
+  "effects": [],
+  "cooldown": 3,
+  "vfx": "jade",
+  "actions": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.12,
-      "scope": "battle"
+      "kind": "shield",
+      "target": "ally_lowest",
+      "count": 3,
+      "coefficient": 1.4,
+      "duration": 2
     }
   ]
 }

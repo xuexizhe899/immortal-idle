@@ -2,13 +2,10 @@
   "id": "zhaoyun-passive",
   "name": "一身是胆",
   "type": "passive",
-  "description": "赵云的被动，提升spd。",
-  "effects": [
-    {
-      "stat": "spd",
-      "mode": "add_pct",
-      "value": 0.08,
-      "scope": "permanent"
-    }
-  ]
+  "description": "赵云一身是胆，本次出征身法提高10%。",
+  "effects": [],
+  "condition": "always",
+  "bonuses": {
+    "spd": 0.1
+  }
 }

@@ -2,13 +2,10 @@
   "id": "guanyu-passive",
   "name": "武圣",
   "type": "passive",
-  "description": "关羽的被动，提升atk。",
-  "effects": [
-    {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "permanent"
-    }
-  ]
+  "description": "关羽以武圣之势破阵，对已被降低防御的目标造成伤害提高18%。",
+  "effects": [],
+  "condition": "target_weakened",
+  "bonuses": {
+    "damage": 0.18
+  }
 }

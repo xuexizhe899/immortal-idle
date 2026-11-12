@@ -6,23 +6,71 @@
   "node_count": 20,
   "start_hp": 600,
   "base_enemy_power": 20,
-  "enemy_growth": 0.4,
+  "enemy_growth": 0.045,
   "reward_growth": 0.1,
   "damage_scale": 60,
   "boss_every": 20,
   "choices_per_step": 2,
   "elite_chance": 20,
   "defeat_ratio": 0.5,
-  "defeat_floor_reward": { "cultivation": 3.0, "reputation": 1.0 },
+  "defeat_floor_reward": {
+    "cultivation": 3.0,
+    "reputation": 1.0
+  },
   "rewards": {
-    "battle": { "cultivation": 10.0, "spirit_stone": 5.0, "reputation": 3.0, "ling_cao": 1, "yun_mu": 1, "han_tie": 1 },
-    "elite": { "cultivation": 20.0, "spirit_stone": 10.0, "reputation": 6.0, "ling_cao": 2, "jiao_gu": 1, "xuan_jing": 1 },
-    "boss": { "cultivation": 50.0, "spirit_stone": 25.0, "reputation": 15.0, "ling_cao": 5, "han_tie": 3, "yun_mu": 2, "jiu_ye": 2, "xuan_jing": 2 }
+    "battle": {
+      "cultivation": 10.0,
+      "spirit_stone": 5.0,
+      "reputation": 3.0,
+      "ling_cao": 1,
+      "yun_mu": 1,
+      "han_tie": 1
+    },
+    "elite": {
+      "cultivation": 20.0,
+      "spirit_stone": 10.0,
+      "reputation": 6.0,
+      "ling_cao": 2,
+      "jiao_gu": 1,
+      "xuan_jing": 1
+    },
+    "boss": {
+      "cultivation": 50.0,
+      "spirit_stone": 25.0,
+      "reputation": 15.0,
+      "ling_cao": 5,
+      "han_tie": 3,
+      "yun_mu": 2,
+      "jiu_ye": 2,
+      "xuan_jing": 2
+    }
   },
   "segments": 5,
   "floors_per_segment": 20,
-  "enemy_pool": [],
+  "enemy_pool": [
+    "stone_guard",
+    "cloud_archer",
+    "jade_warden",
+    "tower_master"
+  ],
   "event_pool": [],
   "affix_pool": [],
-  "reward_table": []
+  "reward_table": [],
+  "encounters": {
+    "battle": [
+      "stone_guard",
+      "cloud_archer",
+      "stone_guard"
+    ],
+    "elite": [
+      "jade_warden",
+      "cloud_archer",
+      "stone_guard"
+    ],
+    "boss": [
+      "tower_master",
+      "jade_warden",
+      "cloud_archer"
+    ]
+  }
 }

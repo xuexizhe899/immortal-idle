@@ -6,12 +6,22 @@
     "change"
   ],
   "requires": 2,
-  "effects": [
+  "effects": [],
+  "description": "日月相守：嫦娥施展月华后，为后羿施加180%攻击的护盾，持续2回合。",
+  "modifiers": [
     {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.1,
-      "scope": "run"
+      "skill": "change-art",
+      "condition": "always",
+      "extra_actions": [
+        {
+          "kind": "shield",
+          "target": "ally_template",
+          "count": 1,
+          "coefficient": 1.8,
+          "duration": 2,
+          "target_template": "houyi"
+        }
+      ]
     }
   ]
 }
