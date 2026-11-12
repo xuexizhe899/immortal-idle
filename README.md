@@ -1,23 +1,25 @@
 # 修仙放置 x 休闲肉鸽
 
-自用、非盈利的单机多档放置 roguelite。设计决策见 `DESIGN.md`，任务拆分见 `tasks/`。
+自用、非盈利的单机多档放置 roguelite。玩法决策见 [DESIGN.md](DESIGN.md)，分层、目录与资产引用规范见 [ARCHITECTURE.md](ARCHITECTURE.md)，任务拆分见 `tasks/`。
 
 ## 技术栈
 
-- 前端：Vue 3 + TypeScript + Vite；PixiJS 只做演出，不装游戏引擎
+- 前端：Vue 3 + TypeScript + Vite + Pinia；当前演出使用 Vue / SVG / CSS，PixiJS 仅保留为可选演出依赖
 - 后端：Python 3.11 + FastAPI + SQLAlchemy 2.0 async + Pydantic v2
 - 存储：SQLite + aiosqlite（WAL），整档 `state_json` + `revision` CAS
-- 部署：Docker Compose（app + Caddy），CI 构建镜像
+- 部署规划：Docker Compose（app + Caddy）；部署文件与镜像流水线尚未落地
 
 ## 目录
 
 ```
-config/     静态内容（弟子/词条/配方/敌人/事件/模式/羁绊/风格）
+config/     静态内容、技能与羁绊、主城布局、风格约定
 backend/    FastAPI 应用、领域逻辑、仓储、测试
-frontend/   Vue 3 界面 + PixiJS 演出
-assets/     生图 master 与 manifest
-tools/      契约生成、配置校验、资产脚本、备份恢复
-deploy/     Dockerfile / compose / Caddyfile
+frontend/   Vue 3 界面、SVG 演出、本地运行资产
+assets/     素材来源、master、提示与生成记录
+tools/      契约辅助、配置校验、资产与内容脚本、离线测量
+artifacts/  任务草稿、截图、测量与验收证据
+docs/       方案与审查记录
+tasks/      任务卡与验收清单
 ```
 
 ## 本地启动
@@ -72,7 +74,7 @@ backend\.venv\Scripts\python.exe tools\generate_item_icons.py
 
 开发时可用 `--only qing_feng_jian` 单独更新图标；已有完整输出目录的清单会保留其余道具，新的预览目录只登记实际生成的文件。
 
-输出 `frontend/public/assets/items/<id>.svg` 和清单 `index.json`；总览页在 Vite 启动后访问 `/item-icons.html`。新增道具时，先在 `config/recipes` 或 `config/materials` 添加配置，再在 `tools/generate_item_icons.py` 的 `ART` 中补同名绘图函数，并同步 `frontend/src/components/ItemIcon.vue` 的 ID 列表。重复运行只按内容更新本脚本负责的文件，不清空资产目录。
+输出 `frontend/public/assets/items/<id>.svg` 和清单 `index.json`；总览页在 Vite 启动后访问 `/item-icons.html`。新增道具时，先在 `config/recipes` 或 `config/materials` 添加配置，再在 `tools/generate_item_icons.py` 的 `ART` 中补同名绘图函数，并同步 `frontend/src/components/itemIcons.ts` 的 ID 列表。重复运行只按内容更新本脚本负责的文件，不清空资产目录。
 
 ## 约束
 

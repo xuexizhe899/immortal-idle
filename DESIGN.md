@@ -10,7 +10,7 @@
 | 项 | 结论 |
 |---|---|
 | 形态 | Web-first，浏览器即运行时；自用、不盈利、单人单机多档 |
-| 前端 | Vue 3 + TypeScript + Vite 全 UI；PixiJS 只做战斗/场景演出；不装游戏引擎 |
+| 前端 | Vue 3 + TypeScript + Vite + Pinia；当前演出为 Vue / SVG / CSS，PixiJS 仅作可选演出依赖 |
 | 后端 | Python 3.11 + FastAPI + SQLAlchemy 2.0 async + Pydantic v2（项目内独立 venv） |
 | 存储 | SQLite + aiosqlite，单库多档，WAL；存档整档一份 `state_json` |
 | 契约 | Pydantic → OpenAPI → 生成 TS 类型，前后端单一来源 |
@@ -39,7 +39,7 @@
 
 | 层 | 选型 | 理由 |
 |---|---|---|
-| 渲染 | Vue 3 + Vite（UI）+ PixiJS（演出） | 放置游戏 90% 是面板/列表/数值，DOM 效率碾压 Canvas；引擎会引入第二套状态源 |
+| 渲染 | Vue 3 + Vite（UI），当前用 SVG / CSS 演出 | 面板与列表使用 DOM，战报驱动演出；保留 PixiJS 依赖供确有需要的复杂演出使用，不引入第二套玩法状态 |
 | 语言 | TS 前端 / Python 后端 | 后端是熟练栈，才能把"质量拉满"真正做满；换语言只练到工具链 |
 | ORM | SQLAlchemy 2.0 async + Alembic | 迁移可升可降；SQLite 需 `batch_alter_table` |
 | 数据库 | SQLite + WAL | 单用户 QPS≈1；零常驻内存；备份即单文件；PostgreSQL 属于"规模" |
@@ -52,58 +52,50 @@
 
 ## 3. 仓库结构
 
+分层职责、允许依赖、新增文件归属与资产引用统一见 [ARCHITECTURE.md](ARCHITECTURE.md)。以下仅列当前主要位置；规范中的目标目录按真实迁移逐步建立。
+
 ```
-xiuxian-idle/
+immortal-idle/
+  ARCHITECTURE.md             # 分层、依赖、目录与资产规范
   DESIGN.md
-  config/                    # 静态内容，进 Git，不进数据库
-    disciples/               # 每个弟子一个文件，如 zhugeliang.json
-    affixes/                 # 词条池与协同组
+  config/                    # 静态定义；本局所需定义在出发时固化进存档快照
+    disciples/               # 弟子模板
+    skills/                  # 主动、被动技能
+    bonds/                   # 羁绊与技能修正
+    affixes/                 # 词条
     recipes/                 # 丹方、器方
-    materials/
-    enemies/
-    events/
-    modes/
-      tower.json             # 爬塔：节点生成、敌人表、奖励表、词条权重
-      expedition.json        # 首版仅占位
-      invasion.json          # 首版仅占位
-    bonds/                   # 羁绊组
-    style/                   # 生图 style bible（style prompt + 风格参考图）
+    materials/ enemies/ events/ modes/
+    ui/                      # 主城背景与建筑热区
+    style/                   # 风格约定
   backend/
     app/
-      api/                   # FastAPI 路由
-      domain/
-        settle.py            # 惰性分段结算
-        rng.py               # 确定性 PRNG 与种子游标
-        run_engine.py        # 出征状态机
-        injuries.py
-        stamina.py
-      models/                # Pydantic：GameState / Disciple / DTO
-      repositories/          # SQLite 访问、CAS 写入、快照
+      main.py                # 启动与应用组装
+      api/                   # HTTP、当前应用编排与响应组装
+      domain/                # 战斗、出征、结算、成长等规则
+      models/                # Pydantic 存档、战斗模型与契约
+      repositories/          # SQLite 整档访问、CAS、快照
+      db.py                  # 引擎、WAL 与会话工厂
+      config_loader.py       # 静态配置加载与缓存
     alembic/
-    tests/                   # 含 property-based 数值测试
-    pyproject.toml
+    tests/
   frontend/
     src/
-      ui/                    # Vue 组件
-      stage/                 # PixiJS 场景
-      stores/                # Pinia
-      generated/             # OpenAPI 生成的 TS 类型（勿手改）
-    public/assets/           # 生成的立绘、场景图（按 asset_id 命名）
-    vite.config.ts
-  assets/
-    manifest.json            # 每次生图的 prompt/参数/模型名/文件名留档
-    masters/                 # 每个角色的 master 立绘（回喂用）
-  tools/
-    gen_assets.py            # 批量生图：生成后立即落盘、本地去重
-    validate_config.py       # 引用完整性校验（CI 必跑）
-    backup.sh
-    restore.sh
-  deploy/
-    Dockerfile
-    docker-compose.yml
-    Caddyfile
+      views/                 # 页面与功能面板
+      components/            # 当前平铺 UI、业务组件、演出及展示辅助
+      stores/                # Pinia 响应镜像、命令与偏好
+      api/                   # HTTP 客户端与类型别名
+      generated/             # 生成的 TS 类型，忽略且不手改
+    public/assets/           # 正式运行图片及 SVG 图标
+    tests/
+  assets/                    # master、提示、脱敏生成记录与原始输出
+  tools/                     # 生成、处理、校验、测量及测试
+  artifacts/                 # 草稿、截图、报告与验收证据
+  docs/                      # 方案与审查
+  tasks/                     # 任务卡
   .github/workflows/ci.yml
 ```
+
+Docker Compose、Caddy 与备份恢复仍为部署规划；当前没有 `deploy/` 和备份恢复脚本，现有 CI 执行检查与契约生成，尚无镜像构建任务。
 
 ---
 
