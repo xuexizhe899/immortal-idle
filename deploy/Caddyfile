@@ -1,0 +1,19 @@
+# SITE_ADDRESS 由 compose 注入：填域名时自动申请证书，填 :80 时走纯 HTTP。
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	handle /api/* {
+		reverse_proxy app:8000
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
