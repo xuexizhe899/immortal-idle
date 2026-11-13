@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import ConfigDict, Field
 
@@ -63,6 +64,8 @@ class RunNode(BaseModel):
 
     kind: str
     enemy: str
+    # 候选的实际编成；为空表示旧局节点，按类型与层数回退生成。
+    enemies: list[str] = Field(default_factory=list)
     power: int
     reward: dict[str, float] = Field(default_factory=dict)
 
@@ -97,6 +100,8 @@ class RunPartySnapshot(BaseModel):
     mode: dict = Field(default_factory=dict)
     affix_pool: list[dict] = Field(default_factory=list)
     enemies: dict[str, EnemyDefinition] = Field(default_factory=dict)
+    # 节点结构版本：1 表示旧局（同类型共用编成），2 表示逐候选编成。
+    route_version: Literal[1, 2] = 1
 
 
 class ActiveRun(BaseModel):

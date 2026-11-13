@@ -10,9 +10,13 @@ services:
       XIUXIAN_DB_URL: sqlite+aiosqlite:////data/xiuxian.db
     volumes:
       - app_data:/data
+    ports:
+      # 绑 docker0 网关：宿主上的 nginx 容器可访问，公网不可达。
+      - "172.17.0.1:18000:8000"
     expose:
       - "8000"
 
+  # 容器内只跑 HTTP；TLS 由宿主已有的 nginx 终止，避免重复占用 80/443。
   web:
     build:
       context: ..
@@ -20,18 +24,11 @@ services:
     image: immortal-idle-web:${TAG:-latest}
     restart: unless-stopped
     environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:?在 deploy/.env 里填写 SITE_ADDRESS}
+      SITE_ADDRESS: ":80"
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - "172.17.0.1:18080:80"
     depends_on:
       - app
 
 volumes:
   app_data:
-  caddy_data:
-  caddy_config:
