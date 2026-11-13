@@ -23,10 +23,19 @@ export function battleUnitsAt(result: BattleResult, index: number): BattleUnit[]
   return result.events[index]!.units
 }
 
-export function effectLabel(effect: BattleEffect): string {
-  if (effect.kind === 'damage') return `${effect.amount ? `−${effect.amount}` : '未失血'}${effect.absorbed ? ` · 盾挡 ${effect.absorbed}` : ''}`
-  if (effect.kind === 'heal') return `气血 +${effect.amount}`
-  if (effect.kind === 'shield') return `护盾 +${effect.amount}`
+export function affixSourceText(affixes: BattleEffect['affixes'] = [], names?: ReadonlyMap<string, string>): string {
+  const stats: Record<string, string> = { atk: '攻击', def: '防御', hp: '气血', spd: '身法', damage: '伤害', healing: '治疗', shielding: '护盾', taken_damage: '减伤' }
+  return affixes.map(source => `${names?.get(source.unit_id) ?? source.unit_id}·${source.name} ${stats[source.stat] ?? source.stat} ${source.value >= 0 ? '+' : ''}${Math.round(source.value * 10000) / 100}%`).join('；')
+}
+
+export function effectLabel(effect: BattleEffect, unitNames?: ReadonlyMap<string, string>): string {
   const names: Record<string, string> = { atk: '攻击', def: '防御', spd: '身法' }
-  return `${names[effect.stat] ?? effect.stat} ${effect.value >= 0 ? '+' : ''}${Math.round(effect.value * 100)}%`
+  const text = effect.kind === 'damage'
+    ? `${effect.amount ? `−${effect.amount}` : '未失血'}${effect.absorbed ? ` · 盾挡 ${effect.absorbed}` : ''}`
+    : effect.kind === 'heal' ? `气血 +${effect.amount}`
+    : effect.kind === 'shield' ? `护盾 +${effect.amount}`
+    : `${names[effect.stat] ?? effect.stat} ${effect.value >= 0 ? '+' : ''}${Math.round(effect.value * 100)}%`
+  // 飘字保留实际数值；战报只附上服务端确认参与本次效果的道法修正，旧事件不补猜。
+  const sources = unitNames ? affixSourceText(effect.affixes, unitNames) : ''
+  return sources ? `${text} · 道法修正：${sources}` : text
 }

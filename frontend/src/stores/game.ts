@@ -50,6 +50,7 @@ export const useGameStore = defineStore('game', () => {
   const trainingLoading = ref(false)
   let trainingRequest = 0
   const weapons = ref<WeaponView[]>([])
+  let weaponsRequest = 0
   const run = computed<RunPayload | null>(() => state.value ? {
     revision: revision.value, state: state.value, status: status.value,
     production: production.value, run: state.value.active_run ?? null, battle_result: battleResult.value,
@@ -111,11 +112,15 @@ export const useGameStore = defineStore('game', () => {
   async function loadWeapons(silent = false): Promise<void> {
     const id = slotId.value
     if (id === null) return
+    const request = ++weaponsRequest
+    const requestedRevision = revision.value
     try {
       const result = await api.weapons(id)
-      if (slotId.value === id) weapons.value = result.weapons
+      // 旧查询不能覆盖后续刷新或锻造、装备已经返回的专武归属。
+      if (request !== weaponsRequest || slotId.value !== id || result.revision < revision.value) return
+      weapons.value = result.weapons
     } catch (cause) {
-      if (slotId.value !== id) return
+      if (request !== weaponsRequest || slotId.value !== id || requestedRevision !== revision.value) return
       weapons.value = []
       if (!silent) error.value = cause instanceof Error ? cause.message : String(cause)
     }
@@ -172,6 +177,7 @@ export const useGameStore = defineStore('game', () => {
     trainingLoading.value = false
     trainingRequest += 1
     weapons.value = []
+    weaponsRequest += 1
     if (collect) {
       const result = await api.settle(id)
       applySnapshot(result, id)
@@ -335,6 +341,7 @@ export const useGameStore = defineStore('game', () => {
       const id = currentSlot()
       const result = await api.craftWeapon(id, weaponId, revision.value)
       applySnapshot(result, id)
+      weaponsRequest += 1
       weapons.value = result.weapons
       const name = result.weapons.find(weapon => weapon.id === weaponId)?.name ?? '专武'
       notice.value = `${name}锻造完成，已存入行囊。`
@@ -346,6 +353,7 @@ export const useGameStore = defineStore('game', () => {
       const id = currentSlot()
       const result = await api.equipWeapon(id, weaponId, discipleId, revision.value)
       applySnapshot(result, id)
+      weaponsRequest += 1
       weapons.value = result.weapons
       const name = result.weapons.find(weapon => weapon.id === weaponId)?.name ?? '专武'
       notice.value = `${name}已装备。`
@@ -358,6 +366,7 @@ export const useGameStore = defineStore('game', () => {
       const id = currentSlot()
       const result = await api.unequipWeapon(id, discipleId, revision.value)
       applySnapshot(result, id)
+      weaponsRequest += 1
       weapons.value = result.weapons
       notice.value = '专武已卸下并放回行囊。'
       await loadTraining(discipleId)

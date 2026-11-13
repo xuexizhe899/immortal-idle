@@ -365,3 +365,29 @@ def test_affix_options_backfill_from_other_groups() -> None:
     assert len(run.affix_options) == 3
     groups = {item["group"] for item in AFFIXES if item["id"] in run.affix_options}
     assert len(groups) > 1
+
+
+def test_owned_affix_still_increases_group_weight_after_exclusion(monkeypatch) -> None:
+    """已选项不可再抽，但仍应把其组权重从 1 提升到 1.5。"""
+    from app.domain.rng import Pcg32, UINT32_SPAN
+
+    pool = [
+        {"id": f"{group}_{index}", "group": group, "weight": 1.0}
+        for group in ("earth", "fire") for index in range(4)
+    ]
+    state = make_state()
+    start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1, affix_pool=pool)
+    run = state.active_run
+    run.affixes = ["fire_0"]
+    run.choices = [RunNode(kind="battle", enemy="battle_0", power=1, reward={})]
+    # 45% 落在加权后的 fire 区间；若漏算已选权重，则会落入 earth。
+    next_u32 = Pcg32.next_u32
+
+    def fixed_roll(rng):
+        next_u32(rng)
+        return int(UINT32_SPAN * .45)
+
+    monkeypatch.setattr(Pcg32, "next_u32", fixed_roll)
+
+    assert choose(state, 0) is None
+    assert set(run.affix_options) == {"fire_1", "fire_2", "fire_3"}

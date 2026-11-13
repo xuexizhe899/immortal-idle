@@ -10,16 +10,87 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 
 import measure_battles as measure  # noqa: E402
+import compare_affix_choices as compare_affixes  # noqa: E402
 from app.models.battle import BattleAction, BattleUnit, SkillDefinition  # noqa: E402
 from app.models.save import BattleSummary, RunNode  # noqa: E402
 
 
 class MeasureBattlesTests(unittest.TestCase):
+    def test_battle_metrics_separate_ally_and_enemy_healing(self) -> None:
+        battle = BattleSummary.model_validate({
+            "id": "mixed-sides", "party_power": 0, "enemy_power": 0,
+            "hp_before": 100, "hp_after": 100, "damage": 0, "won": True,
+            "node": {"kind": "battle", "enemy": "enemy", "power": 0},
+            "rounds": 1, "reason": "victory",
+            "final_units": [
+                {"id": unit_id, "template_id": unit_id, "name": unit_id,
+                 "side": side, "slot": 0, "hp": 100, "max_hp": 100,
+                 "attack": 10, "defense": 10, "speed": 10}
+                for unit_id, side in (("enemy:ally-fixture", "ally"), ("foe", "enemy"))
+            ],
+            "events": [{
+                "sequence": 1, "round": 1, "actor_id": "enemy:ally-fixture",
+                "skill_id": "fixture", "skill_name": "测试", "vfx": "heal",
+                "effects": [
+                    {"target_id": target, "kind": kind, "amount": amount,
+                     "absorbed": absorbed, "hp_after": 100, "shield_after": 0,
+                     "source": "fixture"}
+                    for target, kind, amount, absorbed in (
+                        ("enemy:ally-fixture", "heal", 11, 0),
+                        ("foe", "heal", 23, 0),
+                        ("enemy:ally-fixture", "damage", 5, 7),
+                        ("foe", "damage", 17, 13),
+                    )
+                ],
+            }],
+        })
+        metrics = measure.battle_metrics(battle, 1)
+        self.assertEqual(metrics["effective_healing"], 11)
+        self.assertEqual(metrics["effective_healing_on_enemies"], 23)
+        self.assertEqual(metrics["heal_effects"], 1)
+        self.assertEqual(metrics["heal_effects_on_enemies"], 1)
+        self.assertEqual(measure.summarize_encounters([metrics])["battle"]["effective_healing_on_enemies"], 23)
+
+        state = compare_affixes.make_state(4, 2, compare_affixes.DEFAULT_PARTY)
+        compare_affixes.start_run(
+            state, compare_affixes.DEFAULT_PARTY, measure.load_disciples(),
+            measure.load_modes()["tower"], compare_affixes.NOW, seed=11,
+        )
+        state.active_run.last_battle = battle
+        with patch.object(compare_affixes, "run_status", side_effect=["choosing_node", "defeated"]), \
+                patch.object(compare_affixes, "choose"):
+            result = compare_affixes.finish(state)
+        self.assertEqual(result["healed"], 11)
+        self.assertEqual(result["enemy_healed"], 23)
+        self.assertEqual(result["absorbed"], 7)
+        self.assertEqual(result["enemy_absorbed"], 13)
+        self.assertEqual(result["dealt"], 17)
+        self.assertEqual(result["taken"], 5)
+        self.assertEqual(result["termination"], "defeated")
+
+    def test_affix_comparison_hp_scaling_keeps_fallen_members_at_zero(self) -> None:
+        def advance_with_casualty(state, _step, _owned):
+            run = state.active_run
+            run.member_hp = {member: 100 for member in compare_affixes.DEFAULT_PARTY}
+            run.member_hp[compare_affixes.DEFAULT_PARTY[0]] = 0
+            run.affix_options = ["pan_shi"]
+
+        observed = []
+        with patch.object(compare_affixes, "advance", side_effect=advance_with_casualty), \
+                patch.object(compare_affixes, "pick_affix"), \
+                patch.object(compare_affixes, "finish", side_effect=lambda state: observed.append(state) or {}):
+            compare_affixes.compare(11, 6, 4, 2, .25, [], compare_affixes.DEFAULT_PARTY)
+        hp = observed[0].active_run.member_hp
+        self.assertEqual(hp[compare_affixes.DEFAULT_PARTY[0]], 0)
+        self.assertEqual(sum(hp.values()), 125)
+        self.assertEqual(observed[0].active_run.hp, 125)
+
     def test_t17_matrix_shape(self) -> None:
         self.assertEqual(len(measure.LINEUPS), 6)
         self.assertEqual(len(measure.T17_TIERS), 4)
@@ -143,6 +214,14 @@ class MeasureBattlesTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first["rng_cursor"], second["rng_cursor"])
         self.assertEqual(first["decisions"], second["decisions"])
+        self.assertEqual(
+            first["effective_healing_on_enemies"],
+            sum(battle["effective_healing_on_enemies"] for battle in first["battles"]),
+        )
+        self.assertEqual(
+            measure.summarize_cases([first])[0]["avg_effective_healing_on_enemies"],
+            first["effective_healing_on_enemies"],
+        )
 
     def test_t19_matrix_shape(self) -> None:
         self.assertEqual(len(measure.T19_TIERS), 3)
@@ -241,6 +320,8 @@ class MeasureBattlesTests(unittest.TestCase):
                 case("defeated", 17, .1, {"pills": False, "weapons": False}),
                 case("cleared", 20, .6, {"pills": True, "weapons": True}),
             ]
+            for new_case in new_cases:
+                new_case["effective_healing_on_enemies"] = 7
             reference = measure.compare_t19_reference(new_cases, path)
             self.assertEqual(reference["compared_cases"], 2)
             self.assertEqual(reference["different_cases"], 2)
@@ -250,6 +331,20 @@ class MeasureBattlesTests(unittest.TestCase):
             self.assertEqual(control["new_clear_rate"], 0.0)
             self.assertEqual(control["delta_clear_rate"], -1.0)
             self.assertEqual(control["delta_avg_reached_floor"], -3.0)
+            self.assertIsNone(control["old_avg_effective_healing"])
+            self.assertIsNone(control["delta_avg_effective_healing"])
+            self.assertIn("effective_healing", reference["unavailable_comparisons"])
+            self.assertEqual(control["new_avg_effective_healing"], 10)
+            self.assertEqual(control["new_avg_effective_healing_on_enemies"], 7)
+
+            # 双方口径均有记录时，治疗差值才有可比含义。
+            old_data = json.loads(path.read_text(encoding="utf-8"))
+            for old_case in old_data["cases"]:
+                old_case["effective_healing_on_enemies"] = 2
+            path.write_text(json.dumps(old_data), encoding="utf-8")
+            reference = measure.compare_t19_reference(new_cases, path)
+            self.assertEqual(reference["unavailable_comparisons"], [])
+            self.assertEqual(reference["aggregate"][0]["delta_avg_effective_healing_on_enemies"], 5)
 
     def test_loadout_name_is_stable(self) -> None:
         self.assertEqual(measure.loadout_name({"loadout": {"pills": False, "weapons": False}}), "control")

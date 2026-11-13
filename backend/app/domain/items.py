@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from app.domain.duty import RATE_KEYS, DutyMember, compute_rates
 from app.domain.injuries import heal
 from app.domain.progression import breakthrough, can_breakthrough, is_on_run
 from app.models.save import DiscipleState, GameState
@@ -90,6 +91,23 @@ def use_pill(
         max_uses = recipe.get("max_uses")
         if max_uses is not None and disciple.pill_uses.get(item_id, 0) >= max_uses:
             return f"{recipe['name']}每名弟子最多服用 {max_uses} 次"
+        if all(effect["stat"] in RATE_KEYS for effect in effects):
+            template = templates.get(disciple.template_id)
+            if template is None:
+                return "弟子模板未配置"
+            # 生产丹只培养个人值守贡献；倾向不匹配时不扣库存或服用次数。
+            # 未上岗的弟子也可提前服用，比较其上岗后的真实收益。
+            bonuses = dict(disciple.bonuses)
+            for effect in effects:
+                bonuses[effect["stat"]] = bonuses.get(effect["stat"], 0.0) + effect["value"]
+            before = compute_rates([DutyMember(
+                template["lean"], template["rarity"], disciple.realm, disciple.bonuses,
+            )])
+            after = compute_rates([DutyMember(
+                template["lean"], template["rarity"], disciple.realm, bonuses,
+            )])
+            if not any(after[key] > before[key] for key in RATE_KEYS):
+                return "该丹药无法提升该弟子的值守产出"
 
     if pill_stock(state, item_id) < 1:
         return f"{recipe['name']}不足"

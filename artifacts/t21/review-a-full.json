@@ -1,0 +1,84 @@
+{
+  "metric_schema_version": 2,
+  "input_sha256": "df7afd6b1b836790d8d154e88c2c11bd4abe65cc3d3fb00afbf37dd1ed5a9903",
+  "gameplay_input_sha256": "313da97ee89bc1037dcb2b89fac9892be079c13de4eef1b36256d2006c562424",
+  "comparison_tool_sha256": "1b6d3a8a20bb65cd9402fff62f7bf2e1fc8c471b041012489078455e46baa7b2",
+  "seed": 3,
+  "step": 6,
+  "level": 4,
+  "realm": 2,
+  "hp_ratio": 1.0,
+  "owned": [],
+  "party": [
+    "guanyu",
+    "zhangfei",
+    "zhaoyun",
+    "zhugeliang",
+    "yuefei",
+    "houyi"
+  ],
+  "options": [
+    "xue_yong",
+    "shi_ru_po_zhu",
+    "lian_ji"
+  ],
+  "decision_state": {
+    "member_hp": {
+      "guanyu": 81,
+      "zhangfei": 202,
+      "zhaoyun": 165,
+      "zhugeliang": 138,
+      "yuefei": 208,
+      "houyi": 150
+    },
+    "affixes": [
+      "miao_suan",
+      "yi_xin",
+      "jin_gang",
+      "po_jun",
+      "hui_chun"
+    ],
+    "rng_cursor": 38
+  },
+  "results": {
+    "xue_yong": {
+      "termination": "defeated",
+      "layers": 19,
+      "dealt": 5044,
+      "taken": 980,
+      "healed": 0,
+      "enemy_healed": 193,
+      "absorbed": 737,
+      "enemy_absorbed": 56,
+      "rounds": 63,
+      "alive": 0,
+      "hp": 0
+    },
+    "shi_ru_po_zhu": {
+      "termination": "defeated",
+      "layers": 20,
+      "dealt": 5513,
+      "taken": 982,
+      "healed": 0,
+      "enemy_healed": 150,
+      "absorbed": 895,
+      "enemy_absorbed": 134,
+      "rounds": 65,
+      "alive": 0,
+      "hp": 0
+    },
+    "lian_ji": {
+      "termination": "defeated",
+      "layers": 20,
+      "dealt": 5355,
+      "taken": 980,
+      "healed": 0,
+      "enemy_healed": 172,
+      "absorbed": 812,
+      "enemy_absorbed": 79,
+      "rounds": 68,
+      "alive": 0,
+      "hp": 0
+    }
+  }
+}

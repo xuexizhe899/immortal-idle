@@ -219,6 +219,35 @@ async def test_write_settles_old_time_before_using_pill_and_keeps_anchor(game_cl
     assert settled["gained"]["cultivation"] < .01
 
 
+@pytest.mark.parametrize("item_id", ["hui_ling_dan", "yang_shen_dan"])
+async def test_ineffective_production_pill_keeps_saved_state_and_anchor(game_client, item_id):
+    """防倾向弟子不能服用无收益生产丹，失败不落账也不吞掉离线区间。"""
+    client, factory = game_client
+    slot, content = await new_slot(client)
+    recruited = await client.post(f"/api/saves/{slot}/recruit", json={
+        "revision": content["revision"], "template_id": "zhangfei",
+    })
+    assert recruited.status_code == 200
+    old = datetime.now(timezone.utc) - timedelta(hours=2)
+    async with factory() as session:
+        repo = SaveRepository(session)
+        state, revision = await repo.get_state(slot)
+        state.inventory[item_id] = 1
+        assert await repo.save_state(slot, state, revision, settled_at=old)
+        saved_before = await repo.get_state(slot)
+
+    response = await client.post(f"/api/saves/{slot}/items/use", json={
+        "revision": revision + 1, "item_id": item_id, "target": "zhangfei",
+    })
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "该丹药无法提升该弟子的值守产出"
+    async with factory() as session:
+        repo = SaveRepository(session)
+        assert await repo.get_state(slot) == saved_before
+        assert await repo.get_last_settled_at(slot) == old
+
+
 async def test_legacy_save_import_does_not_receive_starter_grant(game_client):
     client, _ = game_client
     imported = await client.post("/api/saves/import", json={

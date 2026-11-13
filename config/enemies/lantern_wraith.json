@@ -25,6 +25,7 @@
       {
         "kind": "buff",
         "target": "all_enemies",
+        "count": 6,
         "stat": "atk",
         "value": -0.1,
         "duration": 2

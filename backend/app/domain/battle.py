@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from math import floor
 
 from app.models.battle import (
-    BattleAction, BattleBond, BattleEffectResult, BattleEvent, BattleStatus,
+    AffixContribution, BattleAction, BattleBond, BattleEffectResult, BattleEvent, BattleStatus,
     BattleUnit, BattleUnitState,
 )
 
@@ -41,6 +41,7 @@ class Unit:
             shield=self.shield, attack=self.stat("atk"), defense=self.stat("def"), speed=self.stat("spd"),
             cooldown=max(0, self.next_active - self.turns - 1),
             statuses=[status.model_copy(deep=True) for status in self.statuses],
+            affixes=[source for source in self.definition.affix_sources if source.stat in {"atk", "def", "hp", "spd"}],
         )
 
 
@@ -93,9 +94,12 @@ def total_bonus(
     unit: Unit,
     passive_bonus: dict[str, float],
     context: tuple[Unit | None, int, set[str], bool] | None = None,
+    sources: list[AffixContribution] | None = None,
 ) -> dict[str, float]:
     """专武、被动与条件道法的乘区相加，不互相覆盖；减伤不进入攻击加成。"""
     total = dict(unit.definition.bonuses)
+    if sources is not None:
+        sources.extend(unit.definition.affix_sources)
     for stat, value in passive_bonus.items():
         total[stat] = total.get(stat, 0.0) + value
 
@@ -108,7 +112,15 @@ def total_bonus(
         if not condition_matches(extra.condition, unit, target, round_no, weakened, shielded):
             continue
         for stat, value in extra.bonuses.items():
-            conditional_total[stat] = conditional_total.get(stat, 0.0) + value
+            previous = conditional_total.get(stat, 0.0)
+            conditional_total[stat] = previous + value
+            cap = CONDITIONAL_CAP.get(stat, previous + value)
+            applied = min(previous + value, cap) - min(previous, cap)
+            if sources is not None and extra.source_id and applied > 0 and stat != "taken_damage":
+                sources.append(AffixContribution(
+                    id=extra.source_id, name=extra.source_name or extra.source_id,
+                    unit_id=unit.definition.id, stat=stat, value=applied,
+                ))
 
     for stat, value in conditional_total.items():
         if stat == "taken_damage":
@@ -117,15 +129,31 @@ def total_bonus(
     return total
 
 
-def damage_reduction(target: Unit, round_no: int) -> float:
+def damage_reduction(target: Unit, round_no: int, sources: list[AffixContribution] | None = None) -> float:
     """受击方减伤：常驻加自身状态条件，条件部分单键截断，合计最多 30%。"""
     flat = target.definition.bonuses.get("taken_damage", 0.0)
+    flat_sources = [source for source in target.definition.affix_sources if source.stat == "taken_damage"]
+    # 常驻修正优先占用总减伤额度，条件只记录最终仍可计入的部分。
+    remaining = max(0.0, .3 - max(0.0, flat - sum(source.value for source in flat_sources)))
+    if sources is not None:
+        for source in flat_sources:
+            applied = min(source.value, remaining)
+            if applied > 0:
+                sources.append(source.model_copy(update={"value": applied}))
+                remaining -= applied
     shielded = target.shield > 0
     conditional = 0.0
+    cap = min(CONDITIONAL_CAP["taken_damage"], max(0.0, .3 - flat))
     for extra in target.definition.conditional_bonuses:
         value = extra.bonuses.get("taken_damage", 0.0)
         if value and condition_matches(extra.condition, target, None, round_no, set(), shielded):
+            applied = min(conditional + value, cap) - min(conditional, cap)
             conditional += value
+            if sources is not None and extra.source_id and applied > 0:
+                sources.append(AffixContribution(
+                    id=extra.source_id, name=extra.source_name or extra.source_id,
+                    unit_id=target.definition.id, stat="taken_damage", value=applied,
+                ))
     conditional = min(conditional, CONDITIONAL_CAP["taken_damage"])
     return min(0.3, max(0.0, flat + conditional))
 
@@ -138,10 +166,16 @@ def has_effect(action: BattleAction, actor: Unit, target: Unit, source: str, bon
     return proposed > previous and target.shield < target.definition.health
 
 
-def apply_effect(action: BattleAction, actor: Unit, target: Unit, round_no: int, source: str, bonus: dict[str, float]) -> BattleEffectResult:
+def apply_effect(
+    action: BattleAction, actor: Unit, target: Unit, round_no: int, source: str,
+    bonus: dict[str, float], affixes: list[AffixContribution] | None = None,
+) -> BattleEffectResult:
     amount = absorbed = 0
+    relevant = {"damage": {"atk", "damage"}, "heal": {"atk", "healing"}, "shield": {"atk", "shielding"}}
+    contributions = [item for item in affixes or [] if item.stat in relevant.get(action.kind, set())]
     if action.kind == "damage":
-        reduction = damage_reduction(target, round_no)
+        contributions.extend(item for item in target.definition.affix_sources if item.stat == "def")
+        reduction = damage_reduction(target, round_no, contributions)
         damage = max(1, floor(actor.stat("atk") * action.coefficient * (1 + bonus.get("damage", 0)) * (1 - reduction) * 100 / (100 + target.stat("def"))))
         for status in target.statuses:
             if status.kind != "shield":
@@ -173,7 +207,7 @@ def apply_effect(action: BattleAction, actor: Unit, target: Unit, round_no: int,
     return BattleEffectResult(
         target_id=target.definition.id, kind=action.kind, amount=amount, absorbed=absorbed,
         hp_after=target.hp, shield_after=target.shield, stat=action.stat if action.kind == "buff" else "",
-        value=action.value if action.kind == "buff" else 0, source=source,
+        value=action.value if action.kind == "buff" else 0, source=source, affixes=contributions,
     )
 
 
@@ -239,9 +273,10 @@ def simulate_battle(allies: list[BattleUnit], enemies: list[BattleUnit], member_
                 for target in targets:
                     if target.hp <= 0:
                         continue
+                    sources: list[AffixContribution] = []
                     bonus = total_bonus(actor, passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {},
-                                        (target, round_no, weakened, shielded))
-                    effects.append(apply_effect(action, actor, target, round_no, f"{actor.definition.id}:{origin}:{index}", bonus))
+                                        (target, round_no, weakened, shielded), sources)
+                    effects.append(apply_effect(action, actor, target, round_no, f"{actor.definition.id}:{origin}:{index}", bonus, sources))
             events.append(BattleEvent(
                 sequence=len(events) + 1, round=round_no, actor_id=actor.definition.id,
                 skill_id=skill_id, skill_name=skill_name, vfx=active.vfx if use_active else "strike",

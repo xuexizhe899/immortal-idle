@@ -2,14 +2,16 @@
 
 其余输入完全一致：同一 run_seed、同一后续策略（每层取首个候选、词条取首个）。
 输出为 JSON，供 balance-report 引用。
+healed / absorbed 仅统计我方，enemy_healed / enemy_absorbed 单列敌方。
+hp_ratio 是对当前存活者的人工压血夹具，不能复活已阵亡单位。
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
-from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,6 +21,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 from app.config_loader import load_disciples, load_modes  # noqa: E402
 from app.domain.run_engine import choose, pick_affix, run_status, start_run  # noqa: E402
 from app.models.save import DiscipleState, GameState, Resources  # noqa: E402
+from measure_battles import battle_metrics, input_fingerprint, gameplay_input_fingerprint  # noqa: E402
 
 NOW = datetime(2026, 11, 13, 12, 0, tzinfo=timezone.utc)
 DEFAULT_PARTY = ["guanyu", "zhangfei", "zhaoyun", "zhugeliang", "yuefei", "houyi"]
@@ -36,7 +39,7 @@ def make_state(level: int, realm: int, party: list[str]) -> GameState:
 
 
 def advance(state: GameState, target_step: int, owned: list[str]) -> None:
-    """推进到目标层之前；owned 中的道法直接注入，沿途选择取首个候选。"""
+    """推进指定层数，停在之后的道法选择前；owned 直接注入，沿途取首项。"""
     run = state.active_run
     run.affixes = list(owned)
     while run_status(run) in {"choosing_node", "choosing_affix"} and len(run.nodes) < target_step:
@@ -49,8 +52,8 @@ def advance(state: GameState, target_step: int, owned: list[str]) -> None:
 def finish(state: GameState) -> dict:
     """跑完剩余部分，按战报区分对敌输出与对我方承伤。"""
     run = state.active_run
-    dealt = taken = healed = absorbed = rounds = 0
-    while run_status(run) in {"choosing_node", "choosing_affix"}:
+    dealt = taken = healed = enemy_healed = absorbed = enemy_absorbed = rounds = 0
+    while (status := run_status(run)) in {"choosing_node", "choosing_affix"}:
         if run.affix_pending:
             pick_affix(state, run.affix_options[0])
             continue
@@ -58,23 +61,23 @@ def finish(state: GameState) -> dict:
         battle = run.last_battle
         if not battle:
             continue
-        rounds += battle.rounds
-        for event in battle.events:
-            for effect in event.effects:
-                if effect.kind == "heal":
-                    healed += effect.amount
-                elif effect.kind == "damage":
-                    if effect.target_id.startswith("enemy:"):
-                        dealt += effect.amount
-                    else:
-                        taken += effect.amount
-                absorbed += effect.absorbed
+        metrics = battle_metrics(battle, len(run.nodes))
+        rounds += metrics["rounds"]
+        dealt += metrics["damage_to_enemies"]
+        taken += metrics["damage_to_allies"]
+        healed += metrics["effective_healing"]
+        enemy_healed += metrics["effective_healing_on_enemies"]
+        absorbed += metrics["shield_absorbed_on_allies"]
+        enemy_absorbed += metrics["shield_absorbed_on_enemies"]
     return {
+        "termination": run.end_reason or status,
         "layers": len(run.nodes),
         "dealt": dealt,
         "taken": taken,
         "healed": healed,
+        "enemy_healed": enemy_healed,
         "absorbed": absorbed,
+        "enemy_absorbed": enemy_absorbed,
         "rounds": rounds,
         "alive": sum(1 for hp in run.member_hp.values() if hp > 0),
         "hp": run.hp,
@@ -89,8 +92,10 @@ def compare(seed: int, step: int, level: int, realm: int, hp_ratio: float, owned
 
     run = state.active_run
     if hp_ratio < 1:
+        # 只压低存活成员的当前气血，已阵亡者仍为 0；不能改变队伍存活人数。
         run.member_hp = {
-            unit_id: max(1, int(hp * hp_ratio)) for unit_id, hp in run.member_hp.items()
+            unit_id: max(1, int(hp * hp_ratio)) if hp > 0 else 0
+            for unit_id, hp in run.member_hp.items()
         }
         run.hp = sum(run.member_hp.values())
 
@@ -102,6 +107,10 @@ def compare(seed: int, step: int, level: int, realm: int, hp_ratio: float, owned
         results[option] = finish(clone)
 
     return {
+        "metric_schema_version": 2,
+        "input_sha256": input_fingerprint(),
+        "gameplay_input_sha256": gameplay_input_fingerprint(),
+        "comparison_tool_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "seed": seed,
         "step": step,
         "level": level,
@@ -110,6 +119,7 @@ def compare(seed: int, step: int, level: int, realm: int, hp_ratio: float, owned
         "owned": owned,
         "party": party,
         "options": options,
+        "decision_state": {"member_hp": run.member_hp, "affixes": run.affixes, "rng_cursor": run.rng_cursor},
         "results": results,
     }
 

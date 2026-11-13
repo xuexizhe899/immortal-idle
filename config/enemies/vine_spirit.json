@@ -11,7 +11,7 @@
     "id": "vine_spirit-roots",
     "name": "盘根护体",
     "type": "active",
-    "description": "盘根护体使全体同伴防御提高18%，持续2轮。",
+    "description": "盘根护体使全体同伴防御提高15%，持续2轮。",
     "effects": [],
     "cooldown": 4,
     "vfx": "buff",
@@ -19,6 +19,7 @@
       {
         "kind": "buff",
         "target": "all_allies",
+        "count": 6,
         "stat": "def",
         "value": 0.15,
         "duration": 2

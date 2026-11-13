@@ -13,6 +13,8 @@ t16 复跑历史矩阵；t17 增加培养档位、固定策略与真实战报统
 t19 增加无投入/属性丹/专武/两者兼具的对照，并单独报告材料投入；
 t20 复用 t19 投入，在敌人机制与层段编成变更后与 t19 对照。
 耗时是当前机器的观测值，不作为跨机器性能承诺；输出包含输入文件指纹。
+effective_healing 只统计我方实际恢复量，effective_healing_on_enemies 单列敌方。
+历史输出未分双方且没有原始事件时，不比较治疗差值，也不以当前代码覆盖旧基线。
 """
 
 from __future__ import annotations
@@ -298,6 +300,7 @@ def battle_metrics(battle: BattleSummary, floor: int) -> dict:
     sides = {unit.id: unit.side for unit in battle.final_units}
     damage_to_enemies = damage_to_allies = 0
     effective_healing = heal_effects = 0
+    enemy_healing = enemy_heal_effects = 0
     shield_to_allies = shield_to_enemies = 0
     absorbed_on_allies = absorbed_on_enemies = 0
     buff_effects = 0
@@ -318,8 +321,13 @@ def battle_metrics(battle: BattleSummary, floor: int) -> dict:
                 elif side == "enemy":
                     absorbed_on_enemies += effect.absorbed
             elif effect.kind == "heal":
-                effective_healing += effect.amount
-                heal_effects += 1
+                # 敌人的恢复不能计作我方续航收益，归属取战报阵营而非 ID 前缀。
+                if side == "ally":
+                    effective_healing += effect.amount
+                    heal_effects += 1
+                elif side == "enemy":
+                    enemy_healing += effect.amount
+                    enemy_heal_effects += 1
             elif effect.kind == "shield":
                 if side == "ally":
                     shield_to_allies += effect.amount
@@ -340,7 +348,9 @@ def battle_metrics(battle: BattleSummary, floor: int) -> dict:
         "damage_to_enemies": damage_to_enemies,
         "damage_to_allies": damage_to_allies,
         "effective_healing": effective_healing,
+        "effective_healing_on_enemies": enemy_healing,
         "heal_effects": heal_effects,
+        "heal_effects_on_enemies": enemy_heal_effects,
         "heal_overflow": None,
         "shield_to_allies": shield_to_allies,
         "shield_to_enemies": shield_to_enemies,
@@ -382,6 +392,7 @@ def summarize_encounters(encounters: list[dict]) -> dict:
             "damage_to_enemies": sum(row["damage_to_enemies"] for row in rows),
             "damage_to_allies": sum(row["damage_to_allies"] for row in rows),
             "effective_healing": sum(row["effective_healing"] for row in rows),
+            "effective_healing_on_enemies": sum(row["effective_healing_on_enemies"] for row in rows),
             "shield_to_allies": sum(row["shield_to_allies"] for row in rows),
             "shield_absorbed_on_allies": sum(row["shield_absorbed_on_allies"] for row in rows),
             "survivors_avg": _average(rows, "survivors"),
@@ -424,6 +435,7 @@ def summarize_cases(cases: list[dict]) -> list[dict]:
             "avg_damage_to_enemies": _average(rows, "damage_to_enemies"),
             "avg_damage_to_allies": _average(rows, "damage_to_allies"),
             "avg_effective_healing": _average(rows, "effective_healing"),
+            "avg_effective_healing_on_enemies": _average(rows, "effective_healing_on_enemies"),
             "avg_shield_to_allies": _average(rows, "shield_to_allies"),
             "avg_shield_absorbed_on_allies": _average(rows, "shield_absorbed_on_allies"),
             "avg_loot_cultivation": _average(rows, "loot_cultivation"),
@@ -579,7 +591,9 @@ def measure_campaign(
             "damage_to_enemies": sum(battle["damage_to_enemies"] for battle in encounters),
             "damage_to_allies": sum(battle["damage_to_allies"] for battle in encounters),
             "effective_healing": sum(battle["effective_healing"] for battle in encounters),
+            "effective_healing_on_enemies": sum(battle["effective_healing_on_enemies"] for battle in encounters),
             "heal_effects": sum(battle["heal_effects"] for battle in encounters),
+            "heal_effects_on_enemies": sum(battle["heal_effects_on_enemies"] for battle in encounters),
             "heal_overflow": None,
             "shield_to_allies": sum(battle["shield_to_allies"] for battle in encounters),
             "shield_absorbed_on_allies": sum(
@@ -738,9 +752,12 @@ def compare_t17_reference(cases: list[dict], path: Path) -> dict:
     keys = (
         "termination", "reached_floor", "victory", "remaining_hp", "remaining_hp_ratio",
         "survivors", "rounds_total", "main_actions_total", "effect_results_total",
-        "triggered_bonds", "damage_to_enemies", "damage_to_allies", "effective_healing",
+        "triggered_bonds", "damage_to_enemies", "damage_to_allies",
         "shield_to_allies", "shield_absorbed_on_allies",
     )
+    healing_comparable = all("effective_healing_on_enemies" in case for case in old_cases.values())
+    if healing_comparable:
+        keys += ("effective_healing", "effective_healing_on_enemies")
     differences = []
     for key in sorted(old_cases):
         old, new = old_cases[key], new_cases.get(key)
@@ -763,6 +780,7 @@ def compare_t17_reference(cases: list[dict], path: Path) -> dict:
         "matched_cases": len(old_cases) - len(differences),
         "different_cases": len(differences),
         "differences": differences,
+        "unavailable_comparisons": [] if healing_comparable else ["effective_healing"],
         "notes": "T17 6/1 is a legacy over-cap tier and is excluded; 10/3 is new in T18.",
     }
 
@@ -787,9 +805,12 @@ def compare_t18_reference(cases: list[dict], path: Path) -> dict:
     keys = (
         "termination", "reached_floor", "victory", "remaining_hp", "remaining_hp_ratio",
         "survivors", "rounds_total", "main_actions_total", "effect_results_total",
-        "triggered_bonds", "damage_to_enemies", "damage_to_allies", "effective_healing",
+        "triggered_bonds", "damage_to_enemies", "damage_to_allies",
         "shield_to_allies", "shield_absorbed_on_allies", "rng_cursor", "decisions",
     )
+    healing_comparable = all("effective_healing_on_enemies" in case for case in old_cases.values())
+    if healing_comparable:
+        keys += ("effective_healing", "effective_healing_on_enemies")
     differences = []
     for key in sorted(old_cases):
         old, new = old_cases[key], new_cases.get(key)
@@ -813,6 +834,7 @@ def compare_t18_reference(cases: list[dict], path: Path) -> dict:
         "matched_cases": len(old_cases) - len(differences),
         "different_cases": len(differences),
         "differences": differences,
+        "unavailable_comparisons": [] if healing_comparable else ["effective_healing"],
         "notes": "Only the no-pill/no-weapon control is compared; 10/3 and other policies are new in T19.",
     }
 
@@ -853,6 +875,7 @@ def summarize_loadout_cases(cases: list[dict]) -> list[dict]:
             "avg_damage_to_enemies": _average(rows, "damage_to_enemies"),
             "avg_damage_to_allies": _average(rows, "damage_to_allies"),
             "avg_effective_healing": _average(rows, "effective_healing"),
+            "avg_effective_healing_on_enemies": _average(rows, "effective_healing_on_enemies"),
             "avg_shield_to_allies": _average(rows, "shield_to_allies"),
             "equipment_investment": rows[0]["equipment_investment"],
             "encounter_summary": summarize_encounters(table),
@@ -866,7 +889,7 @@ def summarize_loadout_cases(cases: list[dict]) -> list[dict]:
     delta_keys = (
         "clear_rate", "avg_reached_floor", "avg_remaining_hp_ratio", "avg_survivors",
         "avg_rounds", "avg_damage_to_enemies", "avg_damage_to_allies",
-        "avg_effective_healing", "avg_shield_to_allies",
+        "avg_effective_healing", "avg_effective_healing_on_enemies", "avg_shield_to_allies",
     )
     for entry in summary:
         if entry["loadout"] == "control":
@@ -880,7 +903,7 @@ def summarize_loadout_cases(cases: list[dict]) -> list[dict]:
 
 
 def compare_t19_reference(cases: list[dict], path: Path) -> dict:
-    """T20 与 T19 的重叠档位/投入逐项对照，差异是敌人改动本身造成的。"""
+    """与 T19 的重叠档位/投入对照；历史混算的治疗不与新口径直接比较。"""
     if not path.exists():
         return {"available": False, "path": str(path)}
     reference = json.loads(path.read_text(encoding="utf-8"))
@@ -895,8 +918,11 @@ def compare_t19_reference(cases: list[dict], path: Path) -> dict:
     compared = [item for item in old_cases if item[1] in tiers and item in new_cases]
     fields = (
         "termination", "reached_floor", "remaining_hp_ratio", "rounds_total",
-        "damage_to_enemies", "damage_to_allies", "effective_healing", "survivors",
+        "damage_to_enemies", "damage_to_allies", "survivors",
     )
+    healing_comparable = all("effective_healing_on_enemies" in old_cases[item] for item in compared)
+    if healing_comparable:
+        fields += ("effective_healing", "effective_healing_on_enemies")
     differences = []
     for item in sorted(compared):
         old, new = old_cases[item], new_cases[item]
@@ -932,15 +958,21 @@ def compare_t19_reference(cases: list[dict], path: Path) -> dict:
                     ("remaining_hp_ratio", "avg_remaining_hp_ratio"),
                     ("rounds_total", "avg_rounds"),
                     ("damage_to_allies", "avg_damage_to_allies"),
-                    ("effective_healing", "avg_effective_healing"),
                 ):
                     entry[f"{label}_{name}"] = _average(rows, field)
+                has_separate_healing = all("effective_healing_on_enemies" in row for row in rows)
+                for field in ("effective_healing", "effective_healing_on_enemies"):
+                    entry[f"{label}_avg_{field}"] = _average(rows, field) if has_separate_healing else None
             for name in (
                 "clear_rate", "round_limit_rate", "avg_reached_floor",
                 "avg_remaining_hp_ratio", "avg_rounds", "avg_damage_to_allies",
-                "avg_effective_healing",
+                "avg_effective_healing", "avg_effective_healing_on_enemies",
             ):
-                entry[f"delta_{name}"] = round(entry[f"new_{name}"] - entry[f"old_{name}"], 4)
+                old_value, new_value = entry[f"old_{name}"], entry[f"new_{name}"]
+                entry[f"delta_{name}"] = (
+                    round(new_value - old_value, 4)
+                    if old_value is not None and new_value is not None else None
+                )
             aggregate.append(entry)
     return {
         "available": True,
@@ -950,9 +982,11 @@ def compare_t19_reference(cases: list[dict], path: Path) -> dict:
         "matched_cases": len(compared) - len(differences),
         "different_cases": len(differences),
         "aggregate": aggregate,
+        "unavailable_comparisons": [] if healing_comparable else ["effective_healing"],
         "notes": (
-            "T20 intentionally changes enemies; differences are the measured effect of the new "
-            "skills, compositions, elite/boss multipliers and passives, not a reproducibility failure."
+            "This compares current inputs with the historical T19 artifact, not a rerun of old code. "
+            "Differences may include every intervening rule/config change. Legacy healing totals "
+            "without side separation are unavailable for comparison, not zero."
         ),
     }
 
@@ -1002,6 +1036,7 @@ def run_t17_suite(repetitions: int, t16_reference_path: Path) -> dict:
     reference = compare_t16_reference(cases, t16_reference_path)
     return {
         "format_version": 2,
+        "metric_schema_version": 2,
         "suite": "t17",
         "input_sha256": fingerprint,
         "gameplay_input_sha256": gameplay_fingerprint,
@@ -1025,7 +1060,8 @@ def run_t17_suite(repetitions: int, t16_reference_path: Path) -> dict:
             "metrics": {
                 "damage_to_enemies": "sum of final HP damage dealt to enemies, after shields",
                 "damage_to_allies": "sum of final HP damage taken by allies, after shields",
-                "effective_healing": "sum of actual heal amounts applied",
+                "effective_healing": "sum of actual heal amounts applied to allies only",
+                "effective_healing_on_enemies": "sum of actual heal amounts applied to enemies only",
                 "shield_to_allies": "sum of actual shield increments applied to allies",
                 "shield_absorbed_on_allies": "sum of damage absorbed by ally shields",
                 "bond_triggers": "count of battle events listing each named bond",
@@ -1064,6 +1100,7 @@ def run_t18_suite(repetitions: int, t17_reference_path: Path) -> dict:
     reference = compare_t17_reference(cases, t17_reference_path)
     return {
         "format_version": 3,
+        "metric_schema_version": 2,
         "suite": "t18",
         "input_sha256": fingerprint,
         "gameplay_input_sha256": gameplay_fingerprint,
@@ -1087,7 +1124,8 @@ def run_t18_suite(repetitions: int, t17_reference_path: Path) -> dict:
             "metrics": {
                 "damage_to_enemies": "sum of final HP damage dealt to enemies, after shields",
                 "damage_to_allies": "sum of final HP damage taken by allies, after shields",
-                "effective_healing": "sum of actual heal amounts applied",
+                "effective_healing": "sum of actual heal amounts applied to allies only",
+                "effective_healing_on_enemies": "sum of actual heal amounts applied to enemies only",
                 "shield_to_allies": "sum of actual shield increments applied to allies",
                 "shield_absorbed_on_allies": "sum of damage absorbed by ally shields",
                 "bond_triggers": "count of battle events listing each named bond",
@@ -1127,6 +1165,7 @@ def run_t19_suite(repetitions: int, t18_reference_path: Path) -> dict:
     reference = compare_t18_reference(cases, t18_reference_path)
     return {
         "format_version": 4,
+        "metric_schema_version": 2,
         "suite": "t19",
         "input_sha256": fingerprint,
         "gameplay_input_sha256": gameplay_fingerprint,
@@ -1156,6 +1195,8 @@ def run_t19_suite(repetitions: int, t18_reference_path: Path) -> dict:
             ),
             "metrics": {
                 "equipment_investment": "material counts for 3 uses of both attribute pills and one matching weapon per disciple",
+                "effective_healing": "sum of actual heal amounts applied to allies only",
+                "effective_healing_on_enemies": "sum of actual heal amounts applied to enemies only",
                 "delta_vs_control": "loadout average minus the same lineup/tier control average",
             },
             "unavailable_metrics": [
@@ -1192,6 +1233,7 @@ def run_t20_suite(repetitions: int, t19_reference_path: Path) -> dict:
     reference = compare_t19_reference(cases, t19_reference_path)
     return {
         "format_version": 5,
+        "metric_schema_version": 2,
         "suite": "t20",
         "input_sha256": fingerprint,
         "gameplay_input_sha256": gameplay_fingerprint,
@@ -1220,8 +1262,10 @@ def run_t20_suite(repetitions: int, t19_reference_path: Path) -> dict:
             ),
             "metrics": {
                 "equipment_investment": "material counts for 3 uses of both attribute pills and one matching weapon per disciple",
+                "effective_healing": "sum of actual heal amounts applied to allies only",
+                "effective_healing_on_enemies": "sum of actual heal amounts applied to enemies only",
                 "delta_vs_control": "loadout average minus the same lineup/tier control average",
-                "reference_aggregate": "T20 vs T19 average by tier/loadout; differences are intended enemy changes",
+                "reference_aggregate": "current inputs vs historical T19 by tier/loadout; includes all intervening changes; legacy healing is not comparable",
             },
             "unavailable_metrics": [
                 "heal_overflow: battle report stores effective heal only; not filled with zero",

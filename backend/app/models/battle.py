@@ -18,6 +18,18 @@ class ConditionalBonus(BaseModel):
 
     condition: Condition
     bonuses: dict[str, float] = Field(default_factory=dict)
+    source_id: str = ""
+    source_name: str = ""
+
+
+class AffixContribution(BaseModel):
+    """实际参与属性或行动计算的道法修正，value 为截断后计入的比例。"""
+
+    id: str
+    name: str
+    unit_id: str
+    stat: str
+    value: float
 
 
 class BattleAction(BaseModel):
@@ -80,6 +92,8 @@ class BattleUnit(BaseModel):
     bonuses: dict[str, float] = Field(default_factory=dict)
     # 局内道法的条件修正：按本次行动开始时的状态判定，不追溯刚施加的效果。
     conditional_bonuses: tuple[ConditionalBonus, ...] = ()
+    # 常驻修正保留截断后的来源；属性来源随单位状态展示。
+    affix_sources: tuple[AffixContribution, ...] = ()
 
 
 class BattleStatus(BaseModel):
@@ -106,6 +120,7 @@ class BattleUnitState(BaseModel):
     speed: float
     cooldown: int = 0
     statuses: list[BattleStatus] = Field(default_factory=list)
+    affixes: list[AffixContribution] = Field(default_factory=list)
 
 
 class BattleEffectResult(BaseModel):
@@ -118,6 +133,7 @@ class BattleEffectResult(BaseModel):
     stat: str = ""
     value: float = 0
     source: str
+    affixes: list[AffixContribution] = Field(default_factory=list)
 
 
 class BattleEvent(BaseModel):

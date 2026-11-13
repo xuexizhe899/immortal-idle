@@ -6,6 +6,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
+from app.config_loader import load_disciples, load_recipes
+from app.domain.duty import DutyMember, compute_rates
 from app.domain.items import use_pill
 from app.models.save import ActiveRun, DiscipleState, GameState, Resources
 
@@ -80,6 +82,35 @@ def test_production_pill_is_personal_and_limited_to_one() -> None:
     assert state.bonuses == {}
     assert "最多服用 1 次" in (use_pill(state, "d1", "hui_ling_dan", RECIPES, TEMPLATES) or "")
     assert use_pill(state, "d2", "hui_ling_dan", RECIPES, TEMPLATES) is None
+
+
+@pytest.mark.parametrize("lean", ["attack", "defense", "support", "craft"])
+@pytest.mark.parametrize("item_id, matching_lean", [
+    ("hui_ling_dan", "attack"), ("yang_shen_dan", "support"),
+])
+def test_production_pills_require_real_duty_gain(item_id, matching_lean, lean) -> None:
+    """正式生产丹只允许能获得对应收益的弟子服用，尚未值守也可提前培养。"""
+    templates = load_disciples()
+    template = next(value for value in templates.values() if value["lean"] == lean)
+    disciple = DiscipleState(id="target", template_id=template["id"])
+    state = GameState(inventory={item_id: 2}, disciples=[disciple])
+    before = state.model_dump()
+    base_rates = compute_rates([DutyMember(lean, template["rarity"], disciple.realm)])
+
+    error = use_pill(state, disciple.id, item_id, load_recipes(), templates)
+
+    if lean != matching_lean:
+        assert error == "该丹药无法提升该弟子的值守产出"
+        assert state.model_dump() == before
+    else:
+        assert error is None
+        rates = compute_rates([
+            DutyMember(lean, template["rarity"], disciple.realm, disciple.bonuses),
+        ])
+        assert any(rates[key] > base_rates[key] for key in rates)
+        assert state.inventory[item_id] == 1
+        assert disciple.pill_uses[item_id] == 1
+        assert state.duty_slots == []
 
 
 def test_heal_pill_requires_injury_and_clears_all_stacks() -> None:

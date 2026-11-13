@@ -315,3 +315,91 @@ test('a committed breakthrough with a lost response synchronizes without replayi
   assert.match(session.store.error, /确认最新进度/)
   assert.equal(session.store.busy, false)
 })
+
+test('a delayed weapon list cannot overwrite a newer request from the same revision', async t => {
+  const session = harness()
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  const earlier = deferred()
+  session.respond('GET', '/saves/1/weapons', () => earlier.promise)
+  const pending = session.store.loadWeapons()
+  session.respond('GET', '/saves/1/weapons', () => json({ revision: 1, weapons: [{ id: 'newer' }] }))
+  await session.store.loadWeapons()
+
+  earlier.resolve(json({ revision: 1, weapons: [{ id: 'earlier' }] }))
+  await pending
+
+  assert.deepEqual(session.store.weapons.map(weapon => weapon.id), ['newer'])
+})
+
+test('a weapon response older than the current save revision is ignored', async t => {
+  const session = harness({ 1: snapshot({ revision: 3 }) })
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  session.respond('GET', '/saves/1/weapons', () => json({ revision: 3, weapons: [{ id: 'current' }] }))
+  await session.store.loadWeapons()
+  session.respond('GET', '/saves/1/weapons', () => json({ revision: 2, weapons: [{ id: 'stale' }] }))
+
+  await session.store.loadWeapons()
+
+  assert.deepEqual(session.store.weapons.map(weapon => weapon.id), ['current'])
+})
+
+for (const lateFailure of [false, true]) {
+  test(`a weapon read ${lateFailure ? 'failure' : 'response'} arriving after a successful craft preserves its result`, async t => {
+    const session = harness()
+    t.after(() => session.cleanup())
+    await session.store.bootstrap()
+    const earlier = deferred()
+    session.respond('GET', '/saves/1/weapons', () => earlier.promise)
+    const pending = session.store.loadWeapons()
+    session.respond('POST', '/saves/1/weapons/craft', () => json({
+      ...snapshot({ revision: 2 }), weapons: [{ id: 'crafted', name: '新铸专武', owned: true }],
+    }))
+    await session.store.craftWeapon('crafted')
+
+    earlier.resolve(lateFailure
+      ? json({ detail: '迟到的读取失败' }, 503)
+      : json({ revision: 1, weapons: [] }))
+    await pending
+
+    assert.equal(session.store.revision, 2)
+    assert.deepEqual(session.store.weapons.map(weapon => weapon.id), ['crafted'])
+    assert.equal(session.store.error, null)
+  })
+}
+
+test('an old weapon read failure does not clear a newer list or replace feedback', async t => {
+  const session = harness()
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  const earlier = deferred()
+  session.respond('GET', '/saves/1/weapons', () => earlier.promise)
+  const pending = session.store.loadWeapons()
+  session.respond('GET', '/saves/1/weapons', () => json({ revision: 1, weapons: [{ id: 'current' }] }))
+  await session.store.loadWeapons()
+  session.store.error = '当前操作提示'
+
+  earlier.resolve(json({ detail: '迟到的读取失败' }, 503))
+  await pending
+
+  assert.deepEqual(session.store.weapons.map(weapon => weapon.id), ['current'])
+  assert.equal(session.store.error, '当前操作提示')
+})
+
+test('returning to the same save does not reactivate its previous weapon request', async t => {
+  const session = harness({ 1: snapshot(), 2: snapshot() })
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  const earlier = deferred()
+  session.respond('GET', '/saves/1/weapons', () => earlier.promise)
+  const pending = session.store.loadWeapons()
+  await session.store.switchSave(2)
+  session.respond('GET', '/saves/1/weapons', () => json({ revision: 1, weapons: [{ id: 'returned' }] }))
+  await session.store.switchSave(1)
+
+  earlier.resolve(json({ revision: 1, weapons: [{ id: 'previous-visit' }] }))
+  await pending
+
+  assert.deepEqual(session.store.weapons.map(weapon => weapon.id), ['returned'])
+})

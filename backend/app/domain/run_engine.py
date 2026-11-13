@@ -15,7 +15,7 @@ from app.domain.progression import LEVEL_GROWTH, REALM_GROWTH
 from app.domain.rng import Pcg32
 from app.domain.weapons import battle_bonuses, combat_bonuses
 from app.models.battle import (
-    BattleBond, BattleUnit, ConditionalBonus, EnemyDefinition, SkillDefinition,
+    AffixContribution, BattleBond, BattleUnit, ConditionalBonus, EnemyDefinition, SkillDefinition,
 )
 from app.models.save import ActiveRun, BattleSummary, DiscipleState, GameState, RunNode, RunPartySnapshot
 
@@ -93,20 +93,28 @@ def with_affixes(run: ActiveRun) -> list[BattleUnit]:
     attr: dict[str, float] = {}
     flat: dict[str, float] = {}
     conditional: list[ConditionalBonus] = []
+    sources: list[dict] = []
 
     for affix_id in run.affixes:
         affix = pool.get(affix_id)
         if affix is None:
             continue
+        source = {"id": affix_id, "name": affix.get("name", affix_id)}
         for effect in affix.get("effects") or []:
             if effect["scope"] == "run" and effect["mode"] == "add_pct":
                 attr[effect["stat"]] = attr.get(effect["stat"], 0) + effect["value"]
+                if effect["stat"] in {"atk", "def", "hp", "spd"} and effect["value"]:
+                    sources.append({**source, "stat": effect["stat"], "value": effect["value"]})
         for key, value in (affix.get("bonuses") or {}).items():
-            flat[key] = flat.get(key, 0) + value
+            # 按领悟顺序分配同乘区额度，超过上限的部分不记作生效来源。
+            previous = flat.get(key, 0)
+            flat[key] = min(previous + value, BONUS_CAP.get(key, previous + value))
+            if flat[key] > previous:
+                sources.append({**source, "stat": key, "value": flat[key] - previous})
         for extra in affix.get("conditional") or []:
-            conditional.append(ConditionalBonus.model_validate(extra))
-
-    flat = {key: min(value, BONUS_CAP.get(key, value)) for key, value in flat.items()}
+            conditional.append(ConditionalBonus.model_validate({
+                **extra, "source_id": affix_id, "source_name": source["name"],
+            }))
 
     def adjust(unit: BattleUnit) -> BattleUnit:
         bonuses = dict(unit.bonuses)
@@ -119,6 +127,7 @@ def with_affixes(run: ActiveRun) -> list[BattleUnit]:
             "speed": max(1, unit.speed * (1 + attr.get("spd", 0))),
             "bonuses": bonuses,
             "conditional_bonuses": tuple(conditional),
+            "affix_sources": tuple(AffixContribution(**source, unit_id=unit.id) for source in sources),
         })
 
     return [adjust(unit) for unit in run.party_snapshot.combatants]
@@ -287,7 +296,7 @@ def choose(state: GameState, choice_index: int, *_unused) -> str | None:
     available = [affix for affix in snapshot.affix_pool if affix["id"] not in owned]
     if available:
         groups = sorted({affix["group"] for affix in available})
-        group = pick_group(rng, groups, group_counts(run.affixes, available))
+        group = pick_group(rng, groups, group_counts(run.affixes, snapshot.affix_pool))
         options = draw(rng, [affix for affix in available if affix["group"] == group], {})
         if len(options) < 3:
             rest = [affix for affix in available if affix["id"] not in options]
