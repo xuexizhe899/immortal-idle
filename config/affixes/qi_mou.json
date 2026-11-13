@@ -3,18 +3,9 @@
   "name": "奇谋",
   "group": "qimou",
   "weight": 1.0,
-  "effects": [
-    {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.03,
-      "scope": "run"
-    },
-    {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.03,
-      "scope": "run"
-    }
-  ]
+  "type": "flat",
+  "description": "护盾量提高 18%。",
+  "bonuses": {
+    "shielding": 0.18
+  }
 }

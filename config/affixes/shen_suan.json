@@ -3,18 +3,17 @@
   "name": "神算",
   "group": "qimou",
   "weight": 1.0,
+  "type": "mixed",
+  "description": "身法提高 4%，护盾量提高 8%。",
   "effects": [
     {
       "stat": "spd",
       "mode": "add_pct",
       "value": 0.04,
       "scope": "run"
-    },
-    {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.02,
-      "scope": "run"
     }
-  ]
+  ],
+  "bonuses": {
+    "shielding": 0.08
+  }
 }

@@ -3,6 +3,8 @@
   "name": "疾风",
   "group": "fengrui",
   "weight": 1.0,
+  "type": "attr",
+  "description": "身法提高 5%，更早出手。",
   "effects": [
     {
       "stat": "spd",

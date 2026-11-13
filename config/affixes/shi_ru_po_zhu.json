@@ -3,12 +3,14 @@
   "name": "势如破竹",
   "group": "fengrui",
   "weight": 1.0,
-  "effects": [
+  "type": "cond",
+  "description": "对气血低于一半的敌人伤害提高 20%。",
+  "conditional": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.075,
-      "scope": "run"
+      "condition": "target_wounded",
+      "bonuses": {
+        "damage": 0.2
+      }
     }
   ]
 }

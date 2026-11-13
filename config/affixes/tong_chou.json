@@ -3,15 +3,17 @@
   "name": "统筹",
   "group": "qimou",
   "weight": 1.0,
+  "type": "attr",
+  "description": "攻击、防御、气血各提高 2.5%。",
   "effects": [
     {
-      "stat": "def",
+      "stat": "atk",
       "mode": "add_pct",
       "value": 0.025,
       "scope": "run"
     },
     {
-      "stat": "atk",
+      "stat": "def",
       "mode": "add_pct",
       "value": 0.025,
       "scope": "run"

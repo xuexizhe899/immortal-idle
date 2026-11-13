@@ -54,7 +54,8 @@ def test_configuration_definitions_are_deep_copied_and_survive_serialization():
     mode["rewards"]["battle"]["cultivation"] = 99999
     enemies["stone_guard"]["base_stats"]["hp"] = 99999
     skills["guanyu-art"]["actions"][0]["coefficient"] = .01
-    affixes[0]["effects"][0]["value"] = 99
+    next(item for item in affixes if item["id"] == "tie_bi")["effects"][0]["value"] = 99
+    next(item for item in affixes if item["id"] == "po_jun")["bonuses"]["damage"] = 99
     bonds["wuhu"]["modifiers"][0]["extra_actions"][0]["value"] = 99
     assert state.active_run.party_snapshot == expected.active_run.party_snapshot
     choose(expected, 0)

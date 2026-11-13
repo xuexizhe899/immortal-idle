@@ -1,0 +1,53 @@
+{
+  "seed": 19,
+  "step": 6,
+  "level": 4,
+  "realm": 2,
+  "hp_ratio": 1.0,
+  "owned": [],
+  "party": [
+    "guanyu",
+    "zhangfei",
+    "zhaoyun",
+    "zhugeliang",
+    "yuefei",
+    "houyi"
+  ],
+  "options": [
+    "hui_chun",
+    "pan_shi",
+    "zhong_liu"
+  ],
+  "results": {
+    "hui_chun": {
+      "layers": 20,
+      "dealt": 5150,
+      "taken": 944,
+      "healed": 87,
+      "absorbed": 1216,
+      "rounds": 64,
+      "alive": 0,
+      "hp": 0
+    },
+    "pan_shi": {
+      "layers": 20,
+      "dealt": 5574,
+      "taken": 708,
+      "healed": 65,
+      "absorbed": 1380,
+      "rounds": 65,
+      "alive": 2,
+      "hp": 237
+    },
+    "zhong_liu": {
+      "layers": 20,
+      "dealt": 5574,
+      "taken": 719,
+      "healed": 65,
+      "absorbed": 1412,
+      "rounds": 65,
+      "alive": 2,
+      "hp": 237
+    }
+  }
+}

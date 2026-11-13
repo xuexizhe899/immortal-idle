@@ -3,18 +3,14 @@
   "name": "龟息",
   "group": "jianshou",
   "weight": 1.0,
-  "effects": [
+  "type": "cond",
+  "description": "自身气血低于一半时受到伤害降低 12%。",
+  "conditional": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.04,
-      "scope": "run"
-    },
-    {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.04,
-      "scope": "run"
+      "condition": "low_hp",
+      "bonuses": {
+        "taken_damage": 0.12
+      }
     }
   ]
 }

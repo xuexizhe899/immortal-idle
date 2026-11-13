@@ -11,6 +11,8 @@ from app.models.battle import (
 )
 
 ROUND_LIMIT = 20
+# 条件修正的单键上限：多条条件道法同时满足时截断，避免条件叠满。
+CONDITIONAL_CAP = {"damage": 0.35, "healing": 0.20, "shielding": 0.20, "taken_damage": 0.15}
 
 
 @dataclass
@@ -54,12 +56,19 @@ class BattleOutcome:
 
 def condition_matches(condition: str, actor: Unit, target: Unit | None, round_no: int, weakened: set[str], shielded: bool) -> bool:
     """条件只看本次行动开始时的状态，不追溯触发刚施加的降防。"""
-    return (
-        condition == "always"
-        or condition == "shielded" and shielded
-        or condition == "first_round" and round_no == 1
-        or condition == "target_weakened" and target is not None and target.definition.id in weakened
-    )
+    if condition == "always":
+        return True
+    if condition == "shielded":
+        return shielded
+    if condition == "first_round":
+        return round_no == 1
+    if condition == "target_weakened":
+        return target is not None and target.definition.id in weakened
+    if condition == "target_wounded":
+        return target is not None and target.hp * 2 < target.definition.health
+    if condition == "low_hp":
+        return actor.hp * 2 < actor.definition.health
+    return False
 
 
 def targets_for(action: BattleAction, actor: Unit, units: list[Unit]) -> list[Unit]:
@@ -80,12 +89,45 @@ def targets_for(action: BattleAction, actor: Unit, units: list[Unit]) -> list[Un
     return candidates[:action.count]
 
 
-def total_bonus(unit: Unit, passive_bonus: dict[str, float]) -> dict[str, float]:
-    """专武等常驻乘区与被动技能加成相加，不互相覆盖。"""
+def total_bonus(
+    unit: Unit,
+    passive_bonus: dict[str, float],
+    context: tuple[Unit | None, int, set[str], bool] | None = None,
+) -> dict[str, float]:
+    """专武、被动与条件道法的乘区相加，不互相覆盖；减伤不进入攻击加成。"""
     total = dict(unit.definition.bonuses)
     for stat, value in passive_bonus.items():
         total[stat] = total.get(stat, 0.0) + value
+
+    if context is None:
+        return total
+
+    target, round_no, weakened, shielded = context
+    conditional_total: dict[str, float] = {}
+    for extra in unit.definition.conditional_bonuses:
+        if not condition_matches(extra.condition, unit, target, round_no, weakened, shielded):
+            continue
+        for stat, value in extra.bonuses.items():
+            conditional_total[stat] = conditional_total.get(stat, 0.0) + value
+
+    for stat, value in conditional_total.items():
+        if stat == "taken_damage":
+            continue
+        total[stat] = total.get(stat, 0.0) + min(value, CONDITIONAL_CAP.get(stat, value))
     return total
+
+
+def damage_reduction(target: Unit, round_no: int) -> float:
+    """受击方减伤：常驻加自身状态条件，条件部分单键截断，合计最多 30%。"""
+    flat = target.definition.bonuses.get("taken_damage", 0.0)
+    shielded = target.shield > 0
+    conditional = 0.0
+    for extra in target.definition.conditional_bonuses:
+        value = extra.bonuses.get("taken_damage", 0.0)
+        if value and condition_matches(extra.condition, target, None, round_no, set(), shielded):
+            conditional += value
+    conditional = min(conditional, CONDITIONAL_CAP["taken_damage"])
+    return min(0.3, max(0.0, flat + conditional))
 
 
 def has_effect(action: BattleAction, actor: Unit, target: Unit, source: str, bonus: dict[str, float]) -> bool:
@@ -99,7 +141,8 @@ def has_effect(action: BattleAction, actor: Unit, target: Unit, source: str, bon
 def apply_effect(action: BattleAction, actor: Unit, target: Unit, round_no: int, source: str, bonus: dict[str, float]) -> BattleEffectResult:
     amount = absorbed = 0
     if action.kind == "damage":
-        damage = max(1, floor(actor.stat("atk") * action.coefficient * (1 + bonus.get("damage", 0)) * 100 / (100 + target.stat("def"))))
+        reduction = damage_reduction(target, round_no)
+        damage = max(1, floor(actor.stat("atk") * action.coefficient * (1 + bonus.get("damage", 0)) * (1 - reduction) * 100 / (100 + target.stat("def"))))
         for status in target.statuses:
             if status.kind != "shield":
                 continue
@@ -164,7 +207,8 @@ def simulate_battle(allies: list[BattleUnit], enemies: list[BattleUnit], member_
             passive = actor.definition.passive
             use_active = actor.turns >= actor.next_active and any(
                 has_effect(action, actor, target, f"{actor.definition.id}:{active.id}:{index}",
-                           total_bonus(actor, passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {}))
+                           total_bonus(actor, passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {},
+                                       (target, round_no, weakened, shielded)))
                 for index, action in enumerate(active.actions) for target in targets_for(action, actor, units)
             )
             skill_id = active.id if use_active else "basic_attack"
@@ -195,7 +239,8 @@ def simulate_battle(allies: list[BattleUnit], enemies: list[BattleUnit], member_
                 for target in targets:
                     if target.hp <= 0:
                         continue
-                    bonus = total_bonus(actor, passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {})
+                    bonus = total_bonus(actor, passive.bonuses if condition_matches(passive.condition, actor, target, round_no, weakened, shielded) else {},
+                                        (target, round_no, weakened, shielded))
                     effects.append(apply_effect(action, actor, target, round_no, f"{actor.definition.id}:{origin}:{index}", bonus))
             events.append(BattleEvent(
                 sequence=len(events) + 1, round=round_no, actor_id=actor.definition.id,

@@ -3,12 +3,14 @@
   "name": "不动",
   "group": "jianshou",
   "weight": 1.0,
-  "effects": [
+  "type": "cond",
+  "description": "身上有护盾时受到伤害再降低 10%。",
+  "conditional": [
     {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.07,
-      "scope": "run"
+      "condition": "shielded",
+      "bonuses": {
+        "taken_damage": 0.1
+      }
     }
   ]
 }

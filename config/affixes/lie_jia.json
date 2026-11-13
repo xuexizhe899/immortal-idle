@@ -3,12 +3,14 @@
   "name": "裂甲",
   "group": "fengrui",
   "weight": 1.0,
-  "effects": [
+  "type": "cond",
+  "description": "对防御被削弱的敌人伤害提高 16%。",
+  "conditional": [
     {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.06,
-      "scope": "run"
+      "condition": "target_weakened",
+      "bonuses": {
+        "damage": 0.16
+      }
     }
   ]
 }

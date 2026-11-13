@@ -3,18 +3,10 @@
   "name": "一心",
   "group": "qimou",
   "weight": 1.0,
-  "effects": [
-    {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.03,
-      "scope": "run"
-    },
-    {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.025,
-      "scope": "run"
-    }
-  ]
+  "type": "flat",
+  "description": "受到伤害降低 5%，治疗量提高 8%。",
+  "bonuses": {
+    "taken_damage": 0.05,
+    "healing": 0.08
+  }
 }

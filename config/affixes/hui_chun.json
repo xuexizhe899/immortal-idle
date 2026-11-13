@@ -3,12 +3,9 @@
   "name": "回春",
   "group": "jianshou",
   "weight": 1.0,
-  "effects": [
-    {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.04,
-      "scope": "run"
-    }
-  ]
+  "type": "flat",
+  "description": "治疗量提高 20%。",
+  "bonuses": {
+    "healing": 0.2
+  }
 }

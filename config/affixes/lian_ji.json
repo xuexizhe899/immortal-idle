@@ -1,11 +1,19 @@
 {
   "id": "lian_ji",
-  "name": "连击",
+  "name": "连锋",
   "group": "fengrui",
   "weight": 1.0,
+  "type": "mixed",
+  "description": "攻势更密，攻击提高 4%，身法提高 3%。",
   "effects": [
     {
       "stat": "atk",
+      "mode": "add_pct",
+      "value": 0.04,
+      "scope": "run"
+    },
+    {
+      "stat": "spd",
       "mode": "add_pct",
       "value": 0.03,
       "scope": "run"

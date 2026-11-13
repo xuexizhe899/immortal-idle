@@ -3,12 +3,9 @@
   "name": "破军",
   "group": "fengrui",
   "weight": 1.0,
-  "effects": [
-    {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.04,
-      "scope": "run"
-    }
-  ]
+  "type": "flat",
+  "description": "出手更狠，所有伤害提高 5%。",
+  "bonuses": {
+    "damage": 0.05
+  }
 }

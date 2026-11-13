@@ -2,18 +2,25 @@
 
 from datetime import datetime, timezone
 
-from app.domain.battle import simulate_battle
+import pytest
+
+from app.domain.battle import (
+    Unit, condition_matches, damage_reduction, simulate_battle, total_bonus,
+)
 from app.domain.run_engine import start_run, choose, run_status, pick_affix
-from app.models.battle import BattleAction, BattleBond, BattleUnit, SkillDefinition
+from app.models.battle import (
+    BattleAction, BattleBond, BattleUnit, ConditionalBonus, SkillDefinition,
+)
 from app.models.save import DiscipleState, GameState, Resources
 from app.config_loader import load_disciples, load_modes
 
 
-def unit(key, *, slot=0, hp=100, atk=10, defense=0, speed=10, actions=None, cooldown=3, passive=None):
+def unit(key, *, slot=0, hp=100, atk=10, defense=0, speed=10, actions=None, cooldown=3, passive=None, bonuses=None, conditional=None):
     return BattleUnit(
         id=key, template_id=key, name=key, slot=slot, health=hp, attack=atk, defense=defense,
         speed=speed, active=SkillDefinition(id=f"{key}-art", name=key, type="active", cooldown=cooldown, actions=actions or []),
         passive=SkillDefinition(id=f"{key}-passive", name="被动", type="passive", **(passive or {})),
+        bonuses=bonuses or {}, conditional_bonuses=tuple(conditional or ()),
     )
 
 
@@ -125,3 +132,57 @@ def test_cooldown_uses_personal_actions_and_resets_between_battles():
     assert [event.skill_id for event in own[:4]] == ["hero-art", "basic_attack", "basic_attack", "hero-art"]
     again = simulate_battle([hero], [enemy], {"hero": 900})
     assert again.events[0].skill_id == "hero-art" and again.initial_units[0].shield == 0
+
+
+def test_taken_damage_reduces_incoming_hit():
+    """受击方带减伤时，同一次攻击的实际掉血更少。"""
+    action = BattleAction(kind="damage", target="enemy_first", coefficient=1)
+    plain = unit("plain", hp=1000, defense=0, speed=1)
+    tough = unit("tough", hp=1000, defense=0, speed=1, bonuses={"taken_damage": .2})
+
+    normal = simulate_battle([unit("hero", atk=100, speed=20, actions=[action])], [plain], {})
+    reduced = simulate_battle([unit("hero", atk=100, speed=20, actions=[action])], [tough], {})
+
+    def first_damage(result):
+        return next(effect.amount for event in result.events for effect in event.effects if effect.kind == "damage")
+
+    assert first_damage(reduced) < first_damage(normal)
+
+
+def test_target_wounded_condition_uses_target_health():
+    """收割条件只看目标当前气血是否低于一半。"""
+    actor = Unit(definition=unit("hero"), side="ally", hp=1000)
+    full = Unit(definition=unit("foe", hp=1000), side="enemy", hp=1000)
+    wounded = Unit(definition=unit("foe", hp=1000), side="enemy", hp=300)
+
+    assert not condition_matches("target_wounded", actor, full, 2, set(), False)
+    assert condition_matches("target_wounded", actor, wounded, 2, set(), False)
+
+
+def test_low_hp_condition_uses_actor_health():
+    """残血条件只看自身气血，与目标无关。"""
+    definition = unit("hero", hp=1000)
+    full = Unit(definition=definition, side="ally", hp=1000)
+    hurt = Unit(definition=definition, side="ally", hp=400)
+
+    assert not condition_matches("low_hp", full, None, 2, set(), False)
+    assert condition_matches("low_hp", hurt, None, 2, set(), False)
+
+
+def test_conditional_damage_cap_is_enforced():
+    """多条条件同时满足时，增伤截断到 35%。"""
+    definition = unit("hero", conditional=[
+        ConditionalBonus(condition="always", bonuses={"damage": .3}),
+        ConditionalBonus(condition="always", bonuses={"damage": .3}),
+    ])
+    hero = Unit(definition=definition, side="ally", hp=100)
+
+    assert total_bonus(hero, {}, (None, 1, set(), False))["damage"] == pytest.approx(0.35)
+
+
+def test_taken_damage_cap_is_enforced():
+    """减伤最多 30%，不会因叠加变成免伤。"""
+    definition = unit("hero", bonuses={"taken_damage": .5})
+    hero = Unit(definition=definition, side="ally", hp=100)
+
+    assert damage_reduction(hero, 1) == pytest.approx(0.3)

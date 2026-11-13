@@ -8,7 +8,16 @@ from pydantic import ConfigDict, Field
 
 from app.models.base import ContractModel as BaseModel
 
-Condition = Literal["always", "shielded", "target_weakened", "first_round"]
+Condition = Literal[
+    "always", "shielded", "target_weakened", "target_wounded", "low_hp", "first_round"
+]
+
+
+class ConditionalBonus(BaseModel):
+    """满足条件时追加的伤害、治疗、护盾或减伤修正，来源为重做后的局内道法。"""
+
+    condition: Condition
+    bonuses: dict[str, float] = Field(default_factory=dict)
 
 
 class BattleAction(BaseModel):
@@ -69,6 +78,8 @@ class BattleUnit(BaseModel):
     passive: SkillDefinition
     # 伤害、治疗、护盾的常驻乘区加成（专武等），与被动技能加成相加。
     bonuses: dict[str, float] = Field(default_factory=dict)
+    # 局内道法的条件修正：按本次行动开始时的状态判定，不追溯刚施加的效果。
+    conditional_bonuses: tuple[ConditionalBonus, ...] = ()
 
 
 class BattleStatus(BaseModel):

@@ -3,18 +3,14 @@
   "name": "血勇",
   "group": "fengrui",
   "weight": 1.0,
-  "effects": [
+  "type": "cond",
+  "description": "自身气血低于一半时伤害提高 12%。",
+  "conditional": [
     {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.04,
-      "scope": "run"
-    },
-    {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.02,
-      "scope": "run"
+      "condition": "low_hp",
+      "bonuses": {
+        "damage": 0.12
+      }
     }
   ]
 }

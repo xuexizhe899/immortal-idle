@@ -3,18 +3,17 @@
   "name": "中流",
   "group": "jianshou",
   "weight": 1.0,
+  "type": "mixed",
+  "description": "治疗量提高 10%，气血上限提高 3%。",
   "effects": [
-    {
-      "stat": "def",
-      "mode": "add_pct",
-      "value": 0.03,
-      "scope": "run"
-    },
     {
       "stat": "hp",
       "mode": "add_pct",
       "value": 0.03,
       "scope": "run"
     }
-  ]
+  ],
+  "bonuses": {
+    "healing": 0.1
+  }
 }

@@ -136,11 +136,22 @@ class DiscipleCatalog(BaseModel):
     unlock_cost: dict[str, float] = Field(default_factory=dict)
 
 
+class AffixConditional(BaseModel):
+    """条件修正的展示结构：条件名与修正值都由服务端规则解释。"""
+
+    condition: str
+    bonuses: dict[str, float] = Field(default_factory=dict)
+
+
 class AffixCatalog(BaseModel):
     name: str
     group: str
     group_name: str
+    type: str = "attr"
+    description: str = ""
     effects: list[Effect] = Field(default_factory=list)
+    bonuses: dict[str, float] = Field(default_factory=dict)
+    conditional: list[AffixConditional] = Field(default_factory=list)
 
 
 class RecipeCatalog(BaseModel):

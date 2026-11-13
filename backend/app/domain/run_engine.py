@@ -14,10 +14,14 @@ from app.domain.injuries import apply_injury, attack_multiplier
 from app.domain.progression import LEVEL_GROWTH, REALM_GROWTH
 from app.domain.rng import Pcg32
 from app.domain.weapons import battle_bonuses, combat_bonuses
-from app.models.battle import BattleBond, BattleUnit, EnemyDefinition, SkillDefinition
+from app.models.battle import (
+    BattleBond, BattleUnit, ConditionalBonus, EnemyDefinition, SkillDefinition,
+)
 from app.models.save import ActiveRun, BattleSummary, DiscipleState, GameState, RunNode, RunPartySnapshot
 
 MAX_PARTY = 6
+# 常驻修正的单键上限：同一键被多条道法叠加时截断，避免堆满一个乘区。
+BONUS_CAP = {"damage": 0.20, "healing": 0.30, "shielding": 0.30, "taken_damage": 0.20}
 
 
 def bond_bonus(party_ids: list[str], bonds: dict[str, dict]) -> dict[str, float]:
@@ -84,13 +88,40 @@ def combatant(
 
 
 def with_affixes(run: ActiveRun) -> list[BattleUnit]:
-    bonus = affix_bonus(run.affixes, run.party_snapshot.affix_pool)
-    return [unit.model_copy(update={
-        "attack": max(1, unit.attack * (1 + bonus.get("atk", 0))),
-        "defense": max(1, unit.defense * (1 + bonus.get("def", 0))),
-        "health": max(1, floor(unit.health * (1 + bonus.get("hp", 0)))),
-        "speed": max(1, unit.speed * (1 + bonus.get("spd", 0))),
-    }) for unit in run.party_snapshot.combatants]
+    """把局内道法的属性、常驻修正与条件修正叠加到出发快照的副本上，不写回快照。"""
+    pool = {affix["id"]: affix for affix in run.party_snapshot.affix_pool}
+    attr: dict[str, float] = {}
+    flat: dict[str, float] = {}
+    conditional: list[ConditionalBonus] = []
+
+    for affix_id in run.affixes:
+        affix = pool.get(affix_id)
+        if affix is None:
+            continue
+        for effect in affix.get("effects") or []:
+            if effect["scope"] == "run" and effect["mode"] == "add_pct":
+                attr[effect["stat"]] = attr.get(effect["stat"], 0) + effect["value"]
+        for key, value in (affix.get("bonuses") or {}).items():
+            flat[key] = flat.get(key, 0) + value
+        for extra in affix.get("conditional") or []:
+            conditional.append(ConditionalBonus.model_validate(extra))
+
+    flat = {key: min(value, BONUS_CAP.get(key, value)) for key, value in flat.items()}
+
+    def adjust(unit: BattleUnit) -> BattleUnit:
+        bonuses = dict(unit.bonuses)
+        for key, value in flat.items():
+            bonuses[key] = bonuses.get(key, 0) + value
+        return unit.model_copy(update={
+            "attack": max(1, unit.attack * (1 + attr.get("atk", 0))),
+            "defense": max(1, unit.defense * (1 + attr.get("def", 0))),
+            "health": max(1, floor(unit.health * (1 + attr.get("hp", 0)))),
+            "speed": max(1, unit.speed * (1 + attr.get("spd", 0))),
+            "bonuses": bonuses,
+            "conditional_bonuses": tuple(conditional),
+        })
+
+    return [adjust(unit) for unit in run.party_snapshot.combatants]
 
 
 def enemy_power(step: int, mode: dict, kind: str = "battle") -> int:
@@ -252,10 +283,16 @@ def choose(state: GameState, choice_index: int, *_unused) -> str | None:
         return None
     rng = Pcg32(run.run_seed)
     rng.advance_to(run.rng_cursor)
-    if snapshot.affix_pool:
-        groups = sorted({affix["group"] for affix in snapshot.affix_pool})
-        group = pick_group(rng, groups, group_counts(run.affixes, snapshot.affix_pool))
-        run.affix_options = draw(rng, [affix for affix in snapshot.affix_pool if affix["group"] == group], {})
+    owned = set(run.affixes)
+    available = [affix for affix in snapshot.affix_pool if affix["id"] not in owned]
+    if available:
+        groups = sorted({affix["group"] for affix in available})
+        group = pick_group(rng, groups, group_counts(run.affixes, available))
+        options = draw(rng, [affix for affix in available if affix["group"] == group], {})
+        if len(options) < 3:
+            rest = [affix for affix in available if affix["id"] not in options]
+            options += draw(rng, rest, {}, 3 - len(options))
+        run.affix_options = options
         run.affix_pending = True
     else:
         run.choices = roll_choices(rng, len(run.nodes), mode)

@@ -1,0 +1,53 @@
+{
+  "seed": 11,
+  "step": 6,
+  "level": 4,
+  "realm": 2,
+  "hp_ratio": 1.0,
+  "owned": [],
+  "party": [
+    "guanyu",
+    "zhangfei",
+    "zhaoyun",
+    "yuefei",
+    "houyi",
+    "libai"
+  ],
+  "options": [
+    "miao_suan",
+    "qi_mou",
+    "yi_xin"
+  ],
+  "results": {
+    "miao_suan": {
+      "layers": 18,
+      "dealt": 4628,
+      "taken": 943,
+      "healed": 204,
+      "absorbed": 619,
+      "rounds": 52,
+      "alive": 0,
+      "hp": 0
+    },
+    "qi_mou": {
+      "layers": 18,
+      "dealt": 4573,
+      "taken": 943,
+      "healed": 183,
+      "absorbed": 715,
+      "rounds": 55,
+      "alive": 0,
+      "hp": 0
+    },
+    "yi_xin": {
+      "layers": 18,
+      "dealt": 4673,
+      "taken": 943,
+      "healed": 187,
+      "absorbed": 622,
+      "rounds": 57,
+      "alive": 0,
+      "hp": 0
+    }
+  }
+}

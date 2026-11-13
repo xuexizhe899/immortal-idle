@@ -3,11 +3,13 @@
   "name": "铁壁",
   "group": "jianshou",
   "weight": 1.0,
+  "type": "attr",
+  "description": "防御提高 6%。",
   "effects": [
     {
       "stat": "def",
       "mode": "add_pct",
-      "value": 0.05,
+      "value": 0.06,
       "scope": "run"
     }
   ]

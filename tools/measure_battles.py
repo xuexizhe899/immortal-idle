@@ -164,18 +164,32 @@ AFFIX_GROUP_ORDER = {
     "aggressive": ("fengrui", "qimou", "jianshou"),
 }
 AFFIX_STAT_WEIGHTS = {
-    "defensive": {"hp": 1.0, "def": 1.0, "shielding": .8, "healing": .6, "injury_recovery": .5},
+    "defensive": {"hp": 1.0, "def": 1.0, "shielding": .8, "healing": .6, "taken_damage": 1.2, "injury_recovery": .5},
     "aggressive": {"atk": 1.0, "spd": .6, "damage": 1.0},
 }
 
 
 def affix_score(affix: dict, policy: str) -> float:
-    """按策略偏好给已展示词条的实际效果打分。"""
+    """按策略偏好给已展示词条打分：常驻效果按全额，条件效果打七折。
+
+    条件道法需要队伍有对应触发源才生效，策略在只能看到候选时无法确认触发，
+    因此按折扣计入，避免把"没有护盾的妙算"当成进攻首选。
+    """
     weights = AFFIX_STAT_WEIGHTS.get(policy, {})
-    return sum(
+    score = sum(
         float(effect.get("value", 0)) * weights.get(effect.get("stat", ""), 0)
         for effect in affix.get("effects", [])
     )
+    score += sum(
+        float(value) * weights.get(key, 0)
+        for key, value in (affix.get("bonuses") or {}).items()
+    )
+    for extra in affix.get("conditional") or []:
+        score += 0.7 * sum(
+            float(value) * weights.get(key, 0)
+            for key, value in (extra.get("bonuses") or {}).items()
+        )
+    return score
 
 
 def choose_affix_index(options: list[str], affix_pool: list[dict], policy: str) -> int:

@@ -3,18 +3,22 @@
   "name": "伏击",
   "group": "qimou",
   "weight": 1.0,
+  "type": "mixed",
+  "description": "首轮伤害提高 15%，身法提高 2%。",
   "effects": [
-    {
-      "stat": "atk",
-      "mode": "add_pct",
-      "value": 0.05,
-      "scope": "run"
-    },
     {
       "stat": "spd",
       "mode": "add_pct",
       "value": 0.02,
       "scope": "run"
+    }
+  ],
+  "conditional": [
+    {
+      "condition": "first_round",
+      "bonuses": {
+        "damage": 0.15
+      }
     }
   ]
 }

@@ -37,7 +37,9 @@ RECIPE_KINDS = {"pill", "artifact"}
 CITY_PANELS = {"codex", "sect", "expedition", "tower", "duty", "forge", "alchemy"}
 ACTION_KINDS = {"damage", "heal", "shield", "buff"}
 ACTION_TARGETS = {"enemy_first", "enemy_lowest", "all_enemies", "ally_lowest", "all_allies", "self", "ally_template"}
-CONDITIONS = {"always", "shielded", "target_weakened", "first_round"}
+CONDITIONS = {"always", "shielded", "target_weakened", "target_wounded", "low_hp", "first_round"}
+AFFIX_TYPES = {"attr", "flat", "cond", "mixed"}
+AFFIX_BONUS_KEYS = {"damage", "healing", "shielding", "taken_damage"}
 PASSIVE_STATS = COMBAT_STATS | {"damage", "healing", "shielding"}
 WEAPON_STATS = COMBAT_STATS | {"damage", "healing", "shielding"}
 
@@ -538,7 +540,34 @@ def validate(
             errors.append(f"{where}: 缺少字符串字段 'name'")
         if not isinstance(affix.get("group"), str):
             errors.append(f"{where}: 缺少字符串字段 'group'")
+        if affix.get("type") not in AFFIX_TYPES:
+            errors.append(f"{where}: type '{affix.get('type')}' 不在 {sorted(AFFIX_TYPES)}")
+        if not isinstance(affix.get("description"), str):
+            errors.append(f"{where}: 缺少字符串字段 'description'")
         check_effects(affix, where, errors)
+
+        for key, value in (affix.get("bonuses") or {}).items():
+            if key not in AFFIX_BONUS_KEYS:
+                errors.append(f"{where}: bonuses.{key} 不在 {sorted(AFFIX_BONUS_KEYS)}")
+            if not is_number(value) or value < 0:
+                errors.append(f"{where}: bonuses.{key} 必须是非负数")
+
+        conditional = affix.get("conditional") or []
+        if affix.get("type") == "cond" and not conditional:
+            errors.append(f"{where}: type 为 cond 但缺少 conditional")
+        for i, extra in enumerate(conditional):
+            if extra.get("condition") not in CONDITIONS:
+                errors.append(
+                    f"{where}: conditional[{i}].condition '{extra.get('condition')}' "
+                    f"不在 {sorted(CONDITIONS)}"
+                )
+            for key, value in (extra.get("bonuses") or {}).items():
+                if key not in AFFIX_BONUS_KEYS:
+                    errors.append(
+                        f"{where}: conditional[{i}].bonuses.{key} 不在 {sorted(AFFIX_BONUS_KEYS)}"
+                    )
+                if not is_number(value) or value < 0:
+                    errors.append(f"{where}: conditional[{i}].bonuses.{key} 必须是非负数")
 
     for mode_id, mode in modes.items():
         where = f"config/modes/{mode_id}.json"

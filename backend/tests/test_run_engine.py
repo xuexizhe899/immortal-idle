@@ -337,3 +337,31 @@ def test_placeholder_modes_are_disabled() -> None:
     assert modes["tower"]["enabled"] is True
     assert modes["expedition"]["enabled"] is False
     assert modes["invasion"]["enabled"] is False
+
+
+def test_affix_options_exclude_owned() -> None:
+    """已拥有的道法不会再出现在候选里。"""
+    state = make_state()
+    start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
+    run = state.active_run
+    run.affixes = ["fire_1"]
+    run.choices = [RunNode(kind="battle", enemy="battle_0", power=1, reward={})]
+
+    choose(state, 0)
+
+    assert run.affix_options
+    assert "fire_1" not in run.affix_options
+
+
+def test_affix_options_backfill_from_other_groups() -> None:
+    """单组候选不足三条时从其他组补齐，保证每次都有三选一。"""
+    state = make_state()
+    start_run(state, ["d1"], TEMPLATES, MODE, NOW, seed=1)
+    run = state.active_run
+    run.choices = [RunNode(kind="battle", enemy="battle_0", power=1, reward={})]
+
+    choose(state, 0)
+
+    assert len(run.affix_options) == 3
+    groups = {item["group"] for item in AFFIXES if item["id"] in run.affix_options}
+    assert len(groups) > 1

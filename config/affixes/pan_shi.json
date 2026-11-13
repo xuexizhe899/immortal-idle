@@ -3,12 +3,9 @@
   "name": "磐石",
   "group": "jianshou",
   "weight": 1.0,
-  "effects": [
-    {
-      "stat": "hp",
-      "mode": "add_pct",
-      "value": 0.075,
-      "scope": "run"
-    }
-  ]
+  "type": "flat",
+  "description": "受到的伤害降低 6%。",
+  "bonuses": {
+    "taken_damage": 0.06
+  }
 }

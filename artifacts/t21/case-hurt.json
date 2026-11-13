@@ -1,0 +1,53 @@
+{
+  "seed": 3,
+  "step": 6,
+  "level": 4,
+  "realm": 2,
+  "hp_ratio": 0.45,
+  "owned": [],
+  "party": [
+    "guanyu",
+    "zhangfei",
+    "zhaoyun",
+    "zhugeliang",
+    "yuefei",
+    "houyi"
+  ],
+  "options": [
+    "xue_yong",
+    "shi_ru_po_zhu",
+    "lian_ji"
+  ],
+  "results": {
+    "xue_yong": {
+      "layers": 13,
+      "dealt": 2247,
+      "taken": 424,
+      "healed": 0,
+      "absorbed": 319,
+      "rounds": 27,
+      "alive": 0,
+      "hp": 0
+    },
+    "shi_ru_po_zhu": {
+      "layers": 12,
+      "dealt": 1890,
+      "taken": 422,
+      "healed": 0,
+      "absorbed": 219,
+      "rounds": 24,
+      "alive": 0,
+      "hp": 0
+    },
+    "lian_ji": {
+      "layers": 12,
+      "dealt": 1892,
+      "taken": 422,
+      "healed": 0,
+      "absorbed": 222,
+      "rounds": 24,
+      "alive": 0,
+      "hp": 0
+    }
+  }
+}

@@ -45,7 +45,8 @@ async def test_catalog_exposes_actual_battle_rules_and_skills(game_client):
     assert response.status_code == 200
     catalog = response.json()
     assert catalog["disciples"]["guanyu"]["asset_id"] == load_disciples()["guanyu"]["asset_id"]
-    assert catalog["affixes"]["po_jun"]["effects"][0]["value"] > 0
+    assert catalog["affixes"]["po_jun"]["bonuses"]["damage"] > 0
+    assert catalog["affixes"]["tie_bi"]["effects"][0]["value"] > 0
     assert all(skill["implemented"] for skill in catalog["skills"].values())
     assert catalog["rules"]["max_party"] == 6
     assert catalog["enemies"]["stone_guard"]["base_stats"]["hp"] > 0

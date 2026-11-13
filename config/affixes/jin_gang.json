@@ -3,11 +3,13 @@
   "name": "金刚",
   "group": "jianshou",
   "weight": 1.0,
+  "type": "attr",
+  "description": "气血上限提高 7%。",
   "effects": [
     {
       "stat": "hp",
       "mode": "add_pct",
-      "value": 0.06,
+      "value": 0.07,
       "scope": "run"
     }
   ]
