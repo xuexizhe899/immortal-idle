@@ -12,6 +12,9 @@ COPY backend/alembic ./alembic
 COPY backend/alembic.ini ./alembic.ini
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple .
 
+# 放在依赖安装之后：改配置不触发重新装包。
+COPY config /config
+
 EXPOSE 8000
 
 # 迁移失败即容器退出，不带着旧表结构对外提供服务。

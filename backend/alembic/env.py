@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from alembic import context
@@ -15,10 +16,18 @@ config = context.config
 target_metadata = metadata
 
 
+def migration_url() -> str:
+    """部署时以 XIUXIAN_DB_URL 为准，并换成迁移可用的同步驱动。"""
+    url = os.getenv("XIUXIAN_DB_URL")
+    if not url:
+        return config.get_main_option("sqlalchemy.url")
+    return url.replace("sqlite+aiosqlite://", "sqlite://")
+
+
 def run_migrations_offline() -> None:
     """离线模式：只生成 SQL，不连接数据库。"""
     context.configure(
-        url=config.get_main_option("sqlalchemy.url"),
+        url=migration_url(),
         target_metadata=target_metadata,
         literal_binds=True,
     )
@@ -28,8 +37,10 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """在线模式：连接数据库直接执行迁移。"""
+    section = config.get_section(config.config_ini_section, {})
+    section["sqlalchemy.url"] = migration_url()
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

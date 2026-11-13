@@ -10,6 +10,8 @@ services:
       XIUXIAN_DB_URL: sqlite+aiosqlite:////data/xiuxian.db
     volumes:
       - app_data:/data
+      # 配置以宿主目录为准，改词条/敌人不用重建镜像。
+      - ../config:/config:ro
     ports:
       # 绑 docker0 网关：宿主上的 nginx 容器可访问，公网不可达。
       - "172.17.0.1:18000:8000"
