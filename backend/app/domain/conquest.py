@@ -12,14 +12,17 @@ from app.models.save import BattleSummary, GameState, NpcSect, RunNode
 GUARD_DAMAGE = {3: 50, 2: 30, 1: 15}
 
 
-def _sect_unit(definition: dict, identity: str, name: str, slot: int, scale: float, leader: bool = False) -> BattleUnit:
+def _sect_unit(
+    definition: dict, identity: str, name: str, slot: int, scale: float,
+    leader: bool = False, asset_id: str = "",
+) -> BattleUnit:
     enemy = EnemyDefinition.model_validate(definition)
     passive = enemy.passive or SkillDefinition(id=f"{enemy.id}-passive", name="无常驻加成", type="passive")
     active = enemy.skill or SkillDefinition(id=f"{enemy.id}-art", name="普通攻击", type="active")
     own = passive.bonuses if passive.condition == "always" else {}
     base = enemy.base_stats
     return BattleUnit(
-        id=identity, template_id=enemy.id, name=name, slot=slot, asset_id=enemy.asset_id,
+        id=identity, template_id=enemy.id, name=name, slot=slot, asset_id=asset_id or enemy.asset_id,
         attack=base["atk"] * scale * (1.55 if leader else 1) * (1 + own.get("atk", 0)),
         defense=base["def"] * scale * (1.35 if leader else 1) * (1 + own.get("def", 0)),
         health=max(1, floor(base["hp"] * scale * (3.2 if leader else 1) * (1 + own.get("hp", 0)))),
@@ -30,6 +33,24 @@ def _sect_unit(definition: dict, identity: str, name: str, slot: int, scale: flo
 def ensure_sects(state: GameState, config: dict, enemies: dict[str, dict]) -> bool:
     """每级补齐三座宗门；按编号独立播种，扩图不会重抽已生成的身份与守军。"""
     changed = False
+    styles = {style["name"]: style for style in config["styles"]}
+    # 旧宗门仅把塔敌占用图替换为流派人物，保留自定义图和已固化的出征、战报。
+    for sect in state.sects:
+        style = styles.get(sect.style)
+        if style is None:
+            continue
+        portraits = style.get("disciple_assets", {})
+        replacements = {}
+        units = [unit for team in sect.arena_teams for unit in team] + [sect.leader]
+        for unit in units:
+            asset = style.get("leader_asset_id") if unit.id == sect.leader.id else portraits.get(unit.template_id)
+            if asset and unit.asset_id != asset and unit.asset_id in ("", f"art-foundation/enemies/{unit.template_id}"):
+                replacements[unit.id] = unit.model_copy(update={"asset_id": asset})
+        if replacements:
+            sect.arena_teams = [[replacements.get(unit.id, unit) for unit in team] for team in sect.arena_teams]
+            sect.leader = replacements.get(sect.leader.id, sect.leader)
+            changed = True
+
     hall_level = min(3, max(1, state.facility_levels.get("hall", 1)))
     existing = {sect.id for sect in state.sects}
     for index in range(hall_level * 3):
@@ -48,10 +69,12 @@ def ensure_sects(state: GameState, config: dict, enemies: dict[str, dict]) -> bo
             roster = style["teams"][rng.randint(0, len(style["teams"]) - 1)]
             teams.append([
                 _sect_unit(enemies[enemy_id], f"{identity}:arena:{round_index}:{slot}",
-                           f"{style['name']}弟子·{slot + 1}", slot, scale * (1 + round_index * .08))
+                           f"{style['name']}弟子·{slot + 1}", slot, scale * (1 + round_index * .08),
+                           asset_id=style.get("disciple_assets", {}).get(enemy_id, ""))
                 for slot, enemy_id in enumerate(roster)
             ])
-        leader = _sect_unit(enemies[style["leader"]], f"{identity}:leader", f"{prefix}宗主", 0, scale, True)
+        leader = _sect_unit(enemies[style["leader"]], f"{identity}:leader", f"{prefix}宗主", 0, scale, True,
+                            asset_id=style.get("leader_asset_id", ""))
         state.sects.append(NpcSect(
             id=identity, name=name, level=level, style=style["name"],
             material_id=material, special_material_id=style["special_material"],

@@ -38,12 +38,87 @@ def test_generation_is_stable_extends_by_level_and_covers_special_resources():
     state.facility_levels["hall"] = 3
     assert conquest.ensure_sects(state, load_sects(), load_enemies())
     assert len(state.sects) == 9 and state.sects[:3] == original
+    styles = {style["name"]: style for style in load_sects()["styles"]}
+    for sect in state.sects:
+        style = styles[sect.style]
+        for team in sect.arena_teams:
+            for unit in team:
+                assert unit.asset_id == style["disciple_assets"][unit.template_id]
+        assert sect.leader.asset_id == style["leader_asset_id"]
+        assert sect.leader.asset_id not in style["disciple_assets"].values()
     restored = GameState.model_validate_json(state.model_dump_json())
     assert not conquest.ensure_sects(restored, load_sects(), load_enemies())
     assert restored.sects == state.sects
     regenerated = GameState(rng_seed=71, facility_levels={"hall": 3})
     conquest.ensure_sects(regenerated, load_sects(), load_enemies())
     assert regenerated.sects == state.sects
+
+
+def sect_art_config():
+    config = deepcopy(load_sects())
+    for style in config["styles"]:
+        style["disciple_assets"] = {
+            key: f"art-foundation/sects/{style['id']}_{key}"
+            for team in style["teams"] for key in team
+        }
+        style["leader_asset_id"] = f"art-foundation/sects/{style['id']}_master"
+    return config
+
+
+def test_sect_portraits_follow_style_and_role_through_battle_snapshot():
+    state = make_state()
+    state.sects = []
+    config = sect_art_config()
+    conquest.ensure_sects(state, config, load_enemies())
+    for sect, style in zip(state.sects, config["styles"]):
+        for team in sect.arena_teams:
+            for unit in team:
+                assert unit.asset_id == style["disciple_assets"][unit.template_id]
+        assert sect.leader.asset_id == style["leader_asset_id"]
+        assert sect.leader.asset_id not in style["disciple_assets"].values()
+    assert start(state) is None
+    assert conquest.arena(state, PARTY[:3]) is None
+    foes = [unit for unit in state.active_run.last_battle.initial_units if unit.side == "enemy"]
+    assert [unit.asset_id for unit in foes] == [unit.asset_id for unit in state.sects[0].arena_teams[0]]
+    state.active_run.guard = 0
+    assert conquest.arena(state, PARTY[:3]) is None
+    leader = next(unit for unit in state.active_run.last_battle.initial_units if unit.side == "enemy")
+    assert leader.asset_id == config["styles"][0]["leader_asset_id"]
+
+
+def test_legacy_sect_portraits_upgrade_without_changing_rules_or_active_run():
+    state = make_state()
+    for sect in state.sects:
+        sect.arena_teams = [[unit.model_copy(update={
+            "asset_id": f"art-foundation/enemies/{unit.template_id}",
+        }) for unit in team] for team in sect.arena_teams]
+        sect.leader = sect.leader.model_copy(update={"asset_id": f"art-foundation/enemies/{sect.leader.template_id}"})
+    state.sects[0].arena_teams[0][0] = state.sects[0].arena_teams[0][0].model_copy(update={"asset_id": ""})
+    state.sects[1].leader = state.sects[1].leader.model_copy(update={"asset_id": "custom/ward_master"})
+    state.sects[2].conquered = True
+    state.sects[2].garrison = [DutySlot(disciple_id=PARTY[-1], assigned_at=NOW)]
+    assert start(state, PARTY[:3]) is None
+    assert conquest.arena(state, PARTY[:3]) is None
+    before = deepcopy(state)
+    config = sect_art_config()
+    assert conquest.ensure_sects(state, config, load_enemies())
+    assert state.model_dump(exclude={"sects"}) == before.model_dump(exclude={"sects"})
+    for sect, old, style in zip(state.sects, before.sects, config["styles"]):
+        assert sect.model_dump(exclude={"arena_teams", "leader"}) == old.model_dump(exclude={"arena_teams", "leader"})
+        for team, old_team in zip(sect.arena_teams, old.arena_teams):
+            for unit, old_unit in zip(team, old_team):
+                assert unit.model_dump(exclude={"asset_id"}) == old_unit.model_dump(exclude={"asset_id"})
+                assert unit.asset_id == style["disciple_assets"][unit.template_id]
+        assert sect.leader.model_dump(exclude={"asset_id"}) == old.leader.model_dump(exclude={"asset_id"})
+        expected = "custom/ward_master" if sect.style == "御守" else style["leader_asset_id"]
+        assert sect.leader.asset_id == expected
+    upgraded = state.model_dump_json()
+    assert not conquest.ensure_sects(state, config, load_enemies())
+    assert state.model_dump_json() == upgraded
+    # 同一征讨后续战报也维持旧快照，换图不能改变本局战斗输入。
+    assert conquest.arena(state, PARTY[:3]) is None
+    assert conquest.arena(before, PARTY[:3]) is None
+    assert state.active_run == before.active_run
 
 
 def test_two_perfect_arenas_unlock_boss_and_settlement_conquers_once():

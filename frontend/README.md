@@ -89,6 +89,7 @@ presentation（文案、资源） / rendering（播放、特效）
 | `assets/` 根目录中的人物 PNG | 历史根路径立绘，资源解析仍保留按模板 ID 回退的路径；正式人物优先使用 catalog 中的版本化 `asset_id`。 |
 | `art-foundation/items/` | 四件代表物品的精修 SVG，每件有小图和 `_display.svg` 展示图。前三件既有物品通过 `itemArtworkPath` 使用；关羽专武仅为外观概念，不加入正式可用物品 ID。源码是 `tools/generate_art_foundation_items.py`。 |
 | `art-foundation/enemies/` | 10 种敌人透明 PNG 与 `index.json`。石甲灵卫、流云弓卫、玉衡守将、问道真灵有现有敌人定义；其余六种是美术储备。`enemyImage` 登记图片不等于服务端已安排遭遇或实现技能。 |
+| `art-foundation/sects/` | 外宗 13 名弟子和 3 位宗主的透明 PNG，高 512px。`config/sects.json` 按流派指定图片键，预览与战斗优先读取服务端快照的 `asset_id`；空键继续回退旧敌图。原图、提示词及人工审阅材料在根目录 `assets/masters/sect-conquest/`、`assets/prompts/` 与 `artifacts/sect-conquest/`。 |
 | `art-foundation/enemies/scenes/` | 当前为空的预留子目录，没有已接入的新场景；不把它列作现有场景能力。 |
 
 页面和组件经 `presentation/assetPaths.ts` 获取路径，避免各处拼版本目录。运行时只读本地正式资源，不请求生图 API，不加载 master 或全部历史资产。图片失败回退由显示组件处理；回退图片不改变战果和物品效果。

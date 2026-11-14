@@ -1,0 +1,581 @@
+{
+  "visual_review": "3_trial_approved_13_pending_user",
+  "assets": [
+    {
+      "key": "sect_conquest_sword_swordsman_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "approved_by_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/sword_swordsman.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1620835,
+        "sha256": "2bcd7aa67b24b9ffe13610fc112dd4910109e19ea3faf6307594b149a604bfe8"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/sword_swordsman.png",
+        "size": [
+          250,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 117229,
+        "sha256": "954f941d016eb7b17b98c2c0a1718c13a5159fbfc327ba05bf5d88bead7dfcf1",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          250,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_ward_guard_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "approved_by_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/ward_guard.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1427858,
+        "sha256": "51051adf1af98e205b004120f20177fdf8282e8e691cad5b27058d248e8e297a"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/ward_guard.png",
+        "size": [
+          348,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 167132,
+        "sha256": "1fb9d136f0d60f733b02c112ef18c6f098b303b169fa9bf18450ff7e4a6183fd",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          348,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_herbal_master_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "approved_by_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/herbal_master.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1700980,
+        "sha256": "b9669b3a2475f267ee6afefd2e5da325b92f2230c49bbe9bacc07ac5e2572cd3"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/herbal_master.png",
+        "size": [
+          221,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 165128,
+        "sha256": "1fa2255c79d1b0558716de19d3a89545c02e04e1dc3ba34e75b5115389ce784e",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          221,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_sword_saber_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/sword_saber.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 2027282,
+        "sha256": "2b18cafb9de5e0491f6632c3ca2d21d5bce961fd0982f58d5e651bd1e4d49d24"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/sword_saber.png",
+        "size": [
+          284,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 166423,
+        "sha256": "288a9053198f0022c8558dd7700358ad4af40b27c7723fab460cbdf9c449eca9",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          284,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_sword_archer_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/sword_archer.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1452361,
+        "sha256": "354de4704a0acde326e40125fb97601e86d5838cdc93c6350a005beb77ef4bf0"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/sword_archer.png",
+        "size": [
+          221,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 116125,
+        "sha256": "2a4317a2cfa9490e99349eb6f2d8d170565a216e14cb43263c8218aff297b84d",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          221,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_sword_guard_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/sword_guard.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1627205,
+        "sha256": "ef95e20190c8d91167c76b7fc1b6a387b9497771a27be2cc097a3e536924c985"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/sword_guard.png",
+        "size": [
+          307,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 150133,
+        "sha256": "386696800d9d06ee441f07d7d98faa5466e7c1dc7230ed204cc156f08e4f4f87",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          307,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_sword_master_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/sword_master.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1510329,
+        "sha256": "4ce0a76bd45a938cb2aad1557eb3f82ba3a97ee955d5e43023425f039ceae8c7"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/sword_master.png",
+        "size": [
+          314,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 150376,
+        "sha256": "b2933478d22a3ac5a59272c0c21f71700555dc6f509fa9cc4c896510b0254f0f",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          314,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_ward_warden_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/ward_warden.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1768383,
+        "sha256": "bfe7e927a1c0822e03a6edc3ddca4dfe95aead8932e909e5d880bd3ff358989a"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/ward_warden.png",
+        "size": [
+          241,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 161509,
+        "sha256": "136011fedbdc6c2b51d5297410569ae0a0641beed7ce27f5ad946c25bc87082e",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          241,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_ward_archer_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/ward_archer.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1787110,
+        "sha256": "a32ed066937e0107b0fd67e3cabf3aa48aa2699f1b0151fead661a294cbf1c43"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/ward_archer.png",
+        "size": [
+          301,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 162813,
+        "sha256": "2f6f07af88551e6363bf25ea7b9858cc01ac91d3784aed90d56317f67176d97d",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          301,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_ward_lantern_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/ward_lantern.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1498229,
+        "sha256": "00350bf4fa9c34807c5b69a9c3724ffb63e72c59e8eb3b194780865529885533"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/ward_lantern.png",
+        "size": [
+          198,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 118707,
+        "sha256": "6939cc51e3ee41711622b168898ac1df43a9753e3c8c975b5d242547f155831d",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          198,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_ward_master_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/ward_master.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1777577,
+        "sha256": "deccce244eca8391f621be677e01991141cb4dadcafef37f2820643327777e7a"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/ward_master.png",
+        "size": [
+          330,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 183831,
+        "sha256": "cb6e0c4dddd87158814e35870378188f4860d90cc199b2d1759e4b72caf97389",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          330,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_herbal_swordsman_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/herbal_swordsman.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1431257,
+        "sha256": "9fba84ea4a0cc4b943f9f6ea61b86056b0b559a2fa3d02fe6625de62f5b1a192"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/herbal_swordsman.png",
+        "size": [
+          236,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 116362,
+        "sha256": "87df981fee1f999a23eef0616b6d582247d5fe39c491d864b4358045e65632c5",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          236,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_herbal_healer_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/herbal_healer.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 977192,
+        "sha256": "e53cab523ea0e74c81b42d9278d5fcb617a6b65852d01eb5b9a68908b1cb71f9"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/herbal_healer.png",
+        "size": [
+          183,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 112666,
+        "sha256": "fd365dacf4d32ec85af884cd2c1f9b56f274f3ec9ab4ac80001b6e3793982076",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          183,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_herbal_archer_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/herbal_archer.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1457569,
+        "sha256": "773a77406cfd1abebf8f6e4db9ab4c6b27a5a36c4c3dd5817883b95913c36938"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/herbal_archer.png",
+        "size": [
+          235,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 123967,
+        "sha256": "434cb2f168e79fc9d9ec08648d097b9a793036a46646a37ec9d09e1aa47608d4",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          235,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_herbal_guard_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/herbal_guard.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1840834,
+        "sha256": "3954bea89089702fd8a68d32e8adec9d2f109ac748d3c31145436e4b29e6e736"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/herbal_guard.png",
+        "size": [
+          272,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 159891,
+        "sha256": "627db09508221902e789c9e010314239bd6f5372ec74648a43be639b7019e87e",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          272,
+          512
+        ]
+      }
+    },
+    {
+      "key": "sect_conquest_herbal_lantern_v1",
+      "model": "gpt-image-2.6-sunburst",
+      "style_version": "0.3.0",
+      "visual_review": "pending_user",
+      "master": {
+        "path": "assets/masters/sect-conquest/herbal_lantern.png",
+        "size": [
+          1024,
+          1536
+        ],
+        "mode": "RGB",
+        "bytes": 1376285,
+        "sha256": "e23b5797ef4747e128fd11675789efc80f798b98e3ab82ec4a972cd0a4c50818"
+      },
+      "runtime": {
+        "path": "frontend/public/assets/art-foundation/sects/herbal_lantern.png",
+        "size": [
+          206,
+          512
+        ],
+        "mode": "RGBA",
+        "bytes": 115692,
+        "sha256": "1cca561c729282caa7df854aa955ca1fe15f6e2c48ac0c5b94b6b0bff6f0927c",
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "alpha_bbox": [
+          0,
+          0,
+          206,
+          512
+        ]
+      }
+    }
+  ]
+}

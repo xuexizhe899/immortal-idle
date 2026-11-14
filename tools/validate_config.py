@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -341,7 +342,41 @@ def check_facilities(config_dir: Path, materials: dict[str, dict], errors: list[
                     errors.append(f"{cost_pos}.{resource}: 材料费用必须是正整数")
 
 
-def check_sects(config_dir: Path, materials: dict[str, dict], enemies: dict[str, dict], errors: list[str]) -> None:
+def check_sect_assets(
+    style: dict, roster_ids: set[str], where: str, assets_dir: Path, errors: list[str],
+) -> None:
+    """启用宗门专属立绘时，守军图必须齐全，宗主拥有独立的本地图片。"""
+    if "disciple_assets" not in style and "leader_asset_id" not in style:
+        return
+    portraits = style.get("disciple_assets")
+    if not isinstance(portraits, dict) or "leader_asset_id" not in style:
+        errors.append(f"{where}: 必须同时提供完整的 disciple_assets 和 leader_asset_id")
+        return
+    if set(portraits) != roster_ids:
+        errors.append(f"{where}.disciple_assets: 必须精确覆盖所有守军模板")
+    entries = [(f"disciple_assets.{template_id}", asset) for template_id, asset in portraits.items()]
+    entries.append(("leader_asset_id", style["leader_asset_id"]))
+    asset_root = assets_dir.resolve()
+    disciple_paths = set()
+    for field, asset in entries:
+        pos = f"{where}.{field}"
+        if not isinstance(asset, str) or not re.fullmatch(r"[a-zA-Z0-9_-]+(?:/[a-zA-Z0-9_-]+)*", asset):
+            errors.append(f"{pos}: 必须是无扩展名的安全相对路径")
+            continue
+        target = (asset_root / f"{asset}.png").resolve()
+        if not target.is_relative_to(asset_root):
+            errors.append(f"{pos}: 资产路径不得越出 frontend/public/assets")
+        elif not target.is_file():
+            errors.append(f"{pos}: 本地资产不存在 '{asset}.png'")
+        elif field == "leader_asset_id" and target in disciple_paths:
+            errors.append(f"{pos}: 宗主立绘不得复用弟子立绘")
+        elif field != "leader_asset_id":
+            disciple_paths.add(target)
+
+
+def check_sects(
+    config_dir: Path, assets_dir: Path, materials: dict[str, dict], enemies: dict[str, dict], errors: list[str],
+) -> None:
     """宗门组合必须能生成三人守军和有来源的特色资源。"""
     path = config_dir / "sects.json"
     if not path.exists():
@@ -410,6 +445,8 @@ def check_sects(config_dir: Path, materials: dict[str, dict], enemies: dict[str,
             for enemy in team:
                 if not isinstance(enemy, str) or enemy not in enemies:
                     errors.append(f"{team_pos}: 敌人 '{enemy}' 不存在")
+        roster_ids = {enemy for team in teams if isinstance(team, list) for enemy in team if isinstance(enemy, str)}
+        check_sect_assets(style, roster_ids, pos, assets_dir, errors)
 
 
 def validate(
@@ -433,7 +470,7 @@ def validate(
     events = load_collection(config_dir, "events", errors)
     modes = load_collection(config_dir, "modes", errors)
     check_facilities(config_dir, materials, errors)
-    check_sects(config_dir, materials, enemies, errors)
+    check_sects(config_dir, assets_dir, materials, enemies, errors)
     requires_specialty = (config_dir / "facilities.json").exists() or (config_dir / "sects.json").exists()
 
     for skill_id, skill in skills.items():

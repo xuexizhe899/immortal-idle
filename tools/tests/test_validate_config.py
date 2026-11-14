@@ -504,13 +504,13 @@ def test_sect_combinations_validate_enemy_and_material_references(tmp_path):
     data = minimal_sects()
     write_json(tmp_path / "sects.json", data)
     errors = []
-    vc.check_sects(tmp_path, {"ore": {}, "rare": {}}, {"guard": {}}, errors)
+    vc.check_sects(tmp_path, tmp_path / "assets", {"ore": {}, "rare": {}}, {"guard": {}}, errors)
     assert errors == []
     data["styles"][0]["teams"][0][1] = "ghost"
     data["styles"][1]["special_material"] = "missing"
     data["styles"][2]["leader"] = []
     write_json(tmp_path / "sects.json", data)
-    vc.check_sects(tmp_path, {"ore": {}, "rare": {}}, {"guard": {}}, errors)
+    vc.check_sects(tmp_path, tmp_path / "assets", {"ore": {}, "rare": {}}, {"guard": {}}, errors)
     assert any("敌人 'ghost'" in error for error in errors)
     assert any("special_material" in error for error in errors)
     assert any("leader" in error for error in errors)
@@ -523,7 +523,7 @@ def test_sects_reject_wrong_roster_size_duplicate_style_and_nonfinite_scale(tmp_
     data["level_scales"][2] = float("inf")
     write_json(tmp_path / "sects.json", data)
     errors = []
-    vc.check_sects(tmp_path, {"ore": {}, "rare": {}}, {"guard": {}}, errors)
+    vc.check_sects(tmp_path, tmp_path / "assets", {"ore": {}, "rare": {}}, {"guard": {}}, errors)
     assert any("重复" in error for error in errors)
     assert any("每组守军必须为三人" in error for error in errors)
     assert any("level_scales" in error for error in errors)
@@ -533,5 +533,94 @@ def test_sects_reject_wrong_roster_size_duplicate_style_and_nonfinite_scale(tmp_
 def test_sects_malformed_structure_is_reported_without_crashing(tmp_path, data):
     write_json(tmp_path / "sects.json", data)
     errors = []
-    vc.check_sects(tmp_path, {}, {}, errors)
+    vc.check_sects(tmp_path, tmp_path / "assets", {}, {}, errors)
     assert errors
+
+
+@pytest.fixture
+def sect_art_tree(tmp_path):
+    config, assets = tmp_path / "config", tmp_path / "assets"
+    data = minimal_sects()
+    for style in data["styles"]:
+        style["teams"].append(["guard", "healer", "guard"])
+        style["disciple_assets"] = {
+            "guard": f"sects/{style['id']}_guard",
+            "healer": f"sects/{style['id']}_healer",
+        }
+        style["leader_asset_id"] = f"sects/{style['id']}_master"
+        for asset in [*style["disciple_assets"].values(), style["leader_asset_id"]]:
+            target = assets / f"{asset}.png"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(b"\x89PNG\r\n")
+    return config, assets, data
+
+
+def test_sect_artwork_accepts_complete_rosters_and_distinct_local_leaders(sect_art_tree):
+    config, assets, data = sect_art_tree
+    write_json(config / "sects.json", data)
+    errors = []
+    vc.check_sects(config, assets, {"ore": {}, "rare": {}}, {"guard": {}, "healer": {}}, errors)
+    assert errors == []
+
+
+@pytest.mark.parametrize("field", ["disciple_assets", "leader_asset_id"])
+def test_sect_artwork_requires_both_fields_when_either_is_present(sect_art_tree, field):
+    config, assets, data = sect_art_tree
+    del data["styles"][0][field]
+    write_json(config / "sects.json", data)
+    errors = []
+    vc.check_sects(config, assets, {"ore": {}, "rare": {}}, {"guard": {}, "healer": {}}, errors)
+    assert any("必须同时提供完整的 disciple_assets 和 leader_asset_id" in error for error in errors)
+
+
+@pytest.mark.parametrize("change", ["missing", "extra"])
+def test_sect_artwork_mapping_exactly_covers_every_roster(sect_art_tree, change):
+    config, assets, data = sect_art_tree
+    mapping = data["styles"][0]["disciple_assets"]
+    if change == "missing":
+        del mapping["healer"]
+    else:
+        mapping["unused"] = mapping["guard"]
+    write_json(config / "sects.json", data)
+    errors = []
+    vc.check_sects(config, assets, {"ore": {}, "rare": {}}, {"guard": {}, "healer": {}}, errors)
+    assert any("disciple_assets: 必须精确覆盖所有守军模板" in error for error in errors)
+
+
+@pytest.mark.parametrize("field", ["disciple_assets.guard", "leader_asset_id"])
+def test_sect_artwork_reports_missing_portraits(sect_art_tree, field):
+    config, assets, data = sect_art_tree
+    style = data["styles"][0]
+    asset = style["disciple_assets"]["guard"] if field.startswith("disciple_assets") else style[field]
+    (assets / f"{asset}.png").unlink()
+    write_json(config / "sects.json", data)
+    errors = []
+    vc.check_sects(config, assets, {"ore": {}, "rare": {}}, {"guard": {}, "healer": {}}, errors)
+    assert any(f"{field}: 本地资产不存在 '{asset}.png'" in error for error in errors)
+
+
+def test_sect_leader_cannot_reuse_a_disciple_portrait(sect_art_tree):
+    config, assets, data = sect_art_tree
+    data["styles"][0]["leader_asset_id"] = data["styles"][0]["disciple_assets"]["guard"]
+    write_json(config / "sects.json", data)
+    errors = []
+    vc.check_sects(config, assets, {"ore": {}, "rare": {}}, {"guard": {}, "healer": {}}, errors)
+    assert any("leader_asset_id: 宗主立绘不得复用弟子立绘" in error for error in errors)
+
+
+@pytest.mark.parametrize("asset", [
+    "../outside", "sects/../outside", "C:/outside/portrait", "/assets/sects/portrait",
+    "https://example.com/portrait", "sects\\portrait", "sects/portrait.png", "sects/portrait?x=1",
+])
+@pytest.mark.parametrize("field", ["disciple_assets.guard", "leader_asset_id"])
+def test_sect_artwork_rejects_unsafe_or_extended_asset_keys(sect_art_tree, asset, field):
+    config, assets, data = sect_art_tree
+    style = data["styles"][0]
+    if field.startswith("disciple_assets"):
+        style["disciple_assets"]["guard"] = asset
+    else:
+        style[field] = asset
+    write_json(config / "sects.json", data)
+    errors = []
+    vc.check_sects(config, assets, {"ore": {}, "rare": {}}, {"guard": {}, "healer": {}}, errors)
+    assert any(f"{field}: 必须是无扩展名的安全相对路径" in error for error in errors)

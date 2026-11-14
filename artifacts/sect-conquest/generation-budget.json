@@ -1,0 +1,24 @@
+{
+  "task": "sect-conquest-character-art",
+  "model": "gpt-image-2.6-sunburst",
+  "authorized_max_calls": 40,
+  "manifest_calls_start": 84,
+  "manifest_calls_limit": 124,
+  "authorization": "用户本轮明确回复：同意，最多 40 次；先三代表试稿，确认后批量。",
+  "recorded_at": "2026-11-14T09:31:08+00:00",
+  "trial_keys": [
+    "sect_conquest_sword_swordsman_v1",
+    "sect_conquest_ward_guard_v1",
+    "sect_conquest_herbal_master_v1"
+  ],
+  "calls_used": 16,
+  "calls_remaining": 24,
+  "manifest_calls_latest": 100,
+  "trial_status": "approved_by_user",
+  "trial_approval": "用户确认三张试稿：可以",
+  "trial_approved_at": "2026-11-14T09:42:35+00:00",
+  "batch_status": "generated_and_integrated",
+  "failures": 0,
+  "retries": 0,
+  "size_fallbacks": 0
+}

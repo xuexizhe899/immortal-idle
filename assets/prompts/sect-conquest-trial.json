@@ -1,0 +1,32 @@
+{
+  "preset": "sect-conquest-trial",
+  "notes": "外宗人物三代表试稿：剑修弟子、御守重甲弟子、丹修女宗主。沿用0.3.0公共风格与反向约束；用户已批准本轮使用gpt-image-2.6-sunburst，最多40次请求，失败与尺寸降级均计数，历史起点manifest.calls=84。三代表试稿已由用户人工确认，其余十三张已生成并接入，共16次请求，无失败、重试或尺寸降级；新增十三张待用户人工审阅；全部为人类修士，不借用塔灵或怪物形象。",
+  "output_subdir": "sect-conquest",
+  "master_dir": "assets/masters/sect-conquest",
+  "items": [
+    {
+      "key": "sect_conquest_sword_swordsman_v1",
+      "kind": "portrait",
+      "file": "sword_swordsman.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "One human sword-sect disciple, a lean young adult Chinese man with a narrow clean-shaven face, focused dark eyes and long black hair tied into a compact high topknot with a plain ivory tie. Natural adult anatomy, long slender limbs and a quiet upright stance, not chibi. A narrow-sleeved pale teal-gray cross-collar robe over an ivory inner layer, a dark jade waist sash, divided straight robe panels and simple warm-brown boots create a clean vertical silhouette. Hold one slender straight steel jian downward beside the body, with a small restrained bronze guard; keep blade and free hand clearly separate from the robe. Full-body three-quarter view facing slightly left. Show the complete topknot, both hands, sword tip and both feet inside generous margins on a 1024x1536 portrait canvas. Match the established 0.3.0 fine-pixel xianxia roster: deliberate hard pixel clusters, upper-left warm afternoon light, cool shaded planes, teal-gray, jade, ivory and warm-wood colors with restrained gold accents. No scenery, ground plane, cast ground shadow, magical effects, extra figures, text, symbols, UI or frame. Perfectly uniform pure flat magenta #FF00FF background including every gap; no pink or purple details on the person or weapon. Process to a 512px-high transparent sprite displayed at 80px high: prioritize the slim robe, dark topknot and exposed straight sword over tiny ornament."
+    },
+    {
+      "key": "sect_conquest_ward_guard_v1",
+      "kind": "portrait",
+      "file": "ward_guard.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "One human defensive-sect guard, a powerfully built adult Chinese man with a broad square face, thick dark eyebrows, a short neat moustache and visible warm skin. A low heavy open-faced iron helmet leaves the whole human face readable; black hair is tucked beneath it. Natural adult proportions, broad shoulders and a stable wide stance, not a stone creature or an animated suit of armor. Large compact dark teal-gray iron plates cover the chest and shoulders above jade cloth, with ivory binding strips, a warm-brown belt and complete stout boots. Hold one short-handled square-headed steel hammer diagonally down beside the body; its simple warm-bronze collar and clearly rectangular head are the main tool detail. The other hand is open and visible. Full-body three-quarter view facing slightly left, the entire helmet, hammer, hands and feet contained within generous margins of a 1024x1536 canvas. Match 0.3.0 fine-pixel xianxia art with crisp deliberate metal pixel clusters, warm afternoon light from upper left, cool shadow faces and restrained gold highlights. No oversized spikes, glowing eyes, stone skin, spectral parts, scenery, ground plane, cast ground shadow, text, UI, frame or additional figures. Use perfectly flat pure magenta #FF00FF in all background gaps, with no pink or purple armor details. Final transparent sprite height 512px, displayed at 80px: keep the exposed face, blocky shoulders and square hammer head unmistakable."
+    },
+    {
+      "key": "sect_conquest_herbal_master_v1",
+      "kind": "portrait",
+      "file": "herbal_master.png",
+      "size": "1024x1536",
+      "background": "magenta",
+      "subject": "One human female master of a medicinal cultivation sect, an elderly Chinese woman with an oval softly lined face, calm authoritative dark eyes and silver-white hair arranged in a high smooth bun beneath a modest carved jade crown. Natural adult anatomy, dignified upright posture and a broad flowing robe silhouette distinct from junior healers, masked spirits or tower guardians. Wear long ivory ceremonial robes with generous jade-green sleeves, a dark teal-gray inner panel, restrained warm-gold edging and a warm-brown waist tie. Separate the two wide sleeves clearly and leave both simple shoes visible beneath the divided hem. One visible hand holds a tall straight warm-wood medicine staff beside the body, topped by a compact carved leaf-shaped jade finial; the other rests calmly at the waist. Full-body three-quarter standing view facing slightly left. Fit crown, staff finial and tip, sleeves, fingers and both feet completely within generous 1024x1536 portrait margins; the staff must not shrink the figure. Established 0.3.0 fine-pixel xianxia material shading, deliberate hard pixel clusters, upper-left warm afternoon light and cool teal shadows. No halo, magic particles, mask, nonhuman anatomy, scenery, ground plane, cast ground shadow, writing, UI, frame or other characters. Pure perfectly flat magenta #FF00FF background throughout, no pink or purple subject details. Runtime transparent image 512px high shown at 80px: emphasize the silver bun and jade crown, broad ivory sleeves and distinct medicine staff."
+    }
+  ]
+}

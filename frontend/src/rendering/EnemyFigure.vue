@@ -2,11 +2,11 @@
 import { computed, ref, watch } from 'vue'
 import { enemyImage } from '../presentation/assetPaths'
 
-const props = defineProps<{ kind: string }>()
-const source = computed(() => enemyImage(props.kind))
+const props = defineProps<{ kind: string; assetId?: string }>()
+const source = computed(() => enemyImage(props.kind, props.assetId))
 const loaded = ref(false)
 const failed = ref(false)
-watch(() => props.kind, () => { loaded.value = false; failed.value = false }, { flush: 'sync' })
+watch(source, () => { loaded.value = false; failed.value = false }, { flush: 'sync' })
 
 function imageLoaded(event: Event) {
   if ((event.target as HTMLImageElement).getAttribute('src') === source.value) loaded.value = true

@@ -67,6 +67,7 @@ const ENEMY_ARTWORK_IDS = new Set([
   'vine_spirit', 'bronze_beast', 'lantern_wraith',
 ])
 
-export function enemyImage(templateId: string): string {
-  return ENEMY_ARTWORK_IDS.has(templateId) ? `${ASSET_ROOT}/art-foundation/enemies/${templateId}.png` : ''
+// 战报优先使用固化的敌方立绘；旧快照缺少图片键时保留原模板图与未知占位。
+export function enemyImage(templateId: string, assetId?: string | null): string {
+  return characterImage(assetId) || (ENEMY_ARTWORK_IDS.has(templateId) ? `${ASSET_ROOT}/art-foundation/enemies/${templateId}.png` : '')
 }

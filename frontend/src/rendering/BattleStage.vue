@@ -128,7 +128,7 @@ onUnmounted(() => {
           <article v-for="unit in army.units" :key="unit.id" :class="['combatant', { fallen: unit.hp === 0, boss: unit.side === 'enemy' && encounterKind === 'boss', elite: unit.side === 'enemy' && encounterKind === 'elite', acting: playing && event?.actor_id === unit.id, targeted: isTarget(unit.id) }]" :aria-label="`${unit.name}，气血${unit.hp}/${unit.max_hp}，护盾${unit.shield}`">
             <div class="unit-portrait">
               <img v-if="unit.side === 'ally' && image(unit) && !failedImages.has(unit.id)" :src="image(unit)" alt="" class="pixel-art" decoding="async" draggable="false" @error="markBroken(unit.id)" />
-              <EnemyFigure v-else :kind="unit.side === 'enemy' ? unit.template_id : 'warden'" />
+              <EnemyFigure v-else :kind="unit.side === 'enemy' ? unit.template_id : 'warden'" :asset-id="unit.side === 'enemy' ? unit.asset_id : undefined" />
               <span class="unit-slot">{{ unit.slot + 1 }}</span>
               <span v-if="unit.hp === 0" class="fallen-label">暂歇</span>
               <SkillVfx v-if="isTarget(unit.id)" :key="`${event?.sequence}-${unit.id}`" :kind="event?.vfx ?? 'strike'" :defensive="effectsFor(unit.id).some(effect => effect.kind === 'heal' || effect.kind === 'shield')" />

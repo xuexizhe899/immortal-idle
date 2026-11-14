@@ -11,7 +11,7 @@ async function loadTypeScript(relativePath) {
   return import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`)
 }
 
-const { ITEM_ICON_IDS, itemIconPath, characterImage, discipleImage, snapshotDiscipleImage, sceneImage } = await loadTypeScript('../src/presentation/assetPaths.ts')
+const { ITEM_ICON_IDS, itemIconPath, characterImage, discipleImage, snapshotDiscipleImage, sceneImage, enemyImage } = await loadTypeScript('../src/presentation/assetPaths.ts')
 const manifest = JSON.parse(await readFile(new URL('../public/assets/items/index.json', import.meta.url), 'utf8'))
 
 test('item registry covers every generated icon and file', async () => {
@@ -45,6 +45,27 @@ test('character keys and scene urls resolve to existing local assets without dup
   assert.equal(sceneImage(null), '')
   await access(new URL(`../public${characterImage('trial-v03/zhugeliang')}`, import.meta.url))
   await access(new URL(`../public${sceneImage('/assets/city-v03/scene_city_complete.png')}`, import.meta.url))
+})
+
+test('enemy snapshots use recorded artwork before the template registry', () => {
+  assert.equal(enemyImage('stone_guard', 'trial-v03/guanyu'), '/assets/trial-v03/guanyu.png')
+  assert.equal(enemyImage('unknown_enemy', ' trial-v03/zhugeliang.png '), '/assets/trial-v03/zhugeliang.png')
+  assert.equal(enemyImage('stone_guard', '/assets/trial-v03/guanyu.png'), '/assets/trial-v03/guanyu.png')
+})
+
+test('one enemy template can keep different recorded disciple and leader portraits', () => {
+  const disciple = enemyImage('jade_warden', 'trial-v03/guanyu')
+  const leader = enemyImage('jade_warden', 'trial-v03/zhugeliang')
+  assert.equal(disciple, '/assets/trial-v03/guanyu.png')
+  assert.equal(leader, '/assets/trial-v03/zhugeliang.png')
+  assert.notEqual(disciple, leader)
+})
+
+test('missing enemy snapshot artwork retains legacy template images and unknown placeholders', () => {
+  for (const assetId of [undefined, null, '', ' \t ']) {
+    assert.equal(enemyImage('stone_guard', assetId), '/assets/art-foundation/enemies/stone_guard.png')
+    assert.equal(enemyImage('unknown_enemy', assetId), '')
+  }
 })
 
 test('a fixed expedition snapshot keeps its portrait instead of the current catalog', () => {

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>外宗人物 · 十六人立绘审阅</title>
+  <style>
+    :root { color-scheme: light; --ink: #263f3b; --muted: #5c6e67; --paper: #f2eee3; --line: #c9cdbd; --jade: #315c50; --gold: #8c6a2d; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.65 "Microsoft YaHei", sans-serif; }
+    main { max-width: 1080px; margin: auto; padding: 48px 32px 64px; }
+    header { padding-bottom: 28px; border-bottom: 3px solid var(--jade); }
+    .eyebrow { margin: 0 0 8px; color: var(--gold); font-size: 13px; letter-spacing: .15em; }
+    h1, h2 { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-weight: 600; }
+    h1 { margin: 0 0 14px; font-size: clamp(28px, 5vw, 42px); line-height: 1.25; }
+    h2 { margin: 0; font-size: 25px; }
+    h3 { margin: 0; font-size: 19px; }
+    p { margin: 8px 0; }
+    .intro { max-width: 820px; color: var(--muted); }
+    .notice { margin-top: 20px; padding: 12px 16px; border-left: 3px solid var(--gold); background: #e9e3d2; }
+    .notice strong { color: #70531e; }
+    nav { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 20px; }
+    a { color: var(--jade); text-underline-offset: 4px; }
+    a:hover { color: #7c5528; }
+    a:focus-visible { outline: 3px solid var(--gold); outline-offset: 5px; }
+    .comparison { margin-top: 40px; scroll-margin-top: 20px; }
+    .section-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .section-heading p { margin: 0; color: var(--muted); }
+    .roster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 18px; }
+    figure { min-width: 0; margin: 0; border: 1px solid var(--line); background: #faf8f0; }
+    figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 16px 18px 10px; }
+    .status { padding: 2px 8px; border: 1px solid #bc9e60; color: #70531e; font-size: 12px; white-space: nowrap; }
+    .confirmed, .baseline { border-color: #99b4a7; color: var(--jade); }
+    .identity { min-height: 3.3em; margin: 0; padding: 0 18px 12px; color: var(--muted); font-size: 14px; }
+    .master { border-top: 3px solid var(--gold); }
+    .scale { margin: 0; padding: 4px 18px 8px; color: var(--muted); font-size: 13px; }
+    .stage { overflow-x: auto; padding: 16px; background-color: #e9ece3; background-image: linear-gradient(45deg, #dfe5db 25%, transparent 25%, transparent 75%, #dfe5db 75%), linear-gradient(45deg, #dfe5db 25%, transparent 25%, transparent 75%, #dfe5db 75%); background-position: 0 0, 8px 8px; background-size: 16px 16px; }
+    .portrait { display: block; width: auto; max-width: none; height: 512px; margin: 0 auto; image-rendering: pixelated; }
+    .small { margin-top: 14px; }
+    .small .portrait { height: 80px; }
+    .file-link { margin: 0; padding: 12px 18px 16px; font-size: 14px; }
+    .review-points { margin-top: 40px; padding: 22px 24px; border-top: 3px solid var(--jade); background: #e7e9dd; }
+    .review-points h2 { font-size: 22px; }
+    .review-points ul { margin: 12px 0 0; padding-left: 22px; }
+    .review-points li + li { margin-top: 6px; }
+    footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 680px) {
+      main { padding: 28px 16px 40px; }
+      .roster { grid-template-columns: 1fr; gap: 16px; }
+      .comparison { margin-top: 32px; }
+      .review-points { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">外宗人物 / 人工审阅</p>
+      <h1>十三弟子 · 三位宗主</h1>
+      <p class="intro">按剑修、御守、丹修查看完整十六人。每张图分别以 512px 和 80px 高度展示，并提供原图入口；页面末尾保留诸葛亮、关羽、嫦娥作为画风基准。</p>
+      <p class="notice"><strong>十六张外宗立绘已生成并接入，三代表试稿已由用户确认。</strong> 剑修持剑弟子、御守重甲弟子、丹修女宗主已确认；其余角色仍待用户人工审阅。本轮使用16／40次调用，无失败、重试或尺寸降级；本页供人工检查整批风格与细节，不代表整批视觉验收通过。</p>
+      <nav aria-label="跳转到流派与风格基准">
+        <a href="#sword">剑修 · 5 人</a>
+        <a href="#ward">御守 · 5 人</a>
+        <a href="#herbal">丹修 · 6 人</a>
+        <a href="#baselines">既有风格基准</a>
+      </nav>
+    </header>
+
+    <section class="comparison" id="sword" aria-labelledby="sword-title">
+      <div class="section-heading">
+        <h2 id="sword-title">01 / 剑修</h2>
+        <p>四名弟子与一名宗主 · 直剑、宽刀、长弓与方盾</p>
+      </div>
+      <div class="roster">
+        <figure>
+          <figcaption><h3>剑修 · 持剑弟子</h3><span class="status confirmed">代表试稿 · 用户已确认</span></figcaption>
+          <p class="identity">精瘦青年、束发、窄袖青白袍与直剑</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_swordsman.png" alt="剑修 · 持剑弟子：精瘦青年、束发、窄袖青白袍与直剑" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_swordsman.png" alt="剑修 · 持剑弟子，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/sword_swordsman.png">查看剑修 · 持剑弟子原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>剑修 · 刀修弟子</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">壮年刀修、短发半束、斜披肩甲与宽刃刀</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_saber.png" alt="剑修 · 刀修弟子：壮年刀修、短发半束、斜披肩甲与宽刃刀" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_saber.png" alt="剑修 · 刀修弟子，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/sword_saber.png">查看剑修 · 刀修弟子原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>剑修 · 女弓修</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">高挑女性、高马尾、分摆短袍与长弓</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_archer.png" alt="剑修 · 女弓修：高挑女性、高马尾、分摆短袍与长弓" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_archer.png" alt="剑修 · 女弓修，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/sword_archer.png">查看剑修 · 女弓修原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>剑修 · 护卫弟子</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">方脸护卫、低盔、紧凑甲衣、方盾与短剑</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_guard.png" alt="剑修 · 护卫弟子：方脸护卫、低盔、紧凑甲衣、方盾与短剑" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_guard.png" alt="剑修 · 护卫弟子，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/sword_guard.png">查看剑修 · 护卫弟子原图</a></p>
+        </figure>
+        <figure class="master">
+          <figcaption><h3>剑修宗主</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">灰鬓、剑形冠、长披肩礼袍与重剑</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_master.png" alt="剑修宗主：灰鬓、剑形冠、长披肩礼袍与重剑" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/sword_master.png" alt="剑修宗主，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/sword_master.png">查看剑修宗主原图</a></p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="comparison" id="ward" aria-labelledby="ward-title">
+      <div class="section-heading">
+        <h2 id="ward-title">02 / 御守</h2>
+        <p>四名弟子与一名宗主 · 重甲、大盾、铜灯与锻锤</p>
+      </div>
+      <div class="roster">
+        <figure>
+          <figcaption><h3>御守 · 重甲弟子</h3><span class="status confirmed">代表试稿 · 用户已确认</span></figcaption>
+          <p class="identity">壮硕人类、露面重盔、块状铁甲与方头锤</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_guard.png" alt="御守 · 重甲弟子：壮硕人类、露面重盔、块状铁甲与方头锤" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_guard.png" alt="御守 · 重甲弟子，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/ward_guard.png">查看御守 · 重甲弟子原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>御守 · 女护阵者</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">成熟女性、盘发、玉甲分裙与大盾</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_warden.png" alt="御守 · 女护阵者：成熟女性、盘发、玉甲分裙与大盾" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_warden.png" alt="御守 · 女护阵者，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/ward_warden.png">查看御守 · 女护阵者原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>御守 · 男弓修</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">敦实男性、头巾、铜护臂与短复合弓</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_archer.png" alt="御守 · 男弓修：敦实男性、头巾、铜护臂与短复合弓" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_archer.png" alt="御守 · 男弓修，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/ward_archer.png">查看御守 · 男弓修原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>御守 · 持灯器修</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">瘦高器修、束髻、硬挺围裙式外袍与笼式铜灯</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_lantern.png" alt="御守 · 持灯器修：瘦高器修、束髻、硬挺围裙式外袍与笼式铜灯" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_lantern.png" alt="御守 · 持灯器修，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/ward_lantern.png">查看御守 · 持灯器修原图</a></p>
+        </figure>
+        <figure class="master">
+          <figcaption><h3>御守宗主</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">老年锻造宗主、短灰须、方冠、礼制重甲与锻锤</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_master.png" alt="御守宗主：老年锻造宗主、短灰须、方冠、礼制重甲与锻锤" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/ward_master.png" alt="御守宗主，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/ward_master.png">查看御守宗主原图</a></p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="comparison" id="herbal" aria-labelledby="herbal-title">
+      <div class="section-heading">
+        <h2 id="herbal-title">03 / 丹修</h2>
+        <p>五名弟子与一名宗主 · 药囊、木弓、药灯与药杖</p>
+      </div>
+      <div class="roster">
+        <figure>
+          <figcaption><h3>丹修 · 女护法</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">精干女性、发辫、交领绿袍、药囊与直剑</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_swordsman.png" alt="丹修 · 女护法：精干女性、发辫、交领绿袍、药囊与直剑" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_swordsman.png" alt="丹修 · 女护法，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/herbal_swordsman.png">查看丹修 · 女护法原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>丹修 · 医修弟子</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">温和医修、圆脸、双髻、短披肩与药葫芦</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_healer.png" alt="丹修 · 医修弟子：温和医修、圆脸、双髻、短披肩与药葫芦" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_healer.png" alt="丹修 · 医修弟子，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/herbal_healer.png">查看丹修 · 医修弟子原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>丹修 · 弓修弟子</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">灵巧青年、短束发、叶形披肩、木弓与箭囊</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_archer.png" alt="丹修 · 弓修弟子：灵巧青年、短束发、叶形披肩、木弓与箭囊" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_archer.png" alt="丹修 · 弓修弟子，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/herbal_archer.png">查看丹修 · 弓修弟子原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>丹修 · 女护卫</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">壮实女性、包髻、藤木护甲、圆盾与短棍</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_guard.png" alt="丹修 · 女护卫：壮实女性、包髻、藤木护甲、圆盾与短棍" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_guard.png" alt="丹修 · 女护卫，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/herbal_guard.png">查看丹修 · 女护卫原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>丹修 · 持灯药师</h3><span class="status">待用户人工审阅</span></figcaption>
+          <p class="identity">消瘦中年、垂髻、长直袍与莲瓣药灯</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_lantern.png" alt="丹修 · 持灯药师：消瘦中年、垂髻、长直袍与莲瓣药灯" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_lantern.png" alt="丹修 · 持灯药师，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/herbal_lantern.png">查看丹修 · 持灯药师原图</a></p>
+        </figure>
+        <figure class="master">
+          <figcaption><h3>丹修女宗主</h3><span class="status confirmed">代表试稿 · 用户已确认</span></figcaption>
+          <p class="identity">年长女性、银白发髻、玉冠、宽袖长袍与药杖</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_master.png" alt="丹修女宗主：年长女性、银白发髻、玉冠、宽袖长袍与药杖" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/art-foundation/sects/herbal_master.png" alt="丹修女宗主，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/sect-conquest/herbal_master.png">查看丹修女宗主原图</a></p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="comparison" id="baselines" aria-labelledby="baselines-title">
+      <div class="section-heading">
+        <h2 id="baselines-title">04 / 既有风格基准</h2>
+        <p>比较像素、配色、材质与光照；不要求新人物拥有相同面貌和服饰</p>
+      </div>
+      <div class="roster">
+        <figure>
+          <figcaption><h3>诸葛亮</h3><span class="status baseline">既有风格基准</span></figcaption>
+          <p class="identity">文士冠、青玉长袍与羽扇；用于对照袍服与清瘦轮廓</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/trial-v03/zhugeliang.png" alt="诸葛亮：文士冠、青玉长袍与羽扇；用于对照袍服与清瘦轮廓" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/trial-v03/zhugeliang.png" alt="诸葛亮，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/trial-v03/zhugeliang.png">查看诸葛亮原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>关羽</h3><span class="status baseline">既有风格基准</span></figcaption>
+          <p class="identity">红面长须、青甲与长刀；用于对照重甲和金属材质</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/trial-v03/guanyu.png" alt="关羽：红面长须、青甲与长刀；用于对照重甲和金属材质" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/trial-v03/guanyu.png" alt="关羽，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/trial-v03/guanyu.png">查看关羽原图</a></p>
+        </figure>
+        <figure>
+          <figcaption><h3>嫦娥</h3><span class="status baseline">既有风格基准</span></figcaption>
+          <p class="identity">月饰、象牙白长裙与玉色细节；用于对照长袍和宽袖</p>
+          <p class="scale">运行图原尺寸 · 高 512px</p>
+          <div class="stage"><img class="portrait" src="../../frontend/public/assets/trial-v03/change.png" alt="嫦娥：月饰、象牙白长裙与玉色细节；用于对照长袍和宽袖" loading="lazy" decoding="async"></div>
+          <p class="scale small">小尺寸对照 · 高 80px</p>
+          <div class="stage small"><img class="portrait" src="../../frontend/public/assets/trial-v03/change.png" alt="嫦娥，80px 高" loading="lazy" decoding="async"></div>
+          <p class="file-link"><a href="../../assets/masters/trial-v03/change.png">查看嫦娥原图</a></p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="review-points" aria-labelledby="review-title">
+      <h2 id="review-title">人工审阅时请留意</h2>
+      <ul>
+        <li>十三名弟子与三位宗主是否各有轮廓，三流派是否容易区分；宗主的年龄、冠饰、礼袍和专属道具是否突出。</li>
+        <li>所有角色都是可辨识的人类修士；头冠、手指、脚部和武器是否完整，透明边缘是否干净，服饰颜色是否误抠。</li>
+        <li>与三张已确认试稿及既有基准对照时，像素颗粒、青绿象牙配色、左上光照和人物占幅是否协调。</li>
+        <li>缩到 80px 高后，脸部、体型和标志物是否仍能看清，长武器是否让角色本体过小。</li>
+      </ul>
+    </section>
+    <footer>本页是独立美术审阅材料，不属于玩家界面。确认状态以各卡片标记为准；生成成功或文件存在不表示后续十三张已通过人工审阅。</footer>
+  </main>
+</body>
+</html>
