@@ -17,7 +17,7 @@ from app.domain.weapons import battle_bonuses, combat_bonuses
 from app.models.battle import (
     AffixContribution, BattleBond, BattleUnit, ConditionalBonus, EnemyDefinition, SkillDefinition,
 )
-from app.models.save import ActiveRun, BattleSummary, DiscipleState, GameState, RunNode, RunPartySnapshot
+from app.models.save import ActiveRun, BattleReview, BattleSummary, DiscipleState, GameState, RunNode, RunPartySnapshot, RunReview
 
 MAX_PARTY = 6
 # 常驻修正的单键上限：同一键被多条道法叠加时截断，避免堆满一个乘区。
@@ -153,7 +153,74 @@ def node_reward(kind: str, mode: dict, step: int) -> dict[str, float]:
     return {key: round(value * scale, 2) for key, value in base.items()}
 
 
-def roll_choices(rng: Pcg32, step: int, mode: dict) -> list[RunNode]:
+def roster_power(mode: dict, enemies: dict[str, EnemyDefinition], roster: list[str], step: int, kind: str) -> int:
+    """计算候选编成的面板战力，和进入节点时的缩放公式保持一致。"""
+    scale = 1 + step * mode["enemy_growth"]
+    kind_scale = mode.get("kind_stat_multiplier", {}).get(kind, 1.0)
+    total = 0.0
+    for enemy_id in roster:
+        enemy = enemies[enemy_id]
+        passive = enemy.passive or basic_skill(enemy_id, True)
+        bonuses = passive.bonuses if passive.condition == "always" else {}
+        total += (
+            enemy.base_stats["atk"] * scale * kind_scale * (1 + bonuses.get("atk", 0))
+            + enemy.base_stats["def"] * scale * kind_scale * (1 + bonuses.get("def", 0)) * .5
+            + max(1, floor(enemy.base_stats["hp"] * scale * kind_scale * (1 + bonuses.get("hp", 0)))) * .1
+        )
+    return round(total)
+
+
+def route_reward(kind: str, mode: dict, step: int, power: int, baseline_power: int) -> dict[str, float]:
+    """按面板战力缩放货币奖励，材料仍遵循原类型奖励。"""
+    base = node_reward(kind, mode, step)
+    if baseline_power <= 0:
+        return base
+    minimum = mode.get("route_reward_min", .85)
+    maximum = mode.get("route_reward_max", 1.3)
+    scale = min(max(power / baseline_power, minimum), maximum)
+    return {
+        key: round(value * scale, 2) if key in {"cultivation", "spirit_stone", "reputation"} else value
+        for key, value in base.items()
+    }
+
+
+def roll_choices(rng: Pcg32, step: int, snapshot: RunPartySnapshot) -> list[RunNode]:
+    """生成新路线候选；旧版本仍由 legacy_roll_choices 保持原随机顺序。"""
+    mode = snapshot.mode
+    if snapshot.route_version == 1:
+        return legacy_roll_choices(rng, step, mode)
+
+    is_boss = step >= mode["node_count"] - 1 or (step + 1) % mode["boss_every"] == 0
+    nodes: list[RunNode] = []
+    used: set[tuple[str, tuple[str, ...]]] = set()
+    target_count = 1 if is_boss else mode["choices_per_step"]
+    for index in range(target_count):
+        kind = "boss" if is_boss else "elite" if rng.randint(1, 100) <= mode["elite_chance"] else "battle"
+        variants = mode.get("encounter_variants", {}).get(kind) or [mode["encounters"][kind]]
+        if is_boss:
+            roster = list(variants[0])
+        else:
+            segment = min(len(variants) - 1, step * len(variants) // max(1, mode["node_count"]))
+            pool = [list(item) for item in variants[max(0, segment - 1):segment + 1]]
+            pool = [item for item in pool if (kind, tuple(item)) not in used]
+            if not pool:
+                continue
+            roster = pool[rng.randint(0, len(pool) - 1)]
+        identity = (kind, tuple(roster))
+        if identity in used:
+            continue
+        used.add(identity)
+        power = roster_power(mode, snapshot.enemies, roster, step, kind)
+        baseline = roster_power(mode, snapshot.enemies, encounter_roster(mode, kind, step), step, kind)
+        nodes.append(RunNode(
+            kind=kind, enemy=f"{kind}_{step}_{index}", enemies=roster, power=power,
+            reward=route_reward(kind, mode, step, power, baseline),
+        ))
+    return nodes
+
+
+def legacy_roll_choices(rng: Pcg32, step: int, mode: dict) -> list[RunNode]:
+    """旧路线候选：按历史顺序抽类型，不额外消费编成随机。"""
     is_boss = step >= mode["node_count"] - 1 or (step + 1) % mode["boss_every"] == 0
     nodes = []
     for _ in range(1 if is_boss else mode["choices_per_step"]):
@@ -169,7 +236,8 @@ def enemy_units(run: ActiveRun, node: RunNode) -> list[BattleUnit]:
     scale = 1 + step * snapshot.mode["enemy_growth"]
     kind_scale = snapshot.mode.get("kind_stat_multiplier", {}).get(node.kind, 1.0)
     units = []
-    for slot, enemy_id in enumerate(encounter_roster(snapshot.mode, node.kind, step)):
+    roster = node.enemies or encounter_roster(snapshot.mode, node.kind, step)
+    for slot, enemy_id in enumerate(roster):
         enemy = snapshot.enemies[enemy_id]
         base = enemy.base_stats
         passive = enemy.passive or basic_skill(enemy_id, True)
@@ -198,7 +266,10 @@ def start_run(
     seed: int | None = None, bonds: dict[str, dict] | None = None,
     skills: dict[str, dict] | None = None, enemies: dict[str, dict] | None = None,
     affix_pool: list[dict] | None = None, weapons: dict[str, dict] | None = None,
+    route_version: int = 1,
 ) -> str | None:
+    if route_version not in {1, 2}:
+        return "不支持的路线版本"
     if state.active_run is not None:
         return "已有进行中的出征"
     if not party_ids or len(party_ids) > MAX_PARTY:
@@ -236,6 +307,7 @@ def start_run(
         bonds=tuple(activated), mode=deepcopy(mode),
         enemies={key: EnemyDefinition.model_validate(value) for key, value in (enemies if enemies is not None else load_enemies()).items()},
         affix_pool=deepcopy(affix_pool if affix_pool is not None else load_affixes()),
+        route_version=route_version,
     )
     run_seed = seed if seed is not None else secrets.randbits(63)
     rng = Pcg32(run_seed)
@@ -243,7 +315,7 @@ def start_run(
     state.active_run = ActiveRun(
         run_seed=run_seed, party=list(party_ids), mode=mode["id"], party_snapshot=snapshot,
         member_hp=hp, hp=sum(hp.values()), max_hp=sum(hp.values()),
-        choices=roll_choices(rng, 0, snapshot.mode), started_at=now,
+        choices=roll_choices(rng, 0, snapshot), started_at=now,
     )
     state.active_run.rng_cursor = rng.cursor
     state.resources.stamina -= mode["stamina_cost"]
@@ -274,7 +346,11 @@ def choose(state: GameState, choice_index: int, *_unused) -> str | None:
     run.member_hp = {unit.id: unit.hp for unit in result.final_units if unit.side == "ally"}
     run.hp = sum(run.member_hp.values())
     run.end_reason = result.reason if not result.won else None
-    loot = node_reward(node.kind, mode, len(run.nodes) - 1) if result.won else {}
+    loot = (
+        dict(node.reward)
+        if result.won and (node.reward or snapshot.route_version >= 2)
+        else node_reward(node.kind, mode, len(run.nodes) - 1) if result.won else {}
+    )
     run.last_battle = BattleSummary(
         id=f"{run.run_seed}:{len(run.nodes)}", party_power=round(sum(unit.attack + .5 * unit.defense + .1 * unit.health for unit in allies), 4),
         enemy_power=round(sum(unit.attack + .5 * unit.defense + .1 * unit.health for unit in foes)),
@@ -304,7 +380,7 @@ def choose(state: GameState, choice_index: int, *_unused) -> str | None:
         run.affix_options = options
         run.affix_pending = True
     else:
-        run.choices = roll_choices(rng, len(run.nodes), mode)
+        run.choices = roll_choices(rng, len(run.nodes), snapshot)
     run.rng_cursor = rng.cursor
     return None
 
@@ -335,7 +411,7 @@ def pick_affix(state: GameState, affix_id: str, mode: dict | None = None) -> str
     run.affix_pending = False
     rng = Pcg32(run.run_seed)
     rng.advance_to(run.rng_cursor)
-    run.choices = roll_choices(rng, len(run.nodes), run.party_snapshot.mode)
+    run.choices = roll_choices(rng, len(run.nodes), run.party_snapshot)
     run.rng_cursor = rng.cursor
     return None
 
@@ -345,6 +421,53 @@ def defeat_loot(pending: dict[str, float], cleared: int, mode: dict) -> dict[str
     for key, value in mode["defeat_floor_reward"].items():
         loot[key] = round(loot.get(key, 0) + value * cleared, 2)
     return loot
+
+
+def build_battle_review(summary: BattleSummary) -> BattleReview:
+    """从最后一战的服务端快照提炼有限事实，不根据当前配置重建历史。"""
+    previous_hp = {unit.id: unit.hp for unit in summary.initial_units}
+    ally_ids = {unit.id for unit in summary.initial_units if unit.side == "ally"}
+    first_down_id = None
+    first_down_name = None
+    candidates: list[dict[str, str | int]] = []
+    for event in summary.events:
+        units = {unit.id: unit for unit in event.units}
+        if first_down_id is None:
+            for unit in event.units:
+                if unit.side == "ally" and previous_hp.get(unit.id, unit.hp) > 0 and unit.hp <= 0:
+                    first_down_id, first_down_name = unit.id, unit.name
+                    break
+        previous_hp.update({unit.id: unit.hp for unit in event.units})
+        actor = units.get(event.actor_id)
+        for effect in event.effects:
+            if effect.kind != "damage" or effect.amount <= 0:
+                continue
+            target = units.get(effect.target_id)
+            candidates.append({
+                "sequence": event.sequence, "round": event.round,
+                "actor_id": event.actor_id, "actor_name": actor.name if actor else event.actor_id,
+                "skill_name": event.skill_name, "target_id": effect.target_id,
+                "target_name": target.name if target else effect.target_id,
+                "amount": effect.amount,
+            })
+    candidates.sort(key=lambda item: (-int(item["amount"]), int(item["sequence"]), str(item["target_id"])))
+    # 保护指标只统计我方收到的增量与吸收；旧战报缺行动或单位来源时保留未记录。
+    ally_effects = [
+        effect for event in summary.events for effect in event.effects
+        if effect.target_id in ally_ids
+    ]
+    has_protection_records = bool(summary.events and ally_ids)
+    return BattleReview(
+        node=summary.node, party_power=summary.party_power, enemy_power=summary.enemy_power,
+        hp_before=summary.hp_before, hp_after=summary.hp_after, damage=summary.damage,
+        healed=summary.healed,
+        shield_applied=sum(effect.amount for effect in ally_effects if effect.kind == "shield") if has_protection_records else None,
+        shield_absorbed=sum(effect.absorbed for effect in ally_effects if effect.kind == "damage") if has_protection_records else None,
+        won=summary.won, rounds=summary.rounds, reason=summary.reason,
+        first_down_id=first_down_id, first_down_name=first_down_name,
+        surviving_enemies=[unit for unit in summary.final_units if unit.side == "enemy" and unit.hp > 0][:6],
+        key_actions=candidates[:3],
+    )
 
 
 def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
@@ -359,7 +482,18 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
         else:
             loot[key] = int(value)
             state.inventory[key] = state.inventory.get(key, 0) + int(value)
-    state.tower_floor = max(state.tower_floor, cleared)
+    # 出征清档前保留终止原因、到达节点和最后一场的关键指标，便于下一次整备时针对性调整。
+    last_battle = run.last_battle
+    state.last_run_review = RunReview(
+        mode=run.mode, cleared=cleared, total_nodes=mode["node_count"], victory=victory,
+        end_reason=run.end_reason,
+        loot=loot,
+        last_battle=build_battle_review(last_battle) if last_battle else None,
+    )
+    if run.mode == "expedition":
+        state.expedition_floor = max(state.expedition_floor, cleared)
+    else:
+        state.tower_floor = max(state.tower_floor, cleared)
     for disciple in state.disciples:
         if disciple.id in run.party:
             disciple.busy = False

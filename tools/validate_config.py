@@ -593,6 +593,19 @@ def validate(
                 for kind, value in multipliers.items():
                     if not is_finite_number(value) or not 0.5 <= value <= 3:
                         errors.append(f"{where}: kind_stat_multiplier.{kind} 必须是 0.5..3 的有限数字")
+        route_min = mode.get("route_reward_min")
+        route_max = mode.get("route_reward_max")
+        if route_min is not None or route_max is not None:
+            if route_min is None or route_max is None:
+                errors.append(f"{where}: route_reward_min 和 route_reward_max 必须同时配置")
+            elif (
+                not is_finite_number(route_min)
+                or not is_finite_number(route_max)
+                or not 0 < route_min <= route_max
+                or route_min < 0.5
+                or route_max > 1.5
+            ):
+                errors.append(f"{where}: route_reward_min/max 必须是 0.5..1.5 内且 min <= max 的有限数字")
         variants = mode.get("encounter_variants")
         if variants is not None:
             if not isinstance(variants, dict) or not variants:

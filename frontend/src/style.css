@@ -1,6 +1,6 @@
 :root {
   --bg: #e9e3d2; --surface: #f8f2df; --surface-raised: #fffaf0;
-  --ink: #243b35; --text: #293a33; --muted: #788075;
+  --ink: #243b35; --text: #293a33; --muted: #5e6d60;
   --jade: #2d6c57; --accent: #2d6c57; --jade-light: #e3eadb;
   --gold: #b48743; --border: #c6b99a; --danger: #a44e3f;
   --shadow: 0 12px 40px #26382f1a;
@@ -31,6 +31,10 @@ textarea { resize: vertical; width: 100%; }
 .btn-quiet { border-color: transparent; background: transparent; }
 .btn-small { min-height: 32px; padding: 4px 10px; font-size: 12px; }
 .btn-danger { color: var(--danger); border-color: #c38e78; }
+.btn-danger:hover:not(:disabled) { color: #873d31; border-color: var(--danger); background: #f6e4d7; }
+/* 不可用操作仍保留清楚的文字，具体原因由按钮旁的业务文案说明。 */
+.btn:disabled { opacity: 1; color: #697066; background: #e8e3d4; border-color: #c7c1ad; box-shadow: none; }
+.btn[aria-busy="true"] { cursor: progress; }
 .paper, .panel { padding: 22px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
 .eyebrow { display: block; font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
 .muted, .hint { color: var(--muted); font-size: 12px; }
@@ -47,11 +51,12 @@ textarea { resize: vertical; width: 100%; }
 .stat-cell { padding: 12px 8px; background: #eae6d5; text-align: center; }
 .stat-cell span { display: block; font-size: 11px; color: var(--muted); }
 .stat-cell strong, .resource-value { font-variant-numeric: tabular-nums; font-size: 19px; font-weight: 600; color: var(--jade); }
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: -4px 0 20px; padding-bottom: 8px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); margin: -4px 0 20px; padding-bottom: 8px; }
 .tabs button { border: 0; min-height: 38px; padding: 8px 18px; background: transparent; color: var(--muted); }
 .tabs button.active { background: var(--jade); color: #fff7df; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .field-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+.notice-box, .error-box { overflow-wrap: anywhere; }
 .notice-box { padding: 12px 15px; border: 1px solid #bdc7a8; background: #eaf0dd; color: var(--jade); font-size: 13px; }
 .error-box { padding: 12px 15px; border: 1px solid #c7947f; background: #f9eade; color: var(--danger); font-size: 13px; }
 .bubble-enter-active { animation: bubble-in .22s cubic-bezier(.2,.7,.3,1); }

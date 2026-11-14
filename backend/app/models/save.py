@@ -90,6 +90,39 @@ class BattleSummary(BaseModel):
     events: list[BattleEvent] = Field(default_factory=list)
 
 
+class BattleReview(BaseModel):
+    """结算后保留的最近一场关键战报，不复制逐行动演出。"""
+
+    node: RunNode
+    party_power: float
+    enemy_power: int
+    hp_before: int
+    hp_after: int
+    damage: int
+    healed: int = 0
+    shield_applied: int | None = None
+    shield_absorbed: int | None = None
+    won: bool
+    rounds: int = 0
+    reason: str = "victory"
+    first_down_id: str | None = None
+    first_down_name: str | None = None
+    surviving_enemies: list[BattleUnitState] = Field(default_factory=list, max_length=6)
+    key_actions: list[dict[str, str | int]] = Field(default_factory=list, max_length=3)
+
+
+class RunReview(BaseModel):
+    """最近一次已结算出征的事实摘要，供下次准备时复盘。"""
+
+    mode: str
+    cleared: int
+    total_nodes: int
+    victory: bool
+    end_reason: str | None = None
+    loot: dict[str, float] = Field(default_factory=dict)
+    last_battle: BattleReview | None = None
+
+
 class RunPartySnapshot(BaseModel):
     """出发时固化所有战斗和后续节点定义，配置修改不改变本局。"""
 
@@ -141,6 +174,8 @@ class GameState(BaseModel):
     crafted_recipes: list[str] = Field(default_factory=list)
     unlocks: list[str] = Field(default_factory=list)
     tower_floor: int = 0
+    expedition_floor: int = 0
+    last_run_review: RunReview | None = None
     active_run: ActiveRun | None = None
     rng_seed: int = 0
     logs: list[str] = Field(default_factory=list)

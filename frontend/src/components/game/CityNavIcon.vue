@@ -34,6 +34,12 @@ defineProps<{ name: string }>()
       <path d="M22 21h5v13h-5zM5 30h13v5H5zM8 35h32v3H8z" fill="#c4a363" />
       <path d="M12 8h4v5h-4zM35 26h4v4h-4zM39 21h4v3h-4z" fill="#f6e8ba" />
     </g>
+    <g v-else-if="name === 'expedition'">
+      <path d="M5 30h38l-5 9H12zM9 26h27v4H9zM16 9h4v17h-4zM20 9h11v4H20zM27 13h4v13h-4z" fill="#284e44" />
+      <path d="M12 31h25l-3 4H15zM18 14h8v4h-8z" fill="#7f9d80" />
+      <path d="M7 39h34v4H7zM20 5h4v5h-4z" fill="#c4a363" />
+      <path d="M4 23h10v3H4zM34 18h8v3h-8z" fill="#f6e8ba" />
+    </g>
     <g v-else>
       <path d="M21 3h6v5h5v4h5v4h-7v5h9v4h-7v5h10v4h-9v7h7v4H8v-4h7v-7H6v-4h10v-5H9v-4h9v-5h-7v-4h5V8h5z" fill="#264f43" />
       <path d="M21 10h6v5h-6zM20 20h8v4h-8zM18 29h12v4H18zM20 36h8v5h-8z" fill="#f6e8ba" />

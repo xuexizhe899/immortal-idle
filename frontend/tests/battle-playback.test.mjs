@@ -63,3 +63,19 @@ test('legacy battle events without affix sources keep their original description
   assert.equal(effectLabel({ kind: 'shield', amount: 4, affixes: [] }, names), '护盾 +4')
   assert.equal(affixSourceText(undefined, names), '')
 })
+
+test('direct-result mode schedules no actions and keeps the exact final snapshot and complete log available', () => {
+  const result = {
+    initial_units: [{ id: 'ally', hp: 30, shield: 0 }],
+    events: [{ sequence: 1, units: [{ id: 'ally', hp: 22, shield: 0 }] }],
+    final_units: [{ id: 'ally', hp: 22, shield: 0 }],
+    loot: { cultivation: 12.34 },
+  }
+  const before = structuredClone(result)
+
+  assert.deepEqual(playbackIndices(result.events, 'result'), [])
+  assert.deepEqual(playbackIndices([], 'result'), [])
+  assert.strictEqual(battleUnitsAt(result, result.events.length), result.final_units)
+  assert.deepEqual(playbackIndices(result.events, 'all'), [0], 'the original log remains replayable when switching back')
+  assert.deepEqual(result, before)
+})

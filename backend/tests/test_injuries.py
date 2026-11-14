@@ -158,6 +158,11 @@ def test_defeat_grants_floor_reward() -> None:
 
     assert result["loot"]["cultivation"] == pytest.approx(3.0)
     assert state.resources.cultivation == pytest.approx(3.0)
+    assert state.last_run_review is not None
+    assert state.last_run_review.victory is False
+    assert state.last_run_review.cleared == 1
+    assert state.last_run_review.last_battle is not None
+    assert state.last_run_review.last_battle.won is False
 
 
 def test_victory_does_not_injure() -> None:
@@ -171,9 +176,15 @@ def test_victory_does_not_injure() -> None:
     state.active_run.choices = [RunNode(kind="boss", enemy="boss_9", power=1)]
 
     choose(state, 0, TEMPLATES, [], MODE, BONDS)
-    settle_run(state, MODE, NOW)
+    result = settle_run(state, MODE, NOW)
 
     assert state.disciples[0].injury_stacks == 0
+    assert result["victory"] is True
+    assert state.last_run_review is not None
+    assert state.last_run_review.victory is True
+    assert state.last_run_review.cleared == MODE["node_count"]
+    assert state.last_run_review.last_battle is not None
+    assert state.last_run_review.last_battle.won is True
 
 
 def test_injury_does_not_affect_idle_output() -> None:

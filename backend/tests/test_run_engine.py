@@ -329,13 +329,13 @@ def test_affix_options_share_one_group() -> None:
     assert len(groups) == 1
 
 
-def test_placeholder_modes_are_disabled() -> None:
-    """远征与入侵者存在但未启用，爬塔不受影响。"""
+def test_only_invasion_placeholder_remains_disabled() -> None:
+    """远征已开放，入侵者仍保留占位，爬塔不受影响。"""
     from app.config_loader import load_modes
 
     modes = load_modes()
     assert modes["tower"]["enabled"] is True
-    assert modes["expedition"]["enabled"] is False
+    assert modes["expedition"]["enabled"] is True
     assert modes["invasion"]["enabled"] is False
 
 

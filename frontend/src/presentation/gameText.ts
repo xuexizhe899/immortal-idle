@@ -1,4 +1,4 @@
-import type { ActiveRun, Catalog, DiscipleState } from '../api/client'
+import type { ActiveRun, Catalog, DiscipleState, RunNode } from '../api/client'
 import { number } from '../shared/format'
 
 export type DisplayEffect = NonNullable<Catalog['affixes'][string]['effects']>[number]
@@ -26,6 +26,27 @@ export function snapshotAffixes(pool: NonNullable<ActiveRun['party_snapshot']>['
       description: text || '本局未记录道法说明',
     }] as const
   }))
+}
+export function snapshotEncounter(node: RunNode, snapshot: ActiveRun['party_snapshot'] | undefined, step: number) {
+  let ids = node.enemies ?? []
+  // 旧局沿用出发快照中的层段编成；无变体的更早快照才用固定编成。
+  if (!ids.length && (snapshot?.route_version ?? 1) < 2) {
+    const mode = snapshot?.mode ?? {}
+    const variants = (mode.encounter_variants as Record<string, string[][]> | undefined)?.[node.kind]
+    const index = variants?.length
+      ? Math.min(variants.length - 1, Math.floor(step * variants.length / Math.max(1, Number(mode.node_count ?? 1))))
+      : 0
+    ids = variants?.[index] ?? (mode.encounters as Record<string, string[]> | undefined)?.[node.kind] ?? []
+  }
+  const counts = new Map<string, number>()
+  for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1)
+  return [...counts].map(([id, count]) => {
+    const enemy = snapshot?.enemies[id]
+    const threats = [enemy?.skill, enemy?.passive]
+      .filter(skill => skill?.description)
+      .map(skill => `${skill!.name}：${description(skill!.description)}`)
+    return { id, count, name: enemy?.name ?? id, threats }
+  })
 }
 export function injuryText(disciple: DiscipleState): string { if (!disciple.injury_stacks) return '状态良好'; if (!disciple.injured_until) return `${disciple.injury_stacks} 层伤势`; const at = new Date(disciple.injured_until); return `${disciple.injury_stacks} 层伤势 · ${at.toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 消退` }
 export function resourceName(id: string, catalog?: DisplayCatalog | null): string { return statNames[id] ?? catalog?.materials[id] ?? catalog?.recipes[id]?.name ?? catalog?.weapons[id]?.name ?? id }

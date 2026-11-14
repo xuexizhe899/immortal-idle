@@ -25,6 +25,7 @@ GROUP_NAMES = {"fengrui": "锋锐", "jianshou": "坚守", "qimou": "奇谋"}
 @router.get("/catalog", response_model=CatalogResponse)
 async def catalog() -> CatalogResponse:
     bonds = load_bonds()
+    modes = load_modes()
     return CatalogResponse(
         disciples=load_disciples(),
         affixes={
@@ -48,7 +49,8 @@ async def catalog() -> CatalogResponse:
         },
         skills={key: {**item, "implemented": True} for key, item in load_skills().items()},
         enemies=load_enemies(),
-        mode=load_modes()["tower"],
+        mode=modes["tower"],
+        modes={key: value for key, value in modes.items() if value.get("enabled")},
         rules={
             "max_party": MAX_PARTY, "max_duty": MAX_DUTY_SLOTS,
             "idle_cap_hours": IDLE_CAP_HOURS,

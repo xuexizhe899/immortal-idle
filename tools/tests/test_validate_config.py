@@ -332,6 +332,22 @@ def test_enemy_encounter_variants_and_multipliers_are_validated(tree):
     assert any("未知类型 'event'" in error for error in errors)
 
 
+def test_route_reward_bounds_are_validated(tree):
+    config, assets = tree
+    write_json(config / "modes" / "tower.json", {
+        "id": "tower", "name": "塔", "route_reward_min": .85, "route_reward_max": 1.3,
+    })
+    assert vc.validate(config, assets) == []
+
+    patch(config / "modes" / "tower.json", route_reward_max=None)
+    errors = vc.validate(config, assets)
+    assert any("必须同时配置" in error for error in errors)
+
+    patch(config / "modes" / "tower.json", route_reward_min=.4, route_reward_max=1.6)
+    errors = vc.validate(config, assets)
+    assert any("route_reward_min/max" in error for error in errors)
+
+
 def test_invalid_enemy_stats_and_embedded_skill_are_rejected(tree):
     config, assets = tree
     write_json(config / "enemies" / "guard.json", {

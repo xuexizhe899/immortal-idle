@@ -278,6 +278,7 @@ class CatalogResponse(BaseModel):
     skills: dict[str, SkillCatalog]
     enemies: dict[str, EnemyDefinition]
     mode: ModeCatalog
+    modes: dict[str, ModeCatalog] = Field(default_factory=dict)
     rules: RulesCatalog
     production: ProductionCatalog
     city: CityLayout

@@ -10,6 +10,7 @@ const paths: Record<string, string> = {
   people: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 10v-3a7 7 0 0 1 14 0v3M17 4a4 4 0 0 1 0 8m2 2a6 6 0 0 1 3 5v2',
   scroll: 'M6 3h13a3 3 0 0 1 0 6h-1M6 3a3 3 0 0 0-3 3v13a2 2 0 0 0 4 0V6a3 3 0 0 0-1-3Zm1 18h12V9M10 9h5m-5 4h5m-5 4h5',
   sword: 'm14 3 7-1-1 7L8 21l-5-5L14 3ZM3 12l9 9M3 21l4-4M12 12l6-6',
+  ship: 'M3 17h18l-3 4H7l-4-4Zm2-2V7h8l3 3v5M8 7V4h5l3 3M7 20l-2 2m14-2 2 2',
   close: 'm6 6 12 12M6 18 18 6', check: 'm4 12 5 5L20 6', chevron: 'm9 5 7 7-7 7', plus: 'M12 5v14M5 12h14', bag: 'M5 7h14l2 14H3L5 7Zm3 0V5a4 4 0 0 1 8 0v2',
 }
 </script>

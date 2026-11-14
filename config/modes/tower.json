@@ -8,6 +8,8 @@
   "base_enemy_power": 20,
   "enemy_growth": 0.045,
   "reward_growth": 0.1,
+  "route_reward_min": 0.85,
+  "route_reward_max": 1.3,
   "damage_scale": 60,
   "boss_every": 20,
   "choices_per_step": 2,

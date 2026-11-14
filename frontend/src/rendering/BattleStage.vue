@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { BattleResult } from '../api/client'
 import { characterImage, TOWER_SCENE_IMAGE } from '../presentation/assetPaths'
-import { affixSourceText, battleUnitsAt, effectLabel, playbackIndices, type BattleEvent, type BattleUnit } from './battlePlayback'
+import { affixSourceText, battleUnitsAt, effectLabel, playbackIndices, type BattleEvent, type BattleUnit, type PlaybackMode } from './battlePlayback'
 import EnemyFigure from './EnemyFigure.vue'
 import SkillVfx from './SkillVfx.vue'
 
@@ -15,7 +15,7 @@ const emit = defineEmits<{ playing: [value: boolean] }>()
 const playing = ref(false)
 const cursor = ref(Number.MAX_SAFE_INTEGER)
 const speed = ref(2)
-const mode = ref<'key' | 'all'>('key')
+const mode = ref<PlaybackMode>('key')
 const reduced = ref(false)
 const failedImages = ref<Set<string>>(new Set())
 const sceneFailed = ref(false)
@@ -75,6 +75,8 @@ function play() {
   finish()
   if (!props.result?.events.length || reduced.value || document.hidden) return
   const indices = playbackIndices(props.result.events, mode.value)
+  // 直接看结果只保留服务端终帧，不锁住下一次路线或道法选择。
+  if (!indices.length) return
   const token = ++playbackToken
   let step = 0
   cursor.value = -1
@@ -95,6 +97,7 @@ function motionChanged() {
   reduced.value = motionQuery?.matches ?? false
   if (reduced.value) finish()
 }
+watch(mode, value => { if (value === 'result') finish() })
 watch(() => props.result?.id, (id, previous) => {
   failedImages.value = new Set()
   if (id && previous !== id) play()
@@ -139,13 +142,14 @@ onUnmounted(() => {
       </section>
     </div>
     <div v-else class="waiting-party"><div v-for="member in party" :key="member.id"><img v-if="!failedImages.has(member.id)" :src="member.image" alt="" class="pixel-art" decoding="async" @error="markBroken(member.id)" /><EnemyFigure v-else kind="warden" /><strong>{{ member.name }}</strong></div><p v-if="!party.length">等待同道入场</p></div>
-    <div v-if="result" class="battle-controls">
-      <span class="battle-outcome" :class="{ lost: !result.won }">{{ playing ? '交锋' : result.won ? '获胜' : '暂歇' }}<small>{{ result.rounds }} 轮 · {{ result.events.length }} 次行动</small></span>
-      <label>演出<select v-model="mode" :disabled="playing"><option value="key">关键招式</option><option value="all">完整交锋</option></select></label>
-      <label>速度<select v-model="speed"><option :value="1">1×</option><option :value="2">2×</option></select></label>
-      <button v-if="playing" class="btn btn-small" @click="finish">跳过演出</button><button v-else class="btn btn-small" :disabled="reduced || !result.events.length" @click="play">重播此战</button>
+    <div class="battle-controls">
+      <span v-if="result" class="battle-outcome" :class="{ lost: !result.won }">{{ playing ? '交锋' : result.won ? '获胜' : '暂歇' }}<small>{{ result.rounds }} 轮 · {{ result.events.length }} 次行动</small></span>
+      <label>演出<select v-model="mode"><option value="key" :disabled="playing">关键招式</option><option value="all" :disabled="playing">完整交锋</option><option value="result">直接看结果</option></select></label>
+      <label>速度<select v-model="speed" :disabled="mode === 'result' || reduced"><option :value="1">1×</option><option :value="2">2×</option></select></label>
+      <button v-if="playing" class="btn btn-small" @click="finish">跳过演出</button><button v-else-if="result" class="btn btn-small" :disabled="mode === 'result' || reduced || !result.events.length" @click="play">重播此战</button>
       <p v-if="reduced" class="motion-note">已按减少动态效果偏好展示战果，可展开完整战报。</p>
-      <p class="battle-totals">同道实际承伤 {{ result.damage }} · 恢复 {{ result.healed }} · 战后气血 {{ result.hp_after }}</p>
+      <p v-else-if="mode === 'result'" class="motion-note">后续交锋直接展示战果，路线与道法仍由你选择。</p>
+      <p v-if="result" class="battle-totals">同道实际承伤 {{ result.damage }} · 恢复 {{ result.healed }} · 战后气血 {{ result.hp_after }}</p>
     </div>
     <div v-if="result" class="battle-log">
       <p class="current-action" aria-live="polite">{{ playing && event ? `${nameById.get(event.actor_id)} · ${event.skill_name}` : outcome }}<span v-if="playing && event?.bonds.length" class="bond-flare">{{ event.bonds.map(id => bondNames?.[id] ?? id).join(' · ') }}</span></p>

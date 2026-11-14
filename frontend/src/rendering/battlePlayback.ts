@@ -3,9 +3,11 @@ import type { BattleResult } from '../api/client'
 export type BattleEvent = BattleResult['events'][number]
 export type BattleUnit = BattleResult['initial_units'][number]
 export type BattleEffect = BattleEvent['effects'][number]
+export type PlaybackMode = 'key' | 'all' | 'result'
 
 // 摘要只缩短播放，所有帧仍直接取服务端快照，完整战报始终保留。
-export function playbackIndices(events: BattleEvent[], mode: 'key' | 'all'): number[] {
+export function playbackIndices(events: BattleEvent[], mode: PlaybackMode): number[] {
+  if (mode === 'result') return []
   if (mode === 'all' || events.length <= 10) return events.map((_, index) => index)
   const indexed = events.map((event, index) => ({ event, index }))
   const bonds = indexed.filter(({ event }) => event.bonds.length).map(({ index }) => index)

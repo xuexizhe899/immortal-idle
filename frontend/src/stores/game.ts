@@ -216,10 +216,10 @@ export const useGameStore = defineStore('game', () => {
     })
   }
 
-  async function startRun(partyIds: string[]): Promise<void> {
-    await guard('进入问道塔', async () => {
+  async function startRun(partyIds: string[], mode: 'tower' | 'expedition' = 'tower'): Promise<void> {
+    await guard(mode === 'expedition' ? '前往远行码头' : '进入问道塔', async () => {
       const id = currentSlot()
-      const result = await api.startRun(id, partyIds, revision.value)
+      const result = await api.startRun(id, partyIds, revision.value, mode)
       lastRun.value = null
       applySnapshot(result, id)
     })

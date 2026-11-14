@@ -62,7 +62,7 @@ onBeforeUnmount(clearTimer)
   --bubble-bg: #f5f7e8; --bubble-border: #a9b996; --bubble-ink: #2d5644;
   --seal-ink: #3c6b56; --seal-border: #93a787; --seal-bg: #faf5e5;
   position: relative; display: flex; align-items: flex-end; gap: 9px;
-  flex: none; max-width: 100%; color: var(--bubble-ink); pointer-events: auto;
+  flex: none; min-width: 0; max-width: 100%; color: var(--bubble-ink); pointer-events: auto;
 }
 .tone-error {
   --bubble-bg: #faecdf; --bubble-border: #c99580; --bubble-ink: #8f4032;
@@ -95,7 +95,7 @@ onBeforeUnmount(clearTimer)
   padding: 4px; border: 0; background: transparent; color: var(--bubble-ink); opacity: .58;
   transition: opacity .15s, background .15s;
 }
-.bubble-close:hover { opacity: 1; background: #ffffff66; }
+.bubble-close:hover, .bubble-close:focus-visible { opacity: 1; background: #ffffff66; }
 .bubble-close .game-icon { width: 15px; height: 15px; }
 .bubble-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
 .bubble-actions :deep(.btn) { min-height: 30px; padding: 4px 11px; font-size: 11px; }
@@ -108,7 +108,7 @@ onBeforeUnmount(clearTimer)
   .bubble-avatar { width: 33px; height: 35px; font-size: 17px; }
   .bubble-surface { padding: 10px 11px 10px 13px; }
   .bubble-text { font-size: 13px; }
-  .bubble-close { width: 36px; height: 36px; margin: -5px -5px 0 0; }
+  .bubble-close { width: 44px; height: 44px; margin: -5px -5px 0 0; }
   .bubble-actions :deep(.btn) { min-height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) {

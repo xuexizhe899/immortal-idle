@@ -1,5 +1,7 @@
 """出征命令：revision 防重放，战斗与资源由服务端结算。"""
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.saves import get_repo
@@ -16,6 +18,7 @@ ENDED = {"defeated", "cleared"}
 
 class StartRunRequest(RevisionRequest):
     party: list[str]
+    mode: Literal["tower", "expedition"] = "tower"
 
 
 class ChooseRequest(RevisionRequest):
@@ -46,9 +49,13 @@ async def start(
     slot_id: int, payload: StartRunRequest, repo: SaveRepository = Depends(get_repo),
 ) -> RunResponse:
     command = await prepare_mutation(slot_id, repo, payload.revision)
+    modes = load_modes()
+    mode = modes.get(payload.mode)
+    if not mode or not mode.get("enabled"):
+        raise HTTPException(status_code=400, detail="该远行模式尚未开放")
     error = run_engine.start_run(
-        command.state, payload.party, load_disciples(), load_modes()["tower"], command.settled_at,
-        bonds=load_bonds(),
+        command.state, payload.party, load_disciples(), mode, command.settled_at,
+        bonds=load_bonds(), route_version=2,
     )
     if error:
         raise HTTPException(status_code=400, detail=error)
@@ -90,6 +97,8 @@ async def settle(
         raise HTTPException(status_code=400, detail="没有进行中的出征")
     if status_of(command.state) not in ENDED:
         raise HTTPException(status_code=400, detail="出征尚未结束")
-    result = run_engine.settle_run(command.state, load_modes()["tower"], command.settled_at)
+    # 已出发的奖励与结束条件由本局快照决定；实时模式关闭或移除不阻止带回战利品。
+    mode = command.state.active_run.party_snapshot.mode
+    result = run_engine.settle_run(command.state, mode, command.settled_at)
     await commit_mutation(slot_id, command, repo)
     return RunSettleResponse(**snapshot(command.state, command.revision + 1).model_dump(), **result)

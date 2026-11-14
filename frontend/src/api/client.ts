@@ -81,7 +81,7 @@ export const api = {
   getSave: (slotId: number) => request<SaveContent>(`/saves/${slotId}`),
   settle: (slotId: number, revision?: number) => post<SettleResult>(`/saves/${slotId}/settle`, revision ? { revision } : undefined),
   getRun: (slotId: number) => request<RunPayload>(`/saves/${slotId}/run`),
-  startRun: (slotId: number, party: string[], revision: number) => post<RunPayload>(`/saves/${slotId}/run/start`, { party, revision }),
+  startRun: (slotId: number, party: string[], revision: number, mode: 'tower' | 'expedition' = 'tower') => post<RunPayload>(`/saves/${slotId}/run/start`, mode === 'tower' ? { party, revision } : { party, revision, mode }),
   choose: (slotId: number, choice: number, revision: number) => post<RunPayload>(`/saves/${slotId}/run/choose`, { choice, revision }),
   pickAffix: (slotId: number, affixId: string, revision: number) => post<RunPayload>(`/saves/${slotId}/run/affix`, { affix_id: affixId, revision }),
   settleRun: (slotId: number, revision: number) => post<RunSettleResult>(`/saves/${slotId}/run/settle`, { revision }),
