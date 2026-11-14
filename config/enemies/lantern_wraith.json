@@ -1,6 +1,7 @@
 {
   "id": "lantern_wraith",
   "name": "引魂灯使",
+  "asset_id": "art-foundation/enemies/lantern_wraith",
   "base_stats": {
     "hp": 75,
     "atk": 13,

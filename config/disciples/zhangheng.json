@@ -17,5 +17,6 @@
   "bonds": [],
   "unlock_cost": {
     "reputation": 120
-  }
+  },
+  "production_specialty": "chi_tong"
 }

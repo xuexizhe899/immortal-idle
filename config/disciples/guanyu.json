@@ -19,5 +19,6 @@
   ],
   "unlock_cost": {
     "reputation": 220
-  }
+  },
+  "production_specialty": "han_tie"
 }

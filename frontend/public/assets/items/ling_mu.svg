@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>灵木</title>
+  <polygon points="14,22 42,14 53,25 53,43 25,51 14,40" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <polygon points="14,22 25,31 53,25 42,14" fill="#C58A53" stroke="#22342C" stroke-width="2"/>
+  <circle cx="23" cy="36" r="10" fill="#C58A53" stroke="#22342C" stroke-width="2"/>
+  <circle cx="23" cy="36" r="6" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <rect x="22" y="32" width="3" height="8" fill="#A78132"/>
+  <polygon points="37,18 34,8 43,10 45,16" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <rect x="39" y="13" width="2" height="11" fill="#3F7359"/>
+</svg>

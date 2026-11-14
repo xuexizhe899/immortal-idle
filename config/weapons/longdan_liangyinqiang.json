@@ -15,5 +15,6 @@
   "unlock": {
     "floor": 8,
     "level": 3
-  }
+  },
+  "upgrade_material": "gong_fa_qi_pei"
 }

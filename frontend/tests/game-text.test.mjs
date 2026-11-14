@@ -15,9 +15,28 @@ async function moduleUrl(path, imports = {}) {
 }
 
 const formatUrl = await moduleUrl('../src/shared/format.ts')
-const { snapshotAffixes, snapshotEncounter } = await import(await moduleUrl('../src/presentation/gameText.ts', {
+const { snapshotAffixes, snapshotEncounter, resourceName, matchesProductionTarget } = await import(await moduleUrl('../src/presentation/gameText.ts', {
   '../shared/format': formatUrl,
 }))
+
+test('graded pill inventory labels preserve their grade and use the recipe display name', () => {
+  const catalog={ materials:{ling_mu:'灵木'},recipes:{ju_qi_dan:{name:'聚气丹'}},weapons:{} }
+  assert.equal(resourceName('ju_qi_dan:g2',catalog),'聚气丹（2品）')
+  assert.equal(resourceName('ling_mu',catalog),'灵木')
+  assert.equal(resourceName('unknown:g2',catalog),'unknown:g2')
+})
+
+test('production recommendations distinguish resource leans from material specialties', () => {
+  const defender={lean:'defense',production_specialty:'han_tie'}
+  const herbalist={lean:'craft',production_specialty:'ling_cao'}
+  assert.equal(matchesProductionTarget(defender,'spirit_stone'),true)
+  assert.equal(matchesProductionTarget(herbalist,'spirit_stone'),false)
+  assert.equal(matchesProductionTarget({lean:'attack',production_specialty:'ling_mu'},'cultivation'),true)
+  assert.equal(matchesProductionTarget({lean:'support',production_specialty:'qing_shi'},'stamina'),true)
+  assert.equal(matchesProductionTarget(herbalist,'ling_cao'),true)
+  assert.equal(matchesProductionTarget(defender,'ling_cao'),false)
+  assert.equal(matchesProductionTarget(undefined,'ling_cao'),false)
+})
 
 test('legacy affix snapshots describe their original effects and group without current catalog rules', () => {
   const pool = [{ id: 'hui_chun', name: '旧局回春', group: 'jianshou', effects: [

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>妖兽皮</title>
+  <polygon points="10,12 25,17 38,17 54,11 48,29 53,53 37,47 26,47 10,54 16,31" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+  <polygon points="20,22 32,26 44,21 39,40 25,41" fill="#C58A53"/>
+  <rect x="30" y="21" width="4" height="25" fill="#6E4528"/>
+  <rect x="22" y="29" width="19" height="3" fill="#22342C"/>
+  <rect x="24" y="37" width="15" height="3" fill="#22342C"/>
+</svg>

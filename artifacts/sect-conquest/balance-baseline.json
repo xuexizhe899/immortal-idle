@@ -1,0 +1,744 @@
+{
+  "world_seed": 71,
+  "run_seed": 1,
+  "config_sha256": "0c3f11e99e08ad84e9d69bc20a63d5dc2e6f66958eff202ed5ae95c9d6eedee4",
+  "conditions": "一级宗门；所有弟子1级1境界、无伤势、无装备与永久增益；每场原三人按原顺序上阵；残血继承。",
+  "limitations": "十二个确定性初期案例仅验证首级可攻克性与阵容差异，不代表全部阵容、后期数值或视觉验收。",
+  "case_count": 12,
+  "victories": 6,
+  "cases": [
+    {
+      "party": [
+        "dufu",
+        "jingwei",
+        "libai"
+      ],
+      "recruitment_cost": 280,
+      "sect_id": "sect_1",
+      "sect_name": "听雨剑宗·下院",
+      "style": "剑修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 70,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 8,
+          "surviving_allies": [
+            "jingwei",
+            "libai"
+          ],
+          "member_hp": {
+            "dufu": 0,
+            "jingwei": 40,
+            "libai": 88
+          }
+        }
+      ],
+      "end_reason": "insufficient_fighters",
+      "boss_result": "not_reached",
+      "victory": false
+    },
+    {
+      "party": [
+        "dufu",
+        "jingwei",
+        "libai"
+      ],
+      "recruitment_cost": 280,
+      "sect_id": "sect_2",
+      "sect_name": "赤霞器宗·下院",
+      "style": "御守",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 85,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 15,
+          "surviving_allies": [
+            "libai"
+          ],
+          "member_hp": {
+            "dufu": 0,
+            "jingwei": 0,
+            "libai": 32
+          }
+        }
+      ],
+      "end_reason": "insufficient_fighters",
+      "boss_result": "not_reached",
+      "victory": false
+    },
+    {
+      "party": [
+        "dufu",
+        "jingwei",
+        "libai"
+      ],
+      "recruitment_cost": 280,
+      "sect_id": "sect_3",
+      "sect_name": "玄月丹宗·下院",
+      "style": "丹修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 7,
+          "surviving_allies": [
+            "dufu",
+            "jingwei",
+            "libai"
+          ],
+          "member_hp": {
+            "dufu": 25,
+            "jingwei": 60,
+            "libai": 88
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 50,
+          "won": false,
+          "reason": "defeated",
+          "combat_rounds": 11,
+          "surviving_allies": [],
+          "member_hp": {
+            "dufu": 0,
+            "jingwei": 0,
+            "libai": 0
+          }
+        }
+      ],
+      "end_reason": "insufficient_fighters",
+      "boss_result": "not_reached",
+      "victory": false
+    },
+    {
+      "party": [
+        "zhangfei",
+        "libai",
+        "huatuo"
+      ],
+      "recruitment_cost": 390,
+      "sect_id": "sect_1",
+      "sect_name": "听雨剑宗·下院",
+      "style": "剑修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 8,
+          "surviving_allies": [
+            "zhangfei",
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 83,
+            "libai": 88,
+            "huatuo": 95
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 20,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 12,
+          "surviving_allies": [
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 0,
+            "libai": 66,
+            "huatuo": 95
+          }
+        }
+      ],
+      "end_reason": "insufficient_fighters",
+      "boss_result": "not_reached",
+      "victory": false
+    },
+    {
+      "party": [
+        "zhangfei",
+        "libai",
+        "huatuo"
+      ],
+      "recruitment_cost": 390,
+      "sect_id": "sect_2",
+      "sect_name": "赤霞器宗·下院",
+      "style": "御守",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 12,
+          "surviving_allies": [
+            "zhangfei",
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 98,
+            "libai": 88,
+            "huatuo": 95
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 14,
+          "surviving_allies": [
+            "zhangfei",
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 50,
+            "libai": 88,
+            "huatuo": 95
+          }
+        },
+        {
+          "stage": "leader",
+          "arena_round": 2,
+          "guard_before": 0,
+          "guard_after": 0,
+          "won": false,
+          "reason": "round_limit",
+          "combat_rounds": 20,
+          "surviving_allies": [
+            "zhangfei",
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 140,
+            "libai": 88,
+            "huatuo": 95
+          }
+        }
+      ],
+      "end_reason": "round_limit",
+      "boss_result": "round_limit",
+      "victory": false
+    },
+    {
+      "party": [
+        "zhangfei",
+        "libai",
+        "huatuo"
+      ],
+      "recruitment_cost": 390,
+      "sect_id": "sect_3",
+      "sect_name": "玄月丹宗·下院",
+      "style": "丹修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 8,
+          "surviving_allies": [
+            "zhangfei",
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 107,
+            "libai": 88,
+            "huatuo": 95
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 11,
+          "surviving_allies": [
+            "zhangfei",
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 132,
+            "libai": 82,
+            "huatuo": 83
+          }
+        },
+        {
+          "stage": "leader",
+          "arena_round": 2,
+          "guard_before": 0,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 9,
+          "surviving_allies": [
+            "zhangfei",
+            "libai",
+            "huatuo"
+          ],
+          "member_hp": {
+            "zhangfei": 132,
+            "libai": 70,
+            "huatuo": 87
+          }
+        }
+      ],
+      "end_reason": "victory",
+      "boss_result": "victory",
+      "victory": true
+    },
+    {
+      "party": [
+        "baisuzhen",
+        "huatuo",
+        "houyi"
+      ],
+      "recruitment_cost": 420,
+      "sect_id": "sect_1",
+      "sect_name": "听雨剑宗·下院",
+      "style": "剑修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 5,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 85,
+            "huatuo": 95,
+            "houyi": 105
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 6,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 29,
+            "huatuo": 95,
+            "houyi": 105
+          }
+        },
+        {
+          "stage": "leader",
+          "arena_round": 2,
+          "guard_before": 0,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 7,
+          "surviving_allies": [
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 0,
+            "huatuo": 95,
+            "houyi": 105
+          }
+        }
+      ],
+      "end_reason": "victory",
+      "boss_result": "victory",
+      "victory": true
+    },
+    {
+      "party": [
+        "baisuzhen",
+        "huatuo",
+        "houyi"
+      ],
+      "recruitment_cost": 420,
+      "sect_id": "sect_2",
+      "sect_name": "赤霞器宗·下院",
+      "style": "御守",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 7,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 95,
+            "huatuo": 95,
+            "houyi": 105
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 7,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 43,
+            "huatuo": 95,
+            "houyi": 105
+          }
+        },
+        {
+          "stage": "leader",
+          "arena_round": 2,
+          "guard_before": 0,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 13,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 39,
+            "huatuo": 95,
+            "houyi": 105
+          }
+        }
+      ],
+      "end_reason": "victory",
+      "boss_result": "victory",
+      "victory": true
+    },
+    {
+      "party": [
+        "baisuzhen",
+        "huatuo",
+        "houyi"
+      ],
+      "recruitment_cost": 420,
+      "sect_id": "sect_3",
+      "sect_name": "玄月丹宗·下院",
+      "style": "丹修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 4,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 106,
+            "huatuo": 95,
+            "houyi": 105
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 6,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 103,
+            "huatuo": 90,
+            "houyi": 95
+          }
+        },
+        {
+          "stage": "leader",
+          "arena_round": 2,
+          "guard_before": 0,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 5,
+          "surviving_allies": [
+            "baisuzhen",
+            "huatuo",
+            "houyi"
+          ],
+          "member_hp": {
+            "baisuzhen": 127,
+            "huatuo": 88,
+            "houyi": 91
+          }
+        }
+      ],
+      "end_reason": "victory",
+      "boss_result": "victory",
+      "victory": true
+    },
+    {
+      "party": [
+        "guanyu",
+        "huatuo",
+        "libai"
+      ],
+      "recruitment_cost": 470,
+      "sect_id": "sect_1",
+      "sect_name": "听雨剑宗·下院",
+      "style": "剑修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 6,
+          "surviving_allies": [
+            "guanyu",
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 42,
+            "huatuo": 95,
+            "libai": 88
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 20,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 9,
+          "surviving_allies": [
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 0,
+            "huatuo": 30,
+            "libai": 88
+          }
+        }
+      ],
+      "end_reason": "insufficient_fighters",
+      "boss_result": "not_reached",
+      "victory": false
+    },
+    {
+      "party": [
+        "guanyu",
+        "huatuo",
+        "libai"
+      ],
+      "recruitment_cost": 470,
+      "sect_id": "sect_2",
+      "sect_name": "赤霞器宗·下院",
+      "style": "御守",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 7,
+          "surviving_allies": [
+            "guanyu",
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 67,
+            "huatuo": 95,
+            "libai": 88
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 7,
+          "surviving_allies": [
+            "guanyu",
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 39,
+            "huatuo": 95,
+            "libai": 88
+          }
+        },
+        {
+          "stage": "leader",
+          "arena_round": 2,
+          "guard_before": 0,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 11,
+          "surviving_allies": [
+            "guanyu",
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 77,
+            "huatuo": 95,
+            "libai": 88
+          }
+        }
+      ],
+      "end_reason": "victory",
+      "boss_result": "victory",
+      "victory": true
+    },
+    {
+      "party": [
+        "guanyu",
+        "huatuo",
+        "libai"
+      ],
+      "recruitment_cost": 470,
+      "sect_id": "sect_3",
+      "sect_name": "玄月丹宗·下院",
+      "style": "丹修",
+      "rounds": [
+        {
+          "stage": "arena",
+          "arena_round": 1,
+          "guard_before": 100,
+          "guard_after": 50,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 4,
+          "surviving_allies": [
+            "guanyu",
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 107,
+            "huatuo": 95,
+            "libai": 88
+          }
+        },
+        {
+          "stage": "arena",
+          "arena_round": 2,
+          "guard_before": 50,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 6,
+          "surviving_allies": [
+            "guanyu",
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 81,
+            "huatuo": 83,
+            "libai": 82
+          }
+        },
+        {
+          "stage": "leader",
+          "arena_round": 2,
+          "guard_before": 0,
+          "guard_after": 0,
+          "won": true,
+          "reason": "victory",
+          "combat_rounds": 5,
+          "surviving_allies": [
+            "guanyu",
+            "huatuo",
+            "libai"
+          ],
+          "member_hp": {
+            "guanyu": 107,
+            "huatuo": 79,
+            "libai": 79
+          }
+        }
+      ],
+      "end_reason": "victory",
+      "boss_result": "victory",
+      "victory": true
+    }
+  ]
+}

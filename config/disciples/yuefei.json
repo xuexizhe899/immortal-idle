@@ -17,5 +17,6 @@
   "bonds": [],
   "unlock_cost": {
     "reputation": 180
-  }
+  },
+  "production_specialty": "hu_chi_qi_pei"
 }

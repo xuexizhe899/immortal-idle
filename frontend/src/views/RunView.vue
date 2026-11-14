@@ -5,6 +5,7 @@ import { resourceName,snapshotAffixes,snapshotEncounter,type DisplayCatalog } fr
 import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
 import BattleStage from '../rendering/BattleStage.vue'
+import ConquestRun from './ConquestRun.vue'
 import GameIcon from '../components/ui/GameIcon.vue'
 defineEmits<{returnCity:[]}>()
 const store=useGameStore();const catalog=computed(()=>store.catalog as DisplayCatalog|null);const run=computed(()=>store.run?.run);const playing=ref(false)
@@ -15,9 +16,9 @@ const layers=computed(()=>run.value?.nodes?.length??0)
 const total=computed(()=>Number(run.value?.party_snapshot?.mode.node_count??0))
 const fixedRoutes=computed(()=>(run.value?.party_snapshot?.route_version??1)>=2)
 const modeId=computed(()=>run.value?.mode??'tower')
-const modeName=computed(()=>modeId.value==='expedition'?'远行':'问道塔')
+const modeName=computed(()=>modeId.value==='expedition'?'远行':`问道塔 · ${run.value?.tower_tier ?? 1} 阶`)
 const stepUnit=computed(()=>modeId.value==='expedition'?'段':'层')
-const modeBest=computed(()=>modeId.value==='expedition'?(store.state?.expedition_floor??0):(store.state?.tower_floor??0))
+const modeBest=computed(()=>modeId.value==='expedition'?(store.state?.expedition_floor??0):(run.value?.tower_tier && run.value.tower_tier>1 ? store.state?.tower_tiers[String(run.value.tower_tier)]??0 : store.state?.tower_floor??0))
 const hpPercent=computed(()=>run.value?.max_hp?Math.max(0,run.value.hp/run.value.max_hp*100):0)
 const affixDefinitions=computed(()=>snapshotAffixes(run.value?.party_snapshot?.affix_pool))
 const groupCounts=computed(()=>{const counts:Record<string,number>={};for(const id of run.value?.affixes??[]){const group=affixDefinitions.value[id]?.group;if(group)counts[group]=(counts[group]??0)+1}return counts})
@@ -31,7 +32,7 @@ const activeBonds=computed(()=>run.value?.party_snapshot?.bonds??[])
 const bondNames=computed(()=>Object.fromEntries(activeBonds.value.map(bond=>[bond.id,bond.name])))
 function bondSkillNames(skillIds:string[]){return [...new Set(skillIds)].map(id=>run.value?.party_snapshot?.combatants.map(unit=>unit.active).find(skill=>skill.id===id)?.name??catalog.value?.skills[id]?.name??id).join(' · ')}
 </script>
-<template><div v-if="run" class="run-page"><div class="run-title"><div><span class="eyebrow">{{ modeId==='expedition'?'EXPEDITION JOURNEY':'TOWER EXPEDITION' }}</span><h2>{{ modeName }} <span>第 {{ Math.min(layers+(store.status==='choosing_node'?1:0),total||Infinity) }} {{ stepUnit }}</span></h2><p class="muted">{{ statusLabel }} · 出征进度会自动保存</p></div><div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-small" :disabled="store.busy" @click="$emit('returnCity')"><GameIcon name="home" />返回宗门</button><div class="tower-count"><strong>{{ layers }}</strong><span>/ {{ total }} {{ stepUnit }}</span></div></div></div><div class="floor-progress"><span v-for="i in total" :key="i" :class="{done:i<=layers,current:i===layers+1&&!ended,boss:i===total}"><i></i><small v-if="i%5===0||i===1">{{ i }}</small></span></div><div class="run-layout"><div class="run-main"><div class="run-health"><div><GameIcon name="leaf" /><strong>同道气血合计</strong><span>{{ run.hp }} / {{ run.max_hp }}</span></div><div class="progress-track"><span :style="{width:`${hpPercent}%`}"></span></div></div><BattleStage :party="party" :result="store.battleResult" :bond-names="bondNames" @playing="playing=$event" />
+<template><ConquestRun v-if="run?.sect_id" @return-city="$emit('returnCity')" /><div v-else-if="run" class="run-page"><div class="run-title"><div><span class="eyebrow">{{ modeId==='expedition'?'EXPEDITION JOURNEY':'TOWER EXPEDITION' }}</span><h2>{{ modeName }} <span>第 {{ Math.min(layers+(store.status==='choosing_node'?1:0),total||Infinity) }} {{ stepUnit }}</span></h2><p class="muted">{{ statusLabel }} · 出征进度会自动保存</p></div><div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-small" :disabled="store.busy" @click="$emit('returnCity')"><GameIcon name="home" />返回宗门</button><div class="tower-count"><strong>{{ layers }}</strong><span>/ {{ total }} {{ stepUnit }}</span></div></div></div><div class="floor-progress"><span v-for="i in total" :key="i" :class="{done:i<=layers,current:i===layers+1&&!ended,boss:i===total}"><i></i><small v-if="i%5===0||i===1">{{ i }}</small></span></div><div class="run-layout"><div class="run-main"><div class="run-health"><div><GameIcon name="leaf" /><strong>同道气血合计</strong><span>{{ run.hp }} / {{ run.max_hp }}</span></div><div class="progress-track"><span :style="{width:`${hpPercent}%`}"></span></div></div><BattleStage :party="party" :result="store.battleResult" :bond-names="bondNames" @playing="playing=$event" />
   <section v-if="store.status==='choosing_node'" class="decision-section">
     <div class="section-heading"><div><span class="eyebrow">CHOOSE YOUR PATH</span><h3>{{ routeChoices.length>1?'前路有岔，各循其道':'前路已明，整装迎战' }}</h3></div><span class="muted">确认遭遇后继续</span></div>
     <div class="node-choices">

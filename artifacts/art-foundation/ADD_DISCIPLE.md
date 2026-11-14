@@ -16,6 +16,7 @@
 本次范围：【仅做立绘储备 / 完整接入可招募弟子】
 仅完整接入时填写：品质【1/2/3】、倾向【攻击/防御/辅助/炼制】、
 战斗定位【一句话】、主动/被动方向【内容】、羁绊【指定成员或无】、
+生产专长【恰好一个已有材料ID；与战斗倾向独立，例如ling_cao】、
 首次招募声望【数值；未指定时参考同品质现有角色提出方案】。
 
 先阅读 AGENTS.md、ARCHITECTURE.md、ART_DIRECTION.md、
@@ -86,6 +87,8 @@ backend\.venv\Scripts\python.exe tools/normalize_assets.py --input-dir assets/ra
 人物 `asset_id` 为不含扩展名的相对键，例如 `trial-v03/<id>`，不是 URL、base64 或 master 路径。`characterImage()`、`discipleImage()`、`snapshotDiscipleImage()` 已负责转换，新增人物通常只需配置正确的键，不照搬敌人 `ENEMY_ARTWORK_IDS` 的登记方式。
 
 ## 完整接入时的草稿与发布
+
+设施与驻守版本新增必填字段 `production_specialty`：每名正式弟子选择一个 `config/materials/` 中已有的材料 ID，不能填展示名称或数组。基础材料专长影响本宗值守，外宗专材专长在对应宗门驻守时发挥作用。在角色卡中明确填写 `production_specialty`，`tools/create_disciple.py` 会校验材料引用并将其写入弟子配置；工具不会根据战斗倾向自动选择专长。原角色卡未填写时先补齐再生成，不要为了跳过校验删掉设施或宗门配置。
 
 1. 参考 `tools/examples/disciple-brief-sunwukong.json` 编写本次独立角色卡，不覆盖示例或其他草稿。`origin` 为 `sanguo/myth/history`，`lean` 为 `attack/defense/support/craft`。工具和历史示例默认指向 `trial-v04`，本次显式填写 `asset_id: trial-v03/<id>`，继续使用已确认的资源组。
 2. 角色卡写明主动 `actions/cooldown/vfx`、被动 `bonuses/condition`；可选羁绊用当前 `modifiers` 或值守 `effects` 表达。参数取值以创建工具、配置校验器和服务端实际执行能力为准。

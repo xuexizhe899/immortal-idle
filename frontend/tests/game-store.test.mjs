@@ -31,7 +31,7 @@ test('a committed craft with a lost response does not spend materials or store t
   t.after(() => session.cleanup())
   await session.store.bootstrap()
   session.respond('POST', '/saves/1/craft', request => {
-    assert.deepEqual(request.body, { recipe_id: 'ju_qi_dan', revision: 1 })
+    assert.deepEqual(request.body, { recipe_id: 'ju_qi_dan', revision: 1, quantity: 1, grade: 1 })
     session.saved.set(1, snapshot({ revision: 2, inventory: { ling_cao: 3, ju_qi_dan: 1 } }))
     throw new TypeError('Response lost')
   })
@@ -92,24 +92,24 @@ test('a second consuming command is ignored while the first request is pending',
   assert.equal(session.store.state.inventory.ju_qi_dan, 1)
 })
 
-test('switching saves restores each saved party and removes duplicate, missing, and duty members', async t => {
+test('switching saves preserves duty members and removes duplicate and missing party members', async t => {
   const session = harness({
     1: snapshot({ disciples: [disciple('alpha'), disciple('duty')], duty: ['duty'] }),
     2: snapshot({ disciples: [disciple('beta'), disciple('gamma')] }),
   }, { slotId: 1, parties: { 1: ['alpha', 'alpha', 'missing', 'duty'], 2: ['beta'] } })
   t.after(() => session.cleanup())
   await session.store.bootstrap()
-  assert.deepEqual([...session.store.party], ['alpha'])
+  assert.deepEqual([...session.store.party], ['alpha', 'duty'])
 
   await session.store.switchSave(2)
   assert.deepEqual([...session.store.party], ['beta'])
   session.store.toggleParty('gamma')
   await session.store.switchSave(1)
-  assert.deepEqual([...session.store.party], ['alpha'])
+  assert.deepEqual([...session.store.party], ['alpha', 'duty'])
   await session.store.switchSave(2)
 
   assert.deepEqual([...session.store.party], ['beta', 'gamma'])
-  assert.deepEqual(session.preferences().parties, { 1: ['alpha'], 2: ['beta', 'gamma'] })
+  assert.deepEqual(session.preferences().parties, { 1: ['alpha', 'duty'], 2: ['beta', 'gamma'] })
   assert.equal(session.store.slotId, 2)
 })
 

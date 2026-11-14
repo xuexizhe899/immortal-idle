@@ -1,6 +1,7 @@
 {
   "id": "stone_guard",
   "name": "石甲灵卫",
+  "asset_id": "art-foundation/enemies/stone_guard",
   "base_stats": {
     "hp": 85,
     "atk": 13,

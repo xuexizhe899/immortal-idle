@@ -17,5 +17,6 @@
   "bonds": [],
   "unlock_cost": {
     "reputation": 80
-  }
+  },
+  "production_specialty": "qing_shi"
 }

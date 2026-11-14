@@ -19,5 +19,6 @@
   ],
   "unlock_cost": {
     "reputation": 150
-  }
+  },
+  "production_specialty": "xuan_jing"
 }

@@ -19,6 +19,8 @@ sys.path.insert(0, str(TOOLS))
 import generate_item_icons as gen  # noqa: E402
 
 EXPECTED_IDS = {
+    "ling_mu", "qing_shi", "chi_tong", "yao_shou_pi",
+    "gong_fa_qi_pei", "hu_chi_qi_pei", "po_jing_ling_cai",
     "han_tie", "jiao_gu", "jiu_ye", "ling_cao", "xuan_jing", "yun_mu",
     "gu_ti_dan", "hui_ling_dan", "ju_qi_dan", "liao_shang_dan",
     "po_jing_dan", "yang_shen_dan",
@@ -42,7 +44,7 @@ class ItemIconGeneratorTests(unittest.TestCase):
     def test_every_configured_item_has_art_and_manifest_entry(self) -> None:
         items = gen.load_items()
         self.assertEqual({item["id"] for item in items}, EXPECTED_IDS)
-        self.assertEqual(len(items), 34)
+        self.assertEqual(len(items), 41)
         self.assertEqual(set(gen.ART), EXPECTED_IDS)
 
         gen.generate(items, self.output)

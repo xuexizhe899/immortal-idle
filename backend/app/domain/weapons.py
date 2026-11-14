@@ -1,12 +1,13 @@
 """专属武器：唯一归属、单槽装备与个人属性加成。
 
-武器定义只保存属性与材料；状态里只记录行囊数量或弟子已装备的武器 ID。
+武器定义保存属性、材料与升级专材；存档分别记录唯一武器归属及等级。
 出发时由战斗快照固化最终数值，之后换装或改配置不影响进行中的出征。
 """
 
 from __future__ import annotations
 
 from app.domain.progression import is_on_run
+from app.domain.facilities import GRADE_MULTIPLIERS
 from app.models.api import WeaponView
 from app.models.save import DiscipleState, GameState
 
@@ -14,11 +15,15 @@ COMBAT_STATS = {"hp", "atk", "def", "spd"}
 BATTLE_STATS = {"damage", "healing", "shielding"}
 
 
-def equipped_weapon(disciple: DiscipleState, weapons: dict[str, dict]) -> dict | None:
+def equipped_weapon(
+    disciple: DiscipleState, weapons: dict[str, dict], weapon_levels: dict[str, int] | None = None,
+) -> dict | None:
     """返回已识别且生效的专武；旧档未知 ID 保留但不提供加成。"""
     for weapon_id in disciple.equipment:
         if weapon_id in weapons:
-            return weapons[weapon_id]
+            weapon = weapons[weapon_id]
+            multiplier = GRADE_MULTIPLIERS[(weapon_levels or {}).get(weapon_id, 1)]
+            return {**weapon, "stats": {stat: value * multiplier for stat, value in weapon["stats"].items()}}
     return None
 
 
@@ -80,6 +85,7 @@ def craft_weapon(
         if state.inventory[material_id] <= 0:
             del state.inventory[material_id]
     state.inventory[weapon_id] = state.inventory.get(weapon_id, 0) + 1
+    state.weapon_levels[weapon_id] = 1
     return None
 
 
@@ -135,12 +141,13 @@ def unequip_weapon(
 
 def combat_bonuses(
     disciple: DiscipleState, permanent: dict[str, float], weapons: dict[str, dict],
+    weapon_levels: dict[str, int] | None = None,
 ) -> dict[str, float]:
     """宗门永久加成、个人丹药与专武的基础属性合并成加区小数。"""
     merged = dict(permanent)
     for stat, value in disciple.bonuses.items():
         merged[stat] = merged.get(stat, 0.0) + value
-    weapon = equipped_weapon(disciple, weapons)
+    weapon = equipped_weapon(disciple, weapons, weapon_levels)
     if weapon is not None:
         for stat, value in weapon["stats"].items():
             if stat in COMBAT_STATS:
@@ -148,15 +155,63 @@ def combat_bonuses(
     return merged
 
 
-def battle_bonuses(disciple: DiscipleState, weapons: dict[str, dict]) -> dict[str, float]:
+def battle_bonuses(
+    disciple: DiscipleState, weapons: dict[str, dict], weapon_levels: dict[str, int] | None = None,
+) -> dict[str, float]:
     """专武提供的伤害、治疗、护盾乘区加成。"""
-    weapon = equipped_weapon(disciple, weapons)
+    weapon = equipped_weapon(disciple, weapons, weapon_levels)
     if weapon is None:
         return {}
     return {
         stat: value for stat, value in weapon["stats"].items()
         if stat in BATTLE_STATS
     }
+
+
+def weapon_upgrade(state: GameState, weapon: dict) -> dict:
+    """同一把专武逐级提升；费用和可用性供预览与命令共用。"""
+    weapon_id = weapon["id"]
+    level = state.weapon_levels.get(weapon_id, 1) if owned_weapon(state, weapon_id) else 0
+    target = min(level + 1, 3)
+    inputs = {key: count * target for key, count in weapon["inputs"].items()}
+    if level:
+        material = weapon.get("upgrade_material", "gong_fa_qi_pei" if "damage" in weapon["stats"] else "hu_chi_qi_pei")
+        inputs[material] = inputs.get(material, 0) + target - 1
+    reason = ""
+    if not level:
+        reason = "请先锻造该专武"
+    elif state.active_run is not None:
+        reason = "请先完成当前出征再升级专武"
+    elif level >= 3:
+        reason = "专武已达最高等级"
+    elif target > state.facility_levels.get("forge", 1):
+        reason = "请先升级炼器炉"
+    elif any(state.inventory.get(key, 0) < count for key, count in inputs.items()):
+        reason = "升级材料不足"
+    return {
+        "level": level, "max_level": state.facility_levels.get("forge", 1),
+        "upgrade_inputs": inputs if level < 3 else {},
+        "upgrade_stats": {key: value * GRADE_MULTIPLIERS[target] for key, value in weapon["stats"].items()},
+        "upgradeable": not reason, "upgrade_reason": reason,
+    }
+
+
+def upgrade_weapon(state: GameState, weapon_id: str, weapons: dict[str, dict]) -> str | None:
+    weapon = weapons.get(weapon_id)
+    if weapon is None:
+        return "专武不存在"
+    preview = weapon_upgrade(state, weapon)
+    if preview["upgrade_reason"]:
+        return preview["upgrade_reason"]
+    for material_id, count in preview["upgrade_inputs"].items():
+        remaining = state.inventory[material_id] - count
+        if remaining:
+            state.inventory[material_id] = remaining
+        else:
+            del state.inventory[material_id]
+    # 等级属于这把唯一专武，装备与卸下不会重置或重复发放增益。
+    state.weapon_levels[weapon_id] = preview["level"] + 1
+    return None
 
 
 def weapon_views(
@@ -177,7 +232,7 @@ def weapon_views(
             template_name=templates.get(weapon["template_id"], {}).get(
                 "name", weapon["template_id"],
             ),
-            stats=weapon["stats"],
+            stats={key: value * GRADE_MULTIPLIERS[state.weapon_levels.get(weapon_id, 1)] for key, value in weapon["stats"].items()},
             inputs=weapon["inputs"],
             unlock_floor=weapon["unlock"]["floor"],
             unlock_level=weapon["unlock"]["level"],
@@ -186,5 +241,6 @@ def weapon_views(
             equipped_by=owner.id if owner else None,
             reason=reason,
             craftable=not reason,
+            **weapon_upgrade(state, weapon),
         ))
     return views

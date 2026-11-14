@@ -1,6 +1,7 @@
 {
   "id": "cinder_blade",
   "name": "赤炉刀卫",
+  "asset_id": "art-foundation/enemies/cinder_blade",
   "base_stats": {
     "hp": 100,
     "atk": 15,

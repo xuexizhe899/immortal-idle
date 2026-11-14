@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>青石</title>
+  <polygon points="11,25 23,15 49,15 55,25 51,48 13,48" fill="#66797E" stroke="#22342C" stroke-width="2"/>
+  <polygon points="11,25 23,15 49,15 42,27" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <rect x="17" y="33" width="31" height="3" fill="#46565B"/>
+  <rect x="23" y="43" width="19" height="2" fill="#93A6AA"/>
+  <polygon points="35,28 30,33 34,39 29,47" fill="#22342C"/>
+</svg>

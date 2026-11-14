@@ -10,6 +10,7 @@ const props = defineProps<{
   party: { id: string; name: string; image: string }[]
   result: BattleResult | null
   bondNames?: Record<string, string>
+  setting?: 'tower' | 'sect'
 }>()
 const emit = defineEmits<{ playing: [value: boolean] }>()
 const playing = ref(false)
@@ -25,7 +26,7 @@ let motionQuery: MediaQueryList | undefined
 let playbackToken = 0
 const event = computed(() => props.result?.events[cursor.value] ?? null)
 const encounterKind = computed(() => props.result?.node?.kind ?? 'battle')
-const enemyArmyName = computed(() => encounterKind.value === 'boss' ? '首领与护卫' : encounterKind.value === 'elite' ? '精锐灵卫' : '守塔灵卫')
+const enemyArmyName = computed(() => props.setting === 'sect' ? encounterKind.value === 'boss' ? '镇宗宗主' : '守擂弟子' : encounterKind.value === 'boss' ? '首领与护卫' : encounterKind.value === 'elite' ? '精锐灵卫' : '守塔灵卫')
 const units = computed(() => props.result ? battleUnitsAt(props.result, cursor.value) : [])
 const armies = computed(() => [
   { side: 'ally', name: '门下同道', units: units.value.filter(unit => unit.side === 'ally').sort((a, b) => a.slot - b.slot) },
@@ -116,10 +117,10 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <section class="battle-stage" aria-label="问道塔交锋">
-    <img v-if="!sceneFailed" class="stage-scene pixel-art" :src="TOWER_SCENE_IMAGE" alt="" draggable="false" @error="sceneFailed = true" />
+  <section class="battle-stage" :class="{'sect-arena':setting==='sect'}" :aria-label="setting==='sect'?'宗门擂台交锋':'问道塔交锋'">
+    <img v-if="setting!=='sect' && !sceneFailed" class="stage-scene pixel-art" :src="TOWER_SCENE_IMAGE" alt="" draggable="false" @error="sceneFailed = true" />
     <div class="stage-veil"></div>
-    <header class="stage-caption"><span class="eyebrow">问道塔 · 同道试炼</span><span>{{ playing && event ? `第 ${event.round} 轮 · ${event.skill_name}` : outcome }}</span></header>
+    <header class="stage-caption"><span class="eyebrow">{{ setting==='sect'?'宗门擂台 · 同道交锋':'问道塔 · 同道试炼' }}</span><span>{{ playing && event ? `第 ${event.round} 轮 · ${event.skill_name}` : outcome }}</span></header>
     <div v-if="result" class="battle-armies">
       <section v-for="army in armies" :key="army.side" class="army" :class="army.side" :aria-label="army.name">
         <h4>{{ army.name }} <small>{{ army.units.filter(unit => unit.hp > 0).length }} / {{ army.units.length }}</small></h4>
@@ -148,7 +149,7 @@ onUnmounted(() => {
       <label>速度<select v-model="speed" :disabled="mode === 'result' || reduced"><option :value="1">1×</option><option :value="2">2×</option></select></label>
       <button v-if="playing" class="btn btn-small" @click="finish">跳过演出</button><button v-else-if="result" class="btn btn-small" :disabled="mode === 'result' || reduced || !result.events.length" @click="play">重播此战</button>
       <p v-if="reduced" class="motion-note">已按减少动态效果偏好展示战果，可展开完整战报。</p>
-      <p v-else-if="mode === 'result'" class="motion-note">后续交锋直接展示战果，路线与道法仍由你选择。</p>
+      <p v-else-if="mode === 'result'" class="motion-note">{{ setting==='sect'?'后续交锋直接展示战果，每场上阵弟子仍由你选择。':'后续交锋直接展示战果，路线与道法仍由你选择。' }}</p>
       <p v-if="result" class="battle-totals">同道实际承伤 {{ result.damage }} · 恢复 {{ result.healed }} · 战后气血 {{ result.hp_after }}</p>
     </div>
     <div v-if="result" class="battle-log">
@@ -156,7 +157,7 @@ onUnmounted(() => {
       <ol class="recent-events"><li v-for="item in latestEvents" :key="item.sequence"><small>第{{ item.round }}轮</small>{{ eventText(item) }}<b v-for="id in item.bonds" :key="id">{{ bondNames?.[id] ?? id }}</b></li></ol>
       <details><summary>完整战报 · {{ result.events.length }} 次行动</summary><template v-if="initialAffixes.length"><p>入场道法修正</p><ul class="initial-affixes"><li v-for="unit in initialAffixes" :key="unit.id">{{ affixSourceText(unit.affixes, nameById) }}</li></ul></template><ol class="full-events"><li v-for="item in result.events" :key="item.sequence"><small>第{{ item.round }}轮</small>{{ eventText(item) }}<b v-for="id in item.bonds" :key="id">{{ bondNames?.[id] ?? id }}</b></li></ol></details>
     </div>
-    <p v-else class="stage-bottom">选择前方路线，招式就绪时同道会自动施展。</p>
+    <p v-else class="stage-bottom">{{ setting==='sect'?'选定三位上阵弟子，迎战守擂同道。':'选择前方路线，招式就绪时同道会自动施展。' }}</p>
   </section>
 </template>
 <style scoped>
@@ -165,3 +166,5 @@ onUnmounted(() => {
 .initial-affixes{list-style:none;margin:0 0 10px;padding:0;color:#596951}
 @media(prefers-reduced-motion:reduce){.unit-health i,.combatant{transition:none}}
 </style>
+
+<style scoped>.sect-arena{background-color:#d4d6c2;background-image:linear-gradient(135deg,#244d431c 25%,transparent 25%),linear-gradient(45deg,transparent 74%,#8c7b5424 74%),repeating-linear-gradient(0deg,transparent 0 47px,#88927d20 47px 49px);background-size:72px 72px,72px 72px,100% 49px}.sect-arena .stage-veil{background:linear-gradient(#e4e9d44d,#d9dec1a6 330px,#f5efdf 520px)}</style>

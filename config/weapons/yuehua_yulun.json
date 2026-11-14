@@ -14,5 +14,6 @@
   "unlock": {
     "floor": 8,
     "level": 3
-  }
+  },
+  "upgrade_material": "hu_chi_qi_pei"
 }

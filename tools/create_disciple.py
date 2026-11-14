@@ -519,6 +519,9 @@ def build_package(brief: dict, *, force: bool = False, config_dir: Path = CONFIG
     skills = load_collection(config_dir / "skills")
     bonds = load_collection(config_dir / "bonds")
     brief = validate_brief(brief, disciples, skills, bonds, force=force)
+    specialty = brief.get("production_specialty")
+    if not isinstance(specialty, str) or specialty not in load_collection(config_dir / "materials"):
+        raise BriefError("production_specialty 必须填写一个已有材料 ID")
     stats = generate_stats(brief)
     power = base_power(stats)
     if abs(power - brief["power_target"]) > 0.6:
@@ -547,6 +550,7 @@ def build_package(brief: dict, *, force: bool = False, config_dir: Path = CONFIG
         "origin": brief["origin"],
         "rarity": brief["rarity"],
         "lean": brief["lean"],
+        "production_specialty": specialty,
         "asset_id": brief["asset_id"],
         "base_stats": stats,
         "skill": f"{brief['id']}-art",

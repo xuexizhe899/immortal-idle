@@ -17,5 +17,6 @@
   "bonds": [],
   "unlock_cost": {
     "reputation": 140
-  }
+  },
+  "production_specialty": "jiu_ye"
 }

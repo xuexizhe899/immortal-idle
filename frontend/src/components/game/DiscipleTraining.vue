@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import type { TrainingPreview, TrainingStats, TrainingStep } from '../../api/client'
-import { statNames } from '../../presentation/gameText'
+import { resourceName, type DisplayCatalog } from '../../presentation/gameText'
 import { number } from '../../shared/format'
 
 const props = withDefaults(defineProps<{
@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<{
   busy?: boolean
   readOnly?: boolean
   pillName?: string
+  catalog?: DisplayCatalog | null
 }>(), { preview: null, loading: false, busy: false, readOnly: false, pillName: '破境丹' })
 
 const emit = defineEmits<{ upgrade: []; breakthrough: [] }>()
@@ -25,7 +26,7 @@ const STAT_ROWS = [
 function costText(costs: Record<string, number>): string {
   const parts = Object.entries(costs).filter(([, value]) => value > 0)
   if (!parts.length) return '无'
-  return parts.map(([key, value]) => `${statNames[key] ?? key} ${number(value)}`).join(' · ')
+  return parts.map(([key, value]) => `${resourceName(key,props.catalog)} ${number(value)}`).join(' · ')
 }
 
 function dutyEntries(stats: TrainingStats | null | undefined): Array<[string, number]> {
@@ -35,14 +36,21 @@ function dutyEntries(stats: TrainingStats | null | undefined): Array<[string, nu
 function dutyText(stats: TrainingStats | null | undefined): string {
   const entries = dutyEntries(stats)
   if (!entries.length) return '若值守：无额外加成'
-  return `若值守：${entries.map(([key, value]) => `${statNames[key] ?? key} +${number(value * 100, 1)}%`).join(' · ')}`
+  return `若值守：${entries.map(([key, value]) => productionText(key,value)).join(' · ')}`
+}
+
+function productionText(key: string, value: number): string {
+  if (key.startsWith('material_') && key.endsWith('_flat')) {
+    return `${resourceName(key.slice(9,-5),props.catalog)} +${number(value,2)}/时`
+  }
+  return `${resourceName(key,props.catalog)} +${number(value * 100,1)}%`
 }
 
 function dutyDelta(current: TrainingStats, next: TrainingStats | null | undefined): string {
   if (!next) return ''
   const before = new Map(dutyEntries(current))
   const changed = dutyEntries(next).filter(([key, value]) => value > (before.get(key) ?? 0) + 0.0001)
-  return changed.map(([key, value]) => `${statNames[key] ?? key} +${number(value * 100, 1)}%`).join(' · ')
+  return changed.map(([key, value]) => productionText(key,value)).join(' · ')
 }
 
 function statValue(stats: TrainingStats, key: typeof STAT_ROWS[number]['key']): number {

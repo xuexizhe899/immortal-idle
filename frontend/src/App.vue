@@ -22,7 +22,7 @@ onMounted(() => { void store.bootstrap() })
     <header class="game-header">
       <div class="brand"><span class="brand-seal">道</span><div><h1>云岫仙宗</h1><span class="brand-sub">山海有灵 · 问道长生</span></div></div>
       <div class="resource-hud" aria-label="宗门资源"><div v-for="item in resources" :key="item.key" class="hud-item"><GameIcon :name="item.icon" /><div><span>{{ item.label }}</span><strong>{{ number(store.resources?.[item.key], item.key === 'stamina' ? 1 : 0) }}</strong></div></div></div>
-      <div class="save-indicator"><span class="status-dot"></span>{{ currentSave?.name ?? '宗门存档' }}<small>{{ inRun ? '问道塔出征中' : '山中岁月，自有所得' }}</small></div>
+      <div class="save-indicator"><span class="status-dot"></span>{{ currentSave?.name ?? '宗门存档' }}<small>{{ inRun ? store.state?.active_run?.sect_id ? '宗门征讨中' : store.state?.active_run?.mode==='expedition' ? '远行中' : '问道塔出征中' : '山中岁月，自有所得' }}</small></div>
     </header>
     <main class="game-main">
       <div v-if="!store.state" class="boot-screen"><span class="boot-seal">仙</span><h2>{{ store.error ? '山门暂未开启' : '正在叩开山门' }}</h2><p class="muted">{{ store.error ?? '整理宗门典籍，片刻便好…' }}</p><button v-if="store.error" class="btn btn-primary" @click="store.bootstrap()">重新尝试</button></div>

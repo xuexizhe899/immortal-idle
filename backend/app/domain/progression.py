@@ -26,6 +26,7 @@ def new_game_state() -> GameState:
         inventory={
             "ling_cao": 5, "yun_mu": 3, "han_tie": 4,
             "jiao_gu": 2, "xuan_jing": 2, "jiu_ye": 1,
+            "ling_mu": 4, "qing_shi": 4, "chi_tong": 2, "yao_shou_pi": 2,
         },
     )
 

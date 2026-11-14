@@ -19,5 +19,6 @@
   ],
   "unlock_cost": {
     "reputation": 140
-  }
+  },
+  "production_specialty": "po_jing_ling_cai"
 }

@@ -11,6 +11,7 @@ from datetime import datetime
 
 from app.models.save import DiscipleState, DutyEvent, DutySlot, GameState
 from app.domain.progression import is_on_run
+from app.domain.settle import BASE_MATERIALS_PER_HOUR
 
 MAX_DUTY_SLOTS = 6
 
@@ -58,45 +59,70 @@ def compute_rates(members: Iterable[DutyMember]) -> dict[str, float]:
     return rates
 
 
-def members_of(state: GameState, templates: dict[str, dict]) -> list[DutyMember]:
-    """按编制里的弟子 id 取出速率输入，模板缺失的跳过。"""
-    by_id: dict[str, DiscipleState] = {d.id: d for d in state.disciples}
-    members: list[DutyMember] = []
-    for slot in state.duty_slots:
-        disciple = by_id.get(slot.disciple_id)
-        if disciple is None:
-            continue
-        template = templates.get(disciple.template_id)
-        if template is None:
-            continue
-        members.append(
-            DutyMember(
-                lean=template["lean"],
-                rarity=template["rarity"],
-                realm=disciple.realm,
-                bonuses=disciple.bonuses,
-            )
-        )
-    return members
+def personal_duty_rates(
+    disciple: DiscipleState, template: dict, training_level: int = 1,
+) -> dict[str, float]:
+    """个人倾向与专长贡献；不包含本宗基础收益、羁绊或外宗驻守。"""
+    multiplier = 1 + 0.25 * (training_level - 1)
+    rates = compute_rates([DutyMember(
+        lean=template["lean"], rarity=template["rarity"], realm=disciple.realm,
+        bonuses=disciple.bonuses,
+    )])
+    rates = {key: value * multiplier for key, value in rates.items()}
+    specialty = template.get("production_specialty")
+    if specialty:
+        # 专长不按品质衰减；外宗专材没有本宗基础产量，只能在驻守时增产。
+        rates[f"material_{specialty}_flat"] = BASE_MATERIALS_PER_HOUR.get(specialty, 0.0) * multiplier
+    return rates
 
 
 def rates_of(
     state: GameState, templates: dict[str, dict], bonds: dict[str, dict] | None = None,
 ) -> dict[str, float]:
-    """值守倾向与已经触发的值守羁绊共同决定当期速率。"""
-    rates = compute_rates(members_of(state, templates))
+    """值守倾向、生活专长和驻守共同决定当期速率。"""
+    training = 1 + 0.25 * (state.facility_levels.get("training", 1) - 1)
+    rates = dict.fromkeys(RATE_KEYS, 0.0)
     by_id = {d.id: d for d in state.disciples}
-    active = {
-        by_id[slot.disciple_id].template_id
-        for slot in state.duty_slots if slot.disciple_id in by_id
-    }
+    active = set()
+    for slot in state.duty_slots:
+        disciple = by_id.get(slot.disciple_id)
+        if disciple is None:
+            continue
+        active.add(disciple.template_id)
+        template = templates.get(disciple.template_id)
+        if template:
+            for key, value in personal_duty_rates(disciple, template, state.facility_levels.get("training", 1)).items():
+                rates[key] = rates.get(key, 0.0) + value
     for bond in (bonds or {}).values():
         if len(active & set(bond["members"])) < bond.get("requires", len(bond["members"])):
             continue
         for effect in bond.get("effects", []):
             if effect["scope"] == "duty" and effect["mode"] == "add_pct":
-                rates[effect["stat"]] = rates.get(effect["stat"], 0.0) + effect["value"]
+                rates[effect["stat"]] = rates.get(effect["stat"], 0.0) + effect["value"] * training
+    for materials in garrison_production(state, templates).values():
+        for material, value in materials.items():
+            key = f"material_{material}_flat"
+            rates[key] = rates.get(key, 0.0) + value
     return rates
+
+
+def garrison_production(state: GameState, templates: dict[str, dict]) -> dict[str, dict[str, float]]:
+    """每名驻守者独立贡献，匹配对应产物的专长翻倍。"""
+    by_id = {disciple.id: disciple for disciple in state.disciples}
+    production = {}
+    for sect in state.sects:
+        if not sect.conquered:
+            continue
+        materials = {sect.material_id: 0.0, sect.special_material_id: 0.0}
+        for slot in sect.garrison:
+            disciple = by_id.get(slot.disciple_id)
+            if disciple is None or is_on_run(state, disciple):
+                continue
+            specialty = templates.get(disciple.template_id, {}).get("production_specialty")
+            for material, base in ((sect.material_id, 0.5), (sect.special_material_id, 0.15)):
+                materials[material] += base * sect.level * (2 if specialty == material else 1)
+        production[sect.id] = materials
+    return production
 
 
 def assign(
@@ -116,6 +142,9 @@ def assign(
     if is_on_run(state, disciple):
         return "该弟子正在出征"
 
+    # 目标本宗岗位校验通过后才从外宗离岗，失败不能丢失原安排。
+    for sect in state.sects:
+        sect.garrison = [slot for slot in sect.garrison if slot.disciple_id != disciple_id]
     state.duty_slots.append(DutySlot(disciple_id=disciple_id, assigned_at=now))
     record_event(state, templates, now, bonds)
     return None

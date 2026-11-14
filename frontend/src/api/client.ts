@@ -29,6 +29,13 @@ export type TrainingPreview = Schemas['TrainingPreview']
 export type BreakthroughResult = Schemas['BreakthroughResponse']
 export type Production = Schemas['ProductionCatalog']
 export type BattleResult = Schemas['BattleSummary-Output']
+export type FacilityView = Schemas['FacilityView']
+export type FacilityList = Schemas['FacilityListResponse']
+export type FacilityResult = Schemas['FacilityCommandResponse']
+export type RecipeView = Schemas['RecipeView']
+export type RecipeList = Schemas['CraftListResponse']
+export type HealPreview = Schemas['HealPartyPreview']
+export type HealResult = Schemas['HealPartyResponse']
 
 export class ApiError extends Error {
   readonly status: number
@@ -81,17 +88,27 @@ export const api = {
   getSave: (slotId: number) => request<SaveContent>(`/saves/${slotId}`),
   settle: (slotId: number, revision?: number) => post<SettleResult>(`/saves/${slotId}/settle`, revision ? { revision } : undefined),
   getRun: (slotId: number) => request<RunPayload>(`/saves/${slotId}/run`),
-  startRun: (slotId: number, party: string[], revision: number, mode: 'tower' | 'expedition' = 'tower') => post<RunPayload>(`/saves/${slotId}/run/start`, mode === 'tower' ? { party, revision } : { party, revision, mode }),
+  startRun: (slotId: number, party: string[], revision: number, mode: 'tower' | 'expedition' = 'tower', options: { sect_id?: string; tower_tier?: number } = {}) => post<RunPayload>(`/saves/${slotId}/run/start`, { party, revision, ...(mode === 'tower' ? {} : { mode }), ...options }),
+  arena: (slotId: number, party: string[], revision: number) => post<RunPayload>(`/saves/${slotId}/run/arena`, { party, revision }),
+  retreat: (slotId: number, revision: number) => post<RunPayload>(`/saves/${slotId}/run/retreat`, { revision }),
   choose: (slotId: number, choice: number, revision: number) => post<RunPayload>(`/saves/${slotId}/run/choose`, { choice, revision }),
   pickAffix: (slotId: number, affixId: string, revision: number) => post<RunPayload>(`/saves/${slotId}/run/affix`, { affix_id: affixId, revision }),
   settleRun: (slotId: number, revision: number) => post<RunSettleResult>(`/saves/${slotId}/run/settle`, { revision }),
   assignDuty: (slotId: number, revision: number, discipleId: string) => post<DutyChange>(`/saves/${slotId}/duty/assign`, { revision, disciple_id: discipleId }),
   unassignDuty: (slotId: number, revision: number, discipleId: string) => post<DutyChange>(`/saves/${slotId}/duty/unassign`, { revision, disciple_id: discipleId }),
   recruit: (slotId: number, templateId: string, revision: number) => post<RecruitResult>(`/saves/${slotId}/recruit`, { template_id: templateId, revision }),
-  craft: (slotId: number, recipeId: string, revision: number) => post<CraftResult>(`/saves/${slotId}/craft`, { recipe_id: recipeId, revision }),
+  recipes: (slotId: number, grade: number) => request<RecipeList>(`/saves/${slotId}/craft?grade=${grade}`),
+  craft: (slotId: number, recipeId: string, revision: number, quantity = 1, grade = 1) => post<CraftResult>(`/saves/${slotId}/craft`, { recipe_id: recipeId, revision, quantity, grade }),
+  facilities: (slotId: number) => request<FacilityList>(`/saves/${slotId}/facilities`),
+  upgradeFacility: (slotId: number, facilityId: string, revision: number) => post<FacilityResult>(`/saves/${slotId}/facilities/upgrade`, { facility_id: facilityId, revision }),
+  healPreview: (slotId: number, party: string[]) => post<HealPreview>(`/saves/${slotId}/items/heal-party/preview`, { party }),
+  healParty: (slotId: number, party: string[], revision: number) => post<HealResult>(`/saves/${slotId}/items/heal-party`, { party, revision }),
+  assignGarrison: (slotId: number, sectId: string, discipleId: string, revision: number) => post<SaveContent>(`/saves/${slotId}/garrison/assign`, { sect_id: sectId, disciple_id: discipleId, revision }),
+  unassignGarrison: (slotId: number, sectId: string, discipleId: string, revision: number) => post<SaveContent>(`/saves/${slotId}/garrison/unassign`, { sect_id: sectId, disciple_id: discipleId, revision }),
   useItem: (slotId: number, itemId: string, target: string, revision: number) => post<UseItemResult>(`/saves/${slotId}/items/use`, { item_id: itemId, target, revision }),
   weapons: (slotId: number) => request<WeaponList>(`/saves/${slotId}/weapons`),
   craftWeapon: (slotId: number, weaponId: string, revision: number) => post<WeaponResult>(`/saves/${slotId}/weapons/craft`, { weapon_id: weaponId, revision }),
+  upgradeWeapon: (slotId: number, weaponId: string, revision: number) => post<WeaponResult>(`/saves/${slotId}/weapons/upgrade`, { weapon_id: weaponId, revision }),
   equipWeapon: (slotId: number, weaponId: string, discipleId: string, revision: number) => post<WeaponResult>(`/saves/${slotId}/weapons/equip`, { weapon_id: weaponId, disciple_id: discipleId, revision }),
   unequipWeapon: (slotId: number, discipleId: string, revision: number) => post<WeaponResult>(`/saves/${slotId}/weapons/unequip`, { disciple_id: discipleId, revision }),
   upgrade: (slotId: number, discipleId: string, revision: number) => post<UpgradeResult>(`/saves/${slotId}/disciples/${encodeURIComponent(discipleId)}/upgrade`, { revision }),

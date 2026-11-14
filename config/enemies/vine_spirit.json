@@ -1,6 +1,7 @@
 {
   "id": "vine_spirit",
   "name": "青藤木魈",
+  "asset_id": "art-foundation/enemies/vine_spirit",
   "base_stats": {
     "hp": 115,
     "atk": 9,

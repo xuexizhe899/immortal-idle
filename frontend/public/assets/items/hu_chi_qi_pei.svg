@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>护持器胚</title>
+  <polygon points="12,15 32,8 52,15 48,40 32,56 16,40" fill="#66797E" stroke="#22342C" stroke-width="2"/>
+  <polygon points="18,20 32,15 46,20 42,37 32,48 22,37" fill="#3F7359" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="16" width="6" height="31" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="19" y="28" width="26" height="5" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="32,23 38,31 32,39 26,31" fill="#86CFC4" stroke="#22342C" stroke-width="2"/>
+</svg>

@@ -2,7 +2,7 @@
 import CityNavIcon from './CityNavIcon.vue'
 defineProps<{ towerLabel: string; towerHint: string; expeditionLabel: string; expeditionHint: string; discipleCount: number; dutyCount: number; active: string | null }>()
 defineEmits<{ open: [panel: string] }>()
-const entries = [{ id: 'sect', label: '宗门', hint: '总览 · 存档' }, { id: 'codex', label: '弟子', hint: '修炼 · 招贤' }, { id: 'duty', label: '值守', hint: '同道守山' }, { id: 'alchemy', label: '炼丹', hint: '丹火养元' }, { id: 'forge', label: '炼器', hint: '百炼成器' }, { id: 'expedition', label: '远行', hint: '码头 · 寻材' }, { id: 'tower', label: '问道', hint: '登塔试炼' }]
+const entries = [{ id: 'sect', label: '宗门', hint: '设施 · 存档' }, { id: 'codex', label: '弟子', hint: '修炼 · 招贤' }, { id: 'duty', label: '值守', hint: '同道守山' }, { id: 'alchemy', label: '炼丹', hint: '丹火养元' }, { id: 'forge', label: '炼器', hint: '百炼成器' }, { id: 'expedition', label: '远行', hint: '征讨 · 驻守' }, { id: 'tower', label: '问道', hint: '登塔试炼' }]
 </script>
 <template>
   <nav class="city-dock" aria-label="宗门功能">

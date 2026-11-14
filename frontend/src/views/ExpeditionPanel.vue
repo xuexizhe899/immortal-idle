@@ -1,68 +1,250 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import PartyStrip from '../components/game/PartyStrip.vue'
-import GameIcon from '../components/ui/GameIcon.vue'
-import { type DisplayCatalog } from '../presentation/gameText'
+import PartyHealing from '../components/game/PartyHealing.vue'
+import { characterImage, discipleImage } from '../presentation/assetPaths'
+import { resourceName } from '../presentation/gameText'
 import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
 
 defineEmits<{ edit: [] }>()
-
 const store = useGameStore()
-const catalog = computed(() => store.catalog as DisplayCatalog | null)
-const mode = computed(() => catalog.value?.modes?.expedition)
+const selectedId = computed({
+  get: () => store.targetSectId,
+  set: (id: string) => { store.targetSectId = id },
+})
+const recruitId = ref('')
+const filter = ref('all')
+const sects = computed(() => store.state?.sects ?? [])
+const visible = computed(() => sects.value.filter(sect =>
+  filter.value === 'all' || (filter.value === 'conquered' ? sect.conquered : !sect.conquered),
+))
+const selected = computed(() => sects.value.find(sect => sect.id === selectedId.value))
 const party = computed(() => store.party.map(id => store.disciples.find(d => d.id === id)).filter(d => !!d))
-const onDuty = computed(() => new Set(store.state?.duty_slots?.map(slot => slot.disciple_id) ?? []))
-const conflicts = computed(() => party.value.filter(d => d.busy || onDuty.value.has(d.id)))
-const cost = computed(() => mode.value?.stamina_cost ?? 2)
-const canStart = computed(() => !!mode.value && !store.state?.active_run && party.value.length > 0 && !conflicts.value.length
-  && (store.resources?.stamina ?? 0) >= cost.value && !store.busy)
-const reason = computed(() => !mode.value
-  ? '远行暂不可用，请刷新后查看。'
-  : store.state?.active_run
-    ? '当前出征尚未结算，请先完成这段行程。'
-  : !party.value.length
-    ? '请先安排至少一位出征弟子。'
-    : conflicts.value.length
-      ? '队伍中有值守或出征中的弟子，请先调整。'
-      : (store.resources?.stamina ?? 0) < cost.value
-        ? '行动力不足，先收取挂机收益再来。'
-        : '')
+const resourceGoal = computed(() => {
+  const resourceId = store.productionTarget
+  if (!resourceId || !selected.value) return ''
+  if (selected.value.material_id !== resourceId && selected.value.special_material_id !== resourceId) return ''
+  const material = resourceName(resourceId, store.catalog)
+  return selected.value.conquered
+    ? `当前需要${material}。该宗门已攻克，安排弟子驻守即可持续获取。`
+    : `当前需要${material}。先攻克这座宗门，获得战利品后即可派遣弟子驻守。`
+})
+const cost = computed(() => store.catalog?.modes.expedition?.stamina_cost ?? 2)
+const reason = computed(() => {
+  if (store.state?.active_run) return '已有进行中的出征，请先完成或结算'
+  if (!selected.value || selected.value.conquered) return '请选择尚未攻克的宗门'
+  if (party.value.length < 3) return '至少需要三位随行弟子，最多可带六人轮换'
+  if (party.value.some(d => d.busy)) return '队伍中有正在出征的弟子'
+  return (store.resources?.stamina ?? 0) < cost.value ? '行动力不足，先收取宗门收益再来' : ''
+})
+const candidates = computed(() => store.disciples
+  .filter(d => !d.busy && !selected.value?.garrison.some(slot => slot.disciple_id === d.id))
+  .sort((a, b) => Number(matches(b.template_id)) - Number(matches(a.template_id))),
+)
+watch(sects, list => {
+  if (!list.some(sect => sect.id === selectedId.value)) selectedId.value = list[0]?.id ?? ''
+}, { immediate: true })
+watch(selectedId, () => { recruitId.value = '' })
+function matches(templateId: string) {
+  const specialty = store.catalog?.disciples[templateId]?.production_specialty
+  return specialty === selected.value?.material_id || specialty === selected.value?.special_material_id
+}
+function name(id: string) {
+  const disciple = store.disciples.find(d => d.id === id)
+  return disciple ? store.catalog?.disciples[disciple.template_id]?.name ?? id : id
+}
+function templateId(id: string) { return store.disciples.find(d => d.id === id)?.template_id ?? '' }
+function post(id: string) {
+  if (store.state?.duty_slots.some(slot => slot.disciple_id === id)) return '本宗值守'
+  return store.state?.sects.find(sect => sect.garrison.some(slot => slot.disciple_id === id))?.name ?? '待安排'
+}
+async function assign() {
+  if (!selected.value || !recruitId.value) return
+  await store.assignGarrison(selected.value.id, recruitId.value)
+  if (!store.error) recruitId.value = ''
+}
 </script>
 
 <template>
-  <div class="expedition-layout">
-    <div class="expedition-visual">
-      <GameIcon name="ship" class="ship-mark" />
-      <span class="eyebrow">JOURNEY BEYOND THE MOUNTAIN</span>
-      <h3>远行码头</h3>
-      <p>顺流出山，寻材问道。</p>
-      <span class="badge badge-gold">最高记录 {{ store.state?.expedition_floor ?? 0 }} / {{ mode?.node_count ?? '—' }} 段</span>
+  <section class="expedition-charter">
+    <header class="charter-heading">
+      <div>
+        <span class="eyebrow">山外有山 · 宗门征讨</span>
+        <h3>择一山门，携同道而往</h3>
+        <p class="muted">攻破守备，挑战宗主；凯旋后可派弟子驻守，持续收取当地资源。</p>
+      </div>
+      <span class="charter-seal">征</span>
+    </header>
+    <div class="territory-overview">
+      <span>
+        已发现
+        <strong>{{ sects.length }}</strong>
+        座宗门
+      </span>
+      <span>
+        已攻克
+        <strong>{{ sects.filter(sect=>sect.conquered).length }}</strong>
+        座
+      </span>
+      <span>
+        主殿
+        <strong>{{ store.state?.facility_levels.hall ?? 1 }}</strong>
+        级
+      </span>
     </div>
-    <div class="expedition-content">
+    <div class="tabs" aria-label="宗门筛选">
+      <button :class="{active:filter==='all'}" @click="filter='all'">全部山门</button>
+      <button :class="{active:filter==='available'}" @click="filter='available'">待征讨</button>
+      <button :class="{active:filter==='conquered'}" @click="filter='conquered'">驻守领地</button>
+    </div>
+    <div class="sect-map">
+      <button
+        v-for="sect in visible"
+        :key="sect.id"
+        class="sect-marker"
+        :class="{selected:sect.id===selectedId,conquered:sect.conquered}"
+        :aria-pressed="sect.id===selectedId"
+        @click="selectedId=sect.id"
+      >
+        <span class="marker-level">{{ sect.level }} 阶</span>
+        <strong>{{ sect.name }}</strong>
+        <small>{{ sect.style }}</small>
+        <span class="resource-line">
+          {{ resourceName(sect.material_id,store.catalog) }}
+          ·
+          {{ resourceName(sect.special_material_id,store.catalog) }}
+        </span>
+        <span class="marker-status">{{ sect.conquered ? '已攻克 · 驻守 '+sect.garrison.length+'/3' : '守备 100 · 待征讨' }}</span>
+      </button>
+    </div>
+    <p v-if="!visible.length" class="notice-box">{{ sects.length ? '此处还没有宗门。可切换筛选查看其他山门。' : '正在整理远行宗门，刷新进度后可查看。' }}</p>
+    <article v-if="selected" class="sect-dossier">
+      <p v-if="resourceGoal" class="notice-box">{{ resourceGoal }}</p>
       <div class="section-heading">
-        <div><span class="eyebrow">EXPEDITION DEPARTURE</span><h3>整备远行队伍</h3></div>
-        <button class="btn btn-small" @click="$emit('edit')">调整阵容</button>
+        <div>
+          <span class="eyebrow">{{ selected.conquered ? '驻守经营' : '战前情报' }}</span>
+          <h3>{{ selected.name }}</h3>
+        </div>
+        <span class="badge badge-gold">{{ selected.style }} · {{ selected.level }} 阶</span>
       </div>
-      <PartyStrip compact reorder @edit="$emit('edit')" />
-      <p class="muted formation-rule">远征沿用自动回合战斗；队伍顺序决定同身法弟子的出手及目标优先次序。</p>
-      <div class="expedition-facts">
-        <div><span>行动力消耗</span><strong>{{ number(cost, 1) }} <small>/ 持有 {{ number(store.resources?.stamina, 1) }}</small></strong></div>
-        <div><span>远行段数</span><strong>{{ mode?.node_count ?? '—' }} <small>段</small></strong></div>
-      </div>
-      <div class="expedition-notes">
-        <h4>此行规则</h4>
-        <p>每段从已知的真实遭遇中选择一条路线，最后一段迎战远行镇守。</p>
-        <p>远行更偏向材料收集；战利品在结算前暂存，途中关闭页面可继续。</p>
-        <p>落败仍按到达段数带回部分收益，队伍中的弟子可能获得伤势。</p>
-      </div>
-      <p v-if="party.some(d => d.injury_stacks)" class="notice-box">队伍中有带伤弟子，出征时攻击会受伤势影响。</p>
-      <p v-if="reason" class="notice-box">{{ reason }}</p>
-      <button class="btn btn-primary start-button" :disabled="!canStart" @click="store.startRun(store.party, 'expedition')"><GameIcon name="ship" />{{ store.busy ? '正在处理…' : '启程远行' }}</button>
-    </div>
-  </div>
+      <template v-if="selected.conquered">
+        <p class="muted">每人独立贡献产出，专长匹配时收益更高；离岗暂停该弟子的贡献，空岗不产出。</p>
+        <div class="garrison-production">
+          <span v-for="(amount,id) in store.production.garrisons?.[selected.id]" :key="id">
+            {{ resourceName(id,store.catalog) }}
+            <strong>+{{ number(amount,2) }}/时</strong>
+          </span>
+          <span v-if="!selected.garrison.length" class="muted">尚未派人驻守</span>
+        </div>
+        <div class="garrison-list">
+          <div v-for="slot in selected.garrison" :key="slot.disciple_id">
+            <img
+              :src="discipleImage(templateId(slot.disciple_id),store.catalog)"
+              alt=""
+              class="pixel-art"
+              loading="lazy"
+            />
+            <span>
+              <strong>{{ name(slot.disciple_id) }}</strong>
+              <small>
+                专长 ·
+                {{ resourceName(store.catalog?.disciples[templateId(slot.disciple_id)]?.production_specialty ?? '',store.catalog) }}
+              </small>
+            </span>
+            <button
+              class="btn btn-small"
+              :disabled="store.busy"
+              @click="store.unassignGarrison(selected.id,slot.disciple_id)"
+            >
+              召回
+            </button>
+          </div>
+        </div>
+        <div v-if="selected.garrison.length<3" class="garrison-form">
+          <label>
+            派遣弟子
+            <select v-model="recruitId" :disabled="store.busy">
+              <option value="">选择弟子 · 匹配专长优先</option>
+              <option v-for="disciple in candidates" :key="disciple.id" :value="disciple.id">
+                {{ name(disciple.id) }}
+                {{ matches(disciple.template_id) ? ' · 专长匹配' : '' }}
+                ·
+                {{ post(disciple.id) }}
+              </option>
+            </select>
+          </label>
+          <button class="btn btn-primary" :disabled="store.busy||!recruitId" @click="assign">派遣驻守</button>
+        </div>
+      </template>
+      <template v-else>
+        <div class="enemy-intel">
+          <div v-for="(team,index) in selected.arena_teams" :key="index">
+            <span>第 {{ index+1 }} 轮擂台 · 3v3</span>
+            <div>
+              <span
+                v-for="enemy in team"
+                :key="enemy.id"
+                :title="enemy.active.name+'：'+enemy.active.description"
+              >
+                <img
+                  :src="characterImage(enemy.asset_id)"
+                  alt=""
+                  class="pixel-art"
+                  loading="lazy"
+                />
+                {{ enemy.name }}
+              </span>
+            </div>
+          </div>
+          <div class="leader-intel">
+            <span>宗主决战 · 3v1</span>
+            <div>
+              <span>
+                <img
+                  :src="characterImage(selected.leader.asset_id)"
+                  alt=""
+                  class="pixel-art"
+                  loading="lazy"
+                />
+                {{ selected.leader.name }}
+              </span>
+            </div>
+            <small>{{ selected.leader.active.name }} · {{ selected.leader.active.description }}</small>
+          </div>
+        </div>
+        <div class="first-loot">
+          <strong>攻克所得</strong>
+          <span v-for="(amount,id) in selected.loot" :key="id">{{ resourceName(id,store.catalog) }} +{{ number(amount,1) }}</span>
+        </div>
+        <div class="section-heading">
+          <h3>
+            随行弟子
+            <small>{{ party.length }} / 6</small>
+          </h3>
+          <button class="btn btn-small" @click="$emit('edit')">调整随行队伍</button>
+        </div>
+        <PartyStrip compact reorder @edit="$emit('edit')" />
+        <PartyHealing :party="store.party" />
+        <p class="muted">每轮选三人，残血延续，倒下者本次停战。获胜且存活三／二／一人，分别削减 50／30／15 守备；三轮内破防，才可挑战宗主。</p>
+        <p class="muted">值守与驻守弟子出发自动离岗，结算自动回岗。出发消耗 {{ cost }} 行动力，失败不退还；战役可关闭页面后继续。</p>
+        <p v-if="reason" class="error-box">{{ reason }}</p>
+        <button
+          class="btn btn-primary expedition-start"
+          :disabled="store.busy||!!reason"
+          @click="store.startRun(store.party,'expedition',{sect_id:selected.id})"
+        >
+          向
+          {{ selected.name }}
+          发起征讨 ·
+          {{ cost }}
+          行动力
+        </button>
+      </template>
+    </article>
+  </section>
 </template>
 
 <style scoped>
-.expedition-layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:32px}.expedition-visual{text-align:center;background:linear-gradient(145deg,#d8e3d1,#f0ead7 72%);padding:35px 20px 30px;border:1px solid #c6c7a7}.ship-mark{width:120px;height:120px;margin:18px auto;color:#557b69;stroke-width:1;filter:drop-shadow(4px 6px 0 #48624b22)}.expedition-visual .eyebrow{display:block;font-size:8px;margin-top:8px}.expedition-visual h3{font-size:26px;margin:8px 0}.expedition-visual p{font-size:12px;color:var(--muted);margin-bottom:14px}.expedition-content .section-heading{margin-top:5px}.expedition-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}.expedition-facts>div{padding:14px;background:#e9e5d3}.expedition-facts span{display:block;font-size:11px;color:var(--muted)}.expedition-facts strong{font-size:24px;color:var(--jade)}.expedition-facts small{font-size:11px;color:var(--muted);font-weight:400}.expedition-notes{padding:15px 17px;background:#f5efdd;border:1px solid #d3c6a3}.expedition-notes h4{font-size:14px;margin:0 0 9px}.expedition-notes p{font-size:11px;line-height:1.7;color:var(--muted);margin:5px 0}.start-button{width:100%;margin-top:18px}.start-button .game-icon{width:19px;height:19px;margin-right:6px;vertical-align:-4px}@media(max-width:740px){.expedition-layout{grid-template-columns:1fr;gap:20px}.expedition-visual{padding:14px 20px 18px}.ship-mark{width:70px;height:70px;margin:2px auto}.expedition-visual h3{font-size:22px;margin:5px 0}.expedition-content .section-heading{margin-top:0}.expedition-facts{margin:18px 0}}
+.charter-heading{display:flex;gap:20px;justify-content:space-between;align-items:center}.charter-heading h3{font-size:25px;margin:7px 0}.charter-heading p{max-width:650px;margin:0;font-size:12px;line-height:1.8}.charter-seal{flex-shrink:0;font:38px 'SimSun',serif;color:#966a3d;border:1px solid #ab885a;padding:6px 10px;box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4px #b39970}.territory-overview{display:flex;gap:25px;padding:18px 0;border-bottom:1px solid #ccbea0;font-size:11px;color:var(--muted)}.territory-overview strong{font:22px 'SimSun',serif;color:var(--jade);margin:0 4px}.tabs{margin-top:16px}.sect-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0 22px;padding:15px;background:repeating-linear-gradient(0deg,#dae0ca 0 29px,#d4dbc5 29px 30px);border:1px solid #b9c2a3}.sect-marker{position:relative;text-align:left;display:flex;flex-direction:column;gap:7px;min-width:0;padding:19px 12px 12px;background:#f3ecd8;border:1px solid #bdb18c;box-shadow:3px 3px 0 #6776521c}.sect-marker.selected{border-color:var(--jade);box-shadow:inset 0 0 0 1px var(--jade),3px 3px 0 #67765233}.sect-marker.conquered{background:#e2e9d4}.sect-marker>strong{font:20px 'SimSun',serif;color:var(--jade)}.sect-marker>small{font-size:10px;color:var(--muted)}.marker-level{position:absolute;right:9px;top:6px;font-size:9px;color:var(--gold)}.resource-line{font-size:10px;line-height:1.6;color:var(--muted)}.marker-status{font-size:10px;border-top:1px solid #d5c8a8;padding-top:8px;margin-top:auto;color:var(--jade)}.sect-dossier{padding:22px;border:1px solid #c3b48e;background:#f6efdd}.sect-dossier .section-heading h3{margin:5px 0;font-size:23px}.enemy-intel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.enemy-intel>div{padding:12px;background:#eae5d1;border-left:2px solid #b4a478}.enemy-intel>div>span{font-size:10px;color:var(--gold)}.enemy-intel>div>div{display:flex;flex-wrap:wrap;gap:9px;margin-top:7px}.enemy-intel>div>div>span{display:flex;flex-direction:column;gap:3px;align-items:center;font-size:9px;max-width:80px;text-align:center}.enemy-intel img{height:48px;width:44px;object-fit:contain}.enemy-intel small{display:block;font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6}.first-loot{display:flex;flex-wrap:wrap;gap:9px 14px;padding:14px 0;margin-bottom:20px;border-block:1px solid #d1c3a1;font-size:11px;color:var(--jade)}.first-loot strong{width:100%;color:var(--ink);font-size:13px}.sect-dossier>.muted{font-size:11px;line-height:1.8}.expedition-start{width:100%;margin-top:10px}.garrison-production{display:flex;flex-wrap:wrap;gap:15px;margin:16px 0;padding:14px;background:#e1e8d2;font-size:12px}.garrison-production strong{color:var(--jade);font-weight:500}.garrison-list>div{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #d8cdae}.garrison-list img{width:40px;height:48px;object-fit:cover;object-position:top}.garrison-list span{flex:1}.garrison-list strong,.garrison-list small{display:block}.garrison-list strong{font:16px 'SimSun',serif}.garrison-list small{font-size:10px;color:var(--muted);margin-top:5px}.garrison-form{display:flex;align-items:flex-end;gap:12px;margin-top:18px}.garrison-form label{flex:1;min-width:0;font-size:11px;color:var(--muted)}.garrison-form select{display:block;width:100%;margin-top:6px}@media(max-width:640px){.charter-heading h3{font-size:21px}.charter-seal{font-size:30px}.territory-overview{gap:13px;flex-wrap:wrap}.sect-map{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px}.sect-marker{padding:18px 9px 10px}.sect-marker>strong{font-size:17px}.sect-dossier{padding:15px}.enemy-intel{grid-template-columns:1fr}.garrison-form{flex-direction:column;align-items:stretch}.sect-dossier .section-heading{align-items:flex-start;gap:10px}.sect-dossier .section-heading h3{font-size:20px}.sect-dossier .section-heading .btn{font-size:10px}}
 </style>

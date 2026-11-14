@@ -1,6 +1,7 @@
 {
   "id": "jade_warden",
   "name": "玉衡守将",
+  "asset_id": "art-foundation/enemies/jade_warden",
   "base_stats": {
     "hp": 140,
     "atk": 16,

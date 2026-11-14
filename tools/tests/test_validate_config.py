@@ -439,3 +439,99 @@ def test_city_malformed_json_is_reported_without_crashing(city_tree):
     config, assets = city_tree
     (config / "ui" / "city.json").write_text("{oops", encoding="utf-8")
     assert any("config/ui/city.json: JSON 读取失败" in error for error in vc.validate(config, assets))
+
+
+def add_economy_config(config: Path) -> None:
+    """用最小已有材料补齐新设施，保留其他旧夹具不变。"""
+    write_json(config / "materials" / "han_tie.json", {"id": "han_tie", "name": "寒铁", "tier": 1})
+    patch(config / "disciples" / "d1.json", production_specialty="han_tie")
+    write_json(config / "facilities.json", {
+        key: {"name": key, "descriptions": ["一级", "二级", "三级"], "costs": [{"han_tie": 2}, {"spirit_stone": 3}]}
+        for key in ("hall", "forge", "alchemy", "tower", "training")
+    })
+
+
+def test_facilities_and_specialty_are_optional_for_old_tree_and_valid_for_new_tree(tree):
+    config, assets = tree
+    assert vc.validate(config, assets) == []
+    add_economy_config(config)
+    assert vc.validate(config, assets) == []
+
+
+@pytest.mark.parametrize("value", [None, "missing", ["han_tie"]])
+def test_new_content_requires_one_existing_production_specialty(tree, value):
+    config, assets = tree
+    add_economy_config(config)
+    patch(config / "disciples" / "d1.json", production_specialty=value)
+    assert any("production_specialty" in error for error in vc.validate(config, assets))
+
+
+@pytest.mark.parametrize("cost", [{"ghost": 1}, {"han_tie": -1}, {"han_tie": 1.5}, {"spirit_stone": float("nan")}, {"spirit_stone": True}])
+def test_facility_costs_reject_missing_resources_and_invalid_amounts(tree, cost):
+    config, assets = tree
+    add_economy_config(config)
+    path = config / "facilities.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["forge"]["costs"][0] = cost
+    write_json(path, data)
+    assert any("facilities.json.forge.costs[0]" in error for error in vc.validate(config, assets))
+
+
+def test_facilities_reject_incomplete_level_data_and_malformed_json(tree):
+    config, assets = tree
+    add_economy_config(config)
+    path = config / "facilities.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["forge"]["costs"] = []
+    data["alchemy"]["descriptions"] = ["一级"]
+    write_json(path, data)
+    errors = vc.validate(config, assets)
+    assert any("forge.costs" in error for error in errors)
+    assert any("alchemy.descriptions" in error for error in errors)
+    path.write_text("{broken", encoding="utf-8")
+    assert any("facilities.json: JSON 读取失败" in error for error in vc.validate(config, assets))
+
+
+def minimal_sects():
+    return {
+        "name_prefixes": ["云"], "level_names": ["下院", "内院", "上宗"], "level_scales": [1, 2, 3],
+        "styles": [{"id": f"style{i}", "name": "流派", "suffix": "宗", "materials": ["ore", "ore", "ore"],
+                    "special_material": "rare", "leader": "guard", "teams": [["guard"] * 3]} for i in range(3)],
+    }
+
+
+def test_sect_combinations_validate_enemy_and_material_references(tmp_path):
+    data = minimal_sects()
+    write_json(tmp_path / "sects.json", data)
+    errors = []
+    vc.check_sects(tmp_path, {"ore": {}, "rare": {}}, {"guard": {}}, errors)
+    assert errors == []
+    data["styles"][0]["teams"][0][1] = "ghost"
+    data["styles"][1]["special_material"] = "missing"
+    data["styles"][2]["leader"] = []
+    write_json(tmp_path / "sects.json", data)
+    vc.check_sects(tmp_path, {"ore": {}, "rare": {}}, {"guard": {}}, errors)
+    assert any("敌人 'ghost'" in error for error in errors)
+    assert any("special_material" in error for error in errors)
+    assert any("leader" in error for error in errors)
+
+
+def test_sects_reject_wrong_roster_size_duplicate_style_and_nonfinite_scale(tmp_path):
+    data = minimal_sects()
+    data["styles"][1]["id"] = data["styles"][0]["id"]
+    data["styles"][0]["teams"] = [["guard"]]
+    data["level_scales"][2] = float("inf")
+    write_json(tmp_path / "sects.json", data)
+    errors = []
+    vc.check_sects(tmp_path, {"ore": {}, "rare": {}}, {"guard": {}}, errors)
+    assert any("重复" in error for error in errors)
+    assert any("每组守军必须为三人" in error for error in errors)
+    assert any("level_scales" in error for error in errors)
+
+
+@pytest.mark.parametrize("data", [[], {"styles": [1]}, {"styles": []}])
+def test_sects_malformed_structure_is_reported_without_crashing(tmp_path, data):
+    write_json(tmp_path / "sects.json", data)
+    errors = []
+    vc.check_sects(tmp_path, {}, {}, errors)
+    assert errors

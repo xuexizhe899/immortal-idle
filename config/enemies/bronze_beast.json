@@ -1,6 +1,7 @@
 {
   "id": "bronze_beast",
   "name": "铜角镇兽",
+  "asset_id": "art-foundation/enemies/bronze_beast",
   "base_stats": {
     "hp": 170,
     "atk": 14,

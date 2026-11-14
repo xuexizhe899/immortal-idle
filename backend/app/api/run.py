@@ -1,13 +1,15 @@
 """出征命令：revision 防重放，战斗与资源由服务端结算。"""
 
 from typing import Literal
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import Field
 
 from app.api.saves import get_repo
 from app.api.state import commit_mutation, prepare_mutation, snapshot, status_of
-from app.config_loader import load_bonds, load_disciples, load_modes
-from app.domain import run_engine
+from app.config_loader import load_affixes, load_bonds, load_disciples, load_enemies, load_modes, load_sects, load_skills, load_weapons
+from app.domain import conquest, run_engine
 from app.models.api import RevisionRequest, RunResponse, RunSettleResponse
 from app.models.save import GameState
 from app.repositories.saves import SaveRepository
@@ -19,6 +21,12 @@ ENDED = {"defeated", "cleared"}
 class StartRunRequest(RevisionRequest):
     party: list[str]
     mode: Literal["tower", "expedition"] = "tower"
+    sect_id: str | None = None
+    tower_tier: int = Field(default=1, ge=1, le=3)
+
+
+class ArenaRequest(RevisionRequest):
+    party: list[str] = Field(min_length=3, max_length=3)
 
 
 class ChooseRequest(RevisionRequest):
@@ -53,13 +61,47 @@ async def start(
     mode = modes.get(payload.mode)
     if not mode or not mode.get("enabled"):
         raise HTTPException(status_code=400, detail="该远行模式尚未开放")
+    sect = None
+    if payload.mode == "expedition":
+        conquest.ensure_sects(command.state, load_sects(), load_enemies())
+        sect = next((item for item in command.state.sects if item.id == payload.sect_id), None)
+        if sect is None:
+            raise HTTPException(status_code=400, detail="请先选择要征讨的宗门")
+    elif payload.sect_id is not None:
+        raise HTTPException(status_code=400, detail="问道塔不接受宗门目标")
     error = run_engine.start_run(
         command.state, payload.party, load_disciples(), mode, command.settled_at,
-        bonds=load_bonds(), route_version=2,
+        seed=secrets.randbits(63), bonds=load_bonds(), skills=load_skills(), enemies=load_enemies(),
+        affix_pool=load_affixes(), weapons=load_weapons(), route_version=2,
+        sect=sect, tower_tier=payload.tower_tier,
     )
     if error:
         raise HTTPException(status_code=400, detail=error)
     await repo.snapshot(slot_id, "before_run")
+    await commit_mutation(slot_id, command, repo)
+    return run_payload(command.state, command.revision + 1)
+
+
+@router.post("/arena", response_model=RunResponse)
+async def fight_arena(
+    slot_id: int, payload: ArenaRequest, repo: SaveRepository = Depends(get_repo),
+) -> RunResponse:
+    command = await prepare_mutation(slot_id, repo, payload.revision)
+    error = conquest.arena(command.state, payload.party)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    await commit_mutation(slot_id, command, repo)
+    return run_payload(command.state, command.revision + 1)
+
+
+@router.post("/retreat", response_model=RunResponse)
+async def retreat(
+    slot_id: int, payload: RevisionRequest, repo: SaveRepository = Depends(get_repo),
+) -> RunResponse:
+    command = await prepare_mutation(slot_id, repo, payload.revision)
+    error = conquest.retreat(command.state)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
     await commit_mutation(slot_id, command, repo)
     return run_payload(command.state, command.revision + 1)
 

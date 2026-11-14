@@ -151,6 +151,7 @@ class BattleEvent(BaseModel):
 class EnemyDefinition(BaseModel):
     id: str
     name: str
+    asset_id: str = ""
     base_stats: dict[str, float]
     skill: SkillDefinition | None = None
     passive: SkillDefinition | None = None

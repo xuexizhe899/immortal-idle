@@ -17,5 +17,6 @@
   "bonds": [],
   "unlock_cost": {
     "reputation": 130
-  }
+  },
+  "production_specialty": "ling_cao"
 }

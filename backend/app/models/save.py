@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import ConfigDict, Field
 
@@ -15,6 +15,7 @@ from app.models.base import ContractModel as BaseModel
 from app.models.battle import BattleBond, BattleEvent, BattleUnit, BattleUnitState, EnemyDefinition
 
 CURRENT_SCHEMA_VERSION = 1
+FacilityLevel = Annotated[int, Field(ge=1, le=3)]
 
 
 class Resources(BaseModel):
@@ -40,6 +41,8 @@ class DiscipleState(BaseModel):
     equipment: list[str] = Field(default_factory=list)
     # 个人丹药使用次数，用于每种丹药的服用上限；旧档默认空。
     pill_uses: dict[str, int] = Field(default_factory=dict)
+    # 同类属性丹的强化名额保存品级，高阶丹仅替换低阶差额。
+    pill_grades: dict[str, list[FacilityLevel]] = Field(default_factory=dict)
     injury_stacks: int = 0
     injured_until: datetime | None = None
     busy: bool = False
@@ -50,6 +53,22 @@ class DutySlot(BaseModel):
 
     disciple_id: str
     assigned_at: datetime
+
+
+class NpcSect(BaseModel):
+    """生成后固定的外宗身份、守军与驻守编制。"""
+
+    id: str
+    name: str
+    level: int = Field(ge=1, le=3)
+    style: str
+    material_id: str
+    special_material_id: str
+    arena_teams: list[list[BattleUnit]] = Field(default_factory=list)
+    leader: BattleUnit
+    loot: dict[str, float] = Field(default_factory=dict)
+    conquered: bool = False
+    garrison: list[DutySlot] = Field(default_factory=list, max_length=3)
 
 
 class DutyEvent(BaseModel):
@@ -115,6 +134,9 @@ class RunReview(BaseModel):
     """最近一次已结算出征的事实摘要，供下次准备时复盘。"""
 
     mode: str
+    sect_id: str | None = None
+    sect_name: str | None = None
+    tower_tier: int = 1
     cleared: int
     total_nodes: int
     victory: bool
@@ -143,6 +165,14 @@ class ActiveRun(BaseModel):
     run_seed: int
     rng_cursor: int = 0
     mode: str = "tower"
+    sect_id: str | None = None
+    guard: int = Field(default=100, ge=0, le=100)
+    arena_round: int = Field(default=0, ge=0, le=3)
+    selected_party: list[str] = Field(default_factory=list)
+    deployed: list[str] = Field(default_factory=list)
+    # 出发前的岗位按弟子保存，结算时只恢复仍有空位的岗位。
+    return_posts: dict[str, str] = Field(default_factory=dict)
+    tower_tier: int = Field(default=1, ge=1, le=3)
     party: list[str] = Field(default_factory=list)
     party_snapshot: RunPartySnapshot | None = None
     hp: int = 0
@@ -175,6 +205,13 @@ class GameState(BaseModel):
     unlocks: list[str] = Field(default_factory=list)
     tower_floor: int = 0
     expedition_floor: int = 0
+    facility_levels: dict[str, FacilityLevel] = Field(default_factory=lambda: {
+        "hall": 1, "forge": 1, "alchemy": 1, "tower": 1, "training": 1,
+    })
+    recipe_levels: dict[str, FacilityLevel] = Field(default_factory=dict)
+    weapon_levels: dict[str, FacilityLevel] = Field(default_factory=dict)
+    tower_tiers: dict[str, int] = Field(default_factory=dict)
+    sects: list[NpcSect] = Field(default_factory=list)
     last_run_review: RunReview | None = None
     active_run: ActiveRun | None = None
     rng_seed: int = 0

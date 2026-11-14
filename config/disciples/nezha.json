@@ -19,5 +19,6 @@
   ],
   "unlock_cost": {
     "reputation": 180
-  }
+  },
+  "production_specialty": "gong_fa_qi_pei"
 }

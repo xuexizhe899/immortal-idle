@@ -9,6 +9,8 @@ from app.api.craft import router as craft_router
 from app.api.disciples import router as disciples_router
 from app.api.duty import router as duty_router
 from app.api.health import router as health_router
+from app.api.facilities import router as facilities_router
+from app.api.garrison import router as garrison_router
 from app.api.items import router as items_router
 from app.api.recruit import router as recruit_router
 from app.api.run import router as run_router
@@ -45,3 +47,5 @@ app.include_router(recruit_router, prefix="/api")
 app.include_router(run_router, prefix="/api")
 app.include_router(settle_router, prefix="/api")
 app.include_router(weapons_router, prefix="/api")
+app.include_router(facilities_router, prefix="/api")
+app.include_router(garrison_router, prefix="/api")

@@ -16,7 +16,7 @@ const manifest = JSON.parse(await readFile(new URL('../public/assets/items/index
 
 test('item registry covers every generated icon and file', async () => {
   const ids = manifest.items.map(item => item.id)
-  assert.equal(ids.length, 34)
+  assert.equal(ids.length, 41)
   assert.deepEqual([...ITEM_ICON_IDS].sort(), [...ids].sort())
   for (const item of manifest.items) {
     await access(new URL(`../public/assets/items/${item.file}`, import.meta.url))

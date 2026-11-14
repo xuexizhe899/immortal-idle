@@ -9,7 +9,8 @@ from pydantic import BaseModel
 
 from app.models.save import GameState, SaveExport, SaveSlotMeta
 from app.models.api import GameSnapshot
-from app.api.state import snapshot
+from app.api.state import snapshot, initialize_world
+from app.domain.progression import new_game_state
 from app.repositories.saves import SaveRepository
 
 router = APIRouter(prefix="/saves", tags=["saves"])
@@ -57,7 +58,9 @@ async def create_slot(
     payload: CreateSlotRequest, repo: SaveRepository = Depends(get_repo)
 ) -> dict:
     """新建存档槽，返回 slot_id。"""
-    slot_id = await repo.create_slot(payload.name)
+    state = new_game_state()
+    initialize_world(state)
+    slot_id = await repo.create_slot(payload.name, state)
     return {"slot_id": slot_id}
 
 
@@ -72,11 +75,17 @@ async def import_slot(
 
 @router.get("/{slot_id}", response_model=GameSnapshot)
 async def get_slot(slot_id: int, repo: SaveRepository = Depends(get_repo)) -> GameSnapshot:
-    """读取存档内容与当前 revision。"""
+    """读取存档；旧档首次生成外宗后立即落盘，刷新不会重抽身份。"""
     loaded = await repo.get_state(slot_id)
     if loaded is None:
         raise HTTPException(status_code=404, detail="存档不存在")
     state, revision = loaded
+    if len(state.sects) < min(3, state.facility_levels.get("hall", 1)) * 3:
+        # 补全尚未攻克的世界定义不改变产出；保留旧结算锚点，读档不领取资源。
+        initialize_world(state)
+        if not await repo.save_state(slot_id, state, revision):
+            raise HTTPException(status_code=409, detail="存档已更新，请刷新后重试")
+        return snapshot(state, revision + 1)
     return snapshot(state, revision)
 
 

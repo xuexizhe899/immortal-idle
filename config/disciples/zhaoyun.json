@@ -19,5 +19,6 @@
   ],
   "unlock_cost": {
     "reputation": 200
-  }
+  },
+  "production_specialty": "yun_mu"
 }

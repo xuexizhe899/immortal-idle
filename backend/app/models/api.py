@@ -24,6 +24,7 @@ class ProductionCatalog(BaseModel):
     stamina: float
     materials: dict[str, float]
     injury_recovery_multiplier: float = 1.0
+    garrisons: dict[str, dict[str, float]] = Field(default_factory=dict)
 
 
 class GameSnapshot(BaseModel):
@@ -52,6 +53,66 @@ class RecruitResponse(GameSnapshot):
 class CraftResponse(GameSnapshot):
     bonuses: dict[str, float]
     inventory: dict[str, int]
+
+
+class RecipeView(BaseModel):
+    id: str
+    name: str
+    kind: str
+    grade: int
+    max_grade: int
+    current_level: int = 0
+    inputs: dict[str, int]
+    effects: list["Effect"] = Field(default_factory=list)
+    inventory_key: str
+    stock: int = 0
+    max_quantity: int = 0
+    reason: str = ""
+
+
+class CraftListResponse(BaseModel):
+    revision: int
+    recipes: list[RecipeView]
+
+
+class FacilityView(BaseModel):
+    id: str
+    name: str
+    level: int
+    max_level: int = 3
+    description: str
+    next_description: str = ""
+    costs: dict[str, float] = Field(default_factory=dict)
+    upgradeable: bool = False
+    reason: str = ""
+
+
+class FacilityListResponse(BaseModel):
+    revision: int
+    facilities: list[FacilityView]
+
+
+class FacilityCommandResponse(GameSnapshot):
+    facilities: list[FacilityView]
+
+
+class HealPartyPreview(BaseModel):
+    revision: int
+    injured_count: int
+    healed: list[str]
+    crafted: int
+    stock_used: int
+    costs: dict[str, int]
+    reason: str = ""
+
+
+class HealPartyResponse(GameSnapshot):
+    injured_count: int
+    healed: list[str]
+    crafted: int
+    stock_used: int
+    costs: dict[str, int]
+    reason: str = ""
 
 
 class DutyResponse(GameSnapshot):
@@ -126,6 +187,7 @@ class DiscipleCatalog(BaseModel):
     name: str
     title: str = ""
     lean: str
+    production_specialty: str = ""
     rarity: int
     origin: str = ""
     asset_id: str
@@ -188,6 +250,12 @@ class WeaponView(BaseModel):
     equipped_by: str | None = None
     reason: str = ""
     craftable: bool = False
+    level: int = 0
+    max_level: int = 1
+    upgrade_inputs: dict[str, int] = Field(default_factory=dict)
+    upgrade_stats: dict[str, float] = Field(default_factory=dict)
+    upgradeable: bool = False
+    upgrade_reason: str = ""
 
 
 class WeaponListResponse(BaseModel):

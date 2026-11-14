@@ -3,7 +3,7 @@
   "aspect": 1.5,
   "notes": "七建筑完整主城：背景已包含全部建筑，不叠加旧sprite。x/y为实图热区中心百分比，w/h为点击尺寸；标签位于热区下沿。天色在前端叠加，不影响玩法时钟。",
   "hotspots": [
-    { "id": "library", "name": "藏经阁", "panel": "codex", "x": 21, "y": 24, "w": 26, "h": 27, "anim": "library" },
+    { "id": "library", "name": "弟子堂", "panel": "codex", "x": 21, "y": 24, "w": 26, "h": 27, "anim": "library" },
     { "id": "main_hall", "name": "宗门主殿", "panel": "sect", "x": 50, "y": 20, "w": 30, "h": 35, "anim": "sect" },
     { "id": "dock", "name": "远行码头", "panel": "expedition", "x": 83, "y": 24, "w": 27, "h": 29, "anim": "dock" },
     { "id": "drill", "name": "演武场", "panel": "duty", "x": 21, "y": 49, "w": 34, "h": 27, "anim": "duty" },

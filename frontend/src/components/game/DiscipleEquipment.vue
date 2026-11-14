@@ -33,12 +33,12 @@ async function unequip() {
     <div class="section-heading"><h4>专属武器</h4><span v-if="equipped" class="badge">已装备</span></div>
     <div v-if="equipped" class="weapon-row">
       <ItemIcon :id="equipped.id" :size="40" />
-      <div><strong>{{ equipped.name }}</strong><p>{{ stats }}</p></div>
+      <div><strong>{{ equipped.name }} · {{ equipped.level }} 级</strong><p>{{ stats }}</p></div>
       <button class="btn btn-small" :disabled="store.busy || readOnly || onRun" @click="unequip">卸下</button>
     </div>
     <div v-else-if="weapon" class="weapon-row">
       <ItemIcon :id="weapon.id" :size="40" />
-      <div><strong>{{ weapon.name }}</strong><p>{{ stats }}</p><p class="muted">{{ reason || '在行囊中，可以装备。' }}</p></div>
+      <div><strong>{{ weapon.name }}{{ weapon.owned ? ' · '+weapon.level+' 级' : '' }}</strong><p>{{ stats }}</p><p class="muted">{{ reason || '在行囊中，可以装备。' }}</p></div>
       <button v-if="weapon.in_inventory" class="btn btn-small" :disabled="store.busy || readOnly || onRun" @click="equip">装备</button>
     </div>
     <p v-if="unknown.length" class="muted equipment-note">旧装备未识别：{{ unknown.join('、') }}（保留但不生效）</p>

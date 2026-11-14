@@ -1,6 +1,7 @@
 {
   "id": "bamboo_swordsman",
   "name": "竹隐剑客",
+  "asset_id": "art-foundation/enemies/bamboo_swordsman",
   "base_stats": {
     "hp": 65,
     "atk": 13,

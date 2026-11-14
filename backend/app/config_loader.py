@@ -76,3 +76,15 @@ def load_enemies() -> dict[str, dict]:
 def load_city() -> dict:
     """主城布局：背景图与建筑热区坐标。"""
     return json.loads((CONFIG_DIR / "ui" / "city.json").read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def load_facilities() -> dict[str, dict]:
+    """设施等级效果与升级费用。"""
+    return json.loads((CONFIG_DIR / "facilities.json").read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def load_sects() -> dict:
+    """宗门生成的组合规则与特色资源。"""
+    return json.loads((CONFIG_DIR / "sects.json").read_text(encoding="utf-8"))

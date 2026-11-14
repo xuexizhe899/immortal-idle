@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from app.domain.duty import DutyMember, compute_rates
+from app.domain.duty import personal_duty_rates
 from app.domain.progression import (
     LEVEL_CAPS, MAX_REALM, breakthrough_cost, is_on_run, level_cap, upgrade_cost,
 )
@@ -18,16 +18,14 @@ from app.models.save import DiscipleState, GameState
 def stats_for(
     disciple: DiscipleState, template: dict, skills: dict[str, dict],
     bonuses: dict[str, float], weapons: dict[str, dict], slot: int = 0,
+    weapon_levels: dict[str, int] | None = None, training_level: int = 1,
 ) -> TrainingStats:
     """等级、境界、伤势、个人/宗门加成与已装备专武后的当前属性。"""
     unit = combatant(
         disciple, template, skills,
-        combat_bonuses(disciple, bonuses, weapons), slot,
+        combat_bonuses(disciple, bonuses, weapons, weapon_levels), slot,
     )
-    rates = compute_rates([DutyMember(
-        lean=template["lean"], rarity=template["rarity"], realm=disciple.realm,
-        bonuses=disciple.bonuses,
-    )])
+    rates = personal_duty_rates(disciple, template, training_level)
     return TrainingStats(
         level=disciple.level, realm=disciple.realm,
         health=unit.health, attack=round(unit.attack, 2),
@@ -45,7 +43,8 @@ def preview(
     slot = next(
         (index for index, item in enumerate(state.disciples) if item.id == disciple.id), 0,
     )
-    current = stats_for(disciple, template, skills, state.bonuses, weapons, slot)
+    training_level = state.facility_levels.get("training", 1)
+    current = stats_for(disciple, template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level)
 
     if disciple.level >= cap:
         next_level = TrainingStep(
@@ -63,7 +62,7 @@ def preview(
             kind="level", allowed=not reason, reason=reason, costs=costs,
             target=stats_for(
                 disciple.model_copy(update={"level": disciple.level + 1}),
-                template, skills, state.bonuses, weapons, slot,
+                template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level,
             ),
         )
 
@@ -91,7 +90,7 @@ def preview(
                 requires_level=required, alternative_recipe_id="po_jing_dan",
                 target=stats_for(
                     disciple.model_copy(update={"realm": disciple.realm + 1}),
-                    template, skills, state.bonuses, weapons, slot,
+                    template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level,
                 ),
             )
 

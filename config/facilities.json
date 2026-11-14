@@ -1,0 +1,7 @@
+{
+  "hall": {"name": "宗门主殿", "descriptions": ["统筹宗门建设，开放三座外宗", "开放六座外宗，设施上限二级", "开放九座外宗，设施上限三级"], "costs": [{"spirit_stone": 20, "ling_mu": 8, "qing_shi": 8}, {"spirit_stone": 50, "ling_mu": 16, "qing_shi": 16, "chi_tong": 8}]},
+  "forge": {"name": "炼器炉", "descriptions": ["打造一级器具与专武", "器具与专武可升至二级，效果为基础的150%", "器具与专武可升至三级，效果为基础的200%"], "costs": [{"spirit_stone": 12, "chi_tong": 6, "qing_shi": 4}, {"spirit_stone": 30, "chi_tong": 12, "han_tie": 6}]},
+  "alchemy": {"name": "炼丹房", "descriptions": ["炼制一品丹药", "炼制二品属性丹与生产丹，药效为基础的150%", "炼制三品属性丹与生产丹，药效为基础的200%"], "costs": [{"spirit_stone": 12, "ling_mu": 6, "ling_cao": 4}, {"spirit_stone": 30, "ling_mu": 12, "jiu_ye": 3}]},
+  "tower": {"name": "问道塔", "descriptions": ["开放一阶问道", "通关一阶后可挑战二阶问道", "通关二阶后可挑战三阶问道"], "costs": [{"spirit_stone": 12, "qing_shi": 6, "chi_tong": 4}, {"spirit_stone": 30, "qing_shi": 12, "xuan_jing": 4}]},
+  "training": {"name": "演武场", "descriptions": ["值守弟子发挥基础产出贡献", "值守弟子产出贡献提高25%", "值守弟子产出贡献提高50%"], "costs": [{"spirit_stone": 12, "ling_mu": 6, "yao_shou_pi": 4}, {"spirit_stone": 30, "ling_mu": 12, "yao_shou_pi": 8}]}
+}

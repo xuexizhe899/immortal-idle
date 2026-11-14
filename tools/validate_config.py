@@ -295,6 +295,123 @@ def check_modifiers(modifiers: object, where: str, skills: dict[str, dict], erro
         check_actions(modifier.get("extra_actions", []), f"{pos}.extra_actions", errors, minimum=0, maximum=3)
 
 
+def check_facilities(config_dir: Path, materials: dict[str, dict], errors: list[str]) -> None:
+    """设施文件存在时，校验三级展示与两次升级的真实扣费来源。"""
+    path = config_dir / "facilities.json"
+    if not path.exists():
+        return
+    where = "config/facilities.json"
+    try:
+        facilities = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        errors.append(f"{where}: JSON 读取失败：{exc}")
+        return
+    expected = {"hall", "forge", "alchemy", "tower", "training"}
+    if not isinstance(facilities, dict) or set(facilities) != expected:
+        errors.append(f"{where}: 必须包含且仅包含 hall/forge/alchemy/tower/training")
+        return
+    resources = {"cultivation", "spirit_stone", "stamina", "reputation"}
+    for key, facility in facilities.items():
+        pos = f"{where}.{key}"
+        if not isinstance(facility, dict):
+            errors.append(f"{pos}: 必须是对象")
+            continue
+        if not isinstance(facility.get("name"), str) or not facility["name"].strip():
+            errors.append(f"{pos}.name: 必须是非空字符串")
+        descriptions = facility.get("descriptions")
+        if not isinstance(descriptions, list) or len(descriptions) != 3 or any(
+            not isinstance(value, str) or not value.strip() for value in descriptions
+        ):
+            errors.append(f"{pos}.descriptions: 必须提供三级非空说明")
+        costs = facility.get("costs")
+        if not isinstance(costs, list) or len(costs) != 2:
+            errors.append(f"{pos}.costs: 必须提供两次升级费用")
+            continue
+        for index, cost in enumerate(costs):
+            cost_pos = f"{pos}.costs[{index}]"
+            if not isinstance(cost, dict) or not cost:
+                errors.append(f"{cost_pos}: 必须是非空费用对象")
+                continue
+            for resource, amount in cost.items():
+                if resource not in resources and resource not in materials:
+                    errors.append(f"{cost_pos}: 资源 '{resource}' 不存在")
+                if not is_finite_number(amount) or amount <= 0:
+                    errors.append(f"{cost_pos}.{resource}: 必须是有限正数")
+                elif resource in materials and (not isinstance(amount, int) or isinstance(amount, bool)):
+                    errors.append(f"{cost_pos}.{resource}: 材料费用必须是正整数")
+
+
+def check_sects(config_dir: Path, materials: dict[str, dict], enemies: dict[str, dict], errors: list[str]) -> None:
+    """宗门组合必须能生成三人守军和有来源的特色资源。"""
+    path = config_dir / "sects.json"
+    if not path.exists():
+        return
+    where = "config/sects.json"
+    try:
+        sects = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        errors.append(f"{where}: JSON 读取失败：{exc}")
+        return
+    if not isinstance(sects, dict):
+        errors.append(f"{where}: 必须是对象")
+        return
+    for key in ("name_prefixes", "level_names"):
+        values = sects.get(key)
+        if not isinstance(values, list) or not values or any(
+            not isinstance(value, str) or not value.strip() for value in values
+        ) or (key == "level_names" and len(values) != 3):
+            errors.append(f"{where}.{key}: 必须为非空字符串数组，level_names 须对应三级")
+    scales = sects.get("level_scales")
+    if not isinstance(scales, list) or len(scales) != 3 or any(
+        not is_finite_number(value) or value <= 0 for value in scales
+    ):
+        errors.append(f"{where}.level_scales: 必须提供三级有限正数倍率")
+    styles = sects.get("styles")
+    if not isinstance(styles, list) or len(styles) != 3:
+        errors.append(f"{where}.styles: 必须提供三种流派组合")
+        return
+    seen = set()
+    for index, style in enumerate(styles):
+        pos = f"{where}.styles[{index}]"
+        if not isinstance(style, dict):
+            errors.append(f"{pos}: 必须是对象")
+            continue
+        for key in ("id", "name", "suffix"):
+            value = style.get(key)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"{pos}.{key}: 必须是非空字符串")
+        style_id = style.get("id")
+        if isinstance(style_id, str):
+            if style_id in seen:
+                errors.append(f"{pos}.id: '{style_id}' 重复")
+            seen.add(style_id)
+        outputs = style.get("materials")
+        if not isinstance(outputs, list) or len(outputs) != 3:
+            errors.append(f"{pos}.materials: 必须提供三级材料数组")
+        else:
+            for material in outputs:
+                if not isinstance(material, str) or material not in materials:
+                    errors.append(f"{pos}.materials: 材料 '{material}' 不存在")
+        special = style.get("special_material")
+        if not isinstance(special, str) or special not in materials:
+            errors.append(f"{pos}.special_material: 必须引用已有材料")
+        leader = style.get("leader")
+        if not isinstance(leader, str) or leader not in enemies:
+            errors.append(f"{pos}.leader: 必须引用已有敌人")
+        teams = style.get("teams")
+        if not isinstance(teams, list) or not teams:
+            errors.append(f"{pos}.teams: 必须是非空守军组合数组")
+            continue
+        for team_index, team in enumerate(teams):
+            team_pos = f"{pos}.teams[{team_index}]"
+            if not isinstance(team, list) or len(team) != 3:
+                errors.append(f"{team_pos}: 每组守军必须为三人")
+                continue
+            for enemy in team:
+                if not isinstance(enemy, str) or enemy not in enemies:
+                    errors.append(f"{team_pos}: 敌人 '{enemy}' 不存在")
+
+
 def validate(
     config_dir: Path | None = None, assets_dir: Path | None = None
 ) -> list[str]:
@@ -315,6 +432,9 @@ def validate(
     enemies = load_collection(config_dir, "enemies", errors)
     events = load_collection(config_dir, "events", errors)
     modes = load_collection(config_dir, "modes", errors)
+    check_facilities(config_dir, materials, errors)
+    check_sects(config_dir, materials, enemies, errors)
+    requires_specialty = (config_dir / "facilities.json").exists() or (config_dir / "sects.json").exists()
 
     for skill_id, skill in skills.items():
         where = f"config/skills/{skill_id}.json"
@@ -337,6 +457,12 @@ def validate(
             errors.append(
                 f"{where}: lean '{disciple.get('lean')}' 不在 {sorted(LEANS)}"
             )
+
+        specialty = disciple.get("production_specialty")
+        if (requires_specialty or "production_specialty" in disciple) and (
+            not isinstance(specialty, str) or specialty not in materials
+        ):
+            errors.append(f"{where}.production_specialty: 必须引用已有材料")
 
         stats = disciple.get("base_stats")
         if not isinstance(stats, dict):
@@ -524,6 +650,12 @@ def validate(
                     errors.append(f"{where}: 材料 '{material_id}' 不存在于 config/materials")
                 if not isinstance(count, int) or isinstance(count, bool) or count < 1:
                     errors.append(f"{where}: inputs['{material_id}'] 必须是正整数")
+
+        upgrade_material = weapon.get("upgrade_material")
+        if upgrade_material is not None and (
+            not isinstance(upgrade_material, str) or upgrade_material not in materials
+        ):
+            errors.append(f"{where}.upgrade_material: 必须引用已有材料")
 
         unlock = weapon.get("unlock")
         if not isinstance(unlock, dict):

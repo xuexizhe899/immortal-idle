@@ -1,10 +1,28 @@
 {
   "items": [
     {
+      "file": "chi_tong.svg",
+      "id": "chi_tong",
+      "kind": "material",
+      "name": "赤铜"
+    },
+    {
+      "file": "gong_fa_qi_pei.svg",
+      "id": "gong_fa_qi_pei",
+      "kind": "material",
+      "name": "攻伐器胚"
+    },
+    {
       "file": "han_tie.svg",
       "id": "han_tie",
       "kind": "material",
       "name": "寒铁"
+    },
+    {
+      "file": "hu_chi_qi_pei.svg",
+      "id": "hu_chi_qi_pei",
+      "kind": "material",
+      "name": "护持器胚"
     },
     {
       "file": "jiao_gu.svg",
@@ -25,10 +43,34 @@
       "name": "灵草"
     },
     {
+      "file": "ling_mu.svg",
+      "id": "ling_mu",
+      "kind": "material",
+      "name": "灵木"
+    },
+    {
+      "file": "po_jing_ling_cai.svg",
+      "id": "po_jing_ling_cai",
+      "kind": "material",
+      "name": "破境灵材"
+    },
+    {
+      "file": "qing_shi.svg",
+      "id": "qing_shi",
+      "kind": "material",
+      "name": "青石"
+    },
+    {
       "file": "xuan_jing.svg",
       "id": "xuan_jing",
       "kind": "material",
       "name": "玄晶"
+    },
+    {
+      "file": "yao_shou_pi.svg",
+      "id": "yao_shou_pi",
+      "kind": "material",
+      "name": "妖兽皮"
     },
     {
       "file": "yun_mu.svg",

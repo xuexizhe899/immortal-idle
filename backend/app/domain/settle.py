@@ -19,6 +19,8 @@ BASE_STAMINA_PER_HOUR = 0.5
 BASE_MATERIALS_PER_HOUR = {
     "ling_cao": 0.5, "yun_mu": 0.25, "han_tie": 0.25,
     "jiao_gu": 0.15, "xuan_jing": 0.1, "jiu_ye": 0.1,
+    "ling_mu": 0.5, "qing_shi": 0.5, "chi_tong": 0.5, "yao_shou_pi": 0.5,
+    "gong_fa_qi_pei": 0.0, "hu_chi_qi_pei": 0.0, "po_jing_ling_cai": 0.0,
 }
 
 # 离线最多补算 12 小时，超出部分丢弃
@@ -39,6 +41,15 @@ class SettleReport:
     stamina: float = 0.0
     materials: dict[str, int] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+
+
+def material_production(rates: dict[str, float]) -> dict[str, float]:
+    """基础材料享受值守加成，专长与外宗驻守按实际时产叠加。"""
+    return {
+        material: base * (1 + rates.get("material_rate", 0.0))
+        + rates.get(f"material_{material}_flat", 0.0)
+        for material, base in BASE_MATERIALS_PER_HOUR.items()
+    }
 
 
 def rate_segments(
@@ -102,8 +113,8 @@ def settle(state: GameState, last_settled_at: datetime, now: datetime) -> Settle
         report.stamina += (
             BASE_STAMINA_PER_HOUR * (1 + rates.get("stamina_rate", 0.0)) * hours
         )
-        for material, base in BASE_MATERIALS_PER_HOUR.items():
-            material_gains[material] += base * (1 + rates.get("material_rate", 0.0)) * hours
+        for material, per_hour in material_production(rates).items():
+            material_gains[material] += per_hour * hours
         extra_recovery_hours += max(0.0, rates.get("injury_rate", 0.0)) * hours
 
     state.resources.cultivation += report.cultivation

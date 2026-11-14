@@ -260,7 +260,7 @@ async def test_legacy_save_import_does_not_receive_starter_grant(game_client):
     assert state["inventory"] == {}
 
 
-async def test_duty_and_run_are_mutually_exclusive_with_snapshot_rates(game_client):
+async def test_duty_detaches_on_departure_and_returns_after_settlement(game_client):
     client, _ = game_client
     slot, content = await new_slot(client)
     template_id = next(key for key, value in load_disciples().items() if value["lean"] == "craft")
@@ -270,12 +270,34 @@ async def test_duty_and_run_are_mutually_exclusive_with_snapshot_rates(game_clie
     content = (await client.post(f"/api/saves/{slot}/duty/assign", json={
         "revision": content["revision"], "disciple_id": template_id,
     })).json()
-    assert content["production"]["materials"]["ling_cao"] > .5
-    rejected = await client.post(f"/api/saves/{slot}/run/start", json={
+    before = content["production"]["materials"]["ling_cao"]
+    started = await client.post(f"/api/saves/{slot}/run/start", json={
         "revision": content["revision"], "party": [template_id],
     })
+    assert started.status_code == 200
+    content = started.json()
+    assert content["state"]["duty_slots"] == []
+    assert content["production"]["materials"]["ling_cao"] < before
+    assert content["run"]["return_posts"] == {template_id: "home"}
+    rejected = await client.post(f"/api/saves/{slot}/duty/assign", json={
+        "revision": content["revision"], "disciple_id": template_id,
+    })
     assert rejected.status_code == 400
-    assert "值守" in rejected.json()["detail"]
+    for _ in range(45):
+        if content["status"] in {"defeated", "cleared"}:
+            break
+        route = "affix" if content["status"] == "choosing_affix" else "choose"
+        decision = {"affix_id": content["run"]["affix_options"][0]} if route == "affix" else {"choice": 0}
+        response = await client.post(f"/api/saves/{slot}/run/{route}", json={
+            "revision": content["revision"], **decision,
+        })
+        assert response.status_code == 200
+        content = response.json()
+    assert content["status"] in {"defeated", "cleared"}
+    settled = await client.post(f"/api/saves/{slot}/run/settle", json={"revision": content["revision"]})
+    assert settled.status_code == 200
+    assert settled.json()["state"]["duty_slots"][0]["disciple_id"] == template_id
+    assert settled.json()["production"]["materials"]["ling_cao"] == before
 
 
 async def test_weapon_craft_equip_and_unequip_require_server_conditions(game_client):

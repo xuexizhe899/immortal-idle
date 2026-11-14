@@ -1,6 +1,7 @@
 {
   "id": "tower_master",
   "name": "问道真灵",
+  "asset_id": "art-foundation/enemies/tower_master",
   "base_stats": {
     "hp": 220,
     "atk": 22,

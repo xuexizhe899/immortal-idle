@@ -1,6 +1,7 @@
 {
   "id": "frost_crane",
   "name": "霜羽鹤灵",
+  "asset_id": "art-foundation/enemies/frost_crane",
   "base_stats": {
     "hp": 65,
     "atk": 11,

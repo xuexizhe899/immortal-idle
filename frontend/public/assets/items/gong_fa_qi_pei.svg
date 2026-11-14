@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>攻伐器胚</title>
+  <polygon points="13,44 51,44 45,50 39,50 43,58 21,58 25,50 19,50" fill="#46565B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="28,7 36,7 39,17 35,42 29,42 25,17" fill="#93A6AA" stroke="#22342C" stroke-width="2"/>
+  <rect x="30" y="13" width="3" height="26" fill="#C9D6D9"/>
+  <rect x="21" y="38" width="22" height="5" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <rect x="29" y="43" width="6" height="10" fill="#9A6238" stroke="#22342C" stroke-width="2"/>
+</svg>

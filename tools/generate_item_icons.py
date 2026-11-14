@@ -7,7 +7,7 @@
 运行：
     python tools/generate_item_icons.py
 
-重复运行结果完全一致；只写入本脚本负责的 18 张图标与 index.json，
+重复运行结果完全一致；只写入配置登记且本脚本负责的图标与 index.json，
 不会清空或改动输出目录中的其他文件。
 """
 
@@ -709,7 +709,88 @@ def art_xianshi_lingyu() -> list[str]:
     ]
 
 
+def art_ling_mu() -> list[str]:
+    """灵木：木段年轮与嫩芽，用轮廓区别于矿材。"""
+    return [
+        poly([(14, 22), (42, 14), (53, 25), (53, 43), (25, 51), (14, 40)], WOOD),
+        poly([(14, 22), (25, 31), (53, 25), (42, 14)], WOOD_LIGHT),
+        circle(23, 36, 10, WOOD_LIGHT), circle(23, 36, 6, WOOD),
+        rect(22, 32, 3, 8, GOLD_DEEP, stroke=None),
+        poly([(37, 18), (34, 8), (43, 10), (45, 16)], JADE),
+        rect(39, 13, 2, 11, JADE_DEEP, stroke=None),
+    ]
+
+
+def art_qing_shi() -> list[str]:
+    """青石：方整石块与横向断层。"""
+    return [
+        poly([(11, 25), (23, 15), (49, 15), (55, 25), (51, 48), (13, 48)], IRON),
+        poly([(11, 25), (23, 15), (49, 15), (42, 27)], IRON_LIGHT),
+        rect(17, 33, 31, 3, IRON_DEEP, stroke=None),
+        rect(23, 43, 19, 2, IRON_LIGHT, stroke=None),
+        poly([(35, 28), (30, 33), (34, 39), (29, 47)], INK, stroke=None),
+    ]
+
+
+def art_chi_tong() -> list[str]:
+    """赤铜：暖红铜矿与方晶切面。"""
+    return [
+        poly([(9, 39), (19, 18), (31, 24), (42, 12), (54, 30), (49, 49), (22, 53)], WOOD_DEEP),
+        poly([(19, 18), (30, 27), (24, 40), (12, 37)], WOOD_LIGHT),
+        poly([(42, 12), (51, 29), (37, 34), (31, 24)], GOLD),
+        poly([(37, 34), (51, 29), (47, 46), (34, 49)], RED),
+        rect(18, 43, 10, 4, GOLD_LIGHT, stroke=None),
+    ]
+
+
+def art_yao_shou_pi() -> list[str]:
+    """妖兽皮：四角爪形、缝线与中间背纹。"""
+    return [
+        poly([(10, 12), (25, 17), (38, 17), (54, 11), (48, 29), (53, 53),
+              (37, 47), (26, 47), (10, 54), (16, 31)], WOOD),
+        poly([(20, 22), (32, 26), (44, 21), (39, 40), (25, 41)], WOOD_LIGHT, stroke=None),
+        rect(30, 21, 4, 25, WOOD_DEEP, stroke=None),
+        rect(22, 29, 19, 3, INK, stroke=None),
+        rect(24, 37, 15, 3, INK, stroke=None),
+    ]
+
+
+def art_gong_fa_qi_pei() -> list[str]:
+    """攻伐器胚：未开锋剑坯置于铁砧。"""
+    return [
+        poly([(13, 44), (51, 44), (45, 50), (39, 50), (43, 58), (21, 58), (25, 50), (19, 50)], IRON_DEEP),
+        poly([(28, 7), (36, 7), (39, 17), (35, 42), (29, 42), (25, 17)], IRON_LIGHT),
+        rect(30, 13, 3, 26, IRON_PALE, stroke=None),
+        rect(21, 38, 22, 5, GOLD), rect(29, 43, 6, 10, WOOD),
+    ]
+
+
+def art_hu_chi_qi_pei() -> list[str]:
+    """护持器胚：盾形骨架与中央护心玉。"""
+    return [
+        poly([(12, 15), (32, 8), (52, 15), (48, 40), (32, 56), (16, 40)], IRON),
+        poly([(18, 20), (32, 15), (46, 20), (42, 37), (32, 48), (22, 37)], JADE_DEEP),
+        rect(29, 16, 6, 31, GOLD), rect(19, 28, 26, 5, GOLD),
+        poly([(32, 23), (38, 31), (32, 39), (26, 31)], CRYSTAL_LIGHT),
+    ]
+
+
+def art_po_jing_ling_cai() -> list[str]:
+    """破境灵材：三瓣灵晶围绕金色丹核。"""
+    return [
+        poly([(32, 4), (39, 18), (32, 31), (25, 18)], SPIRIT_LIGHT),
+        poly([(9, 30), (26, 28), (31, 41), (18, 47)], SPIRIT),
+        poly([(55, 30), (38, 28), (33, 41), (46, 47)], CRYSTAL),
+        circle(32, 33, 9, GOLD), circle(32, 33, 4, GOLD_LIGHT),
+        rect(22, 52, 20, 3, JADE_DEEP, stroke=None),
+        rect(28, 49, 8, 3, JADE, stroke=None),
+    ]
+
+
 ART: dict[str, Callable[[], list[str]]] = {
+    "ling_mu": art_ling_mu, "qing_shi": art_qing_shi, "chi_tong": art_chi_tong,
+    "yao_shou_pi": art_yao_shou_pi, "gong_fa_qi_pei": art_gong_fa_qi_pei,
+    "hu_chi_qi_pei": art_hu_chi_qi_pei, "po_jing_ling_cai": art_po_jing_ling_cai,
     "qing_feng_jian": art_qing_feng_jian,
     "liao_shang_dan": art_liao_shang_dan,
     "ling_cao": art_ling_cao,

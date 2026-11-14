@@ -10,6 +10,7 @@ import secrets
 from app.config_loader import load_affixes, load_enemies, load_skills, load_weapons
 from app.domain.affix import draw, pick_group
 from app.domain.battle import simulate_battle
+from app.domain.deployment import detach_for_run, restore_after_run
 from app.domain.injuries import apply_injury, attack_multiplier
 from app.domain.progression import LEVEL_GROWTH, REALM_GROWTH
 from app.domain.rng import Pcg32
@@ -17,7 +18,7 @@ from app.domain.weapons import battle_bonuses, combat_bonuses
 from app.models.battle import (
     AffixContribution, BattleBond, BattleUnit, ConditionalBonus, EnemyDefinition, SkillDefinition,
 )
-from app.models.save import ActiveRun, BattleReview, BattleSummary, DiscipleState, GameState, RunNode, RunPartySnapshot, RunReview
+from app.models.save import ActiveRun, BattleReview, BattleSummary, DiscipleState, GameState, NpcSect, RunNode, RunPartySnapshot, RunReview
 
 MAX_PARTY = 6
 # 常驻修正的单键上限：同一键被多条道法叠加时截断，避免堆满一个乘区。
@@ -254,6 +255,10 @@ def enemy_units(run: ActiveRun, node: RunNode) -> list[BattleUnit]:
 
 
 def run_status(run: ActiveRun, mode: dict | None = None) -> str:
+    if run.sect_id:
+        if run.end_reason == "victory":
+            return "cleared"
+        return "defeated" if run.end_reason else "choosing_node"
     if run.end_reason in {"defeated", "round_limit"} or run.hp <= 0:
         return "defeated"
     if len(run.nodes) >= run.party_snapshot.mode["node_count"]:
@@ -266,7 +271,7 @@ def start_run(
     seed: int | None = None, bonds: dict[str, dict] | None = None,
     skills: dict[str, dict] | None = None, enemies: dict[str, dict] | None = None,
     affix_pool: list[dict] | None = None, weapons: dict[str, dict] | None = None,
-    route_version: int = 1,
+    route_version: int = 1, sect: NpcSect | None = None, tower_tier: int = 1,
 ) -> str | None:
     if route_version not in {1, 2}:
         return "不支持的路线版本"
@@ -276,22 +281,45 @@ def start_run(
         return f"队伍需要 1 到 {MAX_PARTY} 名弟子"
     if len(set(party_ids)) != len(party_ids):
         return "队伍中有重复弟子"
+    if sect is not None:
+        if mode["id"] != "expedition" or not any(item.id == sect.id for item in state.sects):
+            return "宗门目标不存在"
+        if sect.conquered:
+            return "该宗门已攻克，可安排驻守"
+        if len(party_ids) < 3:
+            return "宗门征讨需要 3 到 6 名随行弟子"
+    if mode["id"] == "tower":
+        if not 1 <= tower_tier <= min(3, state.facility_levels.get("tower", 1)):
+            return "请先升级问道塔，开放对应塔阶"
+        previous = max(state.tower_tiers.get(str(tower_tier - 1), 0), state.tower_floor if tower_tier == 2 else 0)
+        if tower_tier > 1 and previous < 20:
+            return "请先通关前一阶问道塔"
     if state.resources.stamina < mode["stamina_cost"]:
         return "行动力不足"
     by_id = {disciple.id: disciple for disciple in state.disciples}
-    duty_ids = {slot.disciple_id for slot in state.duty_slots}
     for disciple_id in party_ids:
         disciple = by_id.get(disciple_id)
         if disciple is None:
             return f"弟子 {disciple_id} 不存在"
         if disciple.busy:
             return f"弟子 {disciple_id} 正在出征"
-        if disciple_id in duty_ids:
-            return f"弟子 {disciple_id} 正在值守，请先撤下"
         if disciple.template_id not in templates:
             return f"弟子 {disciple_id} 模板未配置"
     members = set(by_id[key].template_id for key in party_ids)
     weapon_map = weapons if weapons is not None else load_weapons()
+    frozen_mode = deepcopy(mode)
+    if sect is not None:
+        # 征讨不生成问道路线，也不抽道法；守军、首胜奖励随本局一起固化。
+        frozen_mode.update(node_count=4, sect=sect.model_dump(mode="json"))
+    elif mode["id"] == "tower" and tower_tier > 1:
+        frozen_mode["kind_stat_multiplier"] = {
+            kind: mode.get("kind_stat_multiplier", {}).get(kind, 1) * (1 + .6 * (tower_tier - 1))
+            for kind in ("battle", "elite", "boss")
+        }
+        frozen_mode["rewards"] = {
+            kind: {key: value * (1 + .5 * (tower_tier - 1)) for key, value in rewards.items()}
+            for kind, rewards in mode["rewards"].items()
+        }
     activated = [BattleBond.model_validate(bond) for bond in (bonds or {}).values()
                  if bond.get("modifiers") and len(members & set(bond["members"])) >= bond.get("requires", len(bond["members"]))]
     snapshot = RunPartySnapshot(
@@ -299,14 +327,14 @@ def start_run(
             combatant(
                 by_id[key], templates[by_id[key].template_id],
                 skills if skills is not None else load_skills(),
-                combat_bonuses(by_id[key], state.bonuses, weapon_map), index,
-                battle_bonuses(by_id[key], weapon_map),
+                combat_bonuses(by_id[key], state.bonuses, weapon_map, state.weapon_levels), index,
+                battle_bonuses(by_id[key], weapon_map, state.weapon_levels),
             )
             for index, key in enumerate(party_ids)
         ),
-        bonds=tuple(activated), mode=deepcopy(mode),
+        bonds=tuple(activated), mode=frozen_mode,
         enemies={key: EnemyDefinition.model_validate(value) for key, value in (enemies if enemies is not None else load_enemies()).items()},
-        affix_pool=deepcopy(affix_pool if affix_pool is not None else load_affixes()),
+        affix_pool=[] if sect is not None else deepcopy(affix_pool if affix_pool is not None else load_affixes()),
         route_version=route_version,
     )
     run_seed = seed if seed is not None else secrets.randbits(63)
@@ -315,7 +343,9 @@ def start_run(
     state.active_run = ActiveRun(
         run_seed=run_seed, party=list(party_ids), mode=mode["id"], party_snapshot=snapshot,
         member_hp=hp, hp=sum(hp.values()), max_hp=sum(hp.values()),
-        choices=roll_choices(rng, 0, snapshot), started_at=now,
+        choices=[] if sect is not None else roll_choices(rng, 0, snapshot), started_at=now,
+        sect_id=sect.id if sect is not None else None, tower_tier=tower_tier,
+        return_posts=detach_for_run(state, party_ids),
     )
     state.active_run.rng_cursor = rng.cursor
     state.resources.stamina -= mode["stamina_cost"]
@@ -328,6 +358,8 @@ def choose(state: GameState, choice_index: int, *_unused) -> str | None:
     run = state.active_run
     if run is None:
         return "没有进行中的出征"
+    if run.sect_id:
+        return "请为本场擂台选择三名弟子"
     if run_status(run) in {"defeated", "cleared"}:
         return "出征已结束，请结算"
     if run.affix_pending:
@@ -475,7 +507,13 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
     mode = run.party_snapshot.mode
     cleared = len(run.nodes)
     victory = run_status(run) == "cleared"
-    loot = dict(run.pending_loot) if victory else defeat_loot(run.pending_loot, cleared, mode)
+    if run.sect_id:
+        target = next(item for item in state.sects if item.id == run.sect_id)
+        loot = dict(run.pending_loot) if victory and not target.conquered else {}
+        if victory:
+            target.conquered = True
+    else:
+        loot = dict(run.pending_loot) if victory else defeat_loot(run.pending_loot, cleared, mode)
     for key, value in loot.items():
         if key in {"cultivation", "spirit_stone", "reputation", "stamina"}:
             setattr(state.resources, key, getattr(state.resources, key) + value)
@@ -485,19 +523,30 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
     # 出征清档前保留终止原因、到达节点和最后一场的关键指标，便于下一次整备时针对性调整。
     last_battle = run.last_battle
     state.last_run_review = RunReview(
-        mode=run.mode, cleared=cleared, total_nodes=mode["node_count"], victory=victory,
+        mode=run.mode, cleared=cleared, total_nodes=cleared if run.sect_id and victory else mode["node_count"], victory=victory,
+        sect_id=run.sect_id, sect_name=mode["sect"]["name"] if run.sect_id else None,
+        tower_tier=run.tower_tier,
         end_reason=run.end_reason,
         loot=loot,
         last_battle=build_battle_review(last_battle) if last_battle else None,
     )
-    if run.mode == "expedition":
+    if run.mode == "expedition" and not run.sect_id:
         state.expedition_floor = max(state.expedition_floor, cleared)
-    else:
-        state.tower_floor = max(state.tower_floor, cleared)
+    elif run.mode == "tower":
+        previous_floor = state.tower_floor if run.tower_tier == 1 else 0
+        # 失败节点只是到达，不能算通关；尤其第20层失败不能解锁下一塔阶。
+        completed = cleared - int(last_battle is not None and not last_battle.won)
+        state.tower_floor = max(state.tower_floor, completed)
+        tier = str(run.tower_tier)
+        state.tower_tiers[tier] = max(state.tower_tiers.get(tier, 0), previous_floor, completed)
     for disciple in state.disciples:
         if disciple.id in run.party:
             disciple.busy = False
-            if not victory:
+            if not victory and (not run.sect_id or disciple.id in run.deployed):
                 apply_injury(disciple, now)
+    missing = restore_after_run(state, run.return_posts, now)
+    if missing:
+        names = [next((unit.name for unit in run.party_snapshot.combatants if unit.id == key), key) for key in missing]
+        state.logs.append(f"原岗位已满，未自动回岗：{'、'.join(names)}")
     state.active_run = None
     return {"cleared": cleared, "victory": victory, "loot": loot}

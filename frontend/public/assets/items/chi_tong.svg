@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>赤铜</title>
+  <polygon points="9,39 19,18 31,24 42,12 54,30 49,49 22,53" fill="#6E4528" stroke="#22342C" stroke-width="2"/>
+  <polygon points="19,18 30,27 24,40 12,37" fill="#C58A53" stroke="#22342C" stroke-width="2"/>
+  <polygon points="42,12 51,29 37,34 31,24" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="37,34 51,29 47,46 34,49" fill="#A9473B" stroke="#22342C" stroke-width="2"/>
+  <rect x="18" y="43" width="10" height="4" fill="#E8D08A"/>
+</svg>

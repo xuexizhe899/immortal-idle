@@ -19,5 +19,6 @@
   ],
   "unlock_cost": {
     "reputation": 80
-  }
+  },
+  "production_specialty": "ling_mu"
 }

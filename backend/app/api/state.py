@@ -1,20 +1,30 @@
 """共享命令边界：先校验版本、补算，再把状态与结算锚点原子写回。"""
 
+import secrets
+
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
-from app.config_loader import load_bonds, load_disciples
-from app.domain.duty import rates_of, record_event
+from app.config_loader import load_bonds, load_disciples, load_enemies, load_sects
+from app.domain.conquest import ensure_sects
+from app.domain.duty import rates_of, record_event, garrison_production
 from app.domain.run_engine import run_status
 from app.domain.settle import (
-    BASE_CULTIVATION_PER_HOUR, BASE_MATERIALS_PER_HOUR,
-    BASE_SPIRIT_STONE_PER_HOUR, BASE_STAMINA_PER_HOUR, SettleReport, settle,
+    BASE_CULTIVATION_PER_HOUR,
+    BASE_SPIRIT_STONE_PER_HOUR, BASE_STAMINA_PER_HOUR, SettleReport, settle, material_production,
 )
 from app.models.api import GameSnapshot, RunStatus
 from app.models.save import GameState
 from app.repositories.saves import SaveRepository
+
+
+def initialize_world(state: GameState) -> None:
+    """世界只按缺少的等级补生成，已有宗门的身份与守军不重抽。"""
+    if not state.rng_seed:
+        state.rng_seed = secrets.randbits(63) or 1
+    ensure_sects(state, load_sects(), load_enemies())
 
 
 def status_of(state: GameState) -> RunStatus:
@@ -33,10 +43,8 @@ def snapshot(state: GameState, revision: int) -> GameSnapshot:
             "cultivation": BASE_CULTIVATION_PER_HOUR * (1 + rates.get("cultivation_rate", 0)),
             "spirit_stone": BASE_SPIRIT_STONE_PER_HOUR * (1 + rates.get("spirit_stone_rate", 0)),
             "stamina": BASE_STAMINA_PER_HOUR * (1 + rates.get("stamina_rate", 0)),
-            "materials": {
-                key: base * (1 + rates.get("material_rate", 0))
-                for key, base in BASE_MATERIALS_PER_HOUR.items()
-            },
+            "materials": material_production(rates),
+            "garrisons": garrison_production(state, load_disciples()),
             "injury_recovery_multiplier": 1 + rates.get("injury_rate", 0),
         },
     )
@@ -65,10 +73,12 @@ async def prepare_mutation(
         raise HTTPException(status_code=404, detail="存档不存在")
     now = datetime.now(timezone.utc)
     report = settle(state, last, now)
+    initialize_world(state)
     return Mutation(state, current, now, max(last, now), report)
 
 
 async def commit_mutation(slot_id: int, mutation: Mutation, repo: SaveRepository) -> None:
+    initialize_world(mutation.state)
     current_rates = rates_of(mutation.state, load_disciples(), load_bonds())
     last_rates = mutation.state.duty_events[-1].rates if mutation.state.duty_events else {}
     if current_rates != last_rates:

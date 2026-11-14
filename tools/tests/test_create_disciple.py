@@ -38,7 +38,7 @@ def power(stats: dict[str, float]) -> float:
 def config_tree(tmp_path: Path) -> tuple[Path, Path]:
     """最小配置树：只保留角色创建需要的集合，避免依赖主城资产。"""
     config = tmp_path / "config"
-    for name in ("disciples", "skills", "bonds", "style"):
+    for name in ("disciples", "skills", "bonds", "style", "materials"):
         shutil.copytree(cd.CONFIG_DIR / name, config / name)
     assets = tmp_path / "assets"
     assets.mkdir()
@@ -257,3 +257,20 @@ def test_regenerating_draft_without_bond_removes_stale_bond(brief: dict, tmp_pat
 def test_report_describes_duty_as_percentage(package: dict) -> None:
     assert "10.0%" in package["report"]
     assert "0.100/时" not in package["report"]
+
+
+@pytest.mark.parametrize("specialty", [None, "missing_material", ["han_tie"]])
+def test_requires_explicit_existing_production_specialty(brief, specialty):
+    brief["production_specialty"] = specialty
+    with pytest.raises(cd.BriefError, match="production_specialty"):
+        cd.build_package(brief)
+
+
+def test_production_specialty_survives_package_and_apply(tmp_path, brief):
+    brief["production_specialty"] = "ling_cao"
+    config, assets = config_tree(tmp_path)
+    package = cd.build_package(brief, config_dir=config)
+    assert package["disciple"]["production_specialty"] == "ling_cao"
+    cd.apply_package(package, config_dir=config, assets_dir=assets, allow_pending=True)
+    result = cd.load_json(config / "disciples" / "sunwukong.json")
+    assert result["production_specialty"] == "ling_cao"

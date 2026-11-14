@@ -6,7 +6,7 @@ from app.api.saves import get_repo
 from app.api.state import commit_mutation, prepare_mutation, snapshot
 from app.config_loader import load_disciples, load_materials, load_weapons
 from app.domain.weapons import (
-    craft_weapon, equip_weapon, unequip_weapon, weapon_views,
+    craft_weapon, equip_weapon, unequip_weapon, upgrade_weapon, weapon_views,
 )
 from app.models.api import (
     RevisionRequest, WeaponCommandResponse, WeaponListResponse,
@@ -89,6 +89,21 @@ async def unequip(
 ) -> WeaponCommandResponse:
     command = await prepare_mutation(slot_id, repo, payload.revision)
     error = unequip_weapon(command.state, payload.disciple_id, load_weapons())
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    await commit_mutation(slot_id, command, repo)
+    return WeaponCommandResponse(
+        **snapshot(command.state, command.revision + 1).model_dump(),
+        weapons=list_weapons(command.state),
+    )
+
+
+@router.post("/upgrade", response_model=WeaponCommandResponse)
+async def upgrade(
+    slot_id: int, payload: CraftWeaponRequest, repo: SaveRepository = Depends(get_repo),
+) -> WeaponCommandResponse:
+    command = await prepare_mutation(slot_id, repo, payload.revision)
+    error = upgrade_weapon(command.state, payload.weapon_id, load_weapons())
     if error:
         raise HTTPException(status_code=400, detail=error)
     await commit_mutation(slot_id, command, repo)

@@ -26,6 +26,8 @@ export const useGameStore = defineStore('game', () => {
   const lastSettle = ref<SettleResult | null>(null)
   const saves = ref<SaveSlotMeta[]>([])
   const party = ref<string[]>([])
+  const productionTarget = ref('')
+  const targetSectId = ref('')
   const busy = ref(false)
   const ready = ref(false)
   const operation = ref('')
@@ -41,7 +43,7 @@ export const useGameStore = defineStore('game', () => {
     },
   })
   const status = ref<SaveContent['status']>('idle')
-  const production = ref<Production>({ cultivation: 0, spirit_stone: 0, stamina: 0, materials: {}, injury_recovery_multiplier: 1 })
+  const production = ref<Production>({ cultivation: 0, spirit_stone: 0, stamina: 0, materials: {}, injury_recovery_multiplier: 1, garrisons: {} })
   const disciples = computed(() => state.value?.disciples ?? [])
   const resources = computed(() => state.value?.resources)
   const battleResult = computed(() => state.value?.active_run?.last_battle ?? null)
@@ -51,6 +53,7 @@ export const useGameStore = defineStore('game', () => {
   let trainingRequest = 0
   const weapons = ref<WeaponView[]>([])
   let weaponsRequest = 0
+  let slotSession = 0
   const run = computed<RunPayload | null>(() => state.value ? {
     revision: revision.value, state: state.value, status: status.value,
     production: production.value, run: state.value.active_run ?? null, battle_result: battleResult.value,
@@ -68,10 +71,9 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function cleanParty(ids = party.value) {
-    const duty = new Set(state.value?.duty_slots.map(member => member.disciple_id) ?? [])
     const active = state.value?.active_run
     party.value = active ? [...active.party] : [...new Set(ids)].filter(id =>
-      disciples.value.some(d => d.id === id && !d.busy) && !duty.has(id),
+      disciples.value.some(d => d.id === id && !d.busy),
     ).slice(0, catalog.value?.rules.max_party ?? 6)
   }
 
@@ -164,6 +166,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function enterSlot(id: number, collect: boolean) {
+    slotSession += 1
     const savedParty = readPreferences().parties?.[String(id)]
     slotId.value = id
     revision.value = 0
@@ -172,6 +175,8 @@ export const useGameStore = defineStore('game', () => {
     lastSettle.value = null
     notice.value = null
     party.value = []
+    productionTarget.value = ''
+    targetSectId.value = ''
     training.value = null
     trainingFor.value = null
     trainingLoading.value = false
@@ -216,10 +221,10 @@ export const useGameStore = defineStore('game', () => {
     })
   }
 
-  async function startRun(partyIds: string[], mode: 'tower' | 'expedition' = 'tower'): Promise<void> {
+  async function startRun(partyIds: string[], mode: 'tower' | 'expedition' = 'tower', options: { sect_id?: string; tower_tier?: number } = {}): Promise<void> {
     await guard(mode === 'expedition' ? '前往远行码头' : '进入问道塔', async () => {
       const id = currentSlot()
-      const result = await api.startRun(id, partyIds, revision.value, mode)
+      const result = await api.startRun(id, partyIds, revision.value, mode, options)
       lastRun.value = null
       applySnapshot(result, id)
     })
@@ -231,10 +236,6 @@ export const useGameStore = defineStore('game', () => {
     else {
       const disciple = disciples.value.find(d => d.id === id)
       if (!disciple || disciple.busy) return
-      if (state.value?.duty_slots.some(member => member.disciple_id === id)) {
-        notice.value = '这位弟子正在值守，请先在演武场卸任。'
-        return
-      }
       if (party.value.length >= (catalog.value?.rules.max_party ?? 6)) {
         notice.value = '队伍已满，请先移除一名弟子。'
         return
@@ -274,9 +275,17 @@ export const useGameStore = defineStore('game', () => {
   async function settleRun(): Promise<RunSettleResult | null> {
     return guard('结算出征', async () => {
       const id = currentSlot()
+      const returning = { ...state.value?.active_run?.return_posts }
       const result = await api.settleRun(id, revision.value)
       applySnapshot(result, id)
       lastRun.value = result
+      const missing = Object.entries(returning).filter(([discipleId,post]) => post === 'home'
+        ? !result.state.duty_slots.some(slot => slot.disciple_id === discipleId)
+        : !result.state.sects.find(sect => sect.id === post)?.garrison.some(slot => slot.disciple_id === discipleId))
+      if (missing.length) notice.value = `原岗位已满，未自动回岗：${missing.map(([discipleId]) => {
+        const disciple = result.state.disciples.find(item => item.id === discipleId)
+        return catalog.value?.disciples[disciple?.template_id ?? '']?.name ?? '弟子'
+      }).join('、')}。可在值守或驻守页面重新安排。`
       return result
     })
   }
@@ -313,14 +322,14 @@ export const useGameStore = defineStore('game', () => {
     })
   }
 
-  async function craft(recipeId: string): Promise<void> {
+  async function craft(recipeId: string, quantity = 1, grade = 1): Promise<void> {
     await guard('炼制', async () => {
       const id = currentSlot()
-      applySnapshot(await api.craft(id, recipeId, revision.value), id)
+      applySnapshot(await api.craft(id, recipeId, revision.value, quantity, grade), id)
       const recipe = catalog.value?.recipes[recipeId]
       notice.value = recipe?.kind === 'pill'
-        ? `${recipe?.name ?? '丹药'}已炼成 1 颗，存入行囊。`
-        : `${recipe?.name ?? '法器'}炼制完成，宗门永久加成已生效。`
+        ? `${recipe?.name ?? '丹药'}（${grade}品）已炼成 ${quantity} 颗，存入行囊。`
+        : `${recipe?.name ?? '法器'}已炼至 ${grade} 级，新的增益已生效。`
     })
   }
 
@@ -329,7 +338,7 @@ export const useGameStore = defineStore('game', () => {
       const id = currentSlot()
       const result = await api.useItem(id, itemId, target, revision.value)
       applySnapshot(result, id)
-      const name = catalog.value?.recipes[result.item_id]?.name ?? '丹药'
+      const name = catalog.value?.recipes[result.item_id.split(':')[0]!]?.name ?? '丹药'
       const discipleName = catalog.value?.disciples[result.disciple.template_id]?.name ?? '弟子'
       notice.value = `${discipleName}已服用${name}。`
       await loadTraining(target)
@@ -398,6 +407,118 @@ export const useGameStore = defineStore('game', () => {
     catch (cause) { error.value = cause instanceof Error ? cause.message : String(cause) }
   }
 
+  async function readPreview<T extends { revision: number }>(read: (id: number) => Promise<T>): Promise<T | null> {
+    const id = slotId.value
+    if (id === null) return null
+    const requestedRevision = revision.value
+    const session = slotSession
+    try {
+      const result = await read(id)
+      // 预览只服务于发起时的存档版本；消费或切档后由页面重新查询。
+      if (session !== slotSession || slotId.value !== id || requestedRevision !== revision.value || result.revision < revision.value) return null
+      if (result.revision > revision.value) await readCurrent(id)
+      return session === slotSession && slotId.value === id && result.revision === revision.value ? result : null
+    } catch (cause) {
+      if (session === slotSession && slotId.value === id && requestedRevision === revision.value) error.value = cause instanceof Error ? cause.message : String(cause)
+      return null
+    }
+  }
+
+  const previewFacilities = () => readPreview(id => api.facilities(id))
+  const previewRecipes = (grade: number) => readPreview(id => api.recipes(id, grade))
+  const previewHealing = (partyIds: string[]) => readPreview(id => api.healPreview(id, partyIds))
+
+  function productionDestination(resourceId: string): { panel: 'duty' | 'expedition'; label: string; hint: string; sectId?: string } {
+    if (catalog.value?.production.materials[resourceId] !== 0) {
+      return { panel: 'duty', label: '安排值守', hint: '' }
+    }
+    // 本宗没有基础产出的材料只能从外宗获取，优先带玩家查看已经攻克的产地。
+    const sources = state.value?.sects.filter(sect =>
+      sect.material_id === resourceId || sect.special_material_id === resourceId,
+    ) ?? []
+    const source = sources.find(sect => sect.conquered) ?? sources[0]
+    return {
+      panel: 'expedition',
+      sectId: source?.id,
+      label: source?.conquered ? '安排外宗驻守' : source ? '征讨资源宗门' : '查看外宗产地',
+      hint: source?.conquered
+        ? `${source.name}可产出所需材料，请在当地安排驻守。`
+        : source ? `需要先攻克${source.name}，再领取奖励或安排驻守获取材料。`
+          : '当前尚未发现该材料的产地，可升级宗门主殿探索更多宗门。',
+    }
+  }
+
+  function planProduction(resourceId: string): 'duty' | 'expedition' {
+    const destination = productionDestination(resourceId)
+    productionTarget.value = resourceId
+    if (destination.panel === 'expedition') {
+      targetSectId.value = destination.sectId ?? ''
+      notice.value = destination.hint
+    }
+    return destination.panel
+  }
+
+  async function upgradeFacility(facilityId: string): Promise<void> {
+    await guard('升级设施', async () => {
+      const id = currentSlot()
+      const result = await api.upgradeFacility(id, facilityId, revision.value)
+      applySnapshot(result, id)
+      const facility = result.facilities.find(item => item.id === facilityId)
+      notice.value = `${facility?.name ?? '设施'}已升至 ${facility?.level ?? ''} 级。`
+    })
+  }
+
+  async function healParty(partyIds: string[]): Promise<void> {
+    await guard('炼丹疗伤', async () => {
+      const id = currentSlot()
+      const result = await api.healParty(id, partyIds, revision.value)
+      applySnapshot(result, id)
+      notice.value = `已为 ${result.healed.length} 位弟子疗伤，使用库存 ${result.stock_used} 颗，补炼 ${result.crafted} 颗。${result.reason}`
+    })
+  }
+
+  async function upgradeWeapon(weaponId: string): Promise<void> {
+    await guard('提升专武', async () => {
+      const id = currentSlot()
+      const result = await api.upgradeWeapon(id, weaponId, revision.value)
+      applySnapshot(result, id)
+      weaponsRequest += 1
+      weapons.value = result.weapons
+      const weapon = result.weapons.find(item => item.id === weaponId)
+      notice.value = `${weapon?.name ?? '专武'}已提升至 ${weapon?.level ?? ''} 级。`
+    })
+  }
+
+  async function fightArena(partyIds: string[]): Promise<void> {
+    await guard('擂台交锋', async () => {
+      const id = currentSlot()
+      applySnapshot(await api.arena(id, partyIds, revision.value), id)
+    })
+  }
+
+  async function retreat(): Promise<void> {
+    await guard('撤回宗门', async () => {
+      const id = currentSlot()
+      applySnapshot(await api.retreat(id, revision.value), id)
+    })
+  }
+
+  async function assignGarrison(sectId: string, discipleId: string): Promise<void> {
+    await guard('安排驻守', async () => {
+      const id = currentSlot()
+      applySnapshot(await api.assignGarrison(id, sectId, discipleId, revision.value), id)
+      notice.value = '驻守已安排，资源产出已更新。'
+    })
+  }
+
+  async function unassignGarrison(sectId: string, discipleId: string): Promise<void> {
+    await guard('召回驻守弟子', async () => {
+      const id = currentSlot()
+      applySnapshot(await api.unassignGarrison(id, sectId, discipleId, revision.value), id)
+      notice.value = '弟子已召回。'
+    })
+  }
+
   async function switchSave(id: number): Promise<void> {
     await guard('切换宗门', async () => { await enterSlot(id, true) })
   }
@@ -440,12 +561,15 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return {
-    slotId, revision, state, run, catalog, lastRun, lastSettle, saves, party, busy, ready,
+    slotId, revision, state, run, catalog, lastRun, lastSettle, saves, party, productionTarget, targetSectId, busy, ready,
     operation, error, notice, noticeId, disciples, resources, status, production, battleResult,
     training, trainingFor, trainingLoading, weapons,
     bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, moveParty, choose, pickAffix,
     settleRun, assignDuty, unassignDuty, recruit, craft, usePill, craftWeapon, equipWeapon, unequipWeapon,
     loadWeapons, upgrade, breakthrough, loadTraining,
+    previewFacilities, previewRecipes, previewHealing, upgradeFacility, healParty, upgradeWeapon,
+    productionDestination, planProduction,
+    fightArena, retreat, assignGarrison, unassignGarrison,
     loadSaves, switchSave,
     createSave, duplicateSave, deleteSave, importSave,
     dismissNotice: () => { notice.value = null },
