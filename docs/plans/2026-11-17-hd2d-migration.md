@@ -120,6 +120,19 @@ frontend/src/rendering/hd2d/
 - 本轮未改 catalog、Pydantic 源模型、接口契约、后端战斗或 RNG，没有运行后端业务测试。因本地生成类型落后于现有源模型，已执行 `backend\.venv\Scripts\python.exe backend/scripts/export_openapi.py` 与 `npm run gen:api` 刷新生成产物，均退出0；生成产物保持忽略，不手改或提交。
 - 按用户限定，本轮不运行浏览器或视觉验收。桌面/390px、晴昼/月夜、近远缩放、弹窗遮挡、长文本、加载失败、减少动画、后台恢复和设备性能由用户人工检查；未提供设备测量前不承诺“手机稳定60fps”。
 
+### 连续地面与镜头适配迭代（2026-11-17）
+
+针对主城看起来过小、像孤立小岛的问题，场景改为 320×320 的连续平地，四条石路从城心分别向南北东西延伸至周边平地；场景几何和人物组统一使用 1.1 世界缩放。正交相机默认缩放设为 1.15；视口变窄时按高度与相机俯角动态计算最小缩放，确保完整山门和连续地面仍可见，最大缩放为 2。此调整只改变演出空间与相机，不改变建筑 ID 或玩法状态。
+
+人物接地使用缩放后的场景组做向下射线采样，再将命中高度换回人物局部世界尺度；射线起点与最远距离同步按 1.1 缩放，避免固定射线长度在缩放后提前终止。对应回归检查全部16个常驻锚点及周边采样点落在地面，且不被建筑或石灯抬高。
+
+本轮最新验证：
+
+- `node --test tests/city-scene.test.mjs tests/scene-gestures.test.mjs tests/city-sprites.test.mjs tests/asset-paths.test.mjs tests/game-store.test.mjs tests/sect-management.test.mjs`：56/56通过。
+- `npm run build`：退出码0，类型检查与 Vite 构建成功。异步 `cityScene` chunk 为552.24 kB（gzip 141.12 kB），高于500 kB建议阈值，作为后续体积优化提醒。
+- `git diff --check`：退出码0。
+- `city-scene.test.mjs` 通过几何与相机投影断言：16:9 和窄屏比例下，缩放与平移边界处视口四角均命中连续地面；四向道路在城外采样点仍高于地面。此验证不是浏览器渲染或视觉验收；桌面/390px构图、地面与道路观感由用户人工检查。
+
 ## 8. 源码索引
 
 - **S1**：[渲染、灯光、后期、相机与释放](https://github.com/mewamew/my_ai_town/blob/5ddc1a37d287bbc32232ab27cbbfd59ac188ccf1/frontend/town-2d/src/map/hd2d/scene.ts#L173)。关键行：创建渲染器173、后期191、相机303、光照2671、尺寸3067、释放3087。

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { buildCityEnvironment } from './cityBuildings'
+import { buildCityEnvironment, CITY_WORLD_SCALE } from './cityBuildings'
 import { CITY_BUILDINGS, clampCityCamera, type CityActor, type CameraPose } from './cityModel'
 import { createCityActors } from './pixelSprites'
 import { createScenePost } from './postprocessing'
@@ -26,10 +26,10 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
   const scene = new THREE.Scene()
   const camera = new THREE.OrthographicCamera(-25, 25, 18, -18, .1, 150)
   const sun = new THREE.DirectionalLight('#fff1d1', 2.7)
-  sun.position.set(-20, 32, 14)
+  sun.position.set(-22, 35, 15)
   sun.castShadow = true
   sun.shadow.mapSize.set(1024, 1024)
-  Object.assign(sun.shadow.camera, { left: -27, right: 27, top: 25, bottom: -25, near: 1, far: 90 })
+  Object.assign(sun.shadow.camera, { left: -32, right: 32, top: 29, bottom: -29, near: 1, far: 100 })
   sun.shadow.normalBias = .05
   scene.add(sun, sun.target)
   const sky = new THREE.HemisphereLight('#e5f0df', '#344a44', 2.1)
@@ -37,18 +37,20 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
   let world: ReturnType<typeof buildCityEnvironment>
   try { world = buildCityEnvironment() }
   catch (error) { renderer.dispose(); renderer.forceContextLoss(); throw error }
+  world.group.scale.setScalar(CITY_WORLD_SCALE)
   for (const [id, building] of world.buildings) building.userData = { kind: 'building', id }
   scene.add(world.group)
   world.group.updateMatrixWorld(true)
   const sprites = createCityActors(options.imageFailure, request)
+  sprites.group.scale.setScalar(CITY_WORLD_SCALE)
   scene.add(sprites.group)
   const post = createScenePost()
   const gestures = new SceneGestures()
   const abort = new AbortController()
   const raycaster = new THREE.Raycaster()
-  const groundRay = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), .001, 2)
+  const groundRay = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), .001, 3 * CITY_WORLD_SCALE)
   const center = new THREE.Vector3()
-  let pose: CameraPose = { x: 0, z: 0, zoom: 1 }
+  let pose: CameraPose = { x: 0, z: 0, zoom: 1.15 }
   let width = 1, height = 1, frame = 0, disposed = false, interrupted = false, reduced = false, depth = false
   let actorData: CityActor[] = []
   let lastLabels = ''
@@ -59,18 +61,22 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
     camera.left = -span * width / height / 2
     camera.right = -camera.left
     camera.top = span / 2; camera.bottom = -span / 2
-    camera.zoom = pose.zoom
     center.set(pose.x, 0, pose.z)
     // 固定方位和俯角；仅平移与缩放，所有贴图共享同一空间投影。
     camera.position.copy(center).add(new THREE.Vector3(27, 32, 38))
     camera.lookAt(center)
+    const upY = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).y
+    const minimumZoom = Math.max(.75, span * upY / (2 * (camera.position.y + 0.08 * CITY_WORLD_SCALE)))
+    pose = clampCityCamera(pose, minimumZoom)
+    camera.zoom = pose.zoom
     camera.updateProjectionMatrix(); camera.updateMatrixWorld()
     request()
   }
 
   function labels() {
     const items = CITY_BUILDINGS.map(building => {
-      const point = new THREE.Vector3(building.x, 1.4, building.z + building.depth / 2 + .6).project(camera)
+      const point = new THREE.Vector3(building.x * CITY_WORLD_SCALE, 1.4 * CITY_WORLD_SCALE,
+        (building.z + building.depth / 2 + .6) * CITY_WORLD_SCALE).project(camera)
       return { id: building.id, x: (point.x + 1) * width / 2, y: (1 - point.y) * height / 2,
         visible: point.z >= -1 && point.z <= 1 && Math.abs(point.x) < 1.1 && Math.abs(point.y) < 1.1 }
     })
@@ -161,14 +167,14 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
   observer.observe(container)
   updateCamera()
 
-  function reset() { pose = { x: 0, z: 0, zoom: 1 }; updateCamera() }
+  function reset() { pose = { x: 0, z: 0, zoom: 1.15 }; updateCamera() }
   return {
     updateActors(actors: CityActor[]) {
       actorData = actors
       sprites.sync(actors, camera, (x, z) => {
         // 人物锚点限定在道路与广场，按实际台面高度接地，不把脚埋入石径。
-        groundRay.ray.origin.set(x, 1, z)
-        return groundRay.intersectObject(world.group, true)[0]?.point.y ?? .04
+        groundRay.ray.origin.set(x * CITY_WORLD_SCALE, 2 * CITY_WORLD_SCALE, z * CITY_WORLD_SCALE)
+        return (groundRay.intersectObject(world.group, true)[0]?.point.y ?? .04) / CITY_WORLD_SCALE
       })
       request()
     },

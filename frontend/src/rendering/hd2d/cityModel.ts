@@ -69,10 +69,10 @@ export function projectCityActors(
 }
 
 /** 相机偏移与缩放仅影响画面，不写回存档。 */
-export function clampCityCamera(pose: CameraPose): CameraPose {
+export function clampCityCamera(pose: CameraPose, minimumZoom = .75): CameraPose {
   return {
     x: Math.max(-16, Math.min(16, pose.x)),
     z: Math.max(-12, Math.min(12, pose.z)),
-    zoom: Math.max(.75, Math.min(2, pose.zoom)),
+    zoom: Math.max(minimumZoom, Math.min(2, pose.zoom)),
   }
 }

@@ -4,6 +4,7 @@ import { CITY_BUILDINGS } from './cityModel'
 
 type Building = (typeof CITY_BUILDINGS)[number]
 type Surface = 'jade' | 'stone' | 'wood' | 'roof' | 'grass'
+export const CITY_WORLD_SCALE = 1.1
 
 const PALETTES: Record<Surface, readonly string[]> = {
   jade: ['#e2e2ca', '#d2d7bd', '#f2efda', '#bcc7ad'],
@@ -71,6 +72,7 @@ class CityBuilder {
   readonly group = new THREE.Group()
   readonly buildings = new Map<string, THREE.Group>()
   readonly lamps: THREE.Mesh[] = []
+  worldGround!: THREE.Mesh<THREE.BufferGeometry, THREE.Material>
   private readonly geometries = new Set<THREE.BufferGeometry>()
   private readonly materials = new Set<THREE.Material>()
   private readonly textures = new Set<THREE.Texture>()
@@ -268,10 +270,12 @@ class CityBuilder {
   }
 
   private ground() {
-    const rock = this.cylinder(this.group, 19, 13.5, 4.6, 0, -2.5, 0, this.surfaces.stone, 16)
-    rock.scale.z = 0.74
-    const meadow = this.cylinder(this.group, 19.2, 18.8, 0.32, 0, -0.12, 0, this.surfaces.grass, 16)
-    meadow.scale.z = 0.74
+    this.surfaces.grass.map!.repeat.set(8, 8)
+    this.worldGround = this.mesh(this.group, this.geometry(new THREE.PlaneGeometry(320, 320)), this.surfaces.grass, 0, -0.08, 0)
+    this.worldGround.rotation.x = -Math.PI / 2
+    this.worldGround.castShadow = false
+    this.worldGround.receiveShadow = true
+    this.worldGround.userData.worldGround = true
     this.box(this.group, 11, 0.12, 7, 0, 0.05, 1.8, this.surfaces.jade)
     const seal = this.cylinder(this.group, 1.8, 1.8, 0.035, 0, 0.13, 1.8, this.dark, 24)
     this.cylinder(this.group, 1.64, 1.64, 0.04, 0, 0.15, 1.8, this.surfaces.jade, 24)
@@ -282,11 +286,27 @@ class CityBuilder {
       const path = this.box(this.group, 1.45, 0.09, Math.hypot(dx, dz), dx / 2, 0.04, 1.8 + dz / 2, this.surfaces.jade)
       path.rotation.y = Math.atan2(dx, dz)
     }
+    for (const [x, z, rotation] of [[0, -42, 0], [0, 43, 0], [-42, 1.8, Math.PI / 2], [42, 1.8, Math.PI / 2]]) {
+      const road = this.box(this.group, 1.65, 0.09, 72, x, -0.005, z, this.surfaces.jade)
+      road.rotation.y = rotation
+    }
     for (let i = 0; i < 22; i++) {
       const angle = i * 2.39996
       const x = Math.cos(angle) * (15 + (i % 3)), z = Math.sin(angle) * (9.4 + (i % 2))
       if (CITY_BUILDINGS.some(b => Math.abs(x - b.x) < b.width / 2 + 1.1 && Math.abs(z - b.z) < b.depth / 2 + 1.1)) continue
       this.tree(x, z, i)
+    }
+    const groves = [[-25, -18], [25, -19], [-25, 20], [25, 21]] as const
+    for (const [groveIndex, [cx, cz]] of groves.entries()) {
+      for (let i = 0; i < 7; i++) {
+        const angle = i * 2.39996 + groveIndex * 0.7
+        const radius = 2.3 + (i % 3) * 1.25
+        const x = cx + Math.cos(angle) * radius
+        const z = cz + Math.sin(angle) * radius
+        if (Math.abs(x) < 3.2 || Math.abs(z - 1.8) < 3.2) continue
+        if (CITY_BUILDINGS.some(building => Math.abs(x - building.x) < building.width / 2 + 1 && Math.abs(z - building.z) < building.depth / 2 + 1)) continue
+        this.tree(x, z, 22 + groveIndex * 7 + i)
+      }
     }
     for (const side of [-1, 1]) for (const z of [-1.6, 5.2]) {
       const x = side * 5.3
@@ -320,7 +340,7 @@ class CityBuilder {
     const buckets = new Map<THREE.Material, THREE.BufferGeometry[]>()
     const originals: THREE.Mesh[] = []
     parent.traverse(object => {
-      if (!(object instanceof THREE.Mesh) || object.userData.cityLamp || Array.isArray(object.material)) return
+      if (!(object instanceof THREE.Mesh) || object.userData.cityLamp || object.userData.worldGround || Array.isArray(object.material)) return
       const geometry = (object.geometry.index ? object.geometry.toNonIndexed() : object.geometry.clone())
         .applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse, object.matrixWorld))
       const list = buckets.get(object.material) ?? []
@@ -354,7 +374,7 @@ class CityBuilder {
       this.compact(group)
       this.buildings.set(building.id, group)
     }
-    return { group: this.group, buildings: this.buildings, lamps: this.lamps, dispose: () => this.dispose() }
+    return { group: this.group, buildings: this.buildings, lamps: this.lamps, ground: this.worldGround, dispose: () => this.dispose() }
   }
 
   private dispose() {
