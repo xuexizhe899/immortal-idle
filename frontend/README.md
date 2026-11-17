@@ -52,7 +52,9 @@ frontend/
 
 常见修改入口：培养展示先看 `DiscipleTraining.vue` 和 `CodexPanel.vue`；培养规则、费用和预览真值在后端。物品图片先看 `ItemIcon.vue` 与 `assetPaths.ts`；真实物品效果在后端。战斗节奏和特效看 `rendering/`，胜负与每次行动来自后端战报。
 
-主城从 `rendering/hd2d/CityScene.vue` 宿主和 `cityScene.ts` 运行时开始看；`cityModel.ts` 维护纯视觉空间布局、真实弟子状态投影与相机范围，`cityBuildings.ts` 生成七建筑和地形，`pixelSprites.ts` 处理透明人物受光与遮挡，`sceneGestures.ts` 区分点击、拖动和双指操作，`postprocessing.ts` 提供可关闭的轻景深。`CityView.vue` 从当前响应组装只读输入，场景只返回点击 ID，不读 store、请求接口或计算产出；Three.js 对象不进入游戏状态。
+主城从 `rendering/hd2d/CityScene.vue` 宿主和 `cityScene.ts` 运行时开始看；`cityModel.ts` 维护广场边界、外围建筑与入口路径、真实弟子状态投影和相机范围，`cityBuildings.ts` 生成七建筑和地形，`cityMotion.ts` 根据 ID 与演出时间计算广场短路停走，`pixelSprites.ts` 处理透明人物受光、遮挡和保留实体的逐帧移动，`sceneGestures.ts` 区分点击、拖动和双指操作，`postprocessing.ts` 提供可关闭的轻景深。`CityView.vue` 从当前响应组装只读输入，场景只返回点击 ID，不读 store、请求接口或计算产出；Three.js 对象不进入游戏状态。
+
+中央广场为 26×22，入口石路接到广场边缘；默认看城心，外围建筑通过拖动巡视。闲置无伤者以已有单幅立绘巡游，值守、受伤与减少动态效果时驻足；后台暂停演出时钟，恢复后不补跑。代码移动复用已有 ID、纹理和几何，阴影同步贴地；没有新增行走帧、骨骼或生图资产。
 
 ### 状态、展示、演出的分工
 
@@ -106,8 +108,9 @@ presentation（文案、资源） / rendering（播放、特效）
 | `store-harness.mjs` | 加载实际 client/store、构造隔离响应和模拟输入的测试支架，不是正式游戏数据。 |
 | `asset-paths.test.mjs` | 资源键解析、物品注册表、固定出征图片与本地文件对应关系。 |
 | `battle-playback.test.mjs` | 战报事件选择、播放状态还原及相关展示行为。 |
-| `city-scene.test.mjs` | 主城弟子状态投影、显示人数及相机范围。 |
-| `city-sprites.test.mjs` | 透明像素拾取、脚底深度、图片异步重绘、共享资源释放及卸载后的迟到回调。 |
+| `city-scene.test.mjs` | 主城状态投影、显示人数、相机范围、广场留白与入口道路的几何检查。 |
+| `city-motion.test.mjs` | 巡游停走的连续性、ID错峰、静止条件及真实广场地表上的路线范围。 |
+| `city-sprites.test.mjs` | 透明像素拾取、脚底深度、移动时资源复用与阴影、图片异步重绘、共享资源释放及卸载后的迟到回调。 |
 | `scene-gestures.test.mjs` | 点击、拖动、双指缩放与取消手势的区分。 |
 
 玩法算法、保存与接口回归位于 `backend/tests/`；资产生成与内容校验测试位于 `tools/tests/`。不要在前端测试里复制服务端伤害或收益算法。

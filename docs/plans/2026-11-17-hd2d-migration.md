@@ -133,6 +133,21 @@ frontend/src/rendering/hd2d/
 - `git diff --check`：退出码0。
 - `city-scene.test.mjs` 通过几何与相机投影断言：16:9 和窄屏比例下，缩放与平移边界处视口四角均命中连续地面；四向道路在城外采样点仍高于地面。此验证不是浏览器渲染或视觉验收；桌面/390px构图、地面与道路观感由用户人工检查。
 
+### 广场扩宽与人物巡游迭代（2026-11-17）
+
+中央广场从 11×7 扩为 `CITY_PLAZA` 定义的 26×22，七栋建筑退到广场外围，入口道路按 `CITY_BUILDING_PATHS` 接入广场边缘，南侧工坊绕外侧回接，保留开阔城心。默认视野继续使用 1.15 缩放，先看广场，外围建筑通过拖动巡视；底栏保持全部功能入口可达。空间布局仍是前端纯视觉数据，没有新增玩法规则或存档字段。
+
+本段更新前述首版固定驻足的表现：新增 `cityMotion.ts`，闲置且无伤的常驻弟子沿广场内 3.6×2 的短矩形路线低速停走，速度为每秒0.55–0.71个布局单位，人物 ID 决定错峰节奏；值守者与伤员在锚点驻足。减少动态效果时回到锚点静止，进入后台时暂停场景演出时钟，回来不追赶离开的时间。该运动不请求接口、不消费玩法 RNG，不改变岗位、收益或出征状态。
+
+`cityScene.ts` 根据当前巡游位置向实际地表采样接地高度，`pixelSprites.ts` 在逐帧移动中保留已创建的人物 ID、纹理与几何，接地阴影同步位置和高度，轻微起伏只作用于人物。复用现有单幅站姿，没有制作四向行走帧、骨骼或新增生图资产；代码能够移动不等于行走帧美术已完成。
+
+本轮验证：
+
+- 前端执行 `node --test tests/city-motion.test.mjs tests/city-scene.test.mjs tests/city-sprites.test.mjs tests/scene-gestures.test.mjs tests/asset-paths.test.mjs`：33/33通过，覆盖广场留白与入口道路、巡游连续性和静止条件、ID错峰、路线接地、移动资源复用与阴影同步。
+- `npm run build`：退出码0，类型检查与Vite构建通过；异步 `cityScene` chunk为554.04 kB，gzip141.89 kB，仍触发500 kB建议阈值提示。
+- 仓库根目录执行 `backend\.venv\Scripts\python.exe tools/check_rng_usage.py`、`git diff --check`：均退出码0。
+- 逐帧巡游接地仅查询广场的三个可行走表面，测试确认其高度与全场景采样一致；值守人物在位置或状态更新时采样全场景。未运行浏览器或视觉验收，桌面与390px构图、人物位移观感及遮挡仍由用户人工检查。
+
 ## 8. 源码索引
 
 - **S1**：[渲染、灯光、后期、相机与释放](https://github.com/mewamew/my_ai_town/blob/5ddc1a37d287bbc32232ab27cbbfd59ac188ccf1/frontend/town-2d/src/map/hd2d/scene.ts#L173)。关键行：创建渲染器173、后期191、相机303、光照2671、尺寸3067、释放3087。

@@ -16,21 +16,34 @@ export interface CameraPose {
   zoom: number
 }
 
+export const CITY_PLAZA = { x: 0, z: 1.8, width: 26, depth: 22 } as const
+
 export const CITY_BUILDINGS = [
-  { id: 'main_hall', panel: 'sect', x: 0, z: -7, width: 9, depth: 6 },
-  { id: 'library', panel: 'codex', x: -10, z: -6, width: 6, depth: 5 },
-  { id: 'dock', panel: 'expedition', x: 12, z: -6, width: 7, depth: 5 },
-  { id: 'drill', panel: 'duty', x: -11, z: 3, width: 7, depth: 6 },
-  { id: 'tower', panel: 'tower', x: 11, z: 3, width: 4, depth: 4 },
-  { id: 'forge', panel: 'forge', x: -5, z: 9, width: 5, depth: 4 },
-  { id: 'alchemy', panel: 'alchemy', x: 5, z: 9, width: 5, depth: 4 },
+  { id: 'main_hall', panel: 'sect', x: 0, z: -18, width: 9, depth: 6 },
+  { id: 'library', panel: 'codex', x: -19, z: -15, width: 6, depth: 5 },
+  { id: 'dock', panel: 'expedition', x: 20, z: -15, width: 7, depth: 5 },
+  { id: 'drill', panel: 'duty', x: -23, z: 4, width: 7, depth: 6 },
+  { id: 'tower', panel: 'tower', x: 23, z: 4, width: 4, depth: 4 },
+  { id: 'forge', panel: 'forge', x: -14, z: 22, width: 5, depth: 4 },
+  { id: 'alchemy', panel: 'alchemy', x: 14, z: 22, width: 5, depth: 4 },
+] as const
+
+// 门路停在广场边缘，南侧工坊从外侧绕回，避免穿过屋身和台阶。
+export const CITY_BUILDING_PATHS = [
+  { id: 'main_hall', points: [[0, -13.6], [0, -9.2]] },
+  { id: 'library', points: [[-19, -11.1], [-19, -6], [-13, -6]] },
+  { id: 'dock', points: [[20, -11.1], [20, -6], [13, -6]] },
+  { id: 'drill', points: [[-23, 8.4], [-18, 8.4], [-13, 8.4]] },
+  { id: 'tower', points: [[23, 7.4], [18, 7.4], [13, 7.4]] },
+  { id: 'forge', points: [[-14, 25.4], [-18.5, 25.4], [-18.5, 12.8], [-10, 12.8]] },
+  { id: 'alchemy', points: [[14, 25.4], [18.5, 25.4], [18.5, 12.8], [10, 12.8]] },
 ] as const
 
 const IDLE_POSITIONS = [
-  [-4, -1], [-1, 0], [3, -1], [6, 1],
-  [-5, 3], [-2, 4], [2, 3], [4, 4],
-  [-4, 6], [0, 6], [2, 5.5], [7, 6],
-  [-6.5, 0], [7, -2], [-2, -2.3], [2, -2.3],
+  [-8, -5], [-3, -5], [3, -5], [8, -5],
+  [-8, -1], [-3, -1], [3, -1], [8, -1],
+  [-8, 3], [-3, 3], [3, 3], [8, 3],
+  [-8, 7], [-3, 7], [3, 7], [8, 7],
 ] as const
 
 /** 只投影当前存档中的常驻弟子；出征和驻守者不会同时出现在宗门。 */
@@ -57,7 +70,7 @@ export function projectCityActors(
     const duty = duties.has(disciple.id)
     const index = duty ? dutyIndex++ : idleIndex++
     const [x, z] = duty
-      ? [-13.2 + index % 4 * 1.5, 6.4 + Math.floor(index / 4) * 1.2]
+      ? [-26.5 + index % 4 * 2, 9.5 + Math.floor(index / 4) * 1.8]
       : IDLE_POSITIONS[index]!
     return {
       id: disciple.id,

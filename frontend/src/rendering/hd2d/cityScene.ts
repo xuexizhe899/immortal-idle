@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { buildCityEnvironment, CITY_WORLD_SCALE } from './cityBuildings'
-import { CITY_BUILDINGS, clampCityCamera, type CityActor, type CameraPose } from './cityModel'
+import { CITY_BUILDINGS, CITY_PLAZA, clampCityCamera, type CityActor, type CameraPose } from './cityModel'
+import { sampleCityMotion } from './cityMotion'
 import { createCityActors } from './pixelSprites'
 import { createScenePost } from './postprocessing'
 import { SceneGestures } from './sceneGestures'
@@ -53,10 +54,12 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
   let pose: CameraPose = { x: 0, z: 0, zoom: 1.15 }
   let width = 1, height = 1, frame = 0, disposed = false, interrupted = false, reduced = false, depth = false
   let actorData: CityActor[] = []
+  let motionSeconds = 0, lastDraw: number | undefined
+  const groundHeights = new Map<string, { x: number; z: number; height: number }>()
   let lastLabels = ''
 
   function updateCamera() {
-    // 窄屏仍先展示整座山门；放大后再拖动巡视局部。
+    // 先保留开阔城心的近景，外围建筑通过拖动巡视。
     const span = Math.max(35, 43 * height / width)
     camera.left = -span * width / height / 2
     camera.right = -camera.left
@@ -87,9 +90,16 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
   function draw(now: number) {
     frame = 0
     if (disposed || interrupted || document.hidden) return
+    if (!reduced && lastDraw !== undefined) motionSeconds += Math.min(.05, Math.max(0, (now - lastDraw) / 1000))
+    lastDraw = reduced ? undefined : now
     for (const actor of actorData) {
-      const mesh = sprites.actors.get(actor.id)
-      if (mesh) mesh.position.y = mesh.userData.groundY + (reduced ? 0 : Math.sin(now / 950 + actor.x * 2) * .018)
+      const position = sampleCityMotion(actor, motionSeconds, reduced)
+      let ground = groundHeights.get(actor.id)
+      if (!ground || ground.x !== position.x || ground.z !== position.z) {
+        ground = { x: position.x, z: position.z, height: groundAt(position.x, position.z) }
+        groundHeights.set(actor.id, ground)
+      }
+      sprites.move(actor.id, position, ground.height)
     }
     if (depth) post.render(renderer, scene, camera, center)
     else renderer.render(scene, camera)
@@ -97,6 +107,14 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
     if (!reduced) request()
   }
   function request() { if (!disposed && !interrupted && !frame && !document.hidden) frame = requestAnimationFrame(draw) }
+
+  function groundAt(x: number, z: number) {
+    // 采样当前位置的台面，人物与阴影共用高度，走过广场纹章时仍贴地。
+    groundRay.ray.origin.set(x * CITY_WORLD_SCALE, 2 * CITY_WORLD_SCALE, z * CITY_WORLD_SCALE)
+    const inPlaza = Math.abs(x - CITY_PLAZA.x) <= CITY_PLAZA.width / 2 && Math.abs(z - CITY_PLAZA.z) <= CITY_PLAZA.depth / 2
+    const hits = inPlaza ? groundRay.intersectObjects(world.plazaSurfaces) : groundRay.intersectObject(world.group, true)
+    return (hits[0]?.point.y ?? .04) / CITY_WORLD_SCALE
+  }
 
   function pan(dx: number, dy: number) {
     const unit = (camera.top - camera.bottom) / height / pose.zoom
@@ -153,6 +171,7 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
     else if (event.key === 'Home') { event.preventDefault(); reset() }
   }, listen)
   document.addEventListener('visibilitychange', () => {
+    lastDraw = undefined
     if (document.hidden) { cancelAnimationFrame(frame); frame = 0; gestures.cancel() }
     else request()
   }, listen)
@@ -171,11 +190,8 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
   return {
     updateActors(actors: CityActor[]) {
       actorData = actors
-      sprites.sync(actors, camera, (x, z) => {
-        // 人物锚点限定在道路与广场，按实际台面高度接地，不把脚埋入石径。
-        groundRay.ray.origin.set(x * CITY_WORLD_SCALE, 2 * CITY_WORLD_SCALE, z * CITY_WORLD_SCALE)
-        return (groundRay.intersectObject(world.group, true)[0]?.point.y ?? .04) / CITY_WORLD_SCALE
-      })
+      groundHeights.clear()
+      sprites.sync(actors, camera, groundAt)
       request()
     },
     updateLighting(light: SceneLighting) {
@@ -193,12 +209,15 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
       }
       request()
     },
-    setPreferences(preferences: { reduced: boolean; depth: boolean }) { reduced = preferences.reduced; depth = preferences.depth; request() },
+    setPreferences(preferences: { reduced: boolean; depth: boolean }) {
+      reduced = preferences.reduced; depth = preferences.depth; lastDraw = undefined; request()
+    },
     reset,
     zoom,
     dispose() {
       if (disposed) return
       disposed = true; cancelAnimationFrame(frame); observer.disconnect(); abort.abort(); gestures.cancel()
+      groundHeights.clear()
       sprites.dispose(); world.dispose(); post.dispose()
       sun.shadow.dispose(); renderer.dispose(); renderer.forceContextLoss(); canvas.remove()
     },

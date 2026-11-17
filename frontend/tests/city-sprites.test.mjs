@@ -95,11 +95,13 @@ test('a ray through transparent art continues behind the sprite while an opaque 
   assert.ok(Number.isFinite(f.sprites.hitDepth(rayHit(f.sprites, camera, 'disciple', .75, .6), camera)))
 })
 
-test('opaque sprite picking follows the foot depth and remains finite at a steep camera angle', t => {
+test('opaque sprite picking follows the scaled foot depth and remains finite at a steep camera angle', t => {
   const f = fixture(t)
-  for (const camera of [cameraAt(), cameraAt(0, 20, 0)]) {
+  for (const scale of [1, 1.1]) for (const camera of [cameraAt(), cameraAt(0, 20, 0)]) {
+    f.sprites.group.scale.setScalar(scale)
     f.sprites.sync([actor('disciple')], camera)
     if (!f.loaded) f.load('/shared.png')
+    f.sprites.move('disciple', { x: 2, z: -3, bob: .02 }, .17)
     const mesh = f.sprites.actors.get('disciple')
     const hit = rayHit(f.sprites, camera, 'disciple', .75, .8)
     const local = mesh.worldToLocal(hit.point.clone())
@@ -107,7 +109,7 @@ test('opaque sprite picking follows the foot depth and remains finite at a steep
     const forward = camera.getWorldDirection(new THREE.Vector3())
     const cameraUp = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1)
     const baseDepth = foot.sub(camera.position).dot(forward)
-    const expected = baseDepth + local.y * mesh.scale.y * forward.y / Math.max(Math.abs(cameraUp.y), .2)
+    const expected = baseDepth + local.y * mesh.scale.y * scale * forward.y / Math.max(Math.abs(cameraUp.y), .2)
     const depth = f.sprites.hitDepth(hit, camera)
 
     assert.ok(Number.isFinite(depth))
@@ -117,6 +119,38 @@ test('opaque sprite picking follows the foot depth and remains finite at a steep
     mesh.material.onBeforeCompile(shader)
     assert.match(shader.vertexShader, /foot\.z\s*\+=\s*rise\s*\*\s*up\.z\s*\/\s*max\(abs\(up\.y\),\s*0\.2\)/)
   }
+})
+
+test('moving a resident keeps its identity and resources while its contact shadow follows the new ground', t => {
+  const f = fixture(t)
+  const camera = cameraAt()
+  f.sprites.group.scale.setScalar(1.1)
+  f.sprites.sync([actor('moving'), { ...actor('stationary'), x: -4, z: 2 }], camera)
+  const texture = f.load('/shared.png', 4, 4, [0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255])
+  const mesh = f.sprites.actors.get('moving')
+  const stationary = f.sprites.actors.get('stationary')
+  const shadow = f.sprites.group.children.find(child => !child.userData.kind)
+  const geometry = mesh.geometry, material = mesh.material
+  const geometryDisposals = disposeCount(geometry), materialDisposals = disposeCount(material)
+  const stationaryPosition = stationary.position.clone()
+
+  f.sprites.move('moving', { x: 3.5, z: -1.5, bob: .04 }, .17)
+
+  assert.strictEqual(f.sprites.actors.get('moving'), mesh)
+  assert.equal(mesh.userData.id, 'moving')
+  assert.deepEqual(mesh.position.toArray(), [3.5, .17 + .025 + .04, -1.5])
+  assert.equal(mesh.userData.groundY, .17 + .025)
+  assert.deepEqual(shadow.position.toArray(), [3.5, .17 + .012, -1.5])
+  assert.deepEqual(stationary.position.toArray(), stationaryPosition.toArray())
+  assert.strictEqual(mesh.geometry, geometry)
+  assert.strictEqual(mesh.material, material)
+  assert.strictEqual(mesh.material.map, texture)
+  assert.equal(f.pending.length, 1, 'movement does not issue a new image request')
+  assert.deepEqual([geometryDisposals(), materialDisposals(), f.textureDisposals.get(texture)()], [0, 0, 0])
+  assert.equal(f.sprites.hitDepth(rayHit(f.sprites, camera, 'moving', .25, .6), camera), null)
+  const opaqueHit = rayHit(f.sprites, camera, 'moving', .75, .6)
+  assert.equal(opaqueHit.object.userData.id, 'moving')
+  assert.ok(Number.isFinite(f.sprites.hitDepth(opaqueHit, camera)))
 })
 
 test('asynchronous image completion requests a new draw and updates all cached sprite proportions', t => {

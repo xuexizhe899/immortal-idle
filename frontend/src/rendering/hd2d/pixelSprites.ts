@@ -23,15 +23,15 @@ export function createCityActors(onImageFailure: () => void, onImageLoaded: () =
   const actors = new Map<string, THREE.Mesh<THREE.PlaneGeometry, THREE.MeshLambertMaterial>>()
   const loader = new THREE.TextureLoader()
   let disposed = false
-  const shadows: THREE.Mesh[] = []
+  const shadows = new Map<string, THREE.Mesh>()
   const shadowGeometry = new THREE.CircleGeometry(.48, 16)
   const shadowMaterial = new THREE.MeshBasicMaterial({ color: '#223e35', transparent: true, opacity: .2, depthWrite: false })
 
   function sync(items: CityActor[], camera: THREE.Camera, groundAt: (x: number, z: number) => number = () => .015) {
     for (const mesh of actors.values()) { mesh.geometry.dispose(); mesh.material.dispose(); group.remove(mesh) }
     actors.clear()
-    for (const shadow of shadows) group.remove(shadow)
-    shadows.length = 0
+    for (const shadow of shadows.values()) group.remove(shadow)
+    shadows.clear()
     for (const actor of items) {
       if (!actor.image) continue
       let texture = textures.get(actor.image)
@@ -79,8 +79,17 @@ export function createCityActors(onImageFailure: () => void, onImageLoaded: () =
       shadow.scale.y = .5
       shadow.position.set(actor.x, groundY + .012, actor.z)
       group.add(shadow)
-      shadows.push(shadow)
+      shadows.set(actor.id, shadow)
     }
+  }
+
+  function move(id: string, pose: { x: number; z: number; bob: number }, groundY: number) {
+    const mesh = actors.get(id)
+    if (!mesh) return
+    mesh.position.set(pose.x, groundY + .025 + pose.bob, pose.z)
+    mesh.userData.groundY = groundY + .025
+    // 脚步起伏只作用于立牌，阴影继续落在移动位置的实际地表。
+    shadows.get(id)!.position.set(pose.x, groundY + .012, pose.z)
   }
 
   function hitDepth(hit: THREE.Intersection, camera: THREE.Camera) {
@@ -95,16 +104,16 @@ export function createCityActors(onImageFailure: () => void, onImageLoaded: () =
     const local = mesh.worldToLocal(hit.point.clone())
     const foot = new THREE.Vector3(local.x, 0, 0).applyMatrix4(mesh.matrixWorld).applyMatrix4(camera.matrixWorldInverse)
     const up = new THREE.Vector3(0, 1, 0).transformDirection(camera.matrixWorldInverse)
-    const rise = local.y * mesh.scale.y
+    const rise = new THREE.Vector3().setFromMatrixColumn(mesh.matrixWorld, 1).multiplyScalar(local.y).length()
     // 与 uprightDepth 同一投影，拾取顺序跟随画面中的站立深度。
     return -(foot.z + rise * up.z / Math.max(Math.abs(up.y), .2))
   }
 
-  return { group, actors, sync, hitDepth, dispose() {
+  return { group, actors, sync, move, hitDepth, dispose() {
     disposed = true
     for (const mesh of actors.values()) { mesh.geometry.dispose(); mesh.material.dispose() }
     for (const texture of textures.values()) texture.dispose()
     shadowGeometry.dispose(); shadowMaterial.dispose()
-    actors.clear(); textures.clear(); masks.clear(); group.clear()
+    actors.clear(); shadows.clear(); textures.clear(); masks.clear(); group.clear()
   } }
 }

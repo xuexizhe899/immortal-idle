@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
-import { CITY_BUILDINGS } from './cityModel'
+import { CITY_BUILDINGS, CITY_BUILDING_PATHS, CITY_PLAZA } from './cityModel'
 
 type Building = (typeof CITY_BUILDINGS)[number]
 type Surface = 'jade' | 'stone' | 'wood' | 'roof' | 'grass'
@@ -72,6 +72,7 @@ class CityBuilder {
   readonly group = new THREE.Group()
   readonly buildings = new Map<string, THREE.Group>()
   readonly lamps: THREE.Mesh[] = []
+  readonly plazaSurfaces: THREE.Mesh[] = []
   worldGround!: THREE.Mesh<THREE.BufferGeometry, THREE.Material>
   private readonly geometries = new Set<THREE.BufferGeometry>()
   private readonly materials = new Set<THREE.Material>()
@@ -251,6 +252,7 @@ class CityBuilder {
   private dock(parent: THREE.Object3D, building: Building) {
     const { width: w, depth: d } = building
     this.box(parent, w + 0.5, 0.34, d + 0.5, 0, 0.2, 0, this.surfaces.wood)
+    for (let step = 0; step < 3; step++) this.box(parent, w * 0.46, 0.12, 0.42, 0, 0.06 + step * 0.12, d / 2 + 1.03 - step * 0.35, this.surfaces.wood)
     for (const x of [-w * 0.46, w * 0.46]) for (const z of [-d * 0.45, d * 0.45]) this.cylinder(parent, 0.16, 0.2, 1.45, x, 0.12, z, this.surfaces.wood)
     const shelter = new THREE.Group()
     shelter.position.z = -d * 0.22
@@ -276,40 +278,56 @@ class CityBuilder {
     this.worldGround.castShadow = false
     this.worldGround.receiveShadow = true
     this.worldGround.userData.worldGround = true
-    this.box(this.group, 11, 0.12, 7, 0, 0.05, 1.8, this.surfaces.jade)
-    const seal = this.cylinder(this.group, 1.8, 1.8, 0.035, 0, 0.13, 1.8, this.dark, 24)
-    this.cylinder(this.group, 1.64, 1.64, 0.04, 0, 0.15, 1.8, this.surfaces.jade, 24)
+    const plaza = this.box(this.group, CITY_PLAZA.width, 0.12, CITY_PLAZA.depth, CITY_PLAZA.x, 0.05, CITY_PLAZA.z, this.surfaces.jade)
+    const seal = this.cylinder(this.group, 1.8, 1.8, 0.035, CITY_PLAZA.x, 0.13, CITY_PLAZA.z, this.dark, 24)
+    const crest = this.cylinder(this.group, 1.64, 1.64, 0.04, CITY_PLAZA.x, 0.15, CITY_PLAZA.z, this.surfaces.jade, 24)
+    // 巡游只需查询这三块台面，保留独立几何避免每帧遍历建筑与树冠。
+    for (const surface of [plaza, seal, crest]) {
+      surface.userData.plazaSurface = true
+      this.plazaSurfaces.push(surface)
+    }
     seal.receiveShadow = true
-    for (const building of CITY_BUILDINGS) {
-      const z = building.z + building.depth / 2 + 0.55
-      const dx = building.x, dz = z - 1.8
-      const path = this.box(this.group, 1.45, 0.09, Math.hypot(dx, dz), dx / 2, 0.04, 1.8 + dz / 2, this.surfaces.jade)
+    for (const route of CITY_BUILDING_PATHS) for (let index = 1; index < route.points.length; index++) {
+      const [x1, z1] = route.points[index - 1]!, [x2, z2] = route.points[index]!
+      const dx = x2 - x1, dz = z2 - z1
+      const path = this.box(this.group, 1.65, 0.09, Math.hypot(dx, dz) + 0.4, (x1 + x2) / 2, 0.04, (z1 + z2) / 2, this.surfaces.jade)
       path.rotation.y = Math.atan2(dx, dz)
     }
-    for (const [x, z, rotation] of [[0, -42, 0], [0, 43, 0], [-42, 1.8, Math.PI / 2], [42, 1.8, Math.PI / 2]]) {
-      const road = this.box(this.group, 1.65, 0.09, 72, x, -0.005, z, this.surfaces.jade)
+    for (const [x, z, length, rotation] of [[8.5, -44.6, 70.8, 0], [0, 46.4, 67.2, 0],
+      [-46.5, -1.5, 67, Math.PI / 2], [46.5, -1.5, 67, Math.PI / 2]]) {
+      const road = this.box(this.group, 1.65, 0.09, length, x, -0.005, z, this.surfaces.jade)
       road.rotation.y = rotation
     }
+    const clearForTree = (x: number, z: number) =>
+      !(Math.abs(x - CITY_PLAZA.x) < CITY_PLAZA.width / 2 + 2 && Math.abs(z - CITY_PLAZA.z) < CITY_PLAZA.depth / 2 + 2)
+      && !CITY_BUILDINGS.some(b => Math.abs(x - b.x) < b.width / 2 + 2 && Math.abs(z - b.z) < b.depth / 2 + 2)
+      && !(x > -29 && x < -18 && z > 8 && z < 17)
+      && !(Math.abs(x - 8.5) < 2 && z < -9.2) && !(Math.abs(x) < 2 && z > 12.8)
+      && !(Math.abs(z + 1.5) < 2 && Math.abs(x) > 13)
+      && !CITY_BUILDING_PATHS.some(route => route.points.slice(1).some(([x2, z2], index) => {
+        const [x1, z1] = route.points[index]!, dx = x2 - x1, dz = z2 - z1
+        const t = Math.max(0, Math.min(1, ((x - x1) * dx + (z - z1) * dz) / (dx * dx + dz * dz)))
+        return Math.hypot(x - x1 - t * dx, z - z1 - t * dz) < 2.2
+      }))
     for (let i = 0; i < 22; i++) {
       const angle = i * 2.39996
-      const x = Math.cos(angle) * (15 + (i % 3)), z = Math.sin(angle) * (9.4 + (i % 2))
-      if (CITY_BUILDINGS.some(b => Math.abs(x - b.x) < b.width / 2 + 1.1 && Math.abs(z - b.z) < b.depth / 2 + 1.1)) continue
+      const x = Math.cos(angle) * (32 + (i % 3)), z = Math.sin(angle) * (27 + (i % 2))
+      if (!clearForTree(x, z)) continue
       this.tree(x, z, i)
     }
-    const groves = [[-25, -18], [25, -19], [-25, 20], [25, 21]] as const
+    const groves = [[-33, -27], [33, -28], [-33, 28], [33, 29]] as const
     for (const [groveIndex, [cx, cz]] of groves.entries()) {
       for (let i = 0; i < 7; i++) {
         const angle = i * 2.39996 + groveIndex * 0.7
         const radius = 2.3 + (i % 3) * 1.25
         const x = cx + Math.cos(angle) * radius
         const z = cz + Math.sin(angle) * radius
-        if (Math.abs(x) < 3.2 || Math.abs(z - 1.8) < 3.2) continue
-        if (CITY_BUILDINGS.some(building => Math.abs(x - building.x) < building.width / 2 + 1 && Math.abs(z - building.z) < building.depth / 2 + 1)) continue
+        if (!clearForTree(x, z)) continue
         this.tree(x, z, 22 + groveIndex * 7 + i)
       }
     }
-    for (const side of [-1, 1]) for (const z of [-1.6, 5.2]) {
-      const x = side * 5.3
+    for (const side of [-1, 1]) for (const z of [-10.6, 14.2]) {
+      const x = side * 14.4
       this.box(this.group, 0.45, 0.22, 0.45, x, 0.18, z, this.surfaces.stone)
       this.box(this.group, 0.18, 0.7, 0.18, x, 0.62, z, this.surfaces.jade)
       this.box(this.group, 0.55, 0.38, 0.5, x, 1.14, z, this.dark)
@@ -340,7 +358,7 @@ class CityBuilder {
     const buckets = new Map<THREE.Material, THREE.BufferGeometry[]>()
     const originals: THREE.Mesh[] = []
     parent.traverse(object => {
-      if (!(object instanceof THREE.Mesh) || object.userData.cityLamp || object.userData.worldGround || Array.isArray(object.material)) return
+      if (!(object instanceof THREE.Mesh) || object.userData.cityLamp || object.userData.worldGround || object.userData.plazaSurface || Array.isArray(object.material)) return
       const geometry = (object.geometry.index ? object.geometry.toNonIndexed() : object.geometry.clone())
         .applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse, object.matrixWorld))
       const list = buckets.get(object.material) ?? []
@@ -374,7 +392,8 @@ class CityBuilder {
       this.compact(group)
       this.buildings.set(building.id, group)
     }
-    return { group: this.group, buildings: this.buildings, lamps: this.lamps, ground: this.worldGround, dispose: () => this.dispose() }
+    return { group: this.group, buildings: this.buildings, lamps: this.lamps, ground: this.worldGround,
+      plazaSurfaces: this.plazaSurfaces, dispose: () => this.dispose() }
   }
 
   private dispose() {
@@ -384,6 +403,7 @@ class CityBuilder {
     this.group.clear()
     this.buildings.clear()
     this.lamps.length = 0
+    this.plazaSurfaces.length = 0
   }
 }
 

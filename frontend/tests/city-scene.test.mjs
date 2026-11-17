@@ -6,13 +6,13 @@ import * as THREE from 'three'
 
 const source = await readFile(new URL('../src/rendering/hd2d/cityModel.ts', import.meta.url), 'utf8')
 const output = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
-const { clampCityCamera, projectCityActors } = await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`)
+const { CITY_BUILDINGS, CITY_BUILDING_PATHS, CITY_PLAZA, clampCityCamera, projectCityActors } = await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`)
 
 const disciple = (id, extra = {}) => ({ id, template_id: `template_${id}`, busy: false, injury_stacks: 0, ...extra })
 const describe = id => ({ name: `姓名:${id}`, image: `/assets/${id}.png` })
 const stateWith = disciples => ({ disciples, duty_slots: [], sects: [], active_run: null })
 
-test('all idle anchors remain on terrain clear of building and lamp geometry', async () => {
+test('all idle and duty anchors remain on terrain clear of building and lamp geometry', async () => {
   const buildingSource = await readFile(new URL('../src/rendering/hd2d/cityBuildings.ts', import.meta.url), 'utf8')
   const buildingOutput = ts.transpileModule(buildingSource, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
     .replace(/from '([^']+)'/g, (_match, specifier) => `from ${JSON.stringify(specifier === './cityModel'
@@ -25,7 +25,10 @@ test('all idle anchors remain on terrain clear of building and lamp geometry', a
   environment.group.scale.setScalar(CITY_WORLD_SCALE)
   try {
     environment.group.updateMatrixWorld(true)
-    const actors = projectCityActors(stateWith(Array.from({ length: 16 }, (_, index) => disciple(`idle${index}`))), describe)
+    const idleState = stateWith(Array.from({ length: 16 }, (_, index) => disciple(`idle${index}`)))
+    const dutyState = stateWith(Array.from({ length: 16 }, (_, index) => disciple(`duty${index}`)))
+    dutyState.duty_slots = dutyState.disciples.map(disciple => ({ disciple_id: disciple.id }))
+    const actors = [...projectCityActors(idleState, describe), ...projectCityActors(dutyState, describe)]
     const ray = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), .001, 3 * CITY_WORLD_SCALE)
     for (const actor of actors) for (const [dx, dz] of [[0, 0], [.35, 0], [-.35, 0], [0, .35], [0, -.35]]) {
       ray.ray.origin.set((actor.x + dx) * CITY_WORLD_SCALE, 2 * CITY_WORLD_SCALE, (actor.z + dz) * CITY_WORLD_SCALE)
@@ -37,6 +40,74 @@ test('all idle anchors remain on terrain clear of building and lamp geometry', a
       })?.[0]
       assert.ok(hit && hit.point.y <= .2 * CITY_WORLD_SCALE,
         `${actor.id} at ${actor.x},${actor.z} overlaps ${building ?? hit?.object.type} at height ${hit?.point.y}`)
+    }
+  } finally { environment.dispose() }
+})
+
+test('the whole central plaza stays paved and free from buildings and tall decorations', async () => {
+  const buildingSource = await readFile(new URL('../src/rendering/hd2d/cityBuildings.ts', import.meta.url), 'utf8')
+  const buildingOutput = ts.transpileModule(buildingSource, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
+    .replace(/from '([^']+)'/g, (_match, specifier) => `from ${JSON.stringify(specifier === './cityModel'
+      ? `data:text/javascript;base64,${Buffer.from(output).toString('base64')}` : import.meta.resolve(specifier))}`)
+  const { buildCityEnvironment } = await import(`data:text/javascript;base64,${Buffer.from(buildingOutput).toString('base64')}`)
+  const previousDocument = globalThis.document
+  globalThis.document = { createElement: () => ({ width: 0, height: 0, getContext: () => ({ fillStyle: '', fillRect() {} }) }) }
+  const environment = buildCityEnvironment()
+  globalThis.document = previousDocument
+  environment.group.updateMatrixWorld(true)
+  try {
+    const left = CITY_PLAZA.x - CITY_PLAZA.width / 2, right = CITY_PLAZA.x + CITY_PLAZA.width / 2
+    const back = CITY_PLAZA.z - CITY_PLAZA.depth / 2, front = CITY_PLAZA.z + CITY_PLAZA.depth / 2
+    assert.ok(CITY_PLAZA.width >= 26 && CITY_PLAZA.depth >= 22)
+    for (const [id, group] of environment.buildings) {
+      const box = new THREE.Box3().setFromObject(group)
+      assert.ok(box.max.x < left || box.min.x > right || box.max.z < back || box.min.z > front,
+        `${id} geometry leaves the whole plaza clear`)
+    }
+    const ray = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0))
+    for (let x = left + .5; x < right; x++) for (let z = back + .5; z < front; z++) {
+      ray.ray.origin.set(x, 20, z)
+      const hit = ray.intersectObject(environment.group, true)[0]
+      assert.ok(hit && hit.point.y >= .1 && hit.point.y <= .2, `clear paved plaza at ${x},${z}`)
+    }
+  } finally { environment.dispose() }
+})
+
+test('every building entrance has an unblocked paved route to the edge of the plaza', async () => {
+  const buildingSource = await readFile(new URL('../src/rendering/hd2d/cityBuildings.ts', import.meta.url), 'utf8')
+  const buildingOutput = ts.transpileModule(buildingSource, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
+    .replace(/from '([^']+)'/g, (_match, specifier) => `from ${JSON.stringify(specifier === './cityModel'
+      ? `data:text/javascript;base64,${Buffer.from(output).toString('base64')}` : import.meta.resolve(specifier))}`)
+  const { buildCityEnvironment } = await import(`data:text/javascript;base64,${Buffer.from(buildingOutput).toString('base64')}`)
+  const previousDocument = globalThis.document
+  globalThis.document = { createElement: () => ({ width: 0, height: 0, getContext: () => ({ fillStyle: '', fillRect() {} }) }) }
+  const environment = buildCityEnvironment()
+  globalThis.document = previousDocument
+  environment.group.updateMatrixWorld(true)
+  try {
+    const ray = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0))
+    assert.deepEqual(CITY_BUILDING_PATHS.map(path => path.id), CITY_BUILDINGS.map(building => building.id))
+    for (const route of CITY_BUILDING_PATHS) {
+      const building = CITY_BUILDINGS.find(building => building.id === route.id)
+      const [startX, startZ] = route.points[0], [endX, endZ] = route.points.at(-1)
+      assert.equal(startX, building.x)
+      assert.ok(Math.abs(startZ - (building.z + building.depth / 2 + 1.4)) < .001)
+      assert.ok(Math.abs(endX - CITY_PLAZA.x) <= CITY_PLAZA.width / 2 && Math.abs(endZ - CITY_PLAZA.z) <= CITY_PLAZA.depth / 2 + .001)
+      assert.ok(Math.abs(Math.abs(endX - CITY_PLAZA.x) - CITY_PLAZA.width / 2) < .001
+        || Math.abs(Math.abs(endZ - CITY_PLAZA.z) - CITY_PLAZA.depth / 2) < .001)
+      const points = [[startX, startZ - .25], ...route.points]
+      for (let index = 1; index < points.length; index++) {
+        const [x1, z1] = points[index - 1], [x2, z2] = points[index]
+        const samples = Math.ceil(Math.hypot(x2 - x1, z2 - z1) * 5)
+        for (let sample = 0; sample <= samples; sample++) {
+          const t = sample / samples
+          const x = x1 + (x2 - x1) * t, z = z1 + (z2 - z1) * t
+          ray.ray.origin.set(x, 20, z)
+          const hit = ray.intersectObject(environment.group, true)[0]
+          assert.ok(hit && hit.point.y > .02 && hit.point.y <= .2,
+            `${route.id} has an open paved path at ${x},${z}, height ${hit?.point.y}`)
+        }
+      }
     }
   } finally { environment.dispose() }
 })
@@ -98,8 +169,8 @@ test('stone paths continue from town into the open plain in all four directions'
   environment.group.updateMatrixWorld(true)
   try {
     const samples = [
-      ...[-16, -30, -52].map(z => [0, z]), ...[17, 30, 52].map(z => [0, z]),
-      ...[17, 30, 52].map(x => [x, 1.8]), ...[-17, -30, -52].map(x => [x, 1.8]),
+      ...[-16, -30, -52].map(z => [8.5, z]), ...[17, 30, 52].map(z => [0, z]),
+      ...[17, 30, 52].map(x => [x, -1.5]), ...[-17, -30, -52].map(x => [x, -1.5]),
     ]
     for (const [x, z] of samples) {
       const ray = new THREE.Raycaster(new THREE.Vector3(x * CITY_WORLD_SCALE, 4, z * CITY_WORLD_SCALE), new THREE.Vector3(0, -1, 0))
