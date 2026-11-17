@@ -50,12 +50,5 @@ export function useDayCycle() {
     ? now.value.getHours() + now.value.getMinutes() / 60
     : phases.find(phase => phase.id === selection.value)!.hour))
   const phaseName = computed(() => phases.find(phase => phase.id === lighting.value.phase)!.name)
-  const sceneStyle = computed(() => ({
-    '--day-brightness': String(lighting.value.brightness),
-    '--day-saturation': String(lighting.value.saturation),
-    '--night-opacity': String(lighting.value.night),
-    '--warm-opacity': String(lighting.value.warmth),
-    '--lantern-opacity': String(Math.min(1, lighting.value.night * 1.5)),
-  }))
-  return { selection, phaseName, sceneStyle }
+  return { selection, phaseName, lighting }
 }

@@ -1,6 +1,6 @@
 # 前端目录导航
 
-本目录是修仙放置游戏的 Vue 3 + TypeScript + Vite 前端，Pinia 组织客户端状态。玩法结算由后端负责，当前战斗演出使用 Vue、SVG 与 CSS；`package.json` 中保留的 PixiJS 依赖不代表当前战场使用 PixiJS。
+本目录是修仙放置游戏的 Vue 3 + TypeScript + Vite 前端，Pinia 组织客户端状态。主城使用 Three.js 构建固定斜俯视的 HD-2D 场景，Vue 保留面板、底栏和反馈。玩法结算由后端负责，当前战斗演出仍使用 Vue、SVG 与 CSS；`package.json` 中保留的 PixiJS 依赖不代表当前战场使用 PixiJS。
 
 开始修改前阅读仓库根目录的 [AGENTS.md](../AGENTS.md) 和 [ARCHITECTURE.md](../ARCHITECTURE.md)。人物、场景及资产制作另见 [ART_DIRECTION.md](../ART_DIRECTION.md)。本页帮助定位文件，不替代这些规范。
 
@@ -37,7 +37,7 @@ frontend/
 | `generated/` | `api.d.ts` 是从后端 OpenAPI 生成的类型，禁止手改。类型源头是后端 Pydantic，不能在页面再手写一套同构 DTO。 |
 | `components/` | 只按 `ui/` 与 `game/` 放组件，具体职责见下表；不要继续新增平铺组件。 |
 | `presentation/` | 纯展示转换。`gameText.ts` 处理游戏名词和效果说明；`assetPaths.ts` 统一将人物资源键、场景路径、物品和敌人 ID 解析为本地资源 URL。不得请求接口、读 store、操作 DOM 或重算游戏结果。 |
-| `rendering/` | 视觉生命周期和演出。`BattleStage.vue`、`battlePlayback.ts` 播放真实战报；`EnemyFigure.vue`、`SkillVfx.vue` 表现敌人和技能；`CityAtmosphere.vue`、`dayCycle.ts` 处理主城环境。计时器和监听器在这一层释放，播放游标不作为游戏进度。 |
+| `rendering/` | 视觉生命周期和演出。`hd2d/` 承担主城场景、相机、建筑、人物立牌及轻景深；`BattleStage.vue`、`battlePlayback.ts` 播放真实战报；`EnemyFigure.vue`、`SkillVfx.vue` 表现敌人和技能；`dayCycle.ts` 提供视觉天色。计时器和监听器在这一层释放，播放游标不作为游戏进度。 |
 | `shared/` | 无游戏业务含义的基础函数，当前为 `format.ts` 数值格式化；只依赖标准库，不依赖 Vue、游戏类型、store 或浏览器存储。 |
 | `assets/` | 由 Vite import 管理的界面素材。当前仍有 `vue.svg`、`vite.svg`、`hero.png` 等脚手架遗留文件，不是人物立绘或主城素材的正式目录，不因整理文档而删除。 |
 
@@ -51,6 +51,8 @@ frontend/
 设施经营由 `components/game/FacilitiesSection.vue` 嵌入主殿，队伍补炼疗伤由 `PartyHealing.vue` 在问道和远行整备中复用；预览、消耗和收益以服务端响应为准。`ExpeditionPanel.vue` 展示固定外宗目标与最多三人的驻守编制，`CraftPanel.vue` 使用真实配方预览实现批量、品级与升级，不在客户端模拟扣料。
 
 常见修改入口：培养展示先看 `DiscipleTraining.vue` 和 `CodexPanel.vue`；培养规则、费用和预览真值在后端。物品图片先看 `ItemIcon.vue` 与 `assetPaths.ts`；真实物品效果在后端。战斗节奏和特效看 `rendering/`，胜负与每次行动来自后端战报。
+
+主城从 `rendering/hd2d/CityScene.vue` 宿主和 `cityScene.ts` 运行时开始看；`cityModel.ts` 维护纯视觉空间布局、真实弟子状态投影与相机范围，`cityBuildings.ts` 生成七建筑和地形，`pixelSprites.ts` 处理透明人物受光与遮挡，`sceneGestures.ts` 区分点击、拖动和双指操作，`postprocessing.ts` 提供可关闭的轻景深。`CityView.vue` 从当前响应组装只读输入，场景只返回点击 ID，不读 store、请求接口或计算产出；Three.js 对象不进入游戏状态。
 
 ### 状态、展示、演出的分工
 
@@ -81,10 +83,10 @@ presentation（文案、资源） / rendering（播放、特效）
 | 目录 | 内容与使用方式 |
 |---|---|
 | `trial-v03/` | 当前 16 名人物主用立绘及 `scene_tower_trial.png` 塔内背景。人物 `asset_id` 通常形如 `trial-v03/guanyu`，由资源解析补齐扩展名。 |
-| `city-v03/` | 当前七建筑主城整图 `scene_city_complete.png`，背景引用来自 `config/ui/city.json`。 |
+| `city-v03/` | 原七建筑主城整图 `scene_city_complete.png`，保留为 HD-2D 的构图与配色参考；`config/ui/city.json` 保留原背景字段，主城空间由 `rendering/hd2d/` 生成。 |
 | `items/` | 基础 18 张材料、丹药、法器 SVG 与 `index.json`。由 `tools/generate_item_icons.py` 生成，新增正式 ID 时同步配置、生成源码、清单及前端注册表，避免只放一张图。 |
-| `buildings/` | 独立建筑 PNG。当前出征准备仍通过 `TOWER_SPRITE_IMAGE` 使用 `sprite_tower.png`；整图主城使用 `city-v03/`。不能因为目录较早就整体视为无用。 |
-| `scenes/` | 早期 `city_terrain.png` 地形素材，当前主城入口已使用整图；后续清理前仍须查配置、代码与工具引用。 |
+| `buildings/` | 独立建筑 PNG。当前出征准备仍通过 `TOWER_SPRITE_IMAGE` 使用 `sprite_tower.png`；HD-2D 主城使用程序建筑。不能因为目录较早就整体视为无用。 |
+| `scenes/` | 早期 `city_terrain.png` 地形素材，HD-2D 主城使用程序地形；后续清理前仍须查配置、代码与工具引用。 |
 | `backup_pixel_v0/` | 历史人物像素资源备份，不作为新增人物的当前风格基准。 |
 | `assets/` 根目录中的人物 PNG | 历史根路径立绘，资源解析仍保留按模板 ID 回退的路径；正式人物优先使用 catalog 中的版本化 `asset_id`。 |
 | `art-foundation/items/` | 四件代表物品的精修 SVG，每件有小图和 `_display.svg` 展示图。前三件既有物品通过 `itemArtworkPath` 使用；关羽专武仅为外观概念，不加入正式可用物品 ID。源码是 `tools/generate_art_foundation_items.py`。 |
@@ -104,6 +106,9 @@ presentation（文案、资源） / rendering（播放、特效）
 | `store-harness.mjs` | 加载实际 client/store、构造隔离响应和模拟输入的测试支架，不是正式游戏数据。 |
 | `asset-paths.test.mjs` | 资源键解析、物品注册表、固定出征图片与本地文件对应关系。 |
 | `battle-playback.test.mjs` | 战报事件选择、播放状态还原及相关展示行为。 |
+| `city-scene.test.mjs` | 主城弟子状态投影、显示人数及相机范围。 |
+| `city-sprites.test.mjs` | 透明像素拾取、脚底深度、图片异步重绘、共享资源释放及卸载后的迟到回调。 |
+| `scene-gestures.test.mjs` | 点击、拖动、双指缩放与取消手势的区分。 |
 
 玩法算法、保存与接口回归位于 `backend/tests/`；资产生成与内容校验测试位于 `tools/tests/`。不要在前端测试里复制服务端伤害或收益算法。
 

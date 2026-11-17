@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import CityDock from '../components/game/CityDock.vue'
 import PanelModal from '../components/ui/PanelModal.vue'
 import GameIcon from '../components/ui/GameIcon.vue'
-import { sceneImage } from '../presentation/assetPaths'
+import { discipleImage } from '../presentation/assetPaths'
 import { effectText, type DisplayCatalog } from '../presentation/gameText'
-import CityAtmosphere from '../rendering/CityAtmosphere.vue'
+import CityScene from '../rendering/hd2d/CityScene.vue'
+import { projectCityActors } from '../rendering/hd2d/cityModel'
 import { phases, useDayCycle } from '../rendering/dayCycle'
 import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
@@ -17,14 +18,17 @@ import PreparePanel from './PreparePanel.vue'
 import ExpeditionPanel from './ExpeditionPanel.vue'
 const emit = defineEmits<{ resumeRun: [] }>()
 const store = useGameStore()
-const { selection, phaseName, sceneStyle } = useDayCycle()
+const { selection, phaseName, lighting } = useDayCycle()
 const openPanel = ref<string | null>(null)
+const focusedDiscipleId = ref('')
 const preparationReturn = ref<'tower'|'expedition'|null>(null)
-const viewport = ref<HTMLDivElement | null>(null)
-onMounted(() => { if (viewport.value) viewport.value.scrollLeft = (viewport.value.scrollWidth - viewport.value.clientWidth) / 2 })
 const catalog = computed(() => store.catalog as DisplayCatalog | null)
 const city = computed(() => catalog.value?.city)
-const cityBackground = computed(() => sceneImage(city.value?.background))
+const actors = computed(() => projectCityActors(store.state, templateId => ({
+  name: catalog.value?.disciples[templateId]?.name ?? templateId,
+  image: discipleImage(templateId, catalog.value),
+})))
+const buildings = computed(() => (city.value?.hotspots ?? []).map(spot => ({ id: spot.id, name: spot.name, status: `${statusOf(spot.panel)} · ${secondaryStatusOf(spot.panel)}` })))
 const activeRun = computed(() => store.state?.active_run ?? null)
 const runEnded = computed(() => store.status === 'cleared' || store.status === 'defeated')
 const runStep = computed(() => (activeRun.value?.nodes.length ?? 0) + (runEnded.value || store.status === 'choosing_affix' ? 0 : 1))
@@ -72,9 +76,20 @@ function secondaryStatusOf(panel: string) {
 }
 function open(panel: string) {
   if (['tower', 'expedition'].includes(panel) && activeRun.value) { emit('resumeRun'); return }
+  focusedDiscipleId.value = ''
   preparationReturn.value = null
   openPanel.value = panel
 }
+function openBuilding(id: string) {
+  const spot = city.value?.hotspots.find(spot => spot.id === id)
+  if (spot) open(spot.panel)
+}
+function openDisciple(id: string) {
+  if (!store.disciples.some(disciple => disciple.id === id)) return
+  open('codex')
+  focusedDiscipleId.value = id
+}
+watch(() => store.slotId, () => { openPanel.value = null; focusedDiscipleId.value = ''; preparationReturn.value = null })
 function editPreparation(panel:'tower'|'expedition') {
   preparationReturn.value = panel
   openPanel.value = 'codex'
@@ -91,36 +106,25 @@ function followGoal() {
   const total = catalog.value?.mode.node_count ?? 0
   open(total && (store.state?.tower_floor ?? 0) >= total ? 'codex' : 'tower')
 }
-function hideBroken(event: Event) { (event.target as HTMLImageElement).style.visibility = 'hidden' }
 </script>
 <template>
-  <div class="city-page" :style="sceneStyle">
-    <section class="city-scene" aria-label="宗门主城" :style="{ '--map-aspect': city?.aspect ?? 1.5 }">
-      <div v-if="city" class="scene-extension" :style="{ backgroundImage: `url(${cityBackground})` }" aria-hidden="true"></div>
-      <div ref="viewport" class="city-viewport" tabindex="0" aria-label="宗门地图，手机可左右滑动查看殿阁">
-        <div v-if="city" class="city-map" :style="{ aspectRatio: String(city.aspect) }">
-          <img :src="cityBackground" alt="云海之上的宗门，石径通向各座殿阁" class="city-background pixel-art" draggable="false" />
-          <CityAtmosphere />
-          <button v-for="spot in city.hotspots" :key="spot.id" class="building-hotspot" :class="{ 'is-tower': spot.panel === 'tower' }" :style="{ left:`${spot.x}%`,top:`${spot.y}%`,width:`${spot.w}%`,height:`${spot.h}%`,zIndex: Math.round(spot.y) }" :aria-label="`${spot.name}，${statusOf(spot.panel)}`" :title="`${statusOf(spot.panel)} · ${secondaryStatusOf(spot.panel)}`" @click="open(spot.panel)">
-            <img v-if="spot.sprite" :src="sceneImage(spot.sprite)" alt="" class="building-sprite pixel-art" draggable="false" @error="hideBroken" />
-            <span class="building-label"><strong>{{ spot.name }}</strong><small v-if="spot.panel === 'tower'">{{ activeRun ? towerLabel : `最高 ${store.state?.tower_floor ?? 0} 层` }}</small><small v-else-if="spot.panel === 'expedition'">{{ expeditionLabel }}</small></span>
-          </button>
-        </div>
-      </div>
+  <div class="city-page">
+    <section class="city-scene" aria-label="宗门主城">
+      <CityScene :key="store.slotId ?? 0" :actors="actors" :buildings="buildings" :lighting="lighting" @building="openBuilding" @disciple="openDisciple" />
       <div class="scene-heading"><span class="eyebrow">云岫仙宗 · 山居</span><h2>一山云水，满庭仙缘。</h2><p>{{ activeRun ? runLocation : `门下 ${store.disciples.length} 位同道 · 值守 ${store.state?.duty_slots.length ?? 0} 人` }}</p></div>
       <label class="sky-control"><span>{{ phaseName }}</span><select v-model="selection" aria-label="主城天色"><option value="auto">随时间</option><option v-for="phase in phases" :key="phase.id" :value="phase.id">{{ phase.name }}</option></select></label>
       <div class="scene-actions">
         <button class="goal-slip" @click="followGoal"><span class="goal-mark">令</span><span><small>当前修行</small><strong>{{ currentGoal }}</strong></span><span aria-hidden="true">›</span></button>
         <button class="collect-button" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" /><span>收取收益<small>山中修行，自有所得</small></span></button>
       </div>
-      <span class="map-help">点击殿阁打理宗门<span> · 左右滑动游览</span></span>
+      <span class="map-help">点击殿阁或同道 · 拖动游览，滚轮或双指缩放</span>
     </section>
     <CityDock :tower-label="towerLabel" :tower-hint="towerHint" :expedition-label="expeditionLabel" :expedition-hint="expeditionHint" :disciple-count="store.disciples.length" :duty-count="store.state?.duty_slots.length ?? 0" :active="openPanel" @open="open" />
-    <PanelModal v-if="openPanel" :title="TITLES[openPanel] ?? '宗门事务'" :wide="['codex','tower','expedition','sect'].includes(openPanel)" @close="openPanel = null"><div v-if="activeRun && ['codex','duty','alchemy','forge'].includes(openPanel)" class="notice-box" style="margin-bottom:18px">出征尚未结算，可查阅宗门资料；阵容、弟子修炼、值守与炼制将在结算后恢复调整。</div><button v-if="openPanel==='codex' && preparationReturn" class="btn btn-small" style="margin-bottom:16px" @click="returnToPreparation">阵容已安排 · 返回{{ preparationReturn==='expedition'?'征讨整备':'问道准备' }}</button><CodexPanel v-if="openPanel === 'codex'" :read-only="!!activeRun" /><SectPanel v-else-if="openPanel === 'sect'" @open="open" /><DutyPanel v-else-if="openPanel === 'duty'" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'alchemy'" kind="pill" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'forge'" kind="artifact" :read-only="!!activeRun" @open="open" /><PreparePanel v-else-if="openPanel === 'tower'" @edit="editPreparation('tower')" /><ExpeditionPanel v-else-if="openPanel === 'expedition'" @edit="editPreparation('expedition')" /><div v-else class="empty-state"><strong>远行之路，尚待开启</strong>先经营宗门，在问道塔中磨砺弟子。</div></PanelModal>
+    <PanelModal v-if="openPanel" :title="TITLES[openPanel] ?? '宗门事务'" :wide="['codex','tower','expedition','sect'].includes(openPanel)" @close="openPanel = null"><div v-if="activeRun && ['codex','duty','alchemy','forge'].includes(openPanel)" class="notice-box" style="margin-bottom:18px">出征尚未结算，可查阅宗门资料；阵容、弟子修炼、值守与炼制将在结算后恢复调整。</div><button v-if="openPanel==='codex' && preparationReturn" class="btn btn-small" style="margin-bottom:16px" @click="returnToPreparation">阵容已安排 · 返回{{ preparationReturn==='expedition'?'征讨整备':'问道准备' }}</button><CodexPanel v-if="openPanel === 'codex'" :read-only="!!activeRun" :initial-disciple-id="focusedDiscipleId" /><SectPanel v-else-if="openPanel === 'sect'" @open="open" /><DutyPanel v-else-if="openPanel === 'duty'" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'alchemy'" kind="pill" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'forge'" kind="artifact" :read-only="!!activeRun" @open="open" /><PreparePanel v-else-if="openPanel === 'tower'" @edit="editPreparation('tower')" /><ExpeditionPanel v-else-if="openPanel === 'expedition'" @edit="editPreparation('expedition')" /><div v-else class="empty-state"><strong>远行之路，尚待开启</strong>先经营宗门，在问道塔中磨砺弟子。</div></PanelModal>
   </div>
 </template>
 <style scoped>
-.city-page{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#cbd8bc}.city-scene{position:relative;flex:1;min-height:0;isolation:isolate;container-type:size}.scene-extension{position:absolute;inset:-30px;background-position:center;background-size:cover;filter:blur(24px) brightness(var(--day-brightness,1)) saturate(var(--day-saturation,1));opacity:.7;pointer-events:none}.scene-extension::after{content:'';position:absolute;inset:0;background:#183561;mix-blend-mode:color;opacity:var(--night-opacity,0)}.city-viewport{position:absolute;z-index:1;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.city-map{position:relative;flex:none;width:min(100cqw,calc(100cqh * var(--map-aspect)));overflow:hidden}.city-background{display:block;width:100%;height:100%;filter:brightness(var(--day-brightness,1)) saturate(var(--day-saturation,1));transition:filter 3s ease}.city-map{mask-image:linear-gradient(90deg,transparent,#000 2%,#000 98%,transparent)}.building-hotspot{position:absolute;transform:translate(-50%,-50%);padding:0;border:0;background:transparent;overflow:visible}.building-hotspot:focus-visible{outline-offset:-4px}.building-sprite{width:100%;height:100%;object-fit:contain;object-position:center bottom;pointer-events:none;filter:drop-shadow(3px 5px 2px #16362d33);transition:filter .2s}.building-hotspot:hover .building-sprite,.building-hotspot:focus-visible .building-sprite{filter:brightness(1.13) drop-shadow(0 0 7px #f3e9a8b0)}.building-label{position:absolute;bottom:0;left:50%;transform:translateX(-50%);padding:3px 13px;min-width:76px;border:1px solid #aa986a;background:#faf1ddec;box-shadow:0 2px #76643a44,0 4px 12px #1c382422;white-space:nowrap;color:#304e3d;pointer-events:none}.building-label::before,.building-label::after{content:'';position:absolute;top:3px;bottom:3px;width:2px;background:#c0ad7d}.building-label::before{left:3px}.building-label::after{right:3px}.building-label strong{display:block;font:600 13px/1.5 'SimSun',serif;letter-spacing:.12em}.building-label small{display:block;font-size:9px;line-height:1.4;color:#7a7c60}.is-tower .building-label{background:#2b5447f2;border-color:#d4bd7f;color:#fff1c9}.is-tower small{color:#e3d7ae}.scene-heading{position:absolute;z-index:2;left:30px;top:22px;pointer-events:none;text-shadow:0 1px #fcf6df}.scene-heading .eyebrow{color:#6f794f;font-size:10px}.scene-heading h2{margin:4px 0;font-size:22px;letter-spacing:.12em;color:#36573e}.scene-heading p{margin:0;font-size:11px;color:#5a7152}.sky-control{position:absolute;right:26px;top:22px;z-index:3;display:flex;align-items:center;gap:10px;padding:4px 7px 4px 12px;background:#f8f2dfd9;border:1px solid #bac0a3;color:#4c674e;font-size:12px;box-shadow:0 3px 10px #37543d11}.sky-control select{min-height:34px;padding:4px 22px 4px 8px;border:0;background:transparent;font-size:11px}.scene-actions{position:absolute;z-index:3;bottom:36px;left:30px;right:30px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;pointer-events:none}.scene-actions>button{pointer-events:auto;min-height:54px}.goal-slip{display:flex;align-items:center;gap:12px;max-width:calc(100% - 180px);padding:8px 14px 8px 9px;border:1px solid #b8a475;border-left:3px solid #8b7042;background:#faf1dcf0;color:#38563d;box-shadow:0 3px 0 #7b68452b,0 6px 18px #344a3422;text-align:left}.goal-slip:hover{background:#fff9e9}.goal-mark{display:grid;place-items:center;width:29px;height:33px;border:1px solid #b7a679;box-shadow:inset 0 0 0 2px #faf1dc;font:20px 'SimSun',serif;color:#8c713e;flex:none}.goal-slip small{display:block;font-size:9px;color:#8a805e;letter-spacing:.14em}.goal-slip strong{display:block;font-size:12px;font-weight:500}.goal-slip>span:last-child{font-size:24px;color:#a09267}.collect-button{display:flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid #b99b5f;background:#345b46;color:#fff0c7;box-shadow:inset 0 0 0 3px #ffffff08,0 3px 0 #253f32,0 6px 20px #25413133;font:600 16px 'SimSun',serif}.collect-button:hover:not(:disabled){background:#294b38}.collect-button .game-icon{width:26px;height:26px;color:#e0c57e}.collect-button small{display:block;font:9px/1.5 system-ui;color:#c6cfb2;margin-top:3px}.map-help{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.1em;color:#4d684d;pointer-events:none}.map-help>span{display:none}
-@media(max-width:640px){.city-viewport{justify-content:flex-start;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}.city-map{width:max(100cqw,calc(100cqh * var(--map-aspect)));margin:auto;mask-image:none}.scene-heading{left:12px;top:14px;padding:7px 10px;background:#faf3dfcf;border-left:2px solid #a89562;max-width:calc(100% - 112px)}.scene-heading .eyebrow{font-size:9px}.scene-heading h2{font-size:16px;letter-spacing:.03em}.scene-heading p{font-size:10px;max-width:210px}.sky-control{right:12px;top:14px;padding:2px 3px;font-size:10px}.sky-control>span{display:none}.sky-control select{min-height:40px;font-size:10px;padding-left:5px}.scene-actions{left:12px;right:12px;bottom:30px;gap:8px}.goal-slip{max-width:calc(100% - 112px);gap:7px;padding:7px}.goal-slip strong{font-size:11px}.goal-mark{width:23px;height:29px;font-size:17px}.goal-slip>span:last-child{display:none}.collect-button{gap:5px;padding:10px;font-size:14px}.collect-button .game-icon{width:18px;height:18px}.collect-button small{font-size:8px}.map-help>span{display:inline}.building-label{padding:3px 10px;min-width:70px}.building-label strong{font-size:12px}}
+.city-page{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#cbd8bc}.city-scene{position:relative;flex:1;min-height:0;isolation:isolate;container-type:size}.scene-heading{position:absolute;z-index:2;left:30px;top:22px;pointer-events:none;text-shadow:0 1px #fcf6df}.scene-heading .eyebrow{color:#6f794f;font-size:10px}.scene-heading h2{margin:4px 0;font-size:22px;letter-spacing:.12em;color:#36573e}.scene-heading p{margin:0;font-size:11px;color:#5a7152}.sky-control{position:absolute;right:26px;top:22px;z-index:3;display:flex;align-items:center;gap:10px;padding:4px 7px 4px 12px;background:#f8f2dfd9;border:1px solid #bac0a3;color:#4c674e;font-size:12px;box-shadow:0 3px 10px #37543d11}.sky-control select{min-height:34px;padding:4px 22px 4px 8px;border:0;background:transparent;font-size:11px}.scene-actions{position:absolute;z-index:3;bottom:36px;left:30px;right:30px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;pointer-events:none}.scene-actions>button{pointer-events:auto;min-height:54px}.goal-slip{display:flex;align-items:center;gap:12px;max-width:calc(100% - 180px);padding:8px 14px 8px 9px;border:1px solid #b8a475;border-left:3px solid #8b7042;background:#faf1dcf0;color:#38563d;box-shadow:0 3px 0 #7b68452b,0 6px 18px #344a3422;text-align:left}.goal-slip:hover{background:#fff9e9}.goal-mark{display:grid;place-items:center;width:29px;height:33px;border:1px solid #b7a679;box-shadow:inset 0 0 0 2px #faf1dc;font:20px 'SimSun',serif;color:#8c713e;flex:none}.goal-slip small{display:block;font-size:9px;color:#8a805e;letter-spacing:.14em}.goal-slip strong{display:block;font-size:12px;font-weight:500}.goal-slip>span:last-child{font-size:24px;color:#a09267}.collect-button{display:flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid #b99b5f;background:#345b46;color:#fff0c7;box-shadow:inset 0 0 0 3px #ffffff08,0 3px 0 #253f32,0 6px 20px #25413133;font:600 16px 'SimSun',serif}.collect-button:hover:not(:disabled){background:#294b38}.collect-button .game-icon{width:26px;height:26px;color:#e0c57e}.collect-button small{display:block;font:9px/1.5 system-ui;color:#c6cfb2;margin-top:3px}.map-help{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.1em;color:#4d684d;pointer-events:none}
+@media(max-width:640px){.scene-heading{left:12px;top:14px;padding:7px 10px;background:#faf3dfcf;border-left:2px solid #a89562;max-width:calc(100% - 112px)}.scene-heading .eyebrow{font-size:9px}.scene-heading h2{font-size:16px;letter-spacing:.03em}.scene-heading p{font-size:10px;max-width:210px}.sky-control{right:12px;top:14px;padding:2px 3px;font-size:10px}.sky-control>span{display:none}.sky-control select{min-height:40px;font-size:10px;padding-left:5px}.scene-actions{left:12px;right:12px;bottom:30px;gap:8px}.goal-slip{max-width:calc(100% - 112px);gap:7px;padding:7px}.goal-slip strong{font-size:11px}.goal-mark{width:23px;height:29px;font-size:17px}.goal-slip>span:last-child{display:none}.collect-button{gap:5px;padding:10px;font-size:14px}.collect-button .game-icon{width:18px;height:18px}.collect-button small{font-size:8px}}
 @media(max-height:600px) and (min-width:641px){.scene-heading{top:10px;left:18px}.scene-heading h2{font-size:16px}.scene-heading p{display:none}.scene-actions{bottom:24px;left:18px;right:18px}.scene-actions>button{min-height:44px}.sky-control{top:10px}}
 </style>

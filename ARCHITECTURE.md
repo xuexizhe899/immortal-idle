@@ -57,7 +57,7 @@
 | `src/components/ui/` | 已有 | 通用弹窗、反馈气泡等；通过 props/emits 表达交互，不了解弟子或存档 |
 | `src/components/game/` | 已有 | 弟子卡、编队条、技能详情、道具图标等业务组件；组合 UI、展示转换和渲染 |
 | `src/presentation/` | 已有 | `gameText.ts` 等业务展示函数，以及 `assetPaths.ts` 资源解析；纯输入输出，无请求、store、DOM 或计时器 |
-| `src/rendering/` | 已有 | `BattleStage.vue`、`battlePlayback.ts`、`SkillVfx.vue`、`EnemyFigure.vue`、`CityAtmosphere.vue`、`dayCycle.ts` 等演出与视觉生命周期 |
+| `src/rendering/` | 已有 | `hd2d/` 承担 Three.js 主城、相机、程序建筑与人物立牌；`BattleStage.vue`、`battlePlayback.ts`、`SkillVfx.vue`、`EnemyFigure.vue` 继续承担 Vue / SVG / CSS 战斗演出；`dayCycle.ts` 提供视觉天色 |
 | `src/shared/` | 已有 | 如 `format.ts` 中纯数值格式化；只依赖标准库，不依赖游戏类型、Vue、浏览器存储或上层模块 |
 | `src/style.css` | 已有 | 全局主题变量、基础排版及确有复用的样式；页面布局和特效样式就近 scoped |
 | `src/assets/` | 已有 | 由构建工具 import 的少量界面静态素材；游戏立绘与场景放 `public/assets/` |
@@ -87,6 +87,8 @@ Vue 与 Pinia 等框架依赖按职责使用；表格约束项目内依赖。运
 
 ### 3.3 画面与资源引用
 
+- HD-2D 主城接收页面传入的只读显示输入，点击仅返回稳定的建筑或弟子 ID；由页面打开现有面板。场景不读 store、不请求接口、不修改岗位、资源或收益，Three.js 对象不进入游戏 store。
+- 主城世界坐标、尺寸与入口锚点归 `rendering/hd2d/cityModel.ts`，沿用现有建筑 ID 对接 catalog 的名称和面板。`config/ui/city.json` 的百分比热区保留原契约含义，不能直接作为三维世界坐标；纯视觉布局不写入存档。
 - 页面传入真实战报，播放模块选择事件并维护播放游标；暂停、跳过、减少动态效果只改变呈现。特效组件只接收显示参数，不发送结算命令。
 - 数值转文案、状态名称、图鉴说明归 presentation；数值格式化等无业务基础函数归 shared。presentation 不计算真实伤害、收益或可领取奖励。
 - `assetPaths.ts` 统一处理资源键、现有路径兼容与资源映射。页面及渲染组件接收解析后的 URL，或调用该模块；不再各自拼 `/assets/`、版本目录和扩展名。
@@ -149,13 +151,14 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 | 位置 | 内容与运行时用途 |
 |---|---|
 | `config/disciples/`、`skills/`、`bonds/` 等 | 正式业务定义，以 ID 互相引用；数值放配置，通用算法放 domain |
-| `config/ui/` | 布局、热区及已契约化的显示配置，不承载游戏结算规则 |
+| `config/ui/` | 已契约化的显示配置与建筑入口元数据；保留的旧主城背景及百分比热区不决定 HD-2D 世界布局，不承载游戏结算规则 |
 | `config/style/` | 风格约定，不作为玩法数据 |
 | `assets/masters/`、`assets/prompts/` | 主稿、参考与提示源码，供开发和再生成；不作为网页首屏加载目录 |
 | `assets/manifest.json` | 脱敏生成记录与去重依据，记录来源；当前不是运行时资源注册表 |
 | `assets/raw/` | 生图原始输出，沿用 gitignore；成功即落盘，筛选后才进入运行目录 |
-| `frontend/public/assets/` | 正式运行资源；当前主用 `trial-v03/`、`city-v03/` 与 `items/` |
-| `frontend/src/rendering/` | Vue / SVG / CSS / Canvas 程序美术源码与视觉生命周期 |
+| `licenses/` | 复用的第三方代码许可、作者声明与来源/修改记录；不混入我方生图 manifest |
+| `frontend/public/assets/` | 正式运行资源；人物主用 `trial-v03/`，战斗背景、物品及外宗人物沿现有分组；`city-v03/` 保留原主城整图与构图参考 |
+| `frontend/src/rendering/` | 主城 Three.js 程序几何、像素纹理与立牌，以及 Vue / SVG / CSS / Canvas 演出源码和视觉生命周期 |
 | `tools/`、`tools/tests/` | 资产生成与处理、内容草稿、契约辅助、配置与 RNG 校验、离线测量及其测试 |
 | `artifacts/<任务>/` | 草稿、对比图、截图、测量报告和验收记录；可审阅但不进入运行时依赖 |
 | `docs/plans/`、`docs/reviews/`、`tasks/` | 方案、审查与任务记录；完成状态须有代码及本次证据支持 |
@@ -169,7 +172,7 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 当前有两种需要保留的输入约定：
 
 - 人物 `asset_id` 如 `trial-v03/zhugeliang`：相对 `public/assets/` 的 PNG 键，不带扩展名。
-- 主城 `background` 如 `/assets/city-v03/scene_city_complete.png`：包含扩展名的站内 URL。
+- 主城保留的 `background` 如 `/assets/city-v03/scene_city_complete.png`：包含扩展名的站内 URL；该字段继续兼容原契约，不表示 HD-2D 由一张背景图组成。
 
 新增同类内容沿用对应契约，不自行把 `asset_id` 改成 URL、base64 或远程生图地址。统一的是前端解析入口，而非本轮重定义所有配置字段。未来新增资源类别需要不同格式时，先明确字段含义、校验规则和解析入口，再按契约管线增加字段。
 
@@ -177,7 +180,7 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 
 ### 6.3 选择程序绘图或位图
 
-图标、材料、丹药、技能特效、护盾与状态几何优先使用 SVG / CSS / Canvas；人物和复杂场景使用经筛选、裁切和压缩的本地位图。程序绘图源码与生成命令一同保留；运行文件与来源记录保持可追溯。
+图标、材料、丹药、技能特效、护盾与状态几何优先使用 SVG / CSS / Canvas；HD-2D 主城的地形、台基、建筑体块与像素纹理由 `rendering/hd2d/` 的 Three.js / Canvas 源码生成，人物复用透明 PNG 立牌。人物和复杂位图场景继续使用经筛选、裁切和压缩的本地资源。程序绘图源码与生成命令一同保留；运行文件与来源记录保持可追溯。
 
 道具图标继续由 `tools/generate_item_icons.py` 生成，业务 ID、绘图定义、输出 `items/<id>.svg`、`items/index.json` 和前端允许的 ID 列表必须一致。当前 ID 列表位于 `presentation/assetPaths.ts`，组件只显示图标及本地占位。
 
@@ -199,7 +202,7 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 
 测试随职责归属：规则、命令接口和持久化行为在 `backend/tests/`，内容与资产脚本在 `tools/tests/`，store、展示转换和播放行为在 `frontend/tests/`。夹具和模拟数据留在测试目录，数据库使用临时或隔离实例；测试通过模块的公开输入输出验证行为，迁移优先复用现有测试并更新导入，不为目录名称编写静态断言。
 
-现有 CI 执行后端与工具测试、配置引用、RNG 检查、契约生成、前端测试和类型检查构建；目前没有自动强制目录分层或检测所有循环依赖。分层规则现阶段通过代码审查执行，不能用 CI 通过宣称架构依赖已自动检查。完整本地交付命令统一见 AGENTS 第 8 节；视觉改动另外按其要求渲染验收。
+现有 CI 执行后端与工具测试、配置引用、RNG 检查、契约生成、前端测试和类型检查构建；目前没有自动强制目录分层或检测所有循环依赖。分层规则现阶段通过代码审查执行，不能用 CI 通过宣称架构依赖已自动检查。完整本地交付命令统一见 AGENTS 第 8 节；视觉改动由用户人工验收，不由构建或代码检查代替。
 
 ## 8. 现状差距与迁移顺序
 
@@ -213,4 +216,4 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 | 4 | `domain/run_engine.py` 在缺省参数时调用配置加载器及 `secrets` 创建初始种子 | 配置和种子改由编排入口显式提供，保持同输入重放、固定快照与 RNG 游标行为 |
 | 条件触发 | `api/state.py` 合并 HTTP 错误映射、共享编排、取时钟与响应投影 | 当前作为明确共享入口保留；出现第二类调用入口或实际维护困难时，提取可独立测试的完整命令流程，HTTP 映射留在 api |
 
-本次同步修正 README 与 DESIGN 中的目录描述：旧 `ui/`、`stage/` 是初始设想，当前是 `views/`、`components/ui`、`components/game`、`rendering`、`presentation` 与 `shared`；当前战场使用 Vue / SVG / CSS，PixiJS 依赖仍在但未作为当前战场实现。部署目录和备份恢复脚本尚未落地，不列为已有能力。
+旧 `ui/`、`stage/` 是初始设想，当前是 `views/`、`components/ui`、`components/game`、`rendering`、`presentation` 与 `shared`。2026-11-17 主城新增 `rendering/hd2d/`，使用 Three.js；当前战场仍使用 Vue / SVG / CSS，PixiJS 依赖保留。部署目录和备份恢复脚本尚未落地，不列为已有能力。

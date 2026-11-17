@@ -10,7 +10,7 @@ import { discipleImage } from '../presentation/assetPaths'
 import { effectText,injuryText,resourceName,leanNames,leanDescriptions,rarityNames,statNames,type DisplayCatalog,type DisplaySkill } from '../presentation/gameText'
 import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
-const props=defineProps<{readOnly?:boolean}>()
+const props=defineProps<{readOnly?:boolean;initialDiscipleId?:string}>()
 const store = useGameStore()
 const catalog = computed(() => store.catalog as DisplayCatalog | null)
 const tab = ref('roster'); const filter = ref('all'); const selectedId = ref(''); const search = ref('')
@@ -50,6 +50,10 @@ function goTrain(templateId: string) {
   nextTick(scrollToRoster)
 }
 watch(roster, list=>{if (!list.some(d=>d.id===selectedId.value)) selectedId.value=list[0]?.id ?? ''},{immediate:true})
+watch(() => props.initialDiscipleId, id => {
+  if (!id || !store.disciples.some(disciple => disciple.id === id)) return
+  tab.value = 'roster'; filter.value = 'all'; search.value = ''; selectedId.value = id
+}, { immediate: true })
 watch([() => selected.value?.id, () => store.revision], ([id]) => {
   if (id) void store.loadTraining(id)
 }, { immediate: true })
