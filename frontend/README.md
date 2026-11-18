@@ -48,7 +48,7 @@ frontend/
 | `ui/` | `PanelModal.vue`、`NoticeBubble.vue`、`GameIcon.vue`：弹窗、消息反馈、通用图标。使用 props/emits，不认识弟子、存档或战斗规则。 |
 | `game/` | `CityDock.vue`、`CityNavIcon.vue`、`DiscipleCard.vue`、`DiscipleTraining.vue`、`PartyStrip.vue`、`ItemIcon.vue`、`SkillDetails.vue`：游戏业务展示与交互。默认 props 输入、emits 输出；明确连接共享状态的组件（如编队条）才读取 store。 |
 
-设施经营由 `components/game/FacilitiesSection.vue` 嵌入主殿，队伍补炼疗伤由 `PartyHealing.vue` 在问道和远行整备中复用；预览、消耗和收益以服务端响应为准。`ExpeditionPanel.vue` 展示固定外宗目标与最多三人的驻守编制，`CraftPanel.vue` 使用真实配方预览实现批量、品级与升级，不在客户端模拟扣料。
+设施经营由 `components/game/FacilitiesSection.vue` 嵌入主殿，队伍补炼疗伤由 `PartyHealing.vue` 在问道和远行整备中复用；预览、消耗和收益以服务端响应为准。`ExpeditionPanel.vue` 展示固定外宗目标与最多三人的驻守编制，已攻克宗门另开放单场论道（固定奖励、3v1 宗主战）；`CraftPanel.vue` 使用真实配方预览实现批量、品级与升级，不在客户端模拟扣料。`SectPanel.vue` 的“材料来源”页签由 `MaterialSources.vue` 渲染来源矩阵（`presentation/materialSources.ts`）；`DutyPanel.vue` 的分配总览读取只读 `duty/assignments` 预览；收取后的下一步浮签由 `presentation/nextAction.ts` 纯函数给出，点击仍走原入口。
 
 常见修改入口：培养展示先看 `DiscipleTraining.vue` 和 `CodexPanel.vue`；培养规则、费用和预览真值在后端。物品图片先看 `ItemIcon.vue` 与 `assetPaths.ts`；真实物品效果在后端。战斗节奏和特效看 `rendering/`，胜负与每次行动来自后端战报。
 

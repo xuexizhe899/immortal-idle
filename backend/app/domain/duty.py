@@ -9,7 +9,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from app.models.save import DiscipleState, DutyEvent, DutySlot, GameState
+from app.models.save import DiscipleState, DutyEvent, DutySlot, GameState, NpcSect
 from app.domain.progression import is_on_run
 from app.domain.settle import BASE_MATERIALS_PER_HOUR
 
@@ -106,6 +106,15 @@ def rates_of(
     return rates
 
 
+def member_garrison_rates(sect: NpcSect, disciple: DiscipleState, template: dict) -> dict[str, float]:
+    """单个驻守弟子的贡献；专长匹配对应产物时翻倍。预览与结算共用同一公式。"""
+    specialty = template.get("production_specialty")
+    return {
+        material: base * sect.level * (2 if specialty == material else 1)
+        for material, base in ((sect.material_id, 0.5), (sect.special_material_id, 0.15))
+    }
+
+
 def garrison_production(state: GameState, templates: dict[str, dict]) -> dict[str, dict[str, float]]:
     """每名驻守者独立贡献，匹配对应产物的专长翻倍。"""
     by_id = {disciple.id: disciple for disciple in state.disciples}
@@ -118,9 +127,8 @@ def garrison_production(state: GameState, templates: dict[str, dict]) -> dict[st
             disciple = by_id.get(slot.disciple_id)
             if disciple is None or is_on_run(state, disciple):
                 continue
-            specialty = templates.get(disciple.template_id, {}).get("production_specialty")
-            for material, base in ((sect.material_id, 0.5), (sect.special_material_id, 0.15)):
-                materials[material] += base * sect.level * (2 if specialty == material else 1)
+            for material, value in member_garrison_rates(sect, disciple, templates.get(disciple.template_id, {})).items():
+                materials[material] += value
         production[sect.id] = materials
     return production
 

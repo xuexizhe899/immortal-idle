@@ -4,7 +4,8 @@ import CityDock from '../components/game/CityDock.vue'
 import PanelModal from '../components/ui/PanelModal.vue'
 import GameIcon from '../components/ui/GameIcon.vue'
 import { discipleImage } from '../presentation/assetPaths'
-import { effectText, type DisplayCatalog } from '../presentation/gameText'
+import { effectText, resourceName, type DisplayCatalog } from '../presentation/gameText'
+import { pickNextAction, type NextAction } from '../presentation/nextAction'
 import CityScene from '../rendering/hd2d/CityScene.vue'
 import { projectCityActors } from '../rendering/hd2d/cityModel'
 import { phases, useDayCycle } from '../rendering/dayCycle'
@@ -35,8 +36,8 @@ const runStep = computed(() => (activeRun.value?.nodes.length ?? 0) + (runEnded.
 const towerLabel = computed(() => activeRun.value?.mode === 'tower' ? runEnded.value ? '待结算' : '继续出征' : '问道')
 const towerHint = computed(() => activeRun.value?.mode === 'expedition' ? '远行中 · 点击继续' : activeRun.value ? `第 ${runStep.value} 层 · ${runEnded.value ? '收取战利品' : '试炼未歇'}` : '登塔试炼')
 const expeditionLabel = computed(() => activeRun.value?.mode === 'expedition' ? (runEnded.value ? '待结算' : '继续远行') : '远行')
-const expeditionHint = computed(() => activeRun.value?.sect_id ? `守备 ${activeRun.value.guard} · ${runEnded.value ? '等待结算' : '宗门征讨中'}` : activeRun.value ? '出征中 · 点击继续' : `已攻克 ${store.state?.sects.filter(sect=>sect.conquered).length ?? 0} / ${store.state?.sects.length ?? 0} 座宗门`)
-const runLocation = computed(() => activeRun.value?.sect_id ? `宗门征讨 · ${runEnded.value ? '等待结算' : activeRun.value.guard===0 ? '等待挑战宗主' : '守备 '+activeRun.value.guard+' · 等待安排上阵'}` : runEnded.value ? `此次到达 ${runStep.value}${activeRun.value?.mode === 'expedition' ? ' 段' : ' 层'}，尚待结算` : store.status === 'choosing_affix' ? `第 ${activeRun.value?.nodes.length ?? 0}${activeRun.value?.mode === 'expedition' ? ' 段' : ' 层'}获胜，等待领悟道法` : `${activeRun.value?.mode === 'expedition' ? '第 ' + runStep.value + ' 段远行' : '第 ' + runStep.value + ' 层试炼'}，等待选择路线`)
+const expeditionHint = computed(() => activeRun.value?.sect_id ? (activeRun.value.is_retrial ? '论道中 · 点击继续' : `守备 ${activeRun.value.guard} · ${runEnded.value ? '等待结算' : '宗门征讨中'}`) : activeRun.value ? '出征中 · 点击继续' : `已攻克 ${store.state?.sects.filter(sect=>sect.conquered).length ?? 0} / ${store.state?.sects.length ?? 0} 座宗门`)
+const runLocation = computed(() => activeRun.value?.sect_id ? `${activeRun.value.is_retrial ? '论道' : '宗门征讨'} · ${runEnded.value ? '等待结算' : activeRun.value.guard===0 ? '等待挑战宗主' : '守备 '+activeRun.value.guard+' · 等待安排上阵'}` : runEnded.value ? `此次到达 ${runStep.value}${activeRun.value?.mode === 'expedition' ? ' 段' : ' 层'}，尚待结算` : store.status === 'choosing_affix' ? `第 ${activeRun.value?.nodes.length ?? 0}${activeRun.value?.mode === 'expedition' ? ' 段' : ' 层'}获胜，等待领悟道法` : `${activeRun.value?.mode === 'expedition' ? '第 ' + runStep.value + ' 段远行' : '第 ' + runStep.value + ' 层试炼'}，等待选择路线`)
 const TITLES: Record<string,string> = { codex:'弟子堂', sect:'宗门主殿', expedition:'远行码头', duty:'值守编制', forge:'炼器炉', alchemy:'炼丹房', tower:'问道塔 · 出征准备' }
 const injured = computed(() => store.disciples.filter(d => d.injury_stacks > 0).length)
 const recruitable = computed(() => Object.entries(catalog.value?.disciples ?? {}).filter(([id,d]) => !(store.state?.unlocks ?? []).includes(id) && (store.resources?.reputation ?? 0) >= (d.unlock_cost?.reputation??0)).length)
@@ -80,6 +81,16 @@ function open(panel: string) {
   preparationReturn.value = null
   openPanel.value = panel
 }
+const nextAction = ref<NextAction | null>(null)
+function held(id: string) {
+  if (id === 'spirit_stone' || id === 'cultivation' || id === 'reputation' || id === 'stamina') return store.resources?.[id] ?? 0
+  return store.state?.inventory[id] ?? 0
+}
+watch(() => store.lastSettle, async settle => {
+  if (!settle) { nextAction.value = null; return }
+  const [facilities, recipes] = await Promise.all([store.previewFacilities(), store.previewRecipes(1)])
+  nextAction.value = pickNextAction(facilities?.facilities ?? [], recipes?.recipes ?? [], held, id => resourceName(id, catalog.value))
+}, { immediate: true })
 function openBuilding(id: string) {
   const spot = city.value?.hotspots.find(spot => spot.id === id)
   if (spot) open(spot.panel)
@@ -115,7 +126,10 @@ function followGoal() {
       <label class="sky-control"><span>{{ phaseName }}</span><select v-model="selection" aria-label="主城天色"><option value="auto">随时间</option><option v-for="phase in phases" :key="phase.id" :value="phase.id">{{ phase.name }}</option></select></label>
       <div class="scene-actions">
         <button class="goal-slip" @click="followGoal"><span class="goal-mark">令</span><span><small>当前修行</small><strong>{{ currentGoal }}</strong></span><span aria-hidden="true">›</span></button>
-        <button class="collect-button" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" /><span>收取收益<small>山中修行，自有所得</small></span></button>
+        <div class="collect-wrap">
+          <button v-if="nextAction" class="next-slip" @click="open(nextAction.panel)">{{ nextAction.label }}<span aria-hidden="true">›</span></button>
+          <button class="collect-button" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" /><span>收取收益<small>山中修行，自有所得</small></span></button>
+        </div>
       </div>
       <span class="map-help">点击殿阁或同道 · 拖动游览，滚轮或双指缩放</span>
     </section>
@@ -124,7 +138,7 @@ function followGoal() {
   </div>
 </template>
 <style scoped>
-.city-page{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#cbd8bc}.city-scene{position:relative;flex:1;min-height:0;isolation:isolate;container-type:size}.scene-heading{position:absolute;z-index:2;left:30px;top:22px;pointer-events:none;text-shadow:0 1px #fcf6df}.scene-heading .eyebrow{color:#6f794f;font-size:10px}.scene-heading h2{margin:4px 0;font-size:22px;letter-spacing:.12em;color:#36573e}.scene-heading p{margin:0;font-size:11px;color:#5a7152}.sky-control{position:absolute;right:26px;top:22px;z-index:3;display:flex;align-items:center;gap:10px;padding:4px 7px 4px 12px;background:#f8f2dfd9;border:1px solid #bac0a3;color:#4c674e;font-size:12px;box-shadow:0 3px 10px #37543d11}.sky-control select{min-height:34px;padding:4px 22px 4px 8px;border:0;background:transparent;font-size:11px}.scene-actions{position:absolute;z-index:3;bottom:36px;left:30px;right:30px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;pointer-events:none}.scene-actions>button{pointer-events:auto;min-height:54px}.goal-slip{display:flex;align-items:center;gap:12px;max-width:calc(100% - 180px);padding:8px 14px 8px 9px;border:1px solid #b8a475;border-left:3px solid #8b7042;background:#faf1dcf0;color:#38563d;box-shadow:0 3px 0 #7b68452b,0 6px 18px #344a3422;text-align:left}.goal-slip:hover{background:#fff9e9}.goal-mark{display:grid;place-items:center;width:29px;height:33px;border:1px solid #b7a679;box-shadow:inset 0 0 0 2px #faf1dc;font:20px 'SimSun',serif;color:#8c713e;flex:none}.goal-slip small{display:block;font-size:9px;color:#8a805e;letter-spacing:.14em}.goal-slip strong{display:block;font-size:12px;font-weight:500}.goal-slip>span:last-child{font-size:24px;color:#a09267}.collect-button{display:flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid #b99b5f;background:#345b46;color:#fff0c7;box-shadow:inset 0 0 0 3px #ffffff08,0 3px 0 #253f32,0 6px 20px #25413133;font:600 16px 'SimSun',serif}.collect-button:hover:not(:disabled){background:#294b38}.collect-button .game-icon{width:26px;height:26px;color:#e0c57e}.collect-button small{display:block;font:9px/1.5 system-ui;color:#c6cfb2;margin-top:3px}.map-help{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.1em;color:#4d684d;pointer-events:none}
+.city-page{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#cbd8bc}.city-scene{position:relative;flex:1;min-height:0;isolation:isolate;container-type:size}.scene-heading{position:absolute;z-index:2;left:30px;top:22px;pointer-events:none;text-shadow:0 1px #fcf6df}.scene-heading .eyebrow{color:#6f794f;font-size:10px}.scene-heading h2{margin:4px 0;font-size:22px;letter-spacing:.12em;color:#36573e}.scene-heading p{margin:0;font-size:11px;color:#5a7152}.sky-control{position:absolute;right:26px;top:22px;z-index:3;display:flex;align-items:center;gap:10px;padding:4px 7px 4px 12px;background:#f8f2dfd9;border:1px solid #bac0a3;color:#4c674e;font-size:12px;box-shadow:0 3px 10px #37543d11}.sky-control select{min-height:34px;padding:4px 22px 4px 8px;border:0;background:transparent;font-size:11px}.scene-actions{position:absolute;z-index:3;bottom:36px;left:30px;right:30px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;pointer-events:none}.scene-actions>button{pointer-events:auto;min-height:54px}.goal-slip{display:flex;align-items:center;gap:12px;max-width:calc(100% - 180px);padding:8px 14px 8px 9px;border:1px solid #b8a475;border-left:3px solid #8b7042;background:#faf1dcf0;color:#38563d;box-shadow:0 3px 0 #7b68452b,0 6px 18px #344a3422;text-align:left}.goal-slip:hover{background:#fff9e9}.goal-mark{display:grid;place-items:center;width:29px;height:33px;border:1px solid #b7a679;box-shadow:inset 0 0 0 2px #faf1dc;font:20px 'SimSun',serif;color:#8c713e;flex:none}.goal-slip small{display:block;font-size:9px;color:#8a805e;letter-spacing:.14em}.goal-slip strong{display:block;font-size:12px;font-weight:500}.goal-slip>span:last-child{font-size:24px;color:#a09267}.collect-button{display:flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid #b99b5f;background:#345b46;color:#fff0c7;box-shadow:inset 0 0 0 3px #ffffff08,0 3px 0 #253f32,0 6px 20px #25413133;font:600 16px 'SimSun',serif}.collect-button:hover:not(:disabled){background:#294b38}.collect-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}.collect-wrap>button{pointer-events:auto}.collect-wrap .collect-button{min-height:54px}.next-slip{display:flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid #b8a475;background:#faf1dcf0;color:#38563d;font-size:11px;box-shadow:0 2px 0 #7b68452b}.next-slip:hover{background:#fff9e9}.next-slip>span{font-size:16px;color:#a09267}.collect-button .game-icon{width:26px;height:26px;color:#e0c57e}.collect-button small{display:block;font:9px/1.5 system-ui;color:#c6cfb2;margin-top:3px}.map-help{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.1em;color:#4d684d;pointer-events:none}
 @media(max-width:640px){.scene-heading{left:12px;top:14px;padding:7px 10px;background:#faf3dfcf;border-left:2px solid #a89562;max-width:calc(100% - 112px)}.scene-heading .eyebrow{font-size:9px}.scene-heading h2{font-size:16px;letter-spacing:.03em}.scene-heading p{font-size:10px;max-width:210px}.sky-control{right:12px;top:14px;padding:2px 3px;font-size:10px}.sky-control>span{display:none}.sky-control select{min-height:40px;font-size:10px;padding-left:5px}.scene-actions{left:12px;right:12px;bottom:30px;gap:8px}.goal-slip{max-width:calc(100% - 112px);gap:7px;padding:7px}.goal-slip strong{font-size:11px}.goal-mark{width:23px;height:29px;font-size:17px}.goal-slip>span:last-child{display:none}.collect-button{gap:5px;padding:10px;font-size:14px}.collect-button .game-icon{width:18px;height:18px}.collect-button small{font-size:8px}}
 @media(max-height:600px) and (min-width:641px){.scene-heading{top:10px;left:18px}.scene-heading h2{font-size:16px}.scene-heading p{display:none}.scene-actions{bottom:24px;left:18px;right:18px}.scene-actions>button{min-height:44px}.sky-control{top:10px}}
 </style>

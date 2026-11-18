@@ -403,3 +403,41 @@ test('returning to the same save does not reactivate its previous weapon request
 
   assert.deepEqual(session.store.weapons.map(weapon => weapon.id), ['returned'])
 })
+
+test('a retrial departure carries is_retrial and the sect target to the command', async t => {
+  const session = harness()
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  session.respond('POST', '/saves/1/run/start', request => {
+    assert.deepEqual(request.body, { party: ['alpha', 'beta', 'gamma'], revision: 1, mode: 'expedition', sect_id: 'sect_1', is_retrial: true })
+    return json(snapshot({
+      revision: 2, stamina: 4,
+      disciples: ['alpha', 'beta', 'gamma'].map(id => disciple(id, { busy: true })),
+      activeRun: activeRun(['alpha', 'beta', 'gamma'], { mode: 'expedition', sect_id: 'sect_1', is_retrial: true, retrial_reward: { chi_tong: 4, spirit_stone: 10 }, guard: 0 }),
+    }))
+  })
+
+  await session.store.startRun(['alpha', 'beta', 'gamma'], 'expedition', { sect_id: 'sect_1', is_retrial: true })
+
+  assert.equal(session.store.run.run.is_retrial, true)
+  assert.equal(session.store.run.run.guard, 0)
+  assert.deepEqual(session.store.run.run.retrial_reward, { chi_tong: 4, spirit_stone: 10 })
+})
+
+test('assignment preview loads read-only views and clears on save switch', async t => {
+  const session = harness({ 1: snapshot(), 2: snapshot() })
+  t.after(() => session.cleanup())
+  await session.store.bootstrap()
+  session.respond('GET', '/saves/1/duty/assignments', () => json({
+    revision: 1,
+    assignments: [{ disciple_id: 'alpha', post: 'duty', sect_id: null, duty_rates: { cultivation_rate: .12 }, garrison_rates: {} }],
+  }))
+
+  await session.store.loadAssignments()
+
+  assert.equal(session.store.assignments.length, 1)
+  assert.equal(session.store.assignments[0].post, 'duty')
+  assert.equal(session.store.assignmentsLoading, false)
+  await session.store.switchSave(2)
+  assert.deepEqual(session.store.assignments, [])
+})

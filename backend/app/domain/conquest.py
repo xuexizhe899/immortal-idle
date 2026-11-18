@@ -118,7 +118,7 @@ def arena(state: GameState, party_ids: list[str]) -> str | None:
         survivors = sum(unit.side == "ally" and unit.hp > 0 for unit in result.final_units)
         if result.won:
             run.guard = max(0, run.guard - GUARD_DAMAGE.get(survivors, 0))
-    loot = dict(sect.loot) if is_boss and result.won else {}
+    loot = (dict(run.retrial_reward) if run.is_retrial else dict(sect.loot)) if is_boss and result.won else {}
     node = RunNode(kind="boss" if is_boss else "battle", enemy=f"{sect.name}·{'宗主' if is_boss else '擂台'}",
                    enemies=[unit.template_id for unit in foes],
                    power=round(sum(unit.attack + .5 * unit.defense + .1 * unit.health for unit in foes)), reward=loot)

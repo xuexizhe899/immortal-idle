@@ -136,6 +136,7 @@ class RunReview(BaseModel):
     mode: str
     sect_id: str | None = None
     sect_name: str | None = None
+    is_retrial: bool = False
     tower_tier: int = 1
     cleared: int
     total_nodes: int
@@ -166,6 +167,9 @@ class ActiveRun(BaseModel):
     rng_cursor: int = 0
     mode: str = "tower"
     sect_id: str | None = None
+    # 论道：已攻克宗门的单场宗主战；奖励出发时固化，不重复发首胜奖。
+    is_retrial: bool = False
+    retrial_reward: dict[str, float] = Field(default_factory=dict)
     guard: int = Field(default=100, ge=0, le=100)
     arena_round: int = Field(default=0, ge=0, le=3)
     selected_party: list[str] = Field(default_factory=list)

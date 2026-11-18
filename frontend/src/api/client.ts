@@ -36,6 +36,8 @@ export type RecipeView = Schemas['RecipeView']
 export type RecipeList = Schemas['CraftListResponse']
 export type HealPreview = Schemas['HealPartyPreview']
 export type HealResult = Schemas['HealPartyResponse']
+export type AssignmentView = Schemas['AssignmentView']
+export type AssignmentList = Schemas['AssignmentListResponse']
 
 export class ApiError extends Error {
   readonly status: number
@@ -88,13 +90,14 @@ export const api = {
   getSave: (slotId: number) => request<SaveContent>(`/saves/${slotId}`),
   settle: (slotId: number, revision?: number) => post<SettleResult>(`/saves/${slotId}/settle`, revision ? { revision } : undefined),
   getRun: (slotId: number) => request<RunPayload>(`/saves/${slotId}/run`),
-  startRun: (slotId: number, party: string[], revision: number, mode: 'tower' | 'expedition' = 'tower', options: { sect_id?: string; tower_tier?: number } = {}) => post<RunPayload>(`/saves/${slotId}/run/start`, { party, revision, ...(mode === 'tower' ? {} : { mode }), ...options }),
+  startRun: (slotId: number, party: string[], revision: number, mode: 'tower' | 'expedition' = 'tower', options: { sect_id?: string; tower_tier?: number; is_retrial?: boolean } = {}) => post<RunPayload>(`/saves/${slotId}/run/start`, { party, revision, ...(mode === 'tower' ? {} : { mode }), ...options }),
   arena: (slotId: number, party: string[], revision: number) => post<RunPayload>(`/saves/${slotId}/run/arena`, { party, revision }),
   retreat: (slotId: number, revision: number) => post<RunPayload>(`/saves/${slotId}/run/retreat`, { revision }),
   choose: (slotId: number, choice: number, revision: number) => post<RunPayload>(`/saves/${slotId}/run/choose`, { choice, revision }),
   pickAffix: (slotId: number, affixId: string, revision: number) => post<RunPayload>(`/saves/${slotId}/run/affix`, { affix_id: affixId, revision }),
   settleRun: (slotId: number, revision: number) => post<RunSettleResult>(`/saves/${slotId}/run/settle`, { revision }),
   assignDuty: (slotId: number, revision: number, discipleId: string) => post<DutyChange>(`/saves/${slotId}/duty/assign`, { revision, disciple_id: discipleId }),
+  assignments: (slotId: number) => request<AssignmentList>(`/saves/${slotId}/duty/assignments`),
   unassignDuty: (slotId: number, revision: number, discipleId: string) => post<DutyChange>(`/saves/${slotId}/duty/unassign`, { revision, disciple_id: discipleId }),
   recruit: (slotId: number, templateId: string, revision: number) => post<RecruitResult>(`/saves/${slotId}/recruit`, { template_id: templateId, revision }),
   recipes: (slotId: number, grade: number) => request<RecipeList>(`/saves/${slotId}/craft?grade=${grade}`),

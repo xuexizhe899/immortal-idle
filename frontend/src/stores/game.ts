@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 import {
   api, ApiError, type Catalog, type GameState, type SaveContent, type RunPayload,
   type RunSettleResult, type SaveSlotMeta, type SettleResult, type Production,
-  type TrainingPreview, type WeaponView,
+  type TrainingPreview, type WeaponView, type AssignmentView,
 } from '../api/client'
 
 const PREFERENCES_KEY = 'immortal-idle.preferences.v1'
@@ -53,6 +53,9 @@ export const useGameStore = defineStore('game', () => {
   let trainingRequest = 0
   const weapons = ref<WeaponView[]>([])
   let weaponsRequest = 0
+  const assignments = ref<AssignmentView[]>([])
+  const assignmentsLoading = ref(false)
+  let assignmentsRequest = 0
   let slotSession = 0
   const run = computed<RunPayload | null>(() => state.value ? {
     revision: revision.value, state: state.value, status: status.value,
@@ -183,6 +186,9 @@ export const useGameStore = defineStore('game', () => {
     trainingRequest += 1
     weapons.value = []
     weaponsRequest += 1
+    assignments.value = []
+    assignmentsLoading.value = false
+    assignmentsRequest += 1
     if (collect) {
       const result = await api.settle(id)
       applySnapshot(result, id)
@@ -221,7 +227,7 @@ export const useGameStore = defineStore('game', () => {
     })
   }
 
-  async function startRun(partyIds: string[], mode: 'tower' | 'expedition' = 'tower', options: { sect_id?: string; tower_tier?: number } = {}): Promise<void> {
+  async function startRun(partyIds: string[], mode: 'tower' | 'expedition' = 'tower', options: { sect_id?: string; tower_tier?: number; is_retrial?: boolean } = {}): Promise<void> {
     await guard(mode === 'expedition' ? '前往远行码头' : '进入问道塔', async () => {
       const id = currentSlot()
       const result = await api.startRun(id, partyIds, revision.value, mode, options)
@@ -428,6 +434,17 @@ export const useGameStore = defineStore('game', () => {
   const previewRecipes = (grade: number) => readPreview(id => api.recipes(id, grade))
   const previewHealing = (partyIds: string[]) => readPreview(id => api.healPreview(id, partyIds))
 
+  async function loadAssignments(): Promise<void> {
+    const id = slotId.value
+    if (id === null) return
+    const request = ++assignmentsRequest
+    assignmentsLoading.value = true
+    const result = await readPreview(slot => api.assignments(slot))
+    if (request !== assignmentsRequest) return
+    assignments.value = result?.assignments ?? []
+    assignmentsLoading.value = false
+  }
+
   function productionDestination(resourceId: string): { panel: 'duty' | 'expedition'; label: string; hint: string; sectId?: string } {
     if (catalog.value?.production.materials[resourceId] !== 0) {
       return { panel: 'duty', label: '安排值守', hint: '' }
@@ -563,10 +580,10 @@ export const useGameStore = defineStore('game', () => {
   return {
     slotId, revision, state, run, catalog, lastRun, lastSettle, saves, party, productionTarget, targetSectId, busy, ready,
     operation, error, notice, noticeId, disciples, resources, status, production, battleResult,
-    training, trainingFor, trainingLoading, weapons,
+    training, trainingFor, trainingLoading, weapons, assignments, assignmentsLoading,
     bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, moveParty, choose, pickAffix,
     settleRun, assignDuty, unassignDuty, recruit, craft, usePill, craftWeapon, equipWeapon, unequipWeapon,
-    loadWeapons, upgrade, breakthrough, loadTraining,
+    loadWeapons, upgrade, breakthrough, loadTraining, loadAssignments,
     previewFacilities, previewRecipes, previewHealing, upgradeFacility, healParty, upgradeWeapon,
     productionDestination, planProduction,
     fightArena, retreat, assignGarrison, unassignGarrison,

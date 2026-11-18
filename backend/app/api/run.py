@@ -23,6 +23,7 @@ class StartRunRequest(RevisionRequest):
     mode: Literal["tower", "expedition"] = "tower"
     sect_id: str | None = None
     tower_tier: int = Field(default=1, ge=1, le=3)
+    is_retrial: bool = False
 
 
 class ArenaRequest(RevisionRequest):
@@ -69,11 +70,18 @@ async def start(
             raise HTTPException(status_code=400, detail="请先选择要征讨的宗门")
     elif payload.sect_id is not None:
         raise HTTPException(status_code=400, detail="问道塔不接受宗门目标")
+    retrial_reward = None
+    if payload.is_retrial:
+        if payload.mode != "expedition" or sect is None:
+            raise HTTPException(status_code=400, detail="论道属于远行码头的已攻克宗门")
+        style = next((item for item in load_sects()["styles"] if item["name"] == sect.style), None)
+        retrial_reward = (style or {}).get("retrial_reward") or None
     error = run_engine.start_run(
         command.state, payload.party, load_disciples(), mode, command.settled_at,
         seed=secrets.randbits(63), bonds=load_bonds(), skills=load_skills(), enemies=load_enemies(),
         affix_pool=load_affixes(), weapons=load_weapons(), route_version=2,
         sect=sect, tower_tier=payload.tower_tier,
+        is_retrial=payload.is_retrial, retrial_reward=retrial_reward,
     )
     if error:
         raise HTTPException(status_code=400, detail=error)

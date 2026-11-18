@@ -32,7 +32,7 @@
 | 23 | [T22](T22-tower-route-and-pacing.md) | 问道塔选路与单局节奏 | 方向已确认；依赖 T20/T21 的实际结果 |
 | 24 | [T23](T23-battle-review-and-growth-goals.md) | 失败复盘与成长目标回流 | 方向已确认；接通理解、投入与再次验证 |
 | 25 | [T24](T24-visual-baseline.md) | 前端视觉基准与公共界面样板 | 任务卡已建立，待执行 |
-| 26 | [T25](T25-goal-chain-and-visibility.md) | 目标链续接与资源可见性 | 设计提案待确认；P0 展示与接通，论道以 P0 v2 为准 |
+| 26 | [T25](T25-goal-chain-and-visibility.md) | 目标链续接与资源可见性 | P0 已实施并验证（含论道）；视觉待人工验收 |
 
 T17–T20 已完成本轮实现与验证，T21 仍待实施。按 `T16 → T17 → T18 → T19 → T20` 推进：先保存战斗与投入基线，再优化培养、个人物品与敌人；各期用相同样本对照，并单独记录新增变量。最新执行、验证与美术约束见根目录 `AGENTS.md`、`ARCHITECTURE.md`、`ART_DIRECTION.md`，历史卡中的全量验证或视觉检查记录不能覆盖现行规则。
 

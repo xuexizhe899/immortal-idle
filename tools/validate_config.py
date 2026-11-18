@@ -430,6 +430,17 @@ def check_sects(
         special = style.get("special_material")
         if not isinstance(special, str) or special not in materials:
             errors.append(f"{pos}.special_material: 必须引用已有材料")
+        retrial = style.get("retrial_reward")
+        if not isinstance(retrial, dict) or not retrial:
+            errors.append(f"{pos}.retrial_reward: 必须提供非空论道奖励表")
+        else:
+            for resource, amount in retrial.items():
+                if resource not in materials and resource != "spirit_stone":
+                    errors.append(f"{pos}.retrial_reward: 资源 '{resource}' 不存在")
+                if not is_finite_number(amount) or amount <= 0:
+                    errors.append(f"{pos}.retrial_reward.{resource}: 必须是有限正数")
+                elif resource in materials and (not isinstance(amount, int) or isinstance(amount, bool)):
+                    errors.append(f"{pos}.retrial_reward.{resource}: 材料奖励必须是正整数")
         leader = style.get("leader")
         if not isinstance(leader, str) or leader not in enemies:
             errors.append(f"{pos}.leader: 必须引用已有敌人")

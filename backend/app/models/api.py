@@ -320,6 +320,30 @@ class ModeCatalog(BaseModel):
     boss_every: int
     defeat_ratio: float
     start_hp: int
+    rewards: dict[str, dict[str, float]] = Field(default_factory=dict)
+
+
+class SectStyleCatalog(BaseModel):
+    """外宗流派展示：名称与论道固定奖励，供来源总览和出发前展示。"""
+
+    name: str
+    suffix: str
+    retrial_reward: dict[str, float] = Field(default_factory=dict)
+
+
+class AssignmentView(BaseModel):
+    """一名弟子的岗位与产出预览；速率由服务端规则计算，前端只展示。"""
+
+    disciple_id: str
+    post: Literal["duty", "garrison", "run", "idle"]
+    sect_id: str | None = None
+    duty_rates: dict[str, float] = Field(default_factory=dict)
+    garrison_rates: dict[str, float] = Field(default_factory=dict)
+
+
+class AssignmentListResponse(BaseModel):
+    revision: int
+    assignments: list[AssignmentView] = Field(default_factory=list)
 
 
 class RulesCatalog(BaseModel):
@@ -350,3 +374,4 @@ class CatalogResponse(BaseModel):
     rules: RulesCatalog
     production: ProductionCatalog
     city: CityLayout
+    sect_styles: list[SectStyleCatalog] = Field(default_factory=list)

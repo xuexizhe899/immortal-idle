@@ -272,6 +272,7 @@ def start_run(
     skills: dict[str, dict] | None = None, enemies: dict[str, dict] | None = None,
     affix_pool: list[dict] | None = None, weapons: dict[str, dict] | None = None,
     route_version: int = 1, sect: NpcSect | None = None, tower_tier: int = 1,
+    is_retrial: bool = False, retrial_reward: dict[str, float] | None = None,
 ) -> str | None:
     if route_version not in {1, 2}:
         return "不支持的路线版本"
@@ -284,8 +285,12 @@ def start_run(
     if sect is not None:
         if mode["id"] != "expedition" or not any(item.id == sect.id for item in state.sects):
             return "宗门目标不存在"
-        if sect.conquered:
-            return "该宗门已攻克，可安排驻守"
+        if sect.conquered and not is_retrial:
+            return "该宗门已攻克，可安排驻守或论道"
+        if is_retrial and not sect.conquered:
+            return "论道仅面向已攻克的宗门"
+        if is_retrial and not retrial_reward:
+            return "论道奖励未配置"
         if len(party_ids) < 3:
             return "宗门征讨需要 3 到 6 名随行弟子"
     if mode["id"] == "tower":
@@ -309,8 +314,8 @@ def start_run(
     weapon_map = weapons if weapons is not None else load_weapons()
     frozen_mode = deepcopy(mode)
     if sect is not None:
-        # 征讨不生成问道路线，也不抽道法；守军、首胜奖励随本局一起固化。
-        frozen_mode.update(node_count=4, sect=sect.model_dump(mode="json"))
+        # 征讨不生成问道路线，也不抽道法；守军、首胜奖励随本局一起固化。论道单场宗主战，守备直接归零。
+        frozen_mode.update(node_count=1 if is_retrial else 4, sect=sect.model_dump(mode="json"))
     elif mode["id"] == "tower" and tower_tier > 1:
         frozen_mode["kind_stat_multiplier"] = {
             kind: mode.get("kind_stat_multiplier", {}).get(kind, 1) * (1 + .6 * (tower_tier - 1))
@@ -345,6 +350,8 @@ def start_run(
         member_hp=hp, hp=sum(hp.values()), max_hp=sum(hp.values()),
         choices=[] if sect is not None else roll_choices(rng, 0, snapshot), started_at=now,
         sect_id=sect.id if sect is not None else None, tower_tier=tower_tier,
+        is_retrial=is_retrial, retrial_reward=dict(retrial_reward or {}),
+        guard=0 if is_retrial else 100,
         return_posts=detach_for_run(state, party_ids),
     )
     state.active_run.rng_cursor = rng.cursor
@@ -509,9 +516,13 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
     victory = run_status(run) == "cleared"
     if run.sect_id:
         target = next(item for item in state.sects if item.id == run.sect_id)
-        loot = dict(run.pending_loot) if victory and not target.conquered else {}
-        if victory:
-            target.conquered = True
+        if run.is_retrial:
+            # 论道只发本局固化的固定奖励，不重复首胜奖，也不改变攻克状态。
+            loot = dict(run.retrial_reward) if victory else {}
+        else:
+            loot = dict(run.pending_loot) if victory and not target.conquered else {}
+            if victory:
+                target.conquered = True
     else:
         loot = dict(run.pending_loot) if victory else defeat_loot(run.pending_loot, cleared, mode)
     for key, value in loot.items():
@@ -525,6 +536,7 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
     state.last_run_review = RunReview(
         mode=run.mode, cleared=cleared, total_nodes=cleared if run.sect_id and victory else mode["node_count"], victory=victory,
         sect_id=run.sect_id, sect_name=mode["sect"]["name"] if run.sect_id else None,
+        is_retrial=run.is_retrial,
         tower_tier=run.tower_tier,
         end_reason=run.end_reason,
         loot=loot,

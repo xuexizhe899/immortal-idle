@@ -55,13 +55,13 @@ function toggle(id: string) {
   <main v-if="run && sect" class="conquest-page">
     <header class="conquest-heading">
       <div>
-        <span class="eyebrow">宗门征讨 · {{ sect.style }}</span>
+        <span class="eyebrow">{{ run.is_retrial ? '宗门论道' : '宗门征讨' }} · {{ sect.style }}</span>
         <h2>{{ sect.name }}</h2>
-        <p class="muted">{{ ended ? '本次征讨已结束，等待结算' : boss ? '守备已破，宗主应战' : '选定三位同道，迎战守擂弟子' }} · 进度自动保存</p>
+        <p class="muted">{{ ended ? (run.is_retrial ? '本次论道已结束，等待结算' : '本次征讨已结束，等待结算') : boss ? (run.is_retrial ? '单场论道，宗主应战' : '守备已破，宗主应战') : '选定三位同道，迎战守擂弟子' }} · 进度自动保存</p>
       </div>
       <button class="btn btn-small" :disabled="store.busy" @click="$emit('returnCity')">返回宗门</button>
     </header>
-    <section class="siege-progress" aria-label="宗门守备">
+    <section v-if="!run.is_retrial" class="siege-progress" aria-label="宗门守备">
       <div>
         <span>宗门守备</span>
         <strong>
@@ -125,7 +125,7 @@ function toggle(id: string) {
           </button>
           <div class="retreat-control">
             <template v-if="confirmRetreat">
-              <p>撤退不会获得攻克奖励，行动力不退还；交战过的弟子会增加伤势。</p>
+              <p>{{ run.is_retrial ? '撤退不会获得论道奖励，行动力不退还；交战过的弟子会增加伤势。' : '撤退不会获得攻克奖励，行动力不退还；交战过的弟子会增加伤势。' }}</p>
               <button class="btn btn-small" :disabled="store.busy||playing" @click="store.retreat()">确认撤退</button>
               <button class="btn btn-small btn-quiet" @click="confirmRetreat=false">继续征讨</button>
             </template>
@@ -140,9 +140,9 @@ function toggle(id: string) {
           </div>
         </section>
         <section v-else class="conquest-ending">
-          <span class="ending-seal">{{ store.status==='cleared'?'克':'归' }}</span>
-          <h3>{{ store.status==='cleared' ? '山门已定，同道凯旋' : '暂收旗鼓，养锐再来' }}</h3>
-          <p>{{ store.status==='cleared' ? '结算后领取攻克奖励，并可在远行码头安排弟子驻守。' : reason+' 本次没有攻克奖励；结算后可查看伤势并重新整备。' }}</p>
+          <span class="ending-seal">{{ store.status==='cleared'?(run.is_retrial?'论':'克'):'归' }}</span>
+          <h3>{{ store.status==='cleared' ? (run.is_retrial ? '论道获胜，同道凯旋' : '山门已定，同道凯旋') : '暂收旗鼓，养锐再来' }}</h3>
+          <p>{{ store.status==='cleared' ? (run.is_retrial ? '结算后领取论道奖励；不影响该宗门的驻守安排。' : '结算后领取攻克奖励，并可在远行码头安排弟子驻守。') : reason+(run.is_retrial ? ' 本次没有论道奖励；结算后可查看伤势并重新整备。' : ' 本次没有攻克奖励；结算后可查看伤势并重新整备。') }}</p>
           <button class="btn btn-primary" :disabled="store.busy||playing" @click="store.settleRun()">结算并返回宗门</button>
         </section>
       </div>
@@ -161,21 +161,24 @@ function toggle(id: string) {
           </article>
         </section>
         <section class="spoils-panel">
-          <span class="eyebrow">攻克后带回</span>
-          <h3>宗门战利品</h3>
-          <div v-for="(amount,id) in sect.loot" :key="id">
+          <span class="eyebrow">{{ run.is_retrial ? '论道所得' : '攻克后带回' }}</span>
+          <h3>{{ run.is_retrial ? '论道奖励' : '宗门战利品' }}</h3>
+          <div v-for="(amount,id) in (run.is_retrial ? run.retrial_reward : sect.loot)" :key="id">
             <span>{{ resourceName(id,store.catalog) }}</span>
             <strong>{{ number(amount,1) }}</strong>
           </div>
           <p class="muted">
-            击败宗主后一次领取。攻克后可驻守获取
-            {{ resourceName(sect.material_id,store.catalog) }}
-            与
-            {{ resourceName(sect.special_material_id,store.catalog) }}
-            。
+            <template v-if="run.is_retrial">击败宗主后一次领取；失败无奖励，不影响驻守。</template>
+            <template v-else>
+              击败宗主后一次领取。攻克后可驻守获取
+              {{ resourceName(sect.material_id,store.catalog) }}
+              与
+              {{ resourceName(sect.special_material_id,store.catalog) }}
+              。
+            </template>
           </p>
         </section>
-        <p class="guard-rule">守备削减只看本场获胜后的存活人数：三人 50、两人 30、一人 15。守备归零即进入宗主决战。</p>
+        <p v-if="!run.is_retrial" class="guard-rule">守备削减只看本场获胜后的存活人数：三人 50、两人 30、一人 15。守备归零即进入宗主决战。</p>
       </aside>
     </div>
   </main>

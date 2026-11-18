@@ -345,3 +345,90 @@ def test_losing_twentieth_floor_does_not_unlock_next_tier():
     settle_run(state, {}, NOW)
     assert state.tower_floor == state.tower_tiers["1"] == 19
     assert "前一阶" in start_run(state, PARTY, load_disciples(), mode, NOW, seed=2, tower_tier=2)
+
+
+def retrial_start(state, target=0, party=None):
+    styles = {style["name"]: style for style in load_sects()["styles"]}
+    sect = state.sects[target]
+    return start_run(state, party or PARTY, load_disciples(), load_modes()["expedition"], NOW,
+                     seed=18, bonds=load_bonds(), sect=sect, route_version=2,
+                     is_retrial=True, retrial_reward=styles[sect.style]["retrial_reward"])
+
+
+def test_retrial_requires_conquered_and_freezes_single_boss_reward():
+    state = make_state()
+    assert "已攻克" in retrial_start(state)
+    state.sects[0].conquered = True
+    assert "论道" in start(state)
+    assert retrial_start(state) is None
+    run = state.active_run
+    assert run.guard == 0 and run.is_retrial and run.party_snapshot.mode["node_count"] == 1
+    reward = dict(run.retrial_reward)
+    assert reward == {"chi_tong": 4, "spirit_stone": 10}
+    assert state.resources.stamina == 4
+    assert conquest.arena(state, PARTY[:3]) is None
+    assert len([unit for unit in run.last_battle.initial_units if unit.side == "enemy"]) == 1
+    assert run.last_battle.loot == reward and run.pending_loot == reward
+    assert run_status(run) == "cleared"
+    result = settle_run(state, {}, NOW)
+    assert result["loot"] == reward and state.sects[0].conquered
+    assert state.inventory["chi_tong"] == 4 and state.resources.spirit_stone == 10
+    assert state.last_run_review.is_retrial
+    assert all(not d.busy and not d.injury_stacks for d in state.disciples)
+    # 论道可重复挑战，不重复发首胜奖，也不改变驻守编制。
+    assert retrial_start(state) is None
+    assert conquest.arena(state, PARTY[:3]) is None
+    assert settle_run(state, {}, NOW)["loot"] == reward
+    assert state.inventory["chi_tong"] == 8
+
+
+def test_retrial_defeat_awards_nothing_and_injures_only_deployed(monkeypatch):
+    state = make_state()
+    state.sects[0].conquered = True
+    assert retrial_start(state) is None
+    actual_battle = conquest.simulate_battle
+
+    def wipe(*args):
+        result = actual_battle(*args)
+        result.won = False
+        result.reason = "defeated"
+        for unit in result.final_units:
+            if unit.side == "ally":
+                unit.hp = 0
+        return result
+
+    monkeypatch.setattr(conquest, "simulate_battle", wipe)
+    assert conquest.arena(state, PARTY[:3]) is None
+    assert run_status(state.active_run) == "defeated"
+    result = settle_run(state, {}, NOW)
+    assert not result["victory"] and result["loot"] == {}
+    assert state.sects[0].conquered
+    assert [d.injury_stacks for d in state.disciples] == [1, 1, 1, 0, 0, 0]
+
+
+def test_retrial_reward_snapshot_survives_reload_and_config_drift():
+    state = make_state()
+    state.sects[0].conquered = True
+    assert retrial_start(state) is None
+    reward = dict(state.active_run.retrial_reward)
+    state.sects[0].loot["spirit_stone"] = 99999
+    restored = GameState.model_validate_json(state.model_dump_json())
+    for current in (state, restored):
+        assert conquest.arena(current, PARTY[:3]) is None
+        assert current.active_run.last_battle.loot == reward
+    assert settle_run(restored, {}, NOW)["loot"] == reward
+
+
+def test_legacy_run_without_retrial_fields_still_conquers():
+    state = make_state()
+    assert start(state) is None
+    data = state.model_dump(mode="json")
+    del data["active_run"]["is_retrial"]
+    del data["active_run"]["retrial_reward"]
+    legacy = GameState.model_validate(data)
+    assert legacy.active_run.is_retrial is False
+    for members in (PARTY[:3], PARTY[3:], PARTY[:3]):
+        assert conquest.arena(legacy, members) is None
+    result = settle_run(legacy, {}, NOW)
+    assert result["victory"] and legacy.sects[0].conquered
+    assert result["loot"] == legacy.sects[0].loot

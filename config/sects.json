@@ -7,6 +7,7 @@
       "id": "sword", "name": "剑修", "suffix": "剑宗",
       "materials": ["han_tie", "chi_tong", "yao_shou_pi"],
       "special_material": "gong_fa_qi_pei",
+      "retrial_reward": { "chi_tong": 4, "spirit_stone": 10 },
       "teams": [["bamboo_swordsman", "cinder_blade", "cloud_archer"], ["cinder_blade", "stone_guard", "cloud_archer"]],
       "leader": "cinder_blade",
       "disciple_assets": {
@@ -21,6 +22,7 @@
       "id": "ward", "name": "御守", "suffix": "器宗",
       "materials": ["qing_shi", "yun_mu", "xuan_jing"],
       "special_material": "hu_chi_qi_pei",
+      "retrial_reward": { "qing_shi": 14, "spirit_stone": 11 },
       "teams": [["stone_guard", "jade_warden", "cloud_archer"], ["jade_warden", "stone_guard", "lantern_wraith"]],
       "leader": "jade_warden",
       "disciple_assets": {
@@ -35,6 +37,7 @@
       "id": "herbal", "name": "丹修", "suffix": "丹宗",
       "materials": ["ling_cao", "ling_mu", "jiu_ye"],
       "special_material": "po_jing_ling_cai",
+      "retrial_reward": { "ling_mu": 8, "spirit_stone": 11 },
       "teams": [["bamboo_swordsman", "frost_crane", "cloud_archer"], ["stone_guard", "frost_crane", "lantern_wraith"]],
       "leader": "lantern_wraith",
       "disciple_assets": {

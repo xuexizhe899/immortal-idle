@@ -10,11 +10,13 @@ import pytest_asyncio
 
 from app.api import run as run_api
 from app.api import state as state_api
-from app.config_loader import load_disciples, load_enemies, load_modes
+from app.config_loader import load_disciples, load_enemies, load_modes, load_sects
 from app.db import create_engine, create_session_factory
+from app.domain import conquest
+from app.domain.duty import member_garrison_rates, personal_duty_rates
 from app.domain.run_engine import start_run
 from app.main import app
-from app.models.save import DiscipleState, GameState, Resources
+from app.models.save import DiscipleState, DutySlot, GameState, Resources
 from app.repositories import saves as save_repository
 from app.repositories.tables import metadata
 
@@ -59,6 +61,9 @@ async def test_catalog_and_world_expose_conquest(expedition_client):
     assert catalog["modes"]["expedition"]["node_count"] == 4
     assert catalog["modes"]["expedition"]["name"] == "宗门征讨"
     assert "invasion" not in catalog["modes"]
+    assert len(catalog["sect_styles"]) == 3
+    assert all(style["retrial_reward"] for style in catalog["sect_styles"])
+    assert catalog["mode"]["rewards"]["battle"]["ling_cao"] == 1
     slot = await import_party(client)
     response = await client.get(f"/api/saves/{slot}")
     assert response.status_code == 200 and len(response.json()["state"]["sects"]) == 3
@@ -181,3 +186,69 @@ async def test_unavailable_modes_do_not_consume_or_change_state(expedition_clien
     })
     assert response.status_code == status
     assert (await expedition_client.get(f"/api/saves/{slot}")).json() == before
+
+
+async def test_retrial_single_boss_awards_fixed_reward_without_reconquest(expedition_client):
+    client = expedition_client
+    slot = await import_party(client, GameState(resources=Resources(stamina=8), disciples=[
+        DiscipleState(id=key, template_id=key, level=20, realm=3) for key in PARTY
+    ]))
+    body = (await client.post(f"/api/saves/{slot}/run/start", json={
+        "revision": 1, "party": PARTY, "mode": "expedition", "sect_id": "sect_1",
+    })).json()
+    for members in (PARTY[:3], PARTY[3:], PARTY[:3]):
+        body = (await client.post(f"/api/saves/{slot}/run/arena", json={"party": members, "revision": body["revision"]})).json()
+    body = (await client.post(f"/api/saves/{slot}/run/settle", json={"revision": body["revision"]})).json()
+    assert body["state"]["sects"][0]["conquered"]
+    catalog = (await client.get("/api/catalog")).json()
+    reward = next(style["retrial_reward"] for style in catalog["sect_styles"] if style["name"] == "剑修")
+    assert (await client.post(f"/api/saves/{slot}/run/start", json={
+        "revision": body["revision"], "party": PARTY, "mode": "expedition", "sect_id": "sect_2", "is_retrial": True,
+    })).status_code == 400
+    assert (await client.post(f"/api/saves/{slot}/run/start", json={
+        "revision": body["revision"], "party": PARTY, "mode": "expedition", "sect_id": "sect_1",
+    })).status_code == 400
+    retrial = await client.post(f"/api/saves/{slot}/run/start", json={
+        "revision": body["revision"], "party": PARTY, "mode": "expedition", "sect_id": "sect_1", "is_retrial": True,
+    })
+    assert retrial.status_code == 200
+    body = retrial.json()
+    assert body["run"]["guard"] == 0 and body["run"]["is_retrial"]
+    assert body["run"]["retrial_reward"] == reward
+    assert body["state"]["resources"]["stamina"] == 4
+    body = (await client.post(f"/api/saves/{slot}/run/arena", json={"party": PARTY[:3], "revision": body["revision"]})).json()
+    assert body["status"] == "cleared"
+    assert body["battle_result"]["loot"] == reward
+    assert len([unit for unit in body["battle_result"]["initial_units"] if unit["side"] == "enemy"]) == 1
+    settled = (await client.post(f"/api/saves/{slot}/run/settle", json={"revision": body["revision"]})).json()
+    assert settled["loot"] == reward and settled["state"]["sects"][0]["conquered"]
+    assert settled["state"]["inventory"]["chi_tong"] == reward["chi_tong"]
+    assert settled["state"]["last_run_review"]["is_retrial"]
+    assert (await client.post(f"/api/saves/{slot}/run/settle", json={"revision": body["revision"]})).status_code == 409
+
+
+async def test_assignments_preview_is_read_only_and_matches_rules(expedition_client):
+    client = expedition_client
+    state = GameState(resources=Resources(stamina=6), disciples=[
+        DiscipleState(id=key, template_id=key, level=20, realm=3) for key in PARTY
+    ])
+    conquest.ensure_sects(state, load_sects(), load_enemies())
+    state.sects[0].conquered = True
+    state.sects[0].garrison = [DutySlot(disciple_id=PARTY[1], assigned_at=NOW)]
+    state.duty_slots = [DutySlot(disciple_id=PARTY[0], assigned_at=NOW)]
+    slot = await import_party(client, state)
+    before = (await client.get(f"/api/saves/{slot}")).json()
+    response = await client.get(f"/api/saves/{slot}/duty/assignments")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["revision"] == before["revision"]
+    views = {item["disciple_id"]: item for item in data["assignments"]}
+    assert views[PARTY[0]]["post"] == "duty"
+    assert views[PARTY[1]]["post"] == "garrison" and views[PARTY[1]]["sect_id"] == "sect_1"
+    assert views[PARTY[2]]["post"] == "idle"
+    templates = load_disciples()
+    assert views[PARTY[0]]["duty_rates"] == personal_duty_rates(state.disciples[0], templates[PARTY[0]], 1)
+    assert views[PARTY[1]]["duty_rates"] == personal_duty_rates(state.disciples[1], templates[PARTY[1]], 1)
+    assert views[PARTY[1]]["garrison_rates"] == member_garrison_rates(state.sects[0], state.disciples[1], templates[PARTY[1]])
+    assert views[PARTY[2]]["garrison_rates"] == {}
+    assert (await client.get(f"/api/saves/{slot}")).json() == before

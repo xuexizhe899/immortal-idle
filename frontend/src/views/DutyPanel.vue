@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { discipleImage } from '../presentation/assetPaths'
 import { leanNames, leanDescriptions, resourceName, statNames, matchesProductionTarget, resourceDutyLeans } from '../presentation/gameText'
 import { number } from '../shared/format'
@@ -31,6 +31,20 @@ function specialty(templateId: string) { return catalog.value?.disciples[templat
 function postOf(id: string) {
   return store.state?.sects.find(sect => sect.garrison.some(slot => slot.disciple_id === id))?.name
 }
+const postNames: Record<string, string> = { duty: '本宗值守', garrison: '外宗驻守', run: '出征中', idle: '待安排' }
+const rateLabels: Record<string, string> = { cultivation_rate: '修为', spirit_stone_rate: '灵石', stamina_rate: '行动力', material_rate: '材料', injury_rate: '疗伤' }
+function discipleName(id: string) {
+  const disciple = store.disciples.find(item => item.id === id)
+  return catalog.value?.disciples[disciple?.template_id ?? '']?.name ?? id
+}
+function sectName(id: string) { return store.state?.sects.find(sect => sect.id === id)?.name ?? '' }
+function rateText(rates: Record<string, number>) {
+  const parts = Object.entries(rates).filter(([, value]) => value > 0).map(([key, value]) => key.endsWith('_flat')
+    ? `${resourceName(key.slice(9, -5), catalog.value)}+${number(value, 2)}/时`
+    : `${rateLabels[key] ?? key}+${number(value * 100, 0)}%`)
+  return parts.join(' · ') || '无加成'
+}
+watch([() => store.revision, () => store.slotId], () => store.loadAssignments(), { immediate: true })
 async function toggle(id: string) {
   if (onDuty.value.has(id)) await store.unassignDuty(id)
   else await store.assignDuty(id)
@@ -125,6 +139,22 @@ async function toggle(id: string) {
       </div>
     </div>
   </div>
+  <div class="assignment-panel">
+    <div class="section-heading">
+      <h4>弟子分配总览</h4>
+      <span class="muted">调岗前比较得失 · 预览不改变岗位</span>
+    </div>
+    <p v-if="store.assignmentsLoading" class="muted" role="status">正在查阅分配……</p>
+    <div v-else class="assignment-list">
+      <div v-for="view in store.assignments" :key="view.disciple_id" class="assignment-row">
+        <strong>{{ discipleName(view.disciple_id) }}</strong>
+        <span class="badge" :class="{'badge-gold':view.post==='garrison'}">{{ postNames[view.post] }}{{ view.sect_id ? ' · '+sectName(view.sect_id) : '' }}</span>
+        <span>值守潜力 · {{ rateText(view.duty_rates) }}</span>
+        <span v-if="view.post==='garrison'">当前驻守 · {{ rateText(view.garrison_rates) }}</span>
+        <small v-if="view.post==='garrison'">改值守得 {{ rateText(view.duty_rates) }}，失去驻守 {{ rateText(view.garrison_rates) }}</small>
+      </div>
+    </div>
+  </div>
   <div class="section-heading">
     <h3>安排弟子</h3>
     <span class="muted">出征自动离岗，结算自动回岗</span>
@@ -170,4 +200,4 @@ async function toggle(id: string) {
 @media(max-width:640px){.duty-slots{grid-template-columns:repeat(3,minmax(0,1fr))}.duty-slot{min-height:145px}.duty-row{gap:9px}.duty-row>.badge{display:none}.production-panel .section-heading{align-items:flex-start;flex-direction:column;gap:4px}.production-panel{padding:14px}.production-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.production-grid strong{font-size:18px}.duty-row>.btn{font-size:10px;padding-inline:8px}.duty-person span{max-width:150px}}
 </style>
 
-<style scoped>.production-target{display:flex;align-items:center;gap:16px;font-size:12px;margin:12px 0}.production-target select{flex:1}.duty-row.matching{background:#dce8cc;padding-inline:10px;border-left:3px solid var(--jade)}.duty-person small{font-size:10px;color:var(--gold)}</style>
+<style scoped>.production-target{display:flex;align-items:center;gap:16px;font-size:12px;margin:12px 0}.production-target select{flex:1}.duty-row.matching{background:#dce8cc;padding-inline:10px;border-left:3px solid var(--jade)}.duty-person small{font-size:10px;color:var(--gold)}.assignment-panel{padding:18px;background:#ebe8d8;border:1px solid #d0c8ac;margin-bottom:24px}.assignment-panel h4{margin:0}.assignment-list{display:flex;flex-direction:column}.assignment-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:9px 0;border-top:1px solid #d9d0b8;font-size:11px}.assignment-row strong{font:14px 'SimSun',serif;min-width:70px}.assignment-row span{color:var(--muted)}.assignment-row small{flex-basis:100%;color:var(--jade);font-size:10px}@media(max-width:640px){.assignment-panel{padding:14px}.assignment-row strong{min-width:0}}</style>
