@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import ItemIcon from '../components/game/ItemIcon.vue'
+import PanelModal from '../components/ui/PanelModal.vue'
 import type { RecipeView, WeaponView } from '../api/client'
 import { effectText, injuryText, resourceName } from '../presentation/gameText'
 import { number } from '../shared/format'
@@ -17,6 +18,11 @@ const previews = ref<RecipeView[]>([])
 const loading = ref(false)
 const useItem = ref('')
 const useTarget = ref('')
+const section = ref('primary')
+const workshop = ref<HTMLElement | null>(null)
+const recipeOpen = ref(false)
+const weaponId = ref('')
+const selectedWeapon = computed(() => store.weapons.find(item => item.id === weaponId.value))
 let previewRequest = 0
 const recipes = computed(() => previews.value.filter(recipe => recipe.kind === 'pill' && (!props.kind || recipe.kind === props.kind)))
 const recipe = computed(() => recipes.value.find(item => item.id === selectedId.value))
@@ -54,17 +60,28 @@ const useReason = computed(() => {
 })
 const usedGrades = computed(() => target.value?.pill_grades[basePillId.value]
   ?? Array(target.value?.pill_uses[basePillId.value] ?? 0).fill(1))
-watch([grade, () => props.kind, () => store.revision, () => store.slotId], async () => {
+watch([grade, () => props.kind, () => store.revision, () => store.slotId], async (values, previous) => {
   const request = ++previewRequest
   if (!isPill.value) { previews.value = []; loading.value = false; return }
+  if (values[0] !== previous[0] || values[1] !== previous[1] || values[3] !== previous[3]) {
+    recipeOpen.value = false
+    previews.value = []
+  }
   loading.value = true
-  previews.value = []
   const result = await store.previewRecipes(grade.value)
   if (request !== previewRequest) return
   previews.value = result?.recipes ?? []
   loading.value = false
-  if (!recipes.value.some(item => item.id === selectedId.value)) selectedId.value = recipes.value[0]?.id ?? ''
+  if (!recipes.value.some(item => item.id === selectedId.value)) { recipeOpen.value = false; selectedId.value = '' }
 }, { immediate: true })
+watch([() => props.kind, () => store.slotId], () => {
+  section.value = 'primary'; recipeOpen.value = false; weaponId.value = ''; useTarget.value = ''
+})
+watch(section, () => {
+  recipeOpen.value = false; weaponId.value = ''
+  nextTick(() => workshop.value?.scrollIntoView({ block: 'start' }))
+})
+watch(selectedWeapon, value => { if (!value) weaponId.value = '' })
 watch([selectedId, grade], () => { quantity.value = 1 })
 watch(maxGrade, limit => {
   if (grade.value > limit) grade.value = 1
@@ -75,8 +92,16 @@ watch(pills, list => {
 watch([() => props.kind, () => store.revision, () => store.slotId], () => { if (!isPill.value) void store.loadWeapons() }, { immediate: true })
 function held(id: string) { return store.state?.inventory[id] ?? 0 }
 function findMaterial(id: string) {
+  recipeOpen.value = false
+  weaponId.value = ''
   emit('open', store.planProduction(id))
 }
+function openRecipe(id: string) {
+  if (!recipes.value.some(item => item.id === id)) return
+  selectedId.value = id
+  recipeOpen.value = true
+}
+function openWeapon(id: string) { weaponId.value = id }
 function discipleName(id: string) {
   const disciple = store.disciples.find(d => d.id === id)
   return disciple ? store.catalog?.disciples[disciple.template_id]?.name ?? id : id
@@ -93,7 +118,7 @@ async function craft() {
 </script>
 
 <template>
-  <div class="craft-workshop">
+  <div ref="workshop" class="craft-workshop">
     <div class="section-heading">
       <div>
         <span class="eyebrow">{{ isPill ? '炉火温养 · 因材炼丹' : '百炼成器 · 以器助道' }}</span>
@@ -104,23 +129,30 @@ async function craft() {
       </div>
       <button class="btn btn-small btn-quiet" @click="emit('open','sect')">查看设施升级</button>
     </div>
-    <EquipmentPanel v-if="!isPill" :read-only="readOnly" @open="emit('open',$event)" />
-    <label v-if="isPill" class="grade-control">
+    <nav class="workshop-tabs" :aria-label="isPill?'炼丹房栏目':'炼器阁栏目'">
+      <button :class="{active:section==='primary'}" :aria-pressed="section==='primary'" @click="section='primary'">{{ isPill?'炼制丹药':'普通装备' }}</button>
+      <button :class="{active:section==='secondary'}" :aria-pressed="section==='secondary'" @click="section='secondary'">{{ isPill?'服用丹药':'弟子专武' }}</button>
+      <button :class="{active:section==='inventory'}" :aria-pressed="section==='inventory'" @click="section='inventory'">宗门行囊</button>
+    </nav>
+    <EquipmentPanel v-if="!isPill&&section==='primary'" :read-only="readOnly" @open="emit('open',$event)" />
+    <template v-if="isPill&&section==='primary'">
+    <label class="grade-control">
       炼制品级
       <select v-model.number="grade">
         <option v-for="i in maxGrade" :key="i" :value="i">{{ i }} 品</option>
       </select>
       <span class="muted">高阶属性丹可替换低阶效果</span>
     </label>
-    <p v-if="isPill&&loading" class="notice-box" role="status">正在查阅配方与可炼数量……</p>
-    <div v-else-if="isPill" class="craft-layout">
+    <p v-if="loading" class="notice-box" role="status">正在查阅配方与可炼数量……</p>
+    <div v-else class="craft-layout">
       <div class="recipe-list" aria-label="选择配方">
         <button
           v-for="item in recipes"
           :key="item.id"
           :class="{active:selectedId===item.id}"
           :aria-pressed="selectedId===item.id"
-          @click="selectedId=item.id"
+          aria-haspopup="dialog"
+          @click="openRecipe(item.id)"
         >
           <ItemIcon :id="item.id" />
           <span>
@@ -131,7 +163,11 @@ async function craft() {
           </span>
         </button>
       </div>
-      <article v-if="recipe" class="recipe-detail">
+      <p v-if="!recipes.length" class="notice-box">暂无可用配方，请刷新进度后重试。</p>
+    </div>
+    </template>
+    <PanelModal v-if="recipeOpen&&recipe" :title="recipe.name" subtitle="炼制丹药" @close="recipeOpen=false">
+      <article class="recipe-detail">
         <div class="recipe-head">
           <ItemIcon :id="recipe.id" variant="display" />
           <div>
@@ -183,30 +219,15 @@ async function craft() {
           炼制 {{ quantity }} 颗
         </button>
       </article>
-      <p v-else class="notice-box">暂无可用配方，请刷新进度后重试。</p>
-    </div>
-    <section v-if="isPill" class="use-section">
+    </PanelModal>
+    <section v-if="isPill&&section==='secondary'" class="use-section">
       <div class="section-heading">
         <h3>服用丹药</h3>
         <span class="muted">先选丹药，再选弟子</span>
       </div>
       <div v-if="pills.length" class="use-layout">
-        <div class="pill-list">
-          <button
-            v-for="[id,count] in pills"
-            :key="id"
-            :class="{active:useItem===id}"
-            :aria-pressed="useItem===id"
-            @click="useItem=id"
-          >
-            <ItemIcon :id="id.split(':')[0]" />
-            <span>
-              {{ resourceName(id,store.catalog) }}
-              <small>×{{ count }}</small>
-            </span>
-          </button>
-        </div>
         <div class="use-detail">
+          <label class="field-label">选择丹药<select v-model="useItem" :disabled="store.busy"><option v-for="[id,count] in pills" :key="id" :value="id">{{ resourceName(id,store.catalog) }} ×{{ count }}</option></select></label>
           <strong>{{ resourceName(useItem,store.catalog) }}</strong>
           <p v-if="pillDefinition?.special==='heal'">一颗清除全部伤势。队伍多人受伤时，可在出征准备中一键补炼并疗伤。</p>
           <p v-else-if="pillDefinition?.special==='realm'">达到本境界等级上限后突破，所需专材可通过宗门征讨与驻守获得。</p>
@@ -240,15 +261,15 @@ async function craft() {
           </button>
         </div>
       </div>
-      <p v-else class="notice-box">行囊中还没有丹药，可先在上方选择配方炼制。</p>
+      <p v-else class="notice-box">行囊中还没有丹药，可在“炼制丹药”中选择配方炼制。</p>
     </section>
-    <section v-else class="weapon-section">
+    <section v-if="!isPill&&section==='secondary'" class="weapon-section">
       <div class="section-heading">
         <h3>弟子专属武器</h3>
         <span class="muted">设施开放等级上限，逐件消耗材料提升</span>
       </div>
       <div class="weapon-grid">
-        <article v-for="weapon in store.weapons" :key="weapon.id" class="weapon-card">
+        <button v-for="weapon in store.weapons" :key="weapon.id" class="weapon-card weapon-choice" aria-haspopup="dialog" @click="openWeapon(weapon.id)">
           <div class="weapon-head">
             <ItemIcon :id="weapon.id" />
             <div>
@@ -256,6 +277,12 @@ async function craft() {
               <small>{{ weapon.template_name }}专属 · {{ weapon.owned ? weapon.level+' 级' : '尚未锻造' }}</small>
             </div>
           </div>
+          <span class="weapon-status">{{ weapon.equipped_by?'已装备 · '+discipleName(weapon.equipped_by):weapon.owned?'已拥有':'查看锻造条件' }}</span>
+        </button>
+      </div>
+    </section>
+    <PanelModal v-if="selectedWeapon" :title="selectedWeapon.name" subtitle="弟子专武 · 锻造与提升" @close="weaponId=''">
+      <article v-for="weapon in [selectedWeapon]" :key="weapon.id" class="weapon-card">
           <p class="weapon-stats">
             {{ Object.entries(weapon.stats).map(([stat,value])=>effectText({stat,mode:'add_pct',value})).join(' · ') }}
           </p>
@@ -287,23 +314,21 @@ async function craft() {
             {{ weapon.owned ? weapon.level>=3 ? '已达本期上限' : weapon.level>=weapon.max_level ? '先升级炼器阁' : '升级专武' : '锻造专武' }}
           </button>
         </article>
-      </div>
-    </section>
-    <details class="inventory-details">
-      <summary>
-        宗门行囊
-        <span>{{ inventory.length }} 类物品</span>
-      </summary>
+    </PanelModal>
+    <section v-if="section==='inventory'" class="inventory-details" aria-label="宗门行囊">
+      <div class="section-heading"><h3>宗门行囊</h3><span class="muted">{{ inventory.length }} 类物品</span></div>
       <div class="inventory-grid">
         <div v-for="[id,count] in inventory" :key="id">
           <span>{{ resourceName(id,store.catalog) }}</span>
           <strong>{{ number(count) }}</strong>
         </div>
       </div>
-    </details>
+      <p v-if="!inventory.length" class="notice-box">行囊中暂无物品。</p>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.craft-workshop>.section-heading h3{font-size:24px;margin:5px 0}.craft-workshop h3 small{font-size:12px;color:var(--muted)}.grade-control{display:flex;gap:12px;align-items:center;margin:17px 0;font-size:12px}.grade-control select{min-width:90px}.grade-control .muted{font-size:10px}.craft-layout{display:grid;grid-template-columns:180px minmax(0,1fr);gap:18px;margin-top:18px}.recipe-list{display:flex;flex-direction:column;gap:6px}.recipe-list>button{display:flex;align-items:center;gap:10px;padding:11px;text-align:left;background:#eae6d4;border:1px solid transparent}.recipe-list>button.active{border-color:var(--jade);background:#dfe7d1}.recipe-list strong,.recipe-list small{display:block}.recipe-list strong{font:15px 'SimSun',serif}.recipe-list small{font-size:10px;color:var(--muted);margin-top:5px}.recipe-detail{padding:21px;background:#f5efdc;border:1px solid #c5b790}.recipe-head{display:flex;gap:17px;align-items:center}.recipe-head>.item-icon{width:65px;height:65px}.recipe-head h3{font-size:27px;margin:5px 0}.recipe-head p{font-size:11px;margin:0;color:var(--muted)}.recipe-effects{display:flex;flex-direction:column;gap:5px;padding:14px 0;color:var(--jade);font-size:12px}.recipe-detail>.muted{font-size:10px;line-height:1.7}.ingredient-list>div{display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid #d5c8a8;font-size:11px;flex-wrap:wrap}.ingredient-list strong{margin-left:auto;font-weight:500;color:var(--jade)}.ingredient-list .missing strong{color:var(--danger)}.ingredient-list .btn{font-size:10px;padding:4px 6px}.quantity-control{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin:16px 0}.quantity-control label{display:flex;gap:10px;align-items:center;font-size:12px}.quantity-control input{width:80px;min-height:36px}.craft-reason{color:var(--danger);font-size:11px;line-height:1.7;margin:12px 0 7px}.craft-button{width:100%;margin-top:12px}.use-section,.weapon-section{margin-top:28px;padding-top:20px;border-top:1px solid #c8b995}.use-section h3,.weapon-section h3{font-size:21px}.use-layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:18px}.pill-list{display:flex;flex-direction:column;gap:5px}.pill-list>button{display:flex;gap:8px;align-items:center;padding:9px;background:#eae6d4;border:1px solid transparent;text-align:left;font-size:11px}.pill-list>button.active{border-color:var(--jade);background:#dfe7d1}.pill-list span{flex:1}.pill-list small{float:right;color:var(--jade)}.use-detail{padding:18px;border:1px solid #c5b790;background:#f4ecd8}.use-detail>strong{font:20px 'SimSun',serif}.use-detail p{font-size:11px;line-height:1.8;color:var(--muted)}.use-detail p.craft-reason{color:var(--danger)}.field-label{display:block;margin:14px 0;font-size:11px}.field-label select{display:block;width:100%;margin-top:7px}.weapon-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.weapon-card{padding:14px;border:1px solid #c7b893;background:#f3edda;display:flex;flex-direction:column}.weapon-head{display:flex;align-items:center;gap:11px}.weapon-head strong,.weapon-head small{display:block}.weapon-head strong{font:17px 'SimSun',serif}.weapon-head small{font-size:10px;color:var(--muted);margin-top:5px}.weapon-stats{font-size:11px;line-height:1.8;color:var(--jade);margin:10px 0 4px}.weapon-materials{display:flex;flex-wrap:wrap;gap:5px 10px;margin:9px 0}.weapon-materials>span{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}.weapon-materials>.missing{color:var(--danger)}.weapon-status{font-size:10px;color:var(--muted);line-height:1.7;margin:6px 0}.weapon-card>.btn{width:100%;margin-top:auto}.weapon-card>.craft-reason{margin:6px 0 10px}.inventory-details{margin-top:24px;border:1px solid #c8b995;background:#eee8d6}.inventory-details summary{padding:12px 15px;cursor:pointer;font-size:13px}.inventory-details summary>span{float:right;font-size:10px;color:var(--muted)}.inventory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:0 15px 15px}.inventory-grid>div{display:flex;gap:10px;justify-content:space-between;font-size:11px;background:#e1e4d0;padding:8px}.inventory-grid strong{color:var(--jade)}@media(max-width:640px){.craft-layout,.use-layout{grid-template-columns:1fr}.recipe-list,.pill-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.recipe-list>button{padding:8px;gap:7px}.recipe-list strong{font-size:13px}.recipe-detail,.use-detail{padding:15px}.weapon-grid{grid-template-columns:1fr}.inventory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.grade-control{flex-wrap:wrap}.grade-control .muted{width:100%}.craft-workshop>.section-heading{align-items:flex-start;gap:10px}.craft-workshop>.section-heading>.btn{font-size:10px}.use-section>.section-heading,.weapon-section>.section-heading{align-items:flex-start;flex-direction:column;gap:4px}.quantity-control{flex-wrap:wrap}}
+.workshop-tabs{display:flex;gap:5px;flex-wrap:wrap;margin:17px 0;padding-bottom:10px;border-bottom:1px solid var(--border)}.workshop-tabs button{flex:1;min-height:38px;padding:7px 10px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px}.workshop-tabs button.active{border-color:#9caf8b;background:#e0e7d1;color:var(--jade)}
+.craft-workshop>.section-heading h3{font-size:24px;margin:5px 0}.craft-workshop h3 small{font-size:12px;color:var(--muted)}.grade-control{display:flex;gap:12px;align-items:center;margin:17px 0;font-size:12px}.grade-control select{min-width:90px}.grade-control .muted{font-size:10px}.craft-layout{margin-top:18px}.recipe-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.recipe-list>button{min-width:0;display:flex;align-items:center;gap:10px;padding:11px;text-align:left;background:#eae6d4;border:1px solid transparent}.recipe-list>button.active{border-color:var(--jade);background:#dfe7d1}.recipe-list strong,.recipe-list small{display:block}.recipe-list strong{overflow-wrap:anywhere;font:15px 'SimSun',serif}.recipe-list small{font-size:10px;color:var(--muted);margin-top:5px}.recipe-detail{padding:21px;background:#f5efdc;border:1px solid #c5b790}.recipe-head{display:flex;gap:17px;align-items:center}.recipe-head>.item-icon{width:65px;height:65px}.recipe-head h3{font-size:27px;margin:5px 0}.recipe-head p{font-size:11px;margin:0;color:var(--muted)}.recipe-effects{display:flex;flex-direction:column;gap:5px;padding:14px 0;color:var(--jade);font-size:12px}.recipe-detail>.muted{font-size:10px;line-height:1.7}.ingredient-list>div{display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid #d5c8a8;font-size:11px;flex-wrap:wrap}.ingredient-list strong{margin-left:auto;font-weight:500;color:var(--jade)}.ingredient-list .missing strong{color:var(--danger)}.ingredient-list .btn{font-size:10px;padding:4px 6px}.quantity-control{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin:16px 0}.quantity-control label{display:flex;gap:10px;align-items:center;font-size:12px}.quantity-control input{width:80px;min-height:36px}.craft-reason{color:var(--danger);font-size:11px;line-height:1.7;margin:12px 0 7px}.craft-button{width:100%;margin-top:12px}.use-section,.weapon-section{margin-top:18px}.use-section h3,.weapon-section h3{font-size:21px}.use-layout{max-width:640px}.use-detail{padding:18px;border:1px solid #c5b790;background:#f4ecd8}.use-detail>strong{font:20px 'SimSun',serif}.use-detail p{font-size:11px;line-height:1.8;color:var(--muted)}.use-detail p.craft-reason{color:var(--danger)}.field-label{display:block;margin:14px 0;font-size:11px}.field-label select{display:block;width:100%;margin-top:7px}.weapon-grid{max-height:440px;overflow-y:auto;overscroll-behavior:contain;padding:1px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.weapon-card{text-align:left;min-width:0;padding:14px;border:1px solid #c7b893;background:#f3edda;display:flex;flex-direction:column}.weapon-choice{cursor:pointer}.weapon-choice:hover,.weapon-choice:focus-visible{border-color:var(--jade)}.weapon-head{display:flex;align-items:center;gap:11px}.weapon-head>div{min-width:0}.weapon-head strong,.weapon-head small{display:block}.weapon-head strong{overflow-wrap:anywhere;font:17px 'SimSun',serif}.weapon-head small{font-size:10px;color:var(--muted);margin-top:5px}.weapon-stats{font-size:11px;line-height:1.8;color:var(--jade);margin:10px 0 4px}.weapon-materials{display:flex;flex-wrap:wrap;gap:5px 10px;margin:9px 0}.weapon-materials>span{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}.weapon-materials>.missing{color:var(--danger)}.weapon-status{font-size:10px;color:var(--muted);line-height:1.7;margin:6px 0}.weapon-card>.btn{width:100%;margin-top:auto}.weapon-card>.craft-reason{margin:6px 0 10px}.inventory-details{margin-top:18px}.inventory-details>.section-heading{margin-bottom:12px}.inventory-details h3{font-size:20px}.inventory-details .muted{font-size:11px}.inventory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;max-height:420px;overflow-y:auto;overscroll-behavior:contain;padding:1px}.inventory-grid>div{display:flex;gap:10px;justify-content:space-between;font-size:11px;background:#e1e4d0;padding:8px}.inventory-grid strong{color:var(--jade)}@media(max-width:640px){.recipe-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.recipe-list>button{padding:8px;gap:7px}.recipe-list strong{font-size:13px}.recipe-detail,.use-detail{padding:15px}.weapon-grid{grid-template-columns:1fr}.inventory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.grade-control{flex-wrap:wrap}.grade-control .muted{width:100%}.craft-workshop>.section-heading{align-items:flex-start;gap:10px}.craft-workshop>.section-heading>.btn{font-size:10px}.use-section>.section-heading,.weapon-section>.section-heading{align-items:flex-start;flex-direction:column;gap:4px}.quantity-control{flex-wrap:wrap}.workshop-tabs button{min-height:44px}.recipe-head h3{font-size:24px}.recipe-effects,.craft-reason,.ingredient-list>div,.use-detail p,.field-label,.weapon-stats,.weapon-materials>span,.weapon-status{font-size:12px}.inventory-grid>div{flex-wrap:wrap;font-size:12px}.weapon-card>.btn,.craft-button{min-height:44px}.quantity-control input,.field-label select{min-height:44px}}
 </style>

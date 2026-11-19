@@ -75,14 +75,6 @@ const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).fi
           </strong>
         </div>
       </div>
-      <div class="bonds">
-        <h4>战斗羁绊</h4>
-        <div v-for="[id,bond] in activeBonds" :key="id" class="bond-line">
-          <span class="badge">{{ bond.name }}</span>
-          <span class="muted">{{ bond.description }}</span>
-        </div>
-        <p v-if="!activeBonds.length" class="muted">暂未组成羁绊，可在弟子堂查看同道组合。</p>
-      </div>
       <p class="prepare-rule muted">途中关闭页面可继续上次出征；落败仍有部分收益，弟子可能受伤。</p>
       <p v-if="reason" class="error-box">{{ reason }}</p>
       <button
@@ -93,11 +85,18 @@ const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).fi
         <GameIcon name="tower" />
         踏上问道之路
       </button>
+      <details class="bonds"><summary>战斗羁绊 · {{ activeBonds.length }} 组</summary>
+        <div v-for="[id,bond] in activeBonds" :key="id" class="bond-line">
+          <span class="badge">{{ bond.name }}</span>
+          <span class="muted">{{ bond.description }}</span>
+        </div>
+        <p v-if="!activeBonds.length" class="muted">暂未组成羁绊，可在弟子堂查看同道组合。</p>
+      </details>
     </div>
   </div>
 </template>
 <style scoped>
-.prepare-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:35px}.prepare-visual{text-align:center;background:radial-gradient(ellipse,#d5e0c6,#ece9d8 70%);padding:10px 20px 30px;border:1px solid #d1c8ac}.prepare-visual>img{height:290px;object-fit:contain;filter:drop-shadow(3px 8px 3px #234e4020)}.prepare-visual .eyebrow{font-size:8px;margin-top:10px}.prepare-visual h3{font-size:26px;margin:8px 0}.prepare-visual p{font-size:12px;color:var(--muted);margin-bottom:14px}.prepare-content .section-heading{margin-top:5px}.prepare-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}.prepare-facts>div{padding:14px;background:#e9e5d3}.prepare-facts span{display:block;font-size:11px;color:var(--muted)}.prepare-facts strong{font-size:25px;color:var(--jade)}.prepare-facts small{font-size:11px;color:var(--muted);font-weight:400}.bonds h4{font-size:14px;margin-bottom:10px}.bond-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}.prepare-rule{margin:22px 0 16px}.start-button{width:100%;margin-top:8px}.prepare-content>.error-box{font-size:12px}
+.prepare-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:35px}.prepare-visual{text-align:center;background:radial-gradient(ellipse,#d5e0c6,#ece9d8 70%);padding:10px 20px 30px;border:1px solid #d1c8ac}.prepare-visual>img{height:290px;object-fit:contain;filter:drop-shadow(3px 8px 3px #234e4020)}.prepare-visual .eyebrow{font-size:8px;margin-top:10px}.prepare-visual h3{font-size:26px;margin:8px 0}.prepare-visual p{font-size:12px;color:var(--muted);margin-bottom:14px}.prepare-content .section-heading{margin-top:5px}.prepare-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}.prepare-facts>div{padding:14px;background:#e9e5d3}.prepare-facts span{display:block;font-size:11px;color:var(--muted)}.prepare-facts strong{font-size:25px;color:var(--jade)}.prepare-facts small{font-size:11px;color:var(--muted);font-weight:400}.bonds{margin-top:18px}.bonds summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:14px;color:var(--jade)}.bonds summary:focus-visible{outline:2px solid var(--jade);outline-offset:2px}.bond-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}.prepare-rule{margin:22px 0 16px}.start-button{width:100%;margin-top:8px}.prepare-content>.error-box{font-size:12px}
 @media(max-width:740px){.prepare-layout{grid-template-columns:1fr;gap:20px}.prepare-visual{display:none}.prepare-facts{margin:18px 0}.prepare-content .section-heading{margin-top:0}}
 </style>
 

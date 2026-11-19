@@ -14,9 +14,9 @@ async function setupView(file, names, store, emit = () => {}) {
   const source = await readFile(new URL(`../src/${file}`, import.meta.url), 'utf8')
   const script = source.match(/<script setup lang="ts">([\s\S]*?)<\/script>/)[1].replace(/^import .*\r?\n/gm, '')
   const output = ts.transpileModule(script, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  const setup = new Function('computed', 'ref', 'watch', 'useGameStore', 'defineEmits', 'materialSources', 'resourceName', `${output}\nreturn { ${names.join(', ')} }`)
+  const setup = new Function('computed', 'ref', 'watch', 'nextTick', 'useGameStore', 'defineProps', 'defineEmits', 'materialSources', 'resourceName', `${output}\nreturn { ${names.join(', ')} }`)
   const scope = effectScope()
-  const values = scope.run(() => setup(computed, ref, watch, () => store, () => emit, materialSources, id => id))
+  const values = scope.run(() => setup(computed, ref, watch, nextTick, () => store, () => ({}), () => emit, materialSources, id => id))
   return { ...values, stop: () => scope.stop() }
 }
 

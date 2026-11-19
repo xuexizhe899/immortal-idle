@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import PartyStrip from '../components/game/PartyStrip.vue'
 import PartyHealing from '../components/game/PartyHealing.vue'
 import { characterImage, discipleImage } from '../presentation/assetPaths'
@@ -7,8 +7,12 @@ import { resourceName } from '../presentation/gameText'
 import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
 
+const props = defineProps<{ focused?: boolean }>()
 defineEmits<{ edit: [] }>()
 const store = useGameStore()
+const panel = ref<HTMLElement | null>(null)
+const detailsOpen = ref(false)
+const detailTab = ref<'garrison' | 'retrial' | 'prepare' | 'intel'>('prepare')
 const selectedId = computed({
   get: () => store.targetSectId,
   set: (id: string) => { store.targetSectId = id },
@@ -21,6 +25,9 @@ const visible = computed(() => sects.value.filter(sect =>
   filter.value === 'all' || (filter.value === 'conquered' ? sect.conquered : !sect.conquered),
 ))
 const selected = computed(() => sects.value.find(sect => sect.id === selectedId.value))
+const detailTabs = computed(() => selected.value?.conquered
+  ? [{ id: 'garrison' as const, label: '驻守经营' }, { id: 'retrial' as const, label: '宗主论道' }]
+  : [{ id: 'prepare' as const, label: '出征整备' }, { id: 'intel' as const, label: '敌方情报' }])
 const party = computed(() => store.party.map(id => store.disciples.find(d => d.id === id)).filter(d => !!d))
 const resourceGoal = computed(() => {
   const resourceId = store.productionTarget
@@ -54,10 +61,33 @@ const candidates = computed(() => store.disciples
   .filter(d => !d.busy && !selected.value?.garrison.some(slot => slot.disciple_id === d.id))
   .sort((a, b) => Number(matches(b.template_id)) - Number(matches(a.template_id))),
 )
-watch(sects, list => {
-  if (!list.some(sect => sect.id === selectedId.value)) selectedId.value = list[0]?.id ?? ''
+watch([sects, () => props.focused], ([list, focused]) => {
+  if (!focused && !list.some(sect => sect.id === selectedId.value)) selectedId.value = list[0]?.id ?? ''
 }, { immediate: true })
-watch(selectedId, () => { recruitId.value = '' })
+watch([() => selected.value?.id, () => selected.value?.conquered], () => {
+  recruitId.value = ''
+  detailTab.value = selected.value?.conquered ? 'garrison' : 'prepare'
+  if (!selected.value) detailsOpen.value = false
+}, { immediate: true })
+function focusSection(selector: string) {
+  nextTick(() => {
+    panel.value?.closest<HTMLElement>('.modal-body')?.scrollTo({ top: 0, behavior: 'auto' })
+    const active = panel.value?.querySelector<HTMLButtonElement>(selector)
+    active?.focus({ preventScroll: true })
+    active?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
+  })
+}
+function openSect(id: string) {
+  if (!sects.value.some(sect => sect.id === id)) return
+  selectedId.value = id
+  detailsOpen.value = true
+  focusSection('.sect-detail-tabs [aria-pressed="true"]')
+}
+function closeDetails() { detailsOpen.value = false; focusSection('.sect-marker.selected') }
+function selectDetailTab(id: typeof detailTab.value) {
+  detailTab.value = id
+  focusSection('.sect-detail-tabs [aria-pressed="true"]')
+}
 function matches(templateId: string) {
   const specialty = store.catalog?.disciples[templateId]?.production_specialty
   return specialty === selected.value?.material_id || specialty === selected.value?.special_material_id
@@ -79,7 +109,8 @@ async function assign() {
 </script>
 
 <template>
-  <section class="expedition-charter">
+  <div ref="panel" class="expedition-panel">
+  <section v-if="!focused && !detailsOpen" class="expedition-charter">
     <header class="charter-heading">
       <div>
         <span class="eyebrow">山外有山 · 宗门征讨</span>
@@ -110,14 +141,14 @@ async function assign() {
       <button :class="{active:filter==='available'}" @click="filter='available'">待征讨</button>
       <button :class="{active:filter==='conquered'}" @click="filter='conquered'">驻守领地</button>
     </div>
-    <div class="sect-map">
+    <div class="sect-map" tabindex="0" aria-label="选择宗门">
       <button
         v-for="sect in visible"
         :key="sect.id"
         class="sect-marker"
         :class="{selected:sect.id===selectedId,conquered:sect.conquered}"
         :aria-pressed="sect.id===selectedId"
-        @click="selectedId=sect.id"
+        @click="openSect(sect.id)"
       >
         <span class="marker-level">{{ sect.level }} 阶</span>
         <strong>{{ sect.name }}</strong>
@@ -131,7 +162,9 @@ async function assign() {
       </button>
     </div>
     <p v-if="!visible.length" class="notice-box">{{ sects.length ? '此处还没有宗门。可切换筛选查看其他山门。' : '正在整理远行宗门，刷新进度后可查看。' }}</p>
-    <article v-if="selected" class="sect-dossier">
+  </section>
+    <article v-if="selected && (focused || detailsOpen)" class="sect-dossier" :class="{focused}">
+      <button v-if="!focused" class="btn btn-small btn-quiet back-to-sects" @click="closeDetails">返回宗门列表</button>
       <p v-if="resourceGoal" class="notice-box">{{ resourceGoal }}</p>
       <div class="section-heading">
         <div>
@@ -140,7 +173,8 @@ async function assign() {
         </div>
         <span class="badge badge-gold">{{ selected.style }} · {{ selected.level }} 阶</span>
       </div>
-      <template v-if="selected.conquered">
+      <nav class="sect-detail-tabs" aria-label="宗门详情栏目"><button v-for="item in detailTabs" :key="item.id" :class="{active:detailTab===item.id}" :aria-pressed="detailTab===item.id" @click="selectDetailTab(item.id)">{{ item.label }}</button></nav>
+      <template v-if="detailTab==='garrison'">
         <p class="muted">每人独立贡献产出，专长匹配时收益更高；离岗暂停该弟子的贡献，空岗不产出。</p>
         <div class="garrison-production">
           <span v-for="(amount,id) in store.production.garrisons?.[selected.id]" :key="id">
@@ -188,18 +222,25 @@ async function assign() {
           </label>
           <button class="btn btn-primary" :disabled="store.busy||!recruitId" @click="assign">派遣驻守</button>
         </div>
+      </template>
+      <template v-else-if="detailTab==='retrial'">
         <div class="retrial-block">
           <div class="section-heading">
             <div><span class="eyebrow">单场论道 · 3v1</span><h3>再访{{ selected.name }}</h3></div>
             <span class="badge badge-gold">{{ cost }} 行动力</span>
           </div>
           <p class="muted">已攻克宗门可反复论道：单场宗主战，胜利领取固定奖励，失败无奖励；不改变攻克状态与驻守编制。</p>
+          <p v-if="retrialReason" class="error-box">{{ retrialReason }}</p>
+          <button class="btn btn-primary expedition-start" :disabled="store.busy||!!retrialReason" @click="store.startRun(store.party,'expedition',{sect_id:selected.id,is_retrial:true})">发起论道 · {{ cost }} 行动力</button>
+          <div class="section-heading party-heading"><h4>随行弟子 · {{ party.length }} / 6</h4><button class="btn btn-small" @click="$emit('edit')">调整随行队伍</button></div>
+          <PartyStrip compact reorder @edit="$emit('edit')" />
+          <PartyHealing :party="store.party" />
           <div class="first-loot">
             <strong>论道所得</strong>
             <span v-for="(amount,id) in retrialReward" :key="id">{{ resourceName(id,store.catalog) }} +{{ number(amount,1) }}</span>
             <span v-if="!Object.keys(retrialReward).length">正在读取此宗门所在地区的奖励预览</span>
           </div>
-          <div class="leader-intel">
+          <details class="sect-rules"><summary>查看宗主情报</summary><div class="leader-intel">
             <span>宗主决战 · 3v1</span>
             <div>
               <span>
@@ -208,61 +249,12 @@ async function assign() {
               </span>
             </div>
             <small>{{ selected.leader.active.name }} · {{ selected.leader.active.description }}</small>
-          </div>
-          <PartyStrip compact reorder @edit="$emit('edit')" />
-          <PartyHealing :party="store.party" />
-          <p v-if="retrialReason" class="error-box">{{ retrialReason }}</p>
-          <button
-            class="btn btn-primary expedition-start"
-            :disabled="store.busy||!!retrialReason"
-            @click="store.startRun(store.party,'expedition',{sect_id:selected.id,is_retrial:true})"
-          >
-            发起论道 ·
-            {{ cost }}
-            行动力
-          </button>
+          </div></details>
         </div>
       </template>
-      <template v-else>
-        <div class="enemy-intel">
-          <div v-for="(team,index) in selected.arena_teams" :key="index">
-            <span>第 {{ index+1 }} 轮擂台 · 3v3</span>
-            <div>
-              <span
-                v-for="enemy in team"
-                :key="enemy.id"
-                :title="enemy.active.name+'：'+enemy.active.description"
-              >
-                <img
-                  :src="characterImage(enemy.asset_id)"
-                  alt=""
-                  class="pixel-art"
-                  loading="lazy"
-                />
-                {{ enemy.name }}
-              </span>
-            </div>
-          </div>
-          <div class="leader-intel">
-            <span>宗主决战 · 3v1</span>
-            <div>
-              <span>
-                <img
-                  :src="characterImage(selected.leader.asset_id)"
-                  alt=""
-                  class="pixel-art"
-                  loading="lazy"
-                />
-                {{ selected.leader.name }}
-              </span>
-            </div>
-            <small>{{ selected.leader.active.name }} · {{ selected.leader.active.description }}</small>
-          </div>
-        </div>
-        <div class="first-loot">
-          <strong>攻克所得</strong>
-          <span v-for="(amount,id) in selected.loot" :key="id">{{ resourceName(id,store.catalog) }} +{{ number(amount,1) }}</span>
-        </div>
+      <template v-else-if="detailTab==='prepare'">
+        <p v-if="reason" class="error-box">{{ reason }}</p>
+        <button class="btn btn-primary expedition-start" :disabled="store.busy||!!reason" @click="store.startRun(store.party,'expedition',{sect_id:selected.id})">向 {{ selected.name }} 发起征讨 · {{ cost }} 行动力</button>
         <div class="section-heading">
           <h3>
             随行弟子
@@ -272,25 +264,22 @@ async function assign() {
         </div>
         <PartyStrip compact reorder @edit="$emit('edit')" />
         <PartyHealing :party="store.party" />
+        <div class="first-loot"><strong>攻克所得</strong><span v-for="(amount,id) in selected.loot" :key="id">{{ resourceName(id,store.catalog) }} +{{ number(amount,1) }}</span></div>
+        <details class="sect-rules"><summary>征讨规则与回岗说明</summary>
         <p class="muted">每轮选三人，残血延续，倒下者本次停战。获胜且存活三／二／一人，分别削减 50／30／15 守备；三轮内破防，才可挑战宗主。</p>
         <p class="muted">值守与驻守弟子出发自动离岗，结算自动回岗。出发消耗 {{ cost }} 行动力，失败不退还；战役可关闭页面后继续。</p>
-        <p v-if="reason" class="error-box">{{ reason }}</p>
-        <button
-          class="btn btn-primary expedition-start"
-          :disabled="store.busy||!!reason"
-          @click="store.startRun(store.party,'expedition',{sect_id:selected.id})"
-        >
-          向
-          {{ selected.name }}
-          发起征讨 ·
-          {{ cost }}
-          行动力
-        </button>
+        </details>
       </template>
+      <div v-else class="enemy-intel">
+        <div v-for="(team,index) in selected.arena_teams" :key="index"><span>第 {{ index+1 }} 轮擂台 · 3v3</span><div><span v-for="enemy in team" :key="enemy.id" :title="enemy.active.name+'：'+enemy.active.description"><img :src="characterImage(enemy.asset_id)" alt="" class="pixel-art" loading="lazy" />{{ enemy.name }}</span></div></div>
+        <div class="leader-intel"><span>宗主决战 · 3v1</span><div><span><img :src="characterImage(selected.leader.asset_id)" alt="" class="pixel-art" loading="lazy" />{{ selected.leader.name }}</span></div><small>{{ selected.leader.active.name }} · {{ selected.leader.active.description }}</small></div>
+      </div>
     </article>
-  </section>
+    <p v-else-if="focused" class="notice-box">未找到当前地区的这座宗门，请返回地图重新选择。</p>
+  </div>
 </template>
 
 <style scoped>
+.expedition-panel{min-width:0}.sect-map{max-height:min(48dvh,430px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}.sect-map:focus-visible{outline:2px solid var(--jade);outline-offset:2px}.sect-dossier.focused{padding:0;border:0;background:transparent}.back-to-sects{margin-bottom:16px}.sect-detail-tabs{position:sticky;top:0;z-index:1;display:flex;gap:6px;overflow-x:auto;margin:12px 0 18px;padding:8px 0;background:var(--surface);border-bottom:1px solid var(--border)}.sect-detail-tabs>button{flex:1;min-height:44px;padding:8px 12px;white-space:nowrap;background:transparent;border:1px solid transparent;color:var(--muted);font-size:12px}.sect-detail-tabs>button.active{background:var(--jade-light);border-color:#a9b49c;color:var(--jade)}.party-heading{margin-top:20px}.sect-rules{margin-top:18px;border-top:1px solid #d1c3a1}.sect-rules>summary{min-height:44px;padding:12px 0;cursor:pointer;color:var(--jade);font-size:12px}.sect-rules>summary:focus-visible{outline:2px solid var(--jade);outline-offset:2px}.sect-rules .leader-intel img{width:44px;height:48px;object-fit:contain}.sect-rules .leader-intel>div>span{display:flex;align-items:center;gap:10px}.sect-rules .leader-intel small{display:block;margin-top:8px;color:var(--muted);font-size:11px}.sect-rules p{font-size:11px;line-height:1.8}.sect-dossier .retrial-block{margin-top:0;padding-top:0;border-top:0}
 .charter-heading{display:flex;gap:20px;justify-content:space-between;align-items:center}.charter-heading h3{font-size:25px;margin:7px 0}.charter-heading p{max-width:650px;margin:0;font-size:12px;line-height:1.8}.charter-seal{flex-shrink:0;font:38px 'SimSun',serif;color:#966a3d;border:1px solid #ab885a;padding:6px 10px;box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4px #b39970}.territory-overview{display:flex;gap:25px;padding:18px 0;border-bottom:1px solid #ccbea0;font-size:11px;color:var(--muted)}.territory-overview strong{font:22px 'SimSun',serif;color:var(--jade);margin:0 4px}.tabs{margin-top:16px}.sect-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0 22px;padding:15px;background:repeating-linear-gradient(0deg,#dae0ca 0 29px,#d4dbc5 29px 30px);border:1px solid #b9c2a3}.sect-marker{position:relative;text-align:left;display:flex;flex-direction:column;gap:7px;min-width:0;padding:19px 12px 12px;background:#f3ecd8;border:1px solid #bdb18c;box-shadow:3px 3px 0 #6776521c}.sect-marker.selected{border-color:var(--jade);box-shadow:inset 0 0 0 1px var(--jade),3px 3px 0 #67765233}.sect-marker.conquered{background:#e2e9d4}.sect-marker>strong{font:20px 'SimSun',serif;color:var(--jade)}.sect-marker>small{font-size:10px;color:var(--muted)}.marker-level{position:absolute;right:9px;top:6px;font-size:9px;color:var(--gold)}.resource-line{font-size:10px;line-height:1.6;color:var(--muted)}.marker-status{font-size:10px;border-top:1px solid #d5c8a8;padding-top:8px;margin-top:auto;color:var(--jade)}.sect-dossier{padding:22px;border:1px solid #c3b48e;background:#f6efdd}.sect-dossier .section-heading h3{margin:5px 0;font-size:23px}.enemy-intel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.enemy-intel>div{padding:12px;background:#eae5d1;border-left:2px solid #b4a478}.enemy-intel>div>span{font-size:10px;color:var(--gold)}.enemy-intel>div>div{display:flex;flex-wrap:wrap;gap:9px;margin-top:7px}.enemy-intel>div>div>span{display:flex;flex-direction:column;gap:3px;align-items:center;font-size:9px;max-width:80px;text-align:center}.enemy-intel img{height:48px;width:44px;object-fit:contain}.enemy-intel small{display:block;font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6}.first-loot{display:flex;flex-wrap:wrap;gap:9px 14px;padding:14px 0;margin-bottom:20px;border-block:1px solid #d1c3a1;font-size:11px;color:var(--jade)}.first-loot strong{width:100%;color:var(--ink);font-size:13px}.sect-dossier>.muted{font-size:11px;line-height:1.8}.expedition-start{width:100%;margin-top:10px}.garrison-production{display:flex;flex-wrap:wrap;gap:15px;margin:16px 0;padding:14px;background:#e1e8d2;font-size:12px}.garrison-production strong{color:var(--jade);font-weight:500}.garrison-list>div{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #d8cdae}.garrison-list img{width:40px;height:48px;object-fit:cover;object-position:top}.garrison-list span{flex:1}.garrison-list strong,.garrison-list small{display:block}.garrison-list strong{font:16px 'SimSun',serif}.garrison-list small{font-size:10px;color:var(--muted);margin-top:5px}.garrison-form{display:flex;align-items:flex-end;gap:12px;margin-top:18px}.retrial-block{margin-top:22px;border-top:1px solid #d1c3a1;padding-top:18px}.retrial-block .section-heading h3{font-size:20px}.retrial-block>.muted{font-size:11px;line-height:1.8}.retrial-block .leader-intel{margin:14px 0}.garrison-form label{flex:1;min-width:0;font-size:11px;color:var(--muted)}.garrison-form select{display:block;width:100%;margin-top:6px}@media(max-width:640px){.charter-heading h3{font-size:21px}.charter-seal{font-size:30px}.territory-overview{gap:13px;flex-wrap:wrap}.sect-map{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px}.sect-marker{padding:18px 9px 10px}.sect-marker>strong{font-size:17px}.sect-dossier{padding:15px}.enemy-intel{grid-template-columns:1fr}.garrison-form{flex-direction:column;align-items:stretch}.sect-dossier .section-heading{align-items:flex-start;gap:10px}.sect-dossier .section-heading h3{font-size:20px}.sect-dossier .section-heading .btn{font-size:10px}}
 </style>
