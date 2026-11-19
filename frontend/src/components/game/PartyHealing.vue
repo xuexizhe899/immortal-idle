@@ -29,6 +29,7 @@ watch([() => props.party.join('|'), () => store.revision, () => store.slotId], a
     aria-label="队伍疗伤"
     aria-live="polite"
   >
+    <span class="healing-mark" aria-hidden="true">丹</span>
     <div>
       <strong>出发前，先安顿伤势</strong>
       <p v-if="loading" class="muted">正在核对队伍伤势与疗伤丹……</p>
@@ -56,5 +57,9 @@ watch([() => props.party.join('|'), () => store.revision, () => store.slotId], a
 </template>
 
 <style scoped>
-.party-healing{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 17px;margin:16px 0;border:1px solid #b4bf9e;border-left:3px solid var(--jade);background:#e6ebd8}.party-healing strong{font:16px 'SimSun',serif;color:var(--jade)}.party-healing p{font-size:11px;line-height:1.7;margin:5px 0 0}.party-healing .btn{flex-shrink:0}@media(max-width:600px){.party-healing{align-items:stretch;flex-direction:column;gap:10px}.party-healing .btn{width:100%}}
+.party-healing{display:flex;align-items:center;justify-content:space-between;gap:13px;padding:12px 15px;margin:14px 0;border:1px solid #aab993;border-left:3px solid #326c55;background:#e4ebd5}.party-healing strong{font:16px 'SimSun',serif;color:var(--jade)}.party-healing p{font-size:11px;line-height:1.7;margin:5px 0 0}.party-healing .btn{flex-shrink:0}@media(max-width:600px){.party-healing{align-items:stretch;flex-direction:column;gap:10px}.party-healing .btn{width:100%}}
+
+.healing-mark{display:grid;place-items:center;flex:none;width:34px;height:40px;border:1px solid #86a37c;background:#f6f1df;color:#326c55;font:22px SimSun,serif;box-shadow:inset 0 0 0 3px #e4ebd5,inset 0 0 0 4px #aab993}.party-healing>div{flex:1;min-width:0}.party-healing p{overflow-wrap:anywhere}.party-healing .btn{min-height:42px}
+@media(max-width:600px){.party-healing{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px}.party-healing .btn{grid-column:1 / -1}.party-healing p{font-size:12px}}
+
 </style>

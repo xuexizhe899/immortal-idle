@@ -38,7 +38,7 @@ const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).fi
       <span class="eyebrow">层境问道 · 同行试炼</span>
       <h3>登临问道塔</h3>
       <p>一层一境，相携而行。</p>
-      <span class="badge badge-gold">第 {{ tier }} 阶 · 最高 {{ currentBest }} 层</span>
+      <div class="tower-record"><span>第 {{ tier }} 阶修行记录</span><strong>{{ currentBest }} <small>/ {{ mode?.node_count ?? 20 }} 层</small></strong><div class="tower-record-track" aria-hidden="true"><i :style="{width:`${Math.min(100,currentBest/(mode?.node_count??20)*100)}%`}"></i></div></div>
     </div>
     <div class="prepare-content">
       <div class="section-heading">
@@ -46,7 +46,7 @@ const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).fi
         <button class="btn btn-small" @click="$emit('edit')">调整阵容</button>
       </div>
       <label class="tier-field">
-        挑战塔阶
+        <span>挑战塔阶 <small class="tier-best">本阶最高 {{ currentBest }} 层</small></span>
         <select v-model.number="tier">
           <option v-for="i in 3" :key="i" :value="i">
             第
@@ -96,8 +96,12 @@ const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).fi
   </div>
 </template>
 <style scoped>
-.prepare-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:35px}.prepare-visual{text-align:center;background:radial-gradient(ellipse,#d5e0c6,#ece9d8 70%);padding:10px 20px 30px;border:1px solid #d1c8ac}.prepare-visual>img{height:290px;object-fit:contain;filter:drop-shadow(3px 8px 3px #234e4020)}.prepare-visual .eyebrow{font-size:8px;margin-top:10px}.prepare-visual h3{font-size:26px;margin:8px 0}.prepare-visual p{font-size:12px;color:var(--muted);margin-bottom:14px}.prepare-content .section-heading{margin-top:5px}.prepare-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}.prepare-facts>div{padding:14px;background:#e9e5d3}.prepare-facts span{display:block;font-size:11px;color:var(--muted)}.prepare-facts strong{font-size:25px;color:var(--jade)}.prepare-facts small{font-size:11px;color:var(--muted);font-weight:400}.bonds{margin-top:18px}.bonds summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:14px;color:var(--jade)}.bonds summary:focus-visible{outline:2px solid var(--jade);outline-offset:2px}.bond-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}.prepare-rule{margin:22px 0 16px}.start-button{width:100%;margin-top:8px}.prepare-content>.error-box{font-size:12px}
+.prepare-layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:28px}.prepare-visual{position:relative;text-align:center;background:repeating-linear-gradient(0deg,transparent 0 27px,#8c68440a 27px 28px),#e4e9d4;padding:8px 20px 20px;border:1px solid #a8b18b;box-shadow:inset 0 4px #8c6844,inset 0 0 0 6px #f6f1df}.prepare-visual>img{position:relative;z-index:1;max-width:100%;height:250px;object-fit:contain;filter:drop-shadow(3px 8px 0 #234e401a)}.prepare-visual .eyebrow{font-size:8px;margin-top:10px}.prepare-visual h3{font-size:26px;margin:8px 0}.prepare-visual p{font-size:12px;color:var(--muted);margin-bottom:14px}.prepare-content .section-heading{margin-top:5px}.prepare-facts{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:18px 0;border-block:1px solid #c4b68f;background:#f0ebd7}.prepare-facts>div{padding:12px 16px}.prepare-facts>div+div{border-left:1px solid #c4b68f}.prepare-facts span{display:block;font-size:11px;color:var(--muted)}.prepare-facts strong{font-size:25px;color:var(--jade)}.prepare-facts small{font-size:11px;color:var(--muted);font-weight:400}.bonds{margin-top:18px}.bonds summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:14px;color:var(--jade)}.bonds summary:focus-visible{outline:2px solid var(--jade);outline-offset:2px}.bond-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}.prepare-rule{margin:16px 0 12px;font-size:12px;line-height:1.8}.start-button{width:100%;min-height:48px;margin-top:8px;box-shadow:inset 0 -3px #213f3655,0 2px 0 #8c684433}.prepare-content>.error-box{font-size:12px}
 @media(max-width:740px){.prepare-layout{grid-template-columns:1fr;gap:20px}.prepare-visual{display:none}.prepare-facts{margin:18px 0}.prepare-content .section-heading{margin-top:0}}
 </style>
 
-<style scoped>.tier-field{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:12px;margin:15px 0}.tier-field select{min-width:160px}</style>
+<style scoped>.tier-field{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:12px;margin:15px 0}.tier-field select{min-width:160px}
+.prepare-visual::before{content:'';position:absolute;width:178px;height:178px;border-radius:50%;top:52px;left:50%;transform:translateX(-50%);border:1px solid #acba96;box-shadow:0 0 0 9px #cdd8bb55,0 0 0 10px #afbd9833}.tower-record{margin:16px auto 0;max-width:185px;padding-top:12px;border-top:1px solid #b2b995;color:#6d7e60;font-size:11px}.tower-record>span{display:block}.tower-record>strong{display:block;font:29px SimSun,serif;color:#326c55;margin:6px 0 10px}.tower-record small{font:11px system-ui;color:#6d7e60}.tower-record-track{height:4px;background:#becbaa}.tower-record-track>i{display:block;height:100%;background:#326c55;border-right:3px solid #b38a46}.formation-rule{font-size:11px;line-height:1.9;margin:10px 0;color:#6a795f}.prepare-content .section-heading h3{color:#213f36}.bonds{border-top:1px solid #c8bea1}.tier-best{display:block;color:#768267;font-size:10px;margin-top:3px}.tier-field select:focus-visible{outline:2px solid #b38a46;outline-offset:2px}
+@media(max-width:740px){.prepare-content{min-width:0}.prepare-layout{gap:0}.prepare-facts>div{padding:12px}.formation-rule{font-size:12px}.tier-field select{min-height:44px}.start-button{min-height:48px}}
+
+</style>

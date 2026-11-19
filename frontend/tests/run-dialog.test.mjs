@@ -403,3 +403,24 @@ test('both tower entry paths explain failed-run gear recovery and retain the act
     assert.doesNotMatch(view.endingDescription.value, /全部带回/)
   }
 })
+
+test('individual vitals show actual health after an affix without treating the departure snapshot as its current limit', async t => {
+  const view = setupView()
+  t.after(view.stop)
+  const run = view.store.state.active_run
+  run.member_hp['disciple-1'] = 107
+  run.hp = 107
+  run.max_hp = 107
+  const before = JSON.stringify(run)
+  await flushView()
+  view.closeDecision()
+  const { html, nodes } = await renderView(view)
+  const vitals = nodes.find(node => node.type === 'details' && node.props?.class === 'party-vitals')
+  assert.ok(vitals)
+  assert.match(textOf(vitals), /气血 107/)
+  assert.doesNotMatch(textOf(vitals), /107\s*\/\s*100/)
+  assert.equal(flatten(vitals).some(node => node.props?.class === 'progress-track'), false)
+  assert.match(html, /107 \/ 107/)
+  assert.equal(JSON.stringify(run), before)
+  assert.deepEqual(view.calls, [])
+})

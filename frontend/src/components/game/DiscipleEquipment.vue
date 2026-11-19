@@ -80,7 +80,7 @@ watch(candidates, items => {
 <template>
   <section class="equipment-section">
     <div class="section-heading"><h4>个人装备</h4><span class="muted">四个部位，独立培养</span></div>
-    <div class="equipment-slots"><button v-for="slot in equipmentSlots" :key="slot" :class="{active:pickerOpen&&selectedSlot===slot,filled:!!slotGear(slot)||(slot==='weapon'&&!!equipped)}" :aria-pressed="pickerOpen&&selectedSlot===slot" aria-haspopup="dialog" @click="openSlot(slot)"><GearIcon :slot="slot" :size="29" /><span><small>{{ slots[slot]??equipmentSlotNames[slot] }}</small><strong>{{ slotName(slot) }}</strong><em v-if="slotGear(slot)">强化 +{{ slotGear(slot)?.level }}</em><em v-else-if="slot==='weapon'&&equipped">专属 · {{ equipped.level }} 级</em></span></button></div>
+    <div class="equipment-slots"><button v-for="slot in equipmentSlots" :key="slot" :class="{active:pickerOpen&&selectedSlot===slot,filled:!!disciple.gear_slots[slot]||(slot==='weapon'&&!!equipped)}" :aria-pressed="pickerOpen&&selectedSlot===slot" :aria-label="`${slots[slot]??equipmentSlotNames[slot]}：${slotName(slot)}，查看与换装`" aria-haspopup="dialog" @click="openSlot(slot)"><span class="slot-emblem"><GearIcon :slot="slot" :size="34" /></span><span class="slot-copy"><small>{{ slots[slot]??equipmentSlotNames[slot] }}</small><strong>{{ slotName(slot) }}</strong><em v-if="slotGear(slot)">{{ slotGear(slot)?.tier }} 阶 · 强化 +{{ slotGear(slot)?.level }}</em><em v-else-if="slot==='weapon'&&equipped">专属 · {{ equipped.level }} 级</em><em v-else-if="!disciple.gear_slots[slot]" class="empty-slot">挑选装备</em></span><svg class="slot-open" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 4 4 4-4 4" /></svg></button></div>
     <p v-if="readOnly||onRun" class="equipment-note">出征期间装备锁定，结算后可调整。</p>
     <p v-if="loading" class="equipment-note" role="status">正在查阅装备……</p>
     <p v-if="!loading&&!store.gearRules" class="equipment-note">装备资料尚未取到。<button class="text-button" :disabled="store.busy" @click="refresh">重新查阅</button></p>
@@ -100,6 +100,66 @@ watch(candidates, items => {
   </section>
 </template>
 <style scoped>
-.equipment-section{padding-top:16px;border-top:1px solid #d3c8aa;margin-top:16px}.equipment-section .section-heading{gap:7px;margin-bottom:11px}.equipment-section h4{margin:0;font-size:15px}.equipment-section .section-heading>.muted{font-size:10px}.equipment-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.equipment-slots>button{display:flex;gap:7px;align-items:center;min-height:82px;min-width:0;padding:8px 6px;text-align:left;border:1px dashed #babc9f;background:#e7e6d4}.equipment-slots>button.filled{border-style:solid;background:#e1e7d2}.equipment-slots>button.active{border-color:var(--jade);box-shadow:inset 0 0 0 1px var(--jade)}.equipment-slots>button>span{min-width:0}.equipment-slots small,.equipment-slots strong,.equipment-slots em{display:block}.equipment-slots small{font-size:9px;color:#7d855f}.equipment-slots strong{font:12px 'SimSun',serif;line-height:1.5;overflow-wrap:anywhere;color:var(--jade)}.equipment-slots em{font-size:9px;font-style:normal;color:#8a794c;margin-top:3px}.equipment-note{font-size:10px;color:var(--muted);line-height:1.8;margin:9px 0 0}.text-button{font-size:inherit;border:0;background:transparent;padding:3px 5px;color:var(--jade);text-decoration:underline;min-height:32px}.slot-picker{padding:2px}.slot-picker h5{font:16px 'SimSun',serif;color:var(--jade);margin:0}.current-equipment{padding-bottom:12px;border-bottom:1px solid #d3c8aa;margin-bottom:10px}.current-equipment>strong{font-size:11px;font-weight:500;color:var(--jade)}.current-equipment>p,.weapon-row p{font-size:10px;color:var(--muted);line-height:1.8;margin:5px 0}.current-equipment>.btn{font-size:10px}.candidate-select{display:block;font-size:12px;color:var(--muted);margin:12px 0}.candidate-select select{display:block;width:100%;min-height:40px;margin-top:7px;font-size:12px}.picker-tabs{display:flex;gap:6px;margin:12px 0}.picker-tabs button{flex:1;min-height:40px;border:1px solid #c9c4a7;background:#eae7d5;color:var(--muted)}.picker-tabs button.active{border-color:var(--jade);background:#dce5ce;color:var(--jade)}.candidate-detail{padding-top:13px;margin-top:12px;border-top:1px solid #d3c8aa}.candidate-detail>strong{font:16px 'SimSun',serif;color:var(--jade)}.candidate-affix{font-size:10px;color:var(--gold);line-height:1.8;margin:6px 0}.equip-comparison{width:100%;border-collapse:collapse;font-size:10px;font-variant-numeric:tabular-nums}.equip-comparison caption{text-align:left;color:var(--muted);font-size:9px;padding:5px 0}.equip-comparison th,.equip-comparison td{font-weight:400;text-align:right;padding:6px 2px;border-bottom:1px solid #d9cfb3}.equip-comparison tr>:first-child{text-align:left}.equip-comparison thead{color:var(--muted);font-size:9px}.equip-comparison .better{color:var(--jade)}.equip-comparison .worse{color:var(--danger)}.equip-comparison td small{margin-left:2px}.transfer-note{font-size:10px;line-height:1.8;color:#8e713d;margin:9px 0}.equipment-reason{font-size:10px;line-height:1.8;color:var(--danger);margin:9px 0}.equip-button{width:100%;white-space:normal;font-size:11px;padding-inline:8px;margin-top:9px}.special-weapon{padding-top:3px}.special-weapon h5{font-size:14px}.weapon-row{display:flex;align-items:center;gap:8px;margin:10px 0}.weapon-row>div{min-width:0}.weapon-row strong{font-size:12px;overflow-wrap:anywhere}.special-weapon>.btn{width:100%;font-size:11px;margin-top:9px}
-@media(max-width:640px){.equipment-slots>button{padding:10px;gap:10px;min-height:88px}.equipment-slots strong{font-size:14px}.equipment-slots small,.equipment-slots em{font-size:11px}.equipment-section .section-heading>.muted{font-size:11px}.slot-picker{padding:2px}.candidate-select select,.picker-tabs button{min-height:44px}.equipment-note,.equipment-reason,.transfer-note,.candidate-affix{font-size:12px}.current-equipment>strong{font-size:13px}.current-equipment>p,.weapon-row p{font-size:12px}.equip-comparison{font-size:12px}.equip-comparison caption,.equip-comparison thead{font-size:11px}.equip-comparison th,.equip-comparison td{padding-block:9px}.equip-button,.special-weapon>.btn,.current-equipment>.btn{font-size:12px;min-height:44px}.weapon-row strong{font-size:14px}.text-button{min-height:44px}}
+.equipment-section{padding-top:0;margin-top:0}
+.equipment-section .section-heading{gap:7px;margin-bottom:15px}
+.equipment-section h4{margin:0;font:18px 'SimSun',serif;color:#213f36}
+.equipment-section .section-heading>.muted{font-size:11px}
+.equipment-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.equipment-slots>button{position:relative;display:flex;align-items:center;gap:10px;min-height:104px;min-width:0;padding:12px 20px 12px 10px;text-align:left;border:1px dashed #babf9f;background:#edeedc;transition:border-color .15s,background-color .15s}
+.equipment-slots>button.filled{border-style:solid;background:#e5ecd6;border-color:#a8b898;box-shadow:inset 3px 0 0 #6f9370}
+.equipment-slots>button:hover,.equipment-slots>button.active{border-color:#326c55;background:#dfe8cf}
+.equipment-slots>button.active{box-shadow:inset 3px 0 0 #326c55}
+.equipment-slots>button:focus-visible,.picker-tabs button:focus-visible,.slot-picker button:focus-visible{outline:2px solid var(--jade);outline-offset:3px}
+.equipment-slots .slot-emblem{display:grid;place-items:center;flex:none;width:46px;height:54px;border:1px solid #c2c8a8;background:#f5f1df;box-shadow:inset 0 0 0 3px #e4e7d3}
+.equipment-slots .filled .slot-emblem{border-color:#9fb38d}
+.equipment-slots .slot-copy{min-width:0;flex:1}
+.equipment-slots small,.equipment-slots strong,.equipment-slots em{display:block}
+.equipment-slots small{font-size:10px;color:#687b59}
+.equipment-slots strong{font:15px/1.6 'SimSun',serif;overflow-wrap:anywhere;color:#213f36}
+.equipment-slots em{font-size:10px;font-style:normal;color:#8c6844;margin-top:3px}
+.equipment-slots .empty-slot{color:#7d886b}
+.slot-open{position:absolute;right:7px;top:calc(50% - 7px);width:14px;height:14px;fill:none;stroke:#78936b;stroke-width:1.5}
+.equipment-note{font-size:12px;color:var(--muted);line-height:1.8;margin:9px 0 0}
+.text-button{font-size:inherit;border:0;background:transparent;padding:3px 5px;color:var(--jade);text-decoration:underline;min-height:44px}
+.slot-picker{padding:2px}
+.slot-picker h5{font:17px 'SimSun',serif;color:var(--jade);margin:0}
+.current-equipment{padding:12px;border:1px solid #b9c7a5;background:#e6ecd8;margin-bottom:14px}
+.current-equipment>strong{font:16px 'SimSun',serif;color:#213f36}
+.current-equipment>p,.weapon-row p{font-size:12px;color:var(--muted);line-height:1.8;margin:5px 0}
+.current-equipment>.btn{font-size:12px;margin-top:5px;min-height:44px}
+.candidate-select{display:block;font-size:12px;color:var(--muted);margin:12px 0}
+.candidate-select select{display:block;width:100%;min-height:44px;margin-top:7px;font-size:12px}
+.picker-tabs{display:flex;gap:6px;margin:12px 0}
+.picker-tabs button{flex:1;min-height:44px;border:1px solid #c9c4a7;background:#eae7d5;color:var(--muted)}
+.picker-tabs button.active{border-color:var(--jade);background:#dce5ce;color:var(--jade)}
+.candidate-detail{padding-top:13px;margin-top:12px;border-top:1px solid #d3c8aa}
+.candidate-detail>strong{font:19px 'SimSun',serif;color:var(--jade)}
+.candidate-affix{font-size:12px;color:var(--gold);line-height:1.8;margin:6px 0}
+.equip-comparison{width:100%;margin-top:10px;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.equip-comparison caption{text-align:left;color:var(--muted);font-size:11px;padding:5px 0}
+.equip-comparison th,.equip-comparison td{font-weight:400;text-align:right;padding:9px 7px;border-bottom:1px solid #d9cfb3}
+.equip-comparison tr>:first-child{text-align:left}
+.equip-comparison thead{color:var(--muted);font-size:11px;background:#e5e9d6}
+.equip-comparison .better{color:var(--jade);background:#dfe8cf}
+.equip-comparison .worse{color:var(--danger);background:#f1e3d3}
+.equip-comparison td small{margin-left:2px}
+.transfer-note{font-size:12px;line-height:1.8;color:#8e713d;margin:9px 0}
+.equipment-reason{font-size:12px;line-height:1.8;color:var(--danger);margin:9px 0}
+.equip-button{width:100%;min-height:44px;white-space:normal;font-size:12px;padding-inline:8px;margin-top:9px}
+.special-weapon{padding-top:3px}
+.weapon-row{display:flex;align-items:center;gap:8px;margin:10px 0;padding:12px;border:1px solid #c5c8a6;background:#e9ecd9}
+.weapon-row>div{min-width:0}
+.weapon-row strong{font:16px 'SimSun',serif;overflow-wrap:anywhere}
+.special-weapon>.btn{width:100%;font-size:12px;margin-top:9px;min-height:44px}
+@media(max-width:640px){
+  .equipment-slots{gap:7px}
+  .equipment-slots>button{padding:10px 16px 10px 8px;gap:7px;min-height:105px}
+  .equipment-slots .slot-emblem{width:36px;height:46px;box-shadow:inset 0 0 0 2px #e4e7d3}
+  .slot-emblem :deep(.gear-icon){width:29px;height:29px}
+  .equipment-slots strong{font-size:14px}
+  .slot-open{right:3px;width:12px}
+  .equipment-section .section-heading{flex-wrap:wrap}
+  .equip-comparison th,.equip-comparison td{padding-inline:5px}
+}
+@media(prefers-reduced-motion:reduce){.equipment-slots>button{transition:none}}
 </style>

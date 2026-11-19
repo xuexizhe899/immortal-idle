@@ -55,7 +55,7 @@ async function renderView(view) {
     roots.push(children)
     return h('section', { role: 'dialog', 'aria-label': props.title }, children)
   } } })
-  for (const name of ['BattleStage', 'PartyStrip', 'PartyHealing', 'GameIcon']) {
+  for (const name of ['BattleStage', 'PartyStrip', 'PartyHealing', 'GameIcon', 'ItemIcon']) {
     app.component(name, { name, render: () => h('div', { 'data-component': name }) })
   }
   return { html: await renderToString(app), nodes: roots.flatMap(flatten) }
@@ -162,6 +162,12 @@ test('material list filters names and reveals one source without changing exact 
   t.after(view.stop)
   let output = await renderView(view)
   assert.doesNotMatch(output.html, /role="dialog"|胜利 \+17/)
+  button(output.nodes, '只看可前往').props.onClick()
+  assert.deepEqual(view.materials.value.map(([id]) => id), ['copper'])
+  output = await renderView(view)
+  assert.doesNotMatch(output.html, /灵玉/)
+  assert.deepEqual(view.events, [])
+  button(output.nodes, '只看可前往').props.onClick()
   view.search.value = '赤'
   output = await renderView(view)
   assert.match(output.html, /赤铜/)
@@ -177,10 +183,12 @@ test('material list filters names and reveals one source without changing exact 
   view.selectedId.value = 'jade'
   output = await renderView(view)
   assert.equal(button(output.nodes, '地区未开放').props.disabled, true)
+  view.availableOnly.value = true
   view.store.slotId = 2
   await nextTick()
   assert.equal(view.search.value, '')
   assert.equal(view.selectedId.value, '')
+  assert.equal(view.availableOnly.value, false)
   view.selectedId.value = 'jade'
   delete view.store.catalog.materials.jade
   await nextTick()

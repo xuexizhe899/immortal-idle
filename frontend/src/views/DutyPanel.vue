@@ -69,12 +69,12 @@ function selectTab(id: typeof tabs[number]['id']) {
 <template>
   <div ref="panel" class="duty-panel">
   <nav class="duty-navigation" aria-label="值守栏目"><button v-for="item in tabs" :key="item.id" :class="{active:tab===item.id}" :aria-pressed="tab===item.id" @click="selectTab(item.id)">{{ item.label }}</button></nav>
-  <div class="section-heading">
+  <div class="section-heading duty-heading">
     <div>
       <h3>因材任人，各有所长</h3>
       <p class="muted">演武场 {{ store.state?.facility_levels.training ?? 1 }} 级 · 按当前缺口安排专长弟子。</p>
     </div>
-    <span class="badge">{{ slots.length }} / 6 席</span>
+    <div class="post-capacity"><strong>{{ slots.length }}<small> / 6 席</small></strong><span class="post-capacity-track" aria-hidden="true"><i v-for="i in 6" :key="i" :class="{filled:i<=slots.length}"></i></span><span>{{ slots.length<6 ? `尚有 ${6-slots.length} 席待安排` : '本宗值守已满' }}</span></div>
   </div>
   <template v-if="tab==='roster'">
   <div class="duty-filters">
@@ -112,18 +112,18 @@ function selectTab(id: typeof tabs[number]['id']) {
       v-for="disciple in roster"
       :key="disciple.id"
       class="duty-row"
-      :class="{matching:matchesTarget(disciple.template_id)}"
+      :class="{matching:matchesTarget(disciple.template_id),'on-duty':onDuty.has(disciple.id)}"
     >
       <img :src="discipleImage(disciple.template_id,catalog)" alt="" class="pixel-art" loading="lazy" />
       <div class="duty-person">
-        <strong>{{ catalog?.disciples[disciple.template_id]?.name }}<small>{{ leanNames[catalog?.disciples[disciple.template_id]?.lean ?? ''] }}</small></strong>
+        <strong>{{ catalog?.disciples[disciple.template_id]?.name }}<small>{{ leanNames[catalog?.disciples[disciple.template_id]?.lean ?? ''] }}</small><em v-if="onDuty.has(disciple.id)">在岗</em></strong>
         <span>专长 · {{ resourceName(specialty(disciple.template_id),catalog) }}</span>
         <span>{{ leanDescriptions[catalog?.disciples[disciple.template_id]?.lean ?? ''] }}{{ postOf(disciple.id) ? ` · 驻守${postOf(disciple.id)}` : '' }}</span>
       </div>
       <span v-if="disciple.injury_stacks" class="badge badge-danger">有伤可值守</span>
       <button class="btn btn-small" :class="{'btn-primary':!onDuty.has(disciple.id)}" :disabled="readOnly||store.busy||disciple.busy||(!onDuty.has(disciple.id)&&slots.length>=6)" @click="toggle(disciple.id)">{{ disciple.busy ? '出征中' : onDuty.has(disciple.id) ? '下岗' : slots.length>=6 ? '编制已满' : postOf(disciple.id) ? '调回值守' : '安排上岗' }}</button>
     </div>
-    <p v-if="!roster.length" class="notice-box">暂无匹配弟子，可清空姓名重新查找。</p>
+    <div v-if="!roster.length" class="notice-box duty-empty"><template v-if="store.disciples.length"><p>暂无匹配弟子，可清空姓名重新查找。</p><button class="btn btn-small" @click="search=''">查看全部弟子</button></template><template v-else><p>门下尚无弟子，先招募同道，再按专长安排值守。</p><button class="btn btn-small" @click="emit('open','codex')">前往弟子堂</button></template></div>
   </div>
   </template>
   <template v-else-if="tab==='posts'">
@@ -135,6 +135,7 @@ function selectTab(id: typeof tabs[number]['id']) {
       :class="{filled:member(i-1)}"
     >
       <template v-if="member(i-1)">
+        <span class="post-label">第 {{ i }} 席 · 在岗</span>
         <img
           :src="discipleImage(member(i-1)!.template_id,catalog)"
           alt=""
@@ -154,6 +155,7 @@ function selectTab(id: typeof tabs[number]['id']) {
       <template v-else>
         <span class="slot-number">{{ String(i).padStart(2,'0') }}</span>
         <strong>待安排</strong>
+        <span>依材料缺口选择专长</span>
         <button class="btn btn-small btn-quiet" @click="selectTab('roster')">安排弟子</button>
       </template>
     </div>
@@ -205,6 +207,7 @@ function selectTab(id: typeof tabs[number]['id']) {
 .duty-panel{min-width:0}.duty-navigation{position:sticky;top:0;z-index:2;display:flex;gap:4px;overflow-x:auto;margin:-24px -26px 20px;padding:10px 26px;background:var(--surface);border-bottom:1px solid var(--border)}.duty-navigation>button{flex:none;min-height:44px;padding:8px 10px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;white-space:nowrap}.duty-navigation>button.active{border-color:#a9b49c;background:var(--jade-light);color:var(--jade)}.duty-filters{display:flex;align-items:center;gap:12px}.duty-filters>label{flex:1;min-width:0}.disciple-search{display:flex;gap:10px;align-items:center;font-size:12px}.disciple-search>input{width:100%;min-width:0;flex:1}.duty-roster,.assignment-list{max-height:min(54dvh,520px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}.duty-roster:focus-visible,.assignment-list:focus-visible{outline:2px solid var(--jade);outline-offset:2px}@media(max-width:640px){.duty-navigation{margin:-18px -14px 18px;padding:9px 14px;gap:2px}.duty-navigation>button{padding-inline:8px}.duty-filters{align-items:stretch;flex-direction:column;gap:0}.disciple-search{margin-bottom:10px}}
 .section-heading p{margin:4px 0 0}.duty-slots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:20px 0}.duty-slot{min-height:158px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#ebe8d9;border:1px dashed #b6bba2;padding:8px 5px}.duty-slot.filled{border-style:solid;border-color:#adbea1;background:#e5e9d7}.duty-slot>img{width:64px;height:75px;object-fit:cover;object-position:top}.duty-slot>strong{font-size:12px;margin-top:5px}.duty-slot>span{font-size:9px;color:var(--muted)}.duty-slot .slot-number{font:32px 'SimSun',serif;color:#b9c0aa;margin-bottom:10px}.duty-slot .btn{font-size:9px;padding:2px 5px;min-height:26px}.production-panel{padding:18px;background:#ebe8d8;border:1px solid #d0c8ac;margin-bottom:24px}.production-panel h4{margin:0}.production-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px}.production-grid>div>span{display:block;color:var(--muted);font-size:11px}.production-grid strong{font-size:21px;font-weight:500;color:var(--jade)}.production-grid small{font-size:10px;color:var(--muted);margin-left:5px}.rate-chips{margin-top:14px}.duty-row{display:flex;align-items:center;gap:14px;border-bottom:1px solid #d9d0b8;padding:10px 0}.duty-row>img{width:44px;height:52px;object-fit:cover;object-position:top;background:#e9e5d3}.duty-person{flex:1}.duty-person strong{display:block;font-family:'SimSun',serif;font-size:15px}.duty-person span{display:block;color:var(--muted);font-size:10px}
 @media(max-width:640px){.duty-slots{grid-template-columns:repeat(3,minmax(0,1fr))}.duty-slot{min-height:145px}.duty-row{gap:9px}.duty-row>.badge{display:none}.production-panel .section-heading{align-items:flex-start;flex-direction:column;gap:4px}.production-panel{padding:14px}.production-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.production-grid strong{font-size:18px}.duty-row>.btn{font-size:10px;padding-inline:8px}.duty-person span{max-width:150px}}
+.production-target{display:flex;align-items:center;gap:16px;font-size:12px;margin:12px 0}.production-target select{flex:1}.duty-row.matching{background:#dce8cc;padding-inline:10px;border-left:3px solid var(--jade)}.duty-person small{font-size:10px;color:var(--gold)}.assignment-panel{padding:18px;background:#ebe8d8;border:1px solid #d0c8ac;margin-bottom:24px}.assignment-panel h4{margin:0}.assignment-list{display:flex;flex-direction:column}.assignment-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:9px 0;border-top:1px solid #d9d0b8;font-size:11px}.assignment-row strong{font:14px 'SimSun',serif;min-width:70px}.assignment-row span{color:var(--muted)}.assignment-row small{flex-basis:100%;color:var(--jade);font-size:10px}@media(max-width:640px){.assignment-panel{padding:14px}.assignment-row strong{min-width:0}}
+.duty-heading{padding:0 0 16px;border-bottom:1px solid #c4c9ac;gap:16px}.duty-heading h3{font-size:23px;line-height:1.5;color:#213f36}.duty-heading p{font-size:11px}.post-capacity{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none;color:#6c7b60;font-size:10px}.post-capacity>strong{font:28px 'SimSun',serif;color:#326c55;font-variant-numeric:tabular-nums}.post-capacity>strong small{font:11px 'Microsoft YaHei',sans-serif;color:#6c7b60}.post-capacity-track{display:flex;gap:3px}.post-capacity-track>i{width:13px;height:5px;background:#d4d8c2;border:1px solid #b6c3a2}.post-capacity-track>i.filled{background:#326c55;border-color:#326c55}.duty-roster{border-top:1px solid #c8cbb1;background:#f6f1df;padding-inline:10px}.duty-row{gap:12px;position:relative;padding:11px 0}.duty-row>img{width:47px;height:56px;border:1px solid #c4c7a8;background:#e3e8d3}.duty-person{min-width:0}.duty-person strong{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:16px;line-height:1.6;color:#213f36}.duty-person strong>small{font:10px 'Microsoft YaHei',sans-serif;color:#8c6844}.duty-person strong>em{font:10px 'Microsoft YaHei',sans-serif;font-style:normal;color:#326c55;background:#e1e9d3;border:1px solid #b5c5a5;padding:0 4px}.duty-person span{line-height:1.8}.duty-row.matching{margin-inline:-10px;padding-inline:10px;background:#e4ecd7;border-left:3px solid #7a9a7d}.duty-row.on-duty>.btn{border-color:#a1b18e;color:#326c55}.duty-slots{gap:8px;margin-top:17px}.duty-slot{position:relative;min-height:180px;background:#eeeddf;border-color:#c1c9ae}.duty-slot.filled{background:#e5ecd8;border-color:#98ad8b;box-shadow:inset 0 3px #326c55}.duty-slot>.post-label{font-size:9px;color:#326c55;margin:2px 0 5px}.duty-slot>strong{font-size:14px;color:#213f36}.duty-slot>span{line-height:1.8}.duty-slot>.btn{min-height:32px;margin-top:8px}.duty-slot .slot-number{font-variant-numeric:tabular-nums;font-size:28px;color:#a5b296}.production-panel,.assignment-panel{background:#f6f1df;border-color:#c1c9ae;border-top:3px solid #7a9a7d}.production-grid{gap:0}.production-grid>div{padding:11px 10px;border-bottom:1px solid #dddcc5}.production-grid strong{display:block;font-size:23px;font-family:'SimSun',serif;font-variant-numeric:tabular-nums}.production-grid small{font-family:'Microsoft YaHei',sans-serif}.assignment-row{padding:12px 0;line-height:1.7}.assignment-row:first-child{border-top:0}.duty-empty>p{margin:0 0 10px}.duty-panel button:focus-visible{outline:2px solid #326c55;outline-offset:2px}
+@media(max-width:640px){.duty-heading{align-items:flex-start;gap:10px}.duty-heading h3{font-size:19px}.duty-heading p{font-size:11px;line-height:1.8}.post-capacity>strong{font-size:25px}.post-capacity>span:last-child{font-size:9px}.post-capacity-track{gap:2px}.post-capacity-track>i{width:10px}.duty-row{gap:8px}.duty-row>img{width:40px;height:51px}.duty-person strong{font-size:15px}.duty-person span{font-size:11px}.duty-person span:last-child{max-width:160px}.duty-row>.btn{min-height:44px;padding-inline:8px;font-size:11px;flex:none}.duty-slot{min-height:185px;padding-inline:5px}.duty-slot>strong{font-size:14px}.duty-slot>.btn{min-height:44px;font-size:11px;padding-inline:7px}.duty-slot>.post-label{font-size:10px}.duty-slot>span{font-size:10px}.production-grid>div{padding:10px 4px}.production-grid strong{font-size:20px}.production-grid>div>span{font-size:11px}.assignment-row{font-size:12px}.assignment-row small{font-size:11px}.disciple-search,.production-target{font-size:12px}.disciple-search input,.production-target select{min-height:44px}}
 </style>
-
-<style scoped>.production-target{display:flex;align-items:center;gap:16px;font-size:12px;margin:12px 0}.production-target select{flex:1}.duty-row.matching{background:#dce8cc;padding-inline:10px;border-left:3px solid var(--jade)}.duty-person small{font-size:10px;color:var(--gold)}.assignment-panel{padding:18px;background:#ebe8d8;border:1px solid #d0c8ac;margin-bottom:24px}.assignment-panel h4{margin:0}.assignment-list{display:flex;flex-direction:column}.assignment-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:9px 0;border-top:1px solid #d9d0b8;font-size:11px}.assignment-row strong{font:14px 'SimSun',serif;min-width:70px}.assignment-row span{color:var(--muted)}.assignment-row small{flex-basis:100%;color:var(--jade);font-size:10px}@media(max-width:640px){.assignment-panel{padding:14px}.assignment-row strong{min-width:0}}</style>
