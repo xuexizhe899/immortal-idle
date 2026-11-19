@@ -1,6 +1,6 @@
 """惰性挂机结算。
 
-没有常驻 tick：读取存档时按 last_settled_at 与 now 的时间差补算。
+没有常驻 tick：同步或执行命令时按 last_settled_at 与 now 的时间差补算。
 速率会随值守变更而变，所以区间要按 duty_events 切段逐段求和。
 代价：一段时间的产出 = 基础速率 × (1 + 加成) × 小时数。
 """
@@ -130,6 +130,21 @@ def settle(state: GameState, last_settled_at: datetime, now: datetime) -> Settle
         if count:
             state.inventory[material] = state.inventory.get(material, 0) + count
             report.materials[material] = count
+
+    # 在线命令会推进结算锚点，已入账的挂机流水须另存，不能随单次报告归零。
+    # 只累计本次真实产出；与资源在同一次 CAS 保存，失败命令不会留下记录。
+    if report.elapsed_hours > 0:
+        record = state.idle_record
+        if record.started_at is None:
+            record.started_at = last_settled_at
+        record.updated_at = now
+        record.elapsed_hours += report.elapsed_hours
+        record.dropped_hours += report.dropped_hours
+        record.cultivation += report.cultivation
+        record.spirit_stone += report.spirit_stone
+        record.stamina += report.stamina
+        for material, count in report.materials.items():
+            record.materials[material] = record.materials.get(material, 0) + count
 
     for disciple in state.disciples:
         if disciple.injured_until is not None:

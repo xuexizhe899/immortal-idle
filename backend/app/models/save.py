@@ -29,6 +29,19 @@ class Resources(BaseModel):
     reputation: float = 0.0
 
 
+class IdleRecord(BaseModel):
+    """挂机已入账流水累计；独立于防重结算锚点，不是待领取余额。"""
+
+    started_at: datetime | None = None
+    updated_at: datetime | None = None
+    elapsed_hours: float = 0.0
+    dropped_hours: float = 0.0
+    cultivation: float = 0.0
+    spirit_stone: float = 0.0
+    stamina: float = 0.0
+    materials: dict[str, int] = Field(default_factory=dict)
+
+
 class DiscipleState(BaseModel):
     """一名弟子的运行时状态。"""
 
@@ -213,6 +226,7 @@ class GameState(BaseModel):
 
     schema_version: int = CURRENT_SCHEMA_VERSION
     resources: Resources = Field(default_factory=Resources)
+    idle_record: IdleRecord = Field(default_factory=IdleRecord)
     disciples: list[DiscipleState] = Field(default_factory=list)
     duty_slots: list[DutySlot] = Field(default_factory=list)
     duty_events: list[DutyEvent] = Field(default_factory=list)

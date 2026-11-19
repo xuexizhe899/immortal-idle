@@ -234,12 +234,18 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function settle(): Promise<SettleResult | null> {
-    return guard('收取收益', async () => {
+    return guard('同步挂机收益', async () => {
       const id = currentSlot()
       const result = await api.settle(id, revision.value)
       applySnapshot(result, id)
       lastSettle.value = result
-      notice.value = `已收取 ${result.elapsed_hours.toFixed(1)} 小时收益：修为 +${result.gained.cultivation.toFixed(1)}，灵石 +${result.gained.spirit_stone.toFixed(1)}`
+      const gains: [string, number][] = [
+        ['修为', result.gained.cultivation], ['灵石', result.gained.spirit_stone], ['行动力', result.gained.stamina],
+      ]
+      const added = gains.filter(([, value]) => value > 0).map(([name, value]) => `${name} +${value.toFixed(2)}`)
+      const materialCount = Object.values(result.gained.materials).filter(value => value > 0).length
+      if (materialCount) added.push(`材料 ${materialCount} 种`)
+      notice.value = added.length ? `挂机收益已同步，本次新增：${added.join('，')}，已自动入账。` : '挂机收益已同步，累计记录保留；完整明细可在挂机收益查看。'
       return result
     })
   }
@@ -679,7 +685,7 @@ export const useGameStore = defineStore('game', () => {
     training, trainingFor, trainingLoading, weapons, assignments, assignmentsLoading,
     gearList, gearRules, equipmentLoading, worldMap, worldLoading,
     loadEquipment, equipmentAction, loadWorld, travelRegion, ascend, startWorld,
-    bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, moveParty, choose, pickAffix,
+    bootstrap, loadSave, refresh: loadSave, settle, startRun, toggleParty, moveParty, choose, pickAffix,
     settleRun, assignDuty, unassignDuty, recruit, craft, usePill, craftWeapon, equipWeapon, unequipWeapon,
     loadWeapons, upgrade, breakthrough, loadTraining, loadAssignments,
     previewFacilities, previewRecipes, previewHealing, upgradeFacility, healParty, upgradeWeapon,

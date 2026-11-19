@@ -2,7 +2,7 @@
 import { computed,nextTick,ref } from 'vue'
 import GameIcon from '../components/ui/GameIcon.vue'
 import { statNames,resourceName, type DisplayCatalog } from '../presentation/gameText'
-import { number } from '../shared/format'
+import { durationFromHours,number } from '../shared/format'
 import { useGameStore } from '../stores/game'
 import SaveSlotsPanel from './SaveSlotsPanel.vue'
 import FacilitiesSection from '../components/game/FacilitiesSection.vue'
@@ -20,7 +20,10 @@ const store=useGameStore();const tab=ref<SectTab>('overview')
 const panel=ref<HTMLElement|null>(null)
 const emit=defineEmits<{open:[panel:string]}>()
 const catalog = computed(() => store.catalog as DisplayCatalog | null)
-const settleGains=computed(()=>store.lastSettle ? {cultivation:store.lastSettle.gained.cultivation,spirit_stone:store.lastSettle.gained.spirit_stone,stamina:store.lastSettle.gained.stamina,...store.lastSettle.gained.materials} : {})
+const idleRecord=computed(()=>store.state?.idle_record)
+const recordStartedAt=computed(()=>idleRecord.value?.started_at ? new Date(idleRecord.value.started_at).toLocaleString('zh-CN') : '')
+const settleGains=computed(()=>idleRecord.value ? {cultivation:idleRecord.value.cultivation,spirit_stone:idleRecord.value.spirit_stone,stamina:idleRecord.value.stamina,...idleRecord.value.materials} : {})
+const latestGains=computed(()=>store.lastSettle ? {cultivation:store.lastSettle.gained.cultivation,spirit_stone:store.lastSettle.gained.spirit_stone,stamina:store.lastSettle.gained.stamina,...store.lastSettle.gained.materials} : {})
 const chronicles=computed(()=>[
   `问道塔已至 ${store.state?.tower_floor??0} 层，新的修行之路仍在前方。`,
   `门下共有 ${store.disciples.length} 位弟子，${store.state?.duty_slots?.length??0} 位正在值守。`,
@@ -71,7 +74,7 @@ function onTabKey(event: KeyboardEvent, id: SectTab) {
         <div class="sect-intro"><span class="sect-seal">仙</span><div><span class="eyebrow">云岫仙宗</span><h3>兴修山门，育养同道。</h3><p class="muted">门下 {{ store.disciples.length }} 位弟子 · 值守 {{ store.state?.duty_slots?.length??0 }} / 6 · 问道塔 {{ store.state?.tower_floor??0 }} 层</p></div></div>
         <div class="stat-grid"><div v-for="key in ['cultivation','spirit_stone','stamina','reputation'] as const" :key="key" class="stat-cell"><span>{{ statNames[key] }}</span><strong>{{ number(store.resources?.[key],1) }}</strong></div></div>
         <div class="overview-links" aria-label="常用事务">
-          <button class="btn btn-primary btn-small" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" />收取收益</button>
+          <button class="btn btn-primary btn-small" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" />同步挂机收益</button>
           <button class="btn btn-small" @click="selectTab('facilities')">设施升级</button><button class="btn btn-small" @click="selectTab('income')">挂机收益</button><button class="btn btn-small" @click="selectTab('review')">出征复盘</button>
           <button class="btn btn-small btn-quiet" @click="emit('open','codex')">弟子培养</button><button class="btn btn-small btn-quiet" @click="emit('open','duty')">安排值守</button><button class="btn btn-small btn-quiet" @click="emit('open','expedition')">前往山河</button>
         </div>
@@ -79,9 +82,10 @@ function onTabKey(event: KeyboardEvent, id: SectTab) {
       </template>
       <FacilitiesSection v-else-if="tab==='facilities'" @open="emit('open',$event)" />
       <template v-else-if="tab==='income'">
-        <div class="idle-section"><div><h3>收取挂机收益</h3><p class="muted">离开后宗门仍在修行，最多结算 12 小时收益。</p></div><button class="btn btn-primary" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" />收取收益</button></div>
-        <div v-if="store.lastSettle" class="settle-result notice-box"><span class="eyebrow">此次修行所得</span><p>已结算 {{ number(store.lastSettle.elapsed_hours,2) }} 小时</p><div class="chips"><span v-for="(n,key) in settleGains" :key="key" class="badge">{{ resourceName(key,catalog) }} +{{ number(n,2) }}</span></div><p v-if="store.lastSettle.dropped_hours>0" class="muted">超出 12 小时的 {{ number(store.lastSettle.dropped_hours,1) }} 小时不计入收益。</p></div>
-        <p v-else class="muted">收取后可查看本次收益明细。</p>
+        <div class="idle-section"><div><h3>同步挂机收益</h3><p class="muted">后台按服务器时间自动记账，单次离线最多补算 12 小时；累计记录不因在线操作或同步清零。</p></div><button class="btn btn-primary" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" />同步挂机收益</button></div>
+        <div v-if="idleRecord" class="settle-result notice-box"><span class="eyebrow">累计挂机收益 · 已自动入账</span><p>累计有效时长 {{ durationFromHours(idleRecord.elapsed_hours) }}</p><div class="chips"><span v-for="(n,key) in settleGains" :key="key" class="badge">{{ resourceName(key,catalog) }} +{{ number(n,2) }}</span></div><p class="muted">{{ recordStartedAt ? `记录起点：${recordStartedAt}；` : '' }}从记录建立起累计，旧历史不追溯统计，以上收益无需再次领取。</p><p v-if="idleRecord.dropped_hours>0" class="muted">累计有 {{ durationFromHours(idleRecord.dropped_hours) }} 超出单次 12 小时上限，未计入收益。</p></div>
+        <p v-else class="muted">后台会从首次有效结算起保存累计记录，旧历史不追溯统计。</p>
+        <details v-if="store.lastSettle"><summary>本次同步新增 · {{ durationFromHours(store.lastSettle.elapsed_hours) }}</summary><p class="muted">以下新增已自动入账，累计记录包含这些收益。</p><div class="chips"><span v-for="(n,key) in latestGains" :key="key" class="badge">{{ resourceName(key,catalog) }} +{{ number(n,2) }}</span></div></details>
       </template>
       <template v-else-if="tab==='review'">
         <div v-if="store.lastRun && !review" class="run-result notice-box"><span class="eyebrow">最近出征</span><h3>{{ store.lastRun.victory ? '问道功成' : '整顿再来' }}</h3><p>到达 {{ store.lastRun.cleared }} 层 · 战利品已入库</p><div class="chips"><span v-for="(value,key) in store.lastRun.loot" :key="key" class="badge">{{ resourceName(key,catalog) }} +{{ number(value,1) }}</span></div></div>

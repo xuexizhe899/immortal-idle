@@ -9,9 +9,13 @@ import ts from 'typescript'
 const source = await readFile(new URL('../src/views/SectPanel.vue', import.meta.url), 'utf8')
 const script = source.match(/<script setup lang="ts">([\s\S]*?)<\/script>/)[1].replace(/^import .*\r?\n/gm, '')
 const transpile = code => ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-const makeSetup = new Function('computed', 'nextTick', 'ref', 'useGameStore', 'defineEmits', 'statNames', 'resourceName', 'number', `${transpile(script)}
+const formatSource = await readFile(new URL('../src/shared/format.ts', import.meta.url), 'utf8')
+const formatOutput = ts.transpileModule(formatSource, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
+const { durationFromHours } = await import(`data:text/javascript;base64,${Buffer.from(formatOutput).toString('base64')}`)
+const makeSetup = new Function('computed', 'nextTick', 'ref', 'useGameStore', 'defineEmits', 'statNames', 'resourceName', 'number', 'durationFromHours', `${transpile(script)}
   return { tabs, tab, panel, store, emit, catalog, settleGains, chronicles, review, reviewModeName,
-    reviewUnit, reviewEndText, injuredCount, reviewAdvice, selectTab, onTabKey, statNames, resourceName, number }`)
+    reviewUnit, reviewEndText, injuredCount, reviewAdvice, selectTab, onTabKey, statNames, resourceName, number,
+    idleRecord, recordStartedAt, latestGains, durationFromHours }`)
 const template = source.match(/<template>([\s\S]*?)<\/template>\s*<style scoped>/)[1]
 const renderCode = compile(template, { mode: 'function', expressionPlugins: ['typescript'] }).code
 const render = new Function('Vue', transpile(renderCode))(Vue)
@@ -25,7 +29,7 @@ function setupView() {
     catalog: null, lastSettle: null, lastRun: null, settle: () => { throw new Error('changing sections must not collect rewards') },
   })
   const view = makeSetup(Vue.computed, Vue.nextTick, Vue.ref, () => store, () => (...args) => events.push(args),
-    { cultivation: '修为', spirit_stone: '灵石', stamina: '行动力', reputation: '声望' }, id => id, value => String(value ?? 0))
+    { cultivation: '修为', spirit_stone: '灵石', stamina: '行动力', reputation: '声望' }, id => id, value => String(value ?? 0), durationFromHours)
   return { ...view, events }
 }
 
@@ -55,10 +59,10 @@ test('overview stays compact while the six sections remain reachable', async () 
   assert.match(html, /<details><summary>最近宗门纪事/)
   assert.doesNotMatch(html, /第一条纪事/)
   assert.match(html, /第六条纪事/)
-  assert.doesNotMatch(html, /收取挂机收益|上次出征复盘|尚无出征复盘/)
+  assert.doesNotMatch(html, /累计挂机收益|上次出征复盘|尚无出征复盘/)
   assert.deepEqual(mounted, [])
   view.store.busy = true
-  assert.match((await renderView(view)).html, /<button class="btn btn-primary btn-small" disabled><i\b[^>]*><\/i>收取收益<\/button>/)
+  assert.match((await renderView(view)).html, /<button class="btn btn-primary btn-small" disabled><i\b[^>]*><\/i>同步挂机收益<\/button>/)
 })
 
 test('facilities, sources and saves mount separately and preserve parent navigation events', async () => {
@@ -69,26 +73,29 @@ test('facilities, sources and saves mount separately and preserve parent navigat
     const { html, mounted, childEvents } = await renderView(view)
     assert.deepEqual(mounted, [name])
     assert.match(html, new RegExp(`id="sect-content-${tab}" role="tabpanel"`))
-    assert.doesNotMatch(html, /兴修山门，育养同道|收取挂机收益|上次出征复盘/)
+    assert.doesNotMatch(html, /兴修山门，育养同道|累计挂机收益|上次出征复盘/)
     if (tab !== 'saves') childEvents[name]('expedition')
   }
   assert.deepEqual(view.events, [['open', 'expedition'], ['open', 'expedition']])
 })
 
-test('income retains settled gains, the offline cap message and the busy collection lock', async () => {
+test('income retains the cumulative record, the per-interval cap message and the busy synchronization lock', async () => {
   const view = setupView()
-  view.store.lastSettle = { elapsed_hours: 12, dropped_hours: 3, gained: { cultivation: 8, spirit_stone: 6, stamina: 2, materials: { chi_tong: 4 } } }
+  view.store.state.idle_record = { started_at: null, updated_at: null, elapsed_hours: 12, dropped_hours: 3, cultivation: 8, spirit_stone: 6, stamina: 2, materials: { chi_tong: 4 } }
+  view.store.lastSettle = { elapsed_hours: .0008, dropped_hours: 0, gained: { cultivation: 0, spirit_stone: 0, stamina: 0, materials: {} } }
   view.selectTab('income')
   await Vue.nextTick()
   let output = await renderView(view)
-  assert.match(output.html, /收取挂机收益/)
-  assert.match(output.html, /超出 12 小时的 3 小时不计入收益/)
+  assert.match(output.html, /同步挂机收益/)
+  assert.match(output.html, /累计有效时长 12 小时/)
+  assert.match(output.html, /累计有 3 小时 超出单次 12 小时上限，未计入收益/)
+  assert.match(output.html, /<details><summary>本次同步新增 · 3 秒/)
   assert.match(output.html, /chi_tong \+4/)
   assert.doesNotMatch(output.html, /兴修山门，育养同道|宗门现况/)
   assert.deepEqual(output.mounted, [])
   view.store.busy = true
   output = await renderView(view)
-  assert.match(output.html, /<button class="btn btn-primary" disabled><i\b[^>]*><\/i>收取收益<\/button>/)
+  assert.match(output.html, /<button class="btn btn-primary" disabled><i\b[^>]*><\/i>同步挂机收益<\/button>/)
 })
 
 test('review preserves recorded details, the old-result fallback and the empty state', async () => {
@@ -111,7 +118,7 @@ test('review preserves recorded details, the old-result fallback and the empty s
   assert.match(html, /本场先倒下：甲弟子/)
   assert.match(html, /施加护盾 30 · 护盾吸收 28/)
   assert.match(html, /第 2 轮 · 行动 7：乙弟子的破阵对镇关灵兽造成 36 伤害/)
-  assert.doesNotMatch(html, /问道功成|收取挂机收益/)
+  assert.doesNotMatch(html, /问道功成|累计挂机收益/)
 })
 
 test('section selection resets only the owning scroll area and keeps its active tab reachable', async () => {

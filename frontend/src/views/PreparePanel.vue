@@ -24,7 +24,7 @@ const reason = computed(() => {
     ? Math.max(store.state?.tower_floor ?? 0, store.state?.tower_tiers['1'] ?? 0)
     : store.state?.tower_tiers[String(tier.value - 1)] ?? 0
   if (tier.value > 1 && previous < 20) return '需要先通关前一阶问道塔'
-  return (store.resources?.stamina ?? 0) < cost.value ? '行动力不足，稍后收取挂机收益再来' : ''
+  return (store.resources?.stamina ?? 0) < cost.value ? '行动力不足，稍后同步挂机收益再来' : ''
 })
 const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).filter(([, bond]) =>
   bond.modifiers.length > 0

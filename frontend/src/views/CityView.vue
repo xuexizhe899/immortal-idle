@@ -9,7 +9,7 @@ import { pickNextAction, type NextAction } from '../presentation/nextAction'
 import CityScene from '../rendering/hd2d/CityScene.vue'
 import { projectCityActors } from '../rendering/hd2d/cityModel'
 import { phases, useDayCycle } from '../rendering/dayCycle'
-import { number } from '../shared/format'
+import { durationFromHours, number } from '../shared/format'
 import { useGameStore } from '../stores/game'
 import CodexPanel from './CodexPanel.vue'
 import CraftPanel from './CraftPanel.vue'
@@ -68,7 +68,7 @@ function statusOf(panel: string) {
 }
 function secondaryStatusOf(panel: string) {
   switch(panel) {
-    case 'sect': return store.lastSettle && store.lastSettle.elapsed_hours >= .05 ? `离线收益已收取 ${number(store.lastSettle.elapsed_hours,1)} 小时 · 存档管理` : '设施升级 · 离线收益 · 存档管理'
+    case 'sect': return store.state?.idle_record ? `累计有效时长 ${durationFromHours(store.state.idle_record.elapsed_hours)} · 已自动入账` : '设施升级 · 挂机记录 · 存档管理'
     case 'codex': return recruitable.value ? `${recruitable.value} 位贤才可招募` : '查看道法与同道羁绊'
     case 'duty': return `修为 +${number(store.production.cultivation,1)}/时 · 灵石 +${number(store.production.spirit_stone,1)}/时`
     case 'tower': return activeRun.value ? `本地区最高记录 ${currentTowerBest.value} 层 · 队伍已锁定` : `${catalog.value?.mode.node_count ?? 0} 层试炼 · 行动力 ${catalog.value?.mode.stamina_cost ?? 1}`
@@ -130,7 +130,7 @@ function followGoal() {
         <button class="goal-slip" @click="followGoal"><span class="goal-mark">令</span><span><small>当前修行</small><strong>{{ currentGoal }}</strong></span><span aria-hidden="true">›</span></button>
         <div class="collect-wrap">
           <button v-if="nextAction" class="next-slip" @click="open(nextAction.panel)">{{ nextAction.label }}<span aria-hidden="true">›</span></button>
-          <button class="collect-button" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" /><span>收取收益<small>山中修行，自有所得</small></span></button>
+          <button class="collect-button" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" /><span>同步挂机收益<small>后台记录，收益自动入账</small></span></button>
         </div>
       </div>
       <span class="map-help">点击殿阁或同道 · 拖动游览，滚轮或双指缩放</span>

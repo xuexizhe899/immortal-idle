@@ -39,7 +39,7 @@ const startReason = computed(() => {
   if (store.state?.active_run) return '请先完成并结算当前出征'
   if (selected.value.locked) return selected.value.reason
   if (!store.party.length) return '请先选择出征弟子'
-  if ((store.resources?.stamina ?? 0) < selected.value.stamina_cost) return '行动力不足，可收取挂机收益，或迎击、演练'
+  if ((store.resources?.stamina ?? 0) < selected.value.stamina_cost) return '行动力不足，可同步挂机收益，或迎击、演练'
   return ''
 })
 const practiceReason = computed(() => {
@@ -120,7 +120,7 @@ async function ascend() {
   <section class="world-atlas" aria-label="山河地图">
     <header class="atlas-heading">
       <div><h3>山河行记</h3><p>点击据点查看敌情、整备或驻守。</p></div>
-      <button class="btn btn-small" :disabled="store.busy || store.worldLoading" @click="store.settle()">收取收益与敌情</button>
+      <button class="btn btn-small" :disabled="store.busy || store.worldLoading" @click="store.settle()">同步收益与敌情</button>
     </header>
     <nav class="region-switch" aria-label="地区图层">
       <button v-for="item in store.worldMap?.regions" :key="item.id" :class="{ active: item.selected }"
