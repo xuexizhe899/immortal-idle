@@ -1,0 +1,264 @@
+{
+  "generated_at": "2026-11-19T05:00:25.396791+00:00",
+  "scope": "单种子真实首通状态，实际消耗令牌，两个二区真实出征；不是二区平衡验收",
+  "source": {
+    "seed": 1,
+    "scenario": "map_60m",
+    "profile": "formal",
+    "policy_version": "visible_growth_retry_and_dungeon_budget_v4",
+    "first_token": {
+      "hours": 120.0342,
+      "day": 6,
+      "party": [
+        "baisuzhen",
+        "huatuo",
+        "dufu",
+        "jingwei",
+        "houyi",
+        "zhugeliang"
+      ],
+      "levels": [
+        9,
+        8,
+        9,
+        8,
+        8,
+        8
+      ],
+      "realms": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "equipped_slots": 24,
+      "stamina_spent": 61.0,
+      "runs": 71,
+      "ledger_at_clear": {
+        "idle_cultivation": 120.0342,
+        "idle_spirit_stone": 60.4358,
+        "stamina_recovered": 65.1245,
+        "idle_hours_dropped": 0.0,
+        "idle_gear_material": 60,
+        "active_seconds_estimate": 6526,
+        "stamina_spent": 61.0,
+        "retained_drops": 43,
+        "battles": 174,
+        "runs": 71,
+        "drops": 49,
+        "raid_cultivation": 1085.0,
+        "raid_spirit_stone": 465.0,
+        "raid_ling_mu": 62,
+        "raid_qing_shi": 62,
+        "level_ups": 44,
+        "gate_spirit_stone": 140.0,
+        "gate_ling_mu": 24,
+        "gate_qing_shi": 24,
+        "invasion_cultivation": 420.0,
+        "invasion_spirit_stone": 175.0,
+        "invasion_chi_tong": 5,
+        "gate_chi_tong": 8,
+        "invasion_gong_fa_qi_pei": 3,
+        "legacy_tower_cultivation": 779.34,
+        "legacy_tower_spirit_stone": 375.09,
+        "legacy_tower_reputation": 234.81,
+        "legacy_tower_ling_cao": 74,
+        "legacy_tower_yun_mu": 58,
+        "legacy_tower_han_tie": 62,
+        "legacy_tower_jiao_gu": 1,
+        "legacy_tower_xuan_jing": 9,
+        "affix_grade_2": 13,
+        "sect_cultivation": 600.0,
+        "sect_spirit_stone": 450.0,
+        "sect_reputation": 900.0,
+        "sect_han_tie": 8,
+        "sect_gong_fa_qi_pei": 18,
+        "gear_upgrades": 76,
+        "affix_grade_1": 20,
+        "affix_grade_3": 10,
+        "legacy_tower_jiu_ye": 6,
+        "sect_qing_shi": 8,
+        "sect_hu_chi_qi_pei": 9,
+        "breakthroughs": 12,
+        "dungeon_cultivation": 1140.81,
+        "dungeon_spirit_stone": 570.41,
+        "dungeon_reputation": 190.13,
+        "dungeon_lian_qi_jing_cui": 152,
+        "sect_ling_cao": 8,
+        "sect_po_jing_ling_cai": 18,
+        "sect_chi_tong": 16,
+        "sect_yun_mu": 16,
+        "sect_ling_mu": 16,
+        "gate_cultivation": 160.0,
+        "gate_xuan_jing": 5,
+        "sect_yao_shou_pi": 24,
+        "sect_jiu_ye": 24,
+        "invasion_sheng_xian_ling": 1
+      }
+    },
+    "checkpoint_at": "2026-11-24T00:02:03+00:00"
+  },
+  "simulation_tool_sha256": "7591f37ab99f5fa3534cb6b1a64aa4b608ee1a0512e2bf72de4811db35f5b304",
+  "before_ascend": {
+    "token": 1,
+    "region": 1,
+    "caps": [
+      10,
+      3
+    ],
+    "resources": {
+      "cultivation": 625.1841666666661,
+      "spirit_stone": 157.93580729166678,
+      "stamina": 7.124507638888899,
+      "reputation": 69.94000000000004
+    },
+    "levels": [
+      9,
+      8,
+      9,
+      8,
+      8,
+      8
+    ],
+    "gear_count": 24
+  },
+  "after_ascend": {
+    "token": 0,
+    "region": 2,
+    "caps": [
+      20,
+      6
+    ],
+    "resources": {
+      "cultivation": 625.1841666666661,
+      "spirit_stone": 157.93580729166678,
+      "stamina": 7.124507638888899,
+      "reputation": 69.94000000000004
+    },
+    "levels": [
+      9,
+      8,
+      9,
+      8,
+      8,
+      8
+    ],
+    "gear_count": 24
+  },
+  "runs": [
+    {
+      "event": {
+        "target": "r2:dungeon:1:1",
+        "run_seed": 868978489,
+        "hours": 120.0772,
+        "party": [
+          "baisuzhen",
+          "huatuo",
+          "dufu",
+          "jingwei",
+          "houyi",
+          "zhugeliang"
+        ],
+        "power_reference": 369.06,
+        "battles": 4,
+        "cleared_nodes": 6,
+        "drops": 1,
+        "rounds": 19,
+        "reason": "victory",
+        "practice": false,
+        "allies_survived": 6,
+        "ally_remaining_hp": 1037,
+        "enemy_remaining_hp": 0,
+        "victory": true,
+        "loot": {
+          "cultivation": 220.5,
+          "spirit_stone": 110.25,
+          "reputation": 36.75,
+          "lian_qi_jing_cui": 37
+        },
+        "retained_drops": 1
+      },
+      "resources_before": {
+        "cultivation": 625.1841666666661,
+        "spirit_stone": 157.93580729166678,
+        "stamina": 7.124507638888899,
+        "reputation": 69.94000000000004
+      },
+      "resources_after": {
+        "cultivation": 845.7272222222215,
+        "spirit_stone": 268.2073350694445,
+        "stamina": 5.146035416666675,
+        "reputation": 106.69000000000004
+      },
+      "new_gear": [
+        {
+          "id": "gear_50",
+          "definition_id": "po_jun_spear",
+          "name": "破军枪",
+          "slot": "weapon",
+          "tier": 2,
+          "level": 0,
+          "main_stat": "damage",
+          "main_value": 0.105,
+          "growth_per_level": 0.1,
+          "affix": "damage",
+          "affix_grade": 3,
+          "affix_value": 0.09,
+          "extra_stats": {},
+          "pending_affix": null,
+          "invested": {},
+          "locked": false,
+          "source": "drop"
+        }
+      ]
+    },
+    {
+      "event": {
+        "target": "r2:raid",
+        "run_seed": 2479834669,
+        "hours": 120.0856,
+        "party": [
+          "baisuzhen",
+          "huatuo",
+          "dufu",
+          "jingwei",
+          "houyi",
+          "zhugeliang"
+        ],
+        "power_reference": 369.06,
+        "battles": 1,
+        "cleared_nodes": 1,
+        "drops": 0,
+        "rounds": 6,
+        "reason": "victory",
+        "practice": false,
+        "allies_survived": 6,
+        "ally_remaining_hp": 1260,
+        "enemy_remaining_hp": 0,
+        "victory": true,
+        "loot": {
+          "cultivation": 87.5,
+          "spirit_stone": 37.5,
+          "ling_mu": 5,
+          "qing_shi": 5
+        },
+        "retained_drops": 0
+      },
+      "resources_before": {
+        "cultivation": 845.7272222222215,
+        "spirit_stone": 268.2073350694445,
+        "stamina": 5.146035416666675,
+        "reputation": 106.69000000000004
+      },
+      "resources_after": {
+        "cultivation": 933.2355555555548,
+        "spirit_stone": 305.7115017361112,
+        "stamina": 5.150202083333341,
+        "reputation": 106.69000000000004
+      },
+      "new_gear": []
+    }
+  ]
+}

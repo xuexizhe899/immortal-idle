@@ -460,6 +460,203 @@ def check_sects(
         check_sect_assets(style, roster_ids, pos, assets_dir, errors)
 
 
+def check_equipment(config_dir: Path, materials: dict[str, dict], errors: list[str]) -> None:
+    """装备掉落池和强化费用须可被服务端执行，避免空随机池或不存在的材料。"""
+    path = config_dir / "equipment.json"
+    if not path.exists():
+        return
+    where = "config/equipment.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeError, OSError) as exc:
+        errors.append(f"{where}: JSON 读取失败 - {exc}")
+        return
+    if not isinstance(data, dict):
+        errors.append(f"{where}: 顶层必须是对象")
+        return
+    slots = {"weapon", "armor", "boots", "ring"}
+    labels = data.get("slots")
+    if not isinstance(labels, dict) or set(labels) != slots or any(not isinstance(v, str) or not v for v in labels.values()):
+        errors.append(f"{where}.slots: 必须提供四个装备槽及名称")
+    material = data.get("material")
+    if not isinstance(material, str) or material not in materials:
+        errors.append(f"{where}.material: 必须引用已有材料")
+    if not isinstance(data.get("material_name"), str) or not data["material_name"]:
+        errors.append(f"{where}.material_name: 必须是非空字符串")
+    for key in ("levels_per_forge", "upgrade_base_cost", "reforge_base_cost", "smelt_base"):
+        value = data.get(key)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+            errors.append(f"{where}.{key}: 必须是正整数")
+    for key in ("growth_per_level", "tier_growth"):
+        value = data.get(key)
+        if not is_finite_number(value) or value < 0:
+            errors.append(f"{where}.{key}: 必须是有限非负数")
+    grades = data.get("affix_grades")
+    if (not isinstance(grades, list) or len(grades) != 3
+            or any(not is_finite_number(v) or v <= 0 for v in grades)):
+        errors.append(f"{where}.affix_grades: 必须提供三个有限正数档位")
+    elif not grades[0] < grades[1] < grades[2]:
+        errors.append(f"{where}.affix_grades: 三个档位必须递增")
+    stats = WEAPON_STATS | YIELD_STATS
+    pools = data.get("affix_pools")
+    if not isinstance(pools, dict) or set(pools) != slots:
+        errors.append(f"{where}.affix_pools: 必须提供四个装备槽的词条池")
+    else:
+        for slot, pool in pools.items():
+            if not isinstance(pool, list) or not pool or any(not isinstance(v, str) or v not in stats for v in pool):
+                errors.append(f"{where}.affix_pools.{slot}: 必须是非空已知属性数组")
+    definitions = data.get("definitions")
+    if not isinstance(definitions, list) or not definitions:
+        errors.append(f"{where}.definitions: 必须是非空装备数组")
+        return
+    seen, covered = set(), set()
+    for index, item in enumerate(definitions):
+        pos = f"{where}.definitions[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{pos}: 必须是对象")
+            continue
+        item_id = item.get("id")
+        if not isinstance(item_id, str) or not item_id or item_id in seen:
+            errors.append(f"{pos}.id: 必须是唯一非空字符串")
+        else:
+            seen.add(item_id)
+        if not isinstance(item.get("name"), str) or not item["name"]:
+            errors.append(f"{pos}.name: 必须是非空字符串")
+        if not isinstance(item.get("slot"), str) or item["slot"] not in slots:
+            errors.append(f"{pos}.slot: 必须是四个已知装备槽之一")
+        else:
+            covered.add(item["slot"])
+        if not isinstance(item.get("stat"), str) or item["stat"] not in stats:
+            errors.append(f"{pos}.stat: 必须是已知属性")
+        if not is_finite_number(item.get("value")) or item["value"] <= 0:
+            errors.append(f"{pos}.value: 必须是有限正数")
+    if covered != slots:
+        errors.append(f"{where}.definitions: 四个装备槽都必须至少有一件装备")
+
+
+def check_world(
+    config_dir: Path, materials: dict[str, dict], enemies: dict[str, dict], errors: list[str],
+    modes: dict[str, dict] | None = None,
+) -> None:
+    """地图的连续片区、入侵周期与奖励来源须能形成可执行的跨区闭环。"""
+    path = config_dir / "world.json"
+    if not path.exists():
+        return
+    where = "config/world.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeError, OSError) as exc:
+        errors.append(f"{where}: JSON 读取失败 - {exc}")
+        return
+    if not isinstance(data, dict):
+        errors.append(f"{where}: 顶层必须是对象")
+        return
+
+    def positive(container: dict, key: str, pos: str, minimum: float = 0) -> bool:
+        value = container.get(key)
+        valid = is_finite_number(value) and value > minimum
+        if not valid:
+            errors.append(f"{pos}.{key}: 必须是大于 {minimum} 的有限数字")
+        return valid
+
+    def roster(value: object, pos: str) -> None:
+        if not isinstance(value, list) or not 1 <= len(value) <= 6:
+            errors.append(f"{pos}: 敌方需要 1..6 人")
+        elif any(not isinstance(item, str) or item not in enemies for item in value):
+            errors.append(f"{pos}: 存在未定义的敌人")
+
+    def rewards(value: object, pos: str) -> None:
+        if not isinstance(value, dict):
+            errors.append(f"{pos}: 奖励必须是对象")
+            return
+        for key, amount in value.items():
+            if key not in materials and key not in {"cultivation", "spirit_stone", "reputation"}:
+                errors.append(f"{pos}.{key}: 奖励来源不存在")
+            if not is_finite_number(amount) or amount < 0:
+                errors.append(f"{pos}.{key}: 奖励必须是有限非负数")
+
+    token = data.get("ascension_token")
+    if not isinstance(token, str) or token not in materials:
+        errors.append(f"{where}.ascension_token: 必须引用已有材料")
+    if "dungeon_reputation" in data:
+        value = data["dungeon_reputation"]
+        if not is_finite_number(value) or value < 0:
+            errors.append(f"{where}.dungeon_reputation: 必须是有限非负数")
+    if "tower_stamina_cost" in data:
+        cost = data["tower_stamina_cost"]
+        if not isinstance(cost, int) or isinstance(cost, bool) or cost < 1:
+            errors.append(f"{where}.tower_stamina_cost: 必须是正整数")
+        if modes and "tower" in modes and modes["tower"].get("stamina_cost") != cost:
+            errors.append(f"{where}.tower_stamina_cost: 必须与 modes/tower.json 的行动力成本一致")
+    invasion = data.get("invasion")
+    if not isinstance(invasion, dict):
+        errors.append(f"{where}.invasion: 必须是对象")
+        invasion = {}
+    positive(invasion, "hours_per_wave", f"{where}.invasion")
+    positive(invasion, "wave_scale_cap", f"{where}.invasion")
+    if is_finite_number(invasion.get("wave_scale_cap")) and invasion["wave_scale_cap"] < 1:
+        errors.append(f"{where}.invasion.wave_scale_cap: 不得低于 1")
+    growth = invasion.get("wave_growth")
+    if not is_finite_number(growth) or growth < 0:
+        errors.append(f"{where}.invasion.wave_growth: 必须是有限非负数")
+    cap, initial = invasion.get("pending_cap"), invasion.get("initial_pending")
+    if not isinstance(cap, int) or isinstance(cap, bool) or cap < 1:
+        errors.append(f"{where}.invasion.pending_cap: 必须是正整数")
+    if not isinstance(initial, int) or isinstance(initial, bool) or initial < 0 or isinstance(cap, int) and initial > cap:
+        errors.append(f"{where}.invasion.initial_pending: 必须是 0..pending_cap 的整数")
+    roster(invasion.get("enemies"), f"{where}.invasion.enemies")
+    rewards(invasion.get("reward"), f"{where}.invasion.reward")
+    regions = data.get("regions")
+    if not isinstance(regions, list) or len(regions) < 2:
+        errors.append(f"{where}.regions: 至少提供两个完整地区")
+        return
+    for index, region in enumerate(regions, 1):
+        pos = f"{where}.regions[{index - 1}]"
+        if not isinstance(region, dict):
+            errors.append(f"{pos}: 必须是对象")
+            continue
+        if region.get("id") != index or isinstance(region.get("id"), bool):
+            errors.append(f"{pos}.id: 地区编号必须从 1 连续递增")
+        for key in ("name", "subtitle", "palette"):
+            if not isinstance(region.get(key), str) or not region[key]:
+                errors.append(f"{pos}.{key}: 必须是非空字符串")
+        positive(region, "enemy_scale", pos)
+        positive(region, "reward_scale", pos)
+        tier = region.get("gear_tier")
+        if not isinstance(tier, int) or isinstance(tier, bool) or tier < 1:
+            errors.append(f"{pos}.gear_tier: 必须是正整数")
+        areas = region.get("areas")
+        if not isinstance(areas, list) or len(areas) != 3:
+            errors.append(f"{pos}.areas: 每地区必须有三个片区")
+            continue
+        for area_index, area in enumerate(areas, 1):
+            ap = f"{pos}.areas[{area_index - 1}]"
+            if not isinstance(area, dict):
+                errors.append(f"{ap}: 必须是对象")
+                continue
+            if area.get("id") != area_index or isinstance(area.get("id"), bool):
+                errors.append(f"{ap}.id: 片区编号必须为 1、2、3")
+            for key in ("name", "description", "threat"):
+                if not isinstance(area.get(key), str) or not area[key]:
+                    errors.append(f"{ap}.{key}: 必须是非空字符串")
+            positive(area, "scale", ap)
+            for key in ("gate_multiplier", "invasion_multiplier"):
+                if key in area:
+                    positive(area, key, ap)
+            for key in ("enemies", "elite", "boss"):
+                roster(area.get(key), f"{ap}.{key}")
+            for key in ("first_reward", "invasion_reward"):
+                rewards(area.get(key), f"{ap}.{key}")
+            dungeons = area.get("dungeons")
+            if not isinstance(dungeons, list) or len(dungeons) != 2:
+                errors.append(f"{ap}.dungeons: 必须有两个副本")
+            else:
+                for dungeon in dungeons:
+                    if (not isinstance(dungeon, dict) or not isinstance(dungeon.get("name"), str)
+                            or not dungeon["name"] or dungeon.get("slot") not in ("", "weapon", "armor", "boots", "ring")):
+                        errors.append(f"{ap}.dungeons: 副本必须有名称及已知装备部位")
+
+
 def validate(
     config_dir: Path | None = None, assets_dir: Path | None = None
 ) -> list[str]:
@@ -474,6 +671,7 @@ def validate(
     disciples = load_collection(config_dir, "disciples", errors)
     bonds = load_collection(config_dir, "bonds", errors)
     materials = load_collection(config_dir, "materials", errors)
+    check_equipment(config_dir, materials, errors)
     recipes = load_collection(config_dir, "recipes", errors)
     weapons = load_collection(config_dir, "weapons", errors)
     affixes = load_collection(config_dir, "affixes", errors)
@@ -482,6 +680,7 @@ def validate(
     modes = load_collection(config_dir, "modes", errors)
     check_facilities(config_dir, materials, errors)
     check_sects(config_dir, assets_dir, materials, enemies, errors)
+    check_world(config_dir, materials, enemies, errors, modes)
     requires_specialty = (config_dir / "facilities.json").exists() or (config_dir / "sects.json").exists()
 
     for skill_id, skill in skills.items():

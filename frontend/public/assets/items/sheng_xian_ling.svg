@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges" role="img">
+  <title>升仙令</title>
+  <polygon points="18,14 24,7 40,7 46,14 46,44 39,51 25,51 18,44" fill="#C9A24B" stroke="#22342C" stroke-width="2"/>
+  <polygon points="22,16 27,11 37,11 42,16 42,42 37,47 27,47 22,42" fill="#5E9B77" stroke="#22342C" stroke-width="2"/>
+  <rect x="25" y="20" width="14" height="4" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <rect x="27" y="24" width="3" height="14" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <rect x="34" y="24" width="3" height="14" fill="#F2EAD3" stroke="#22342C" stroke-width="2"/>
+  <rect x="24" y="38" width="16" height="3" fill="#E8D08A" stroke="#22342C" stroke-width="2"/>
+  <circle cx="32" cy="15" r="2" fill="#E8D08A"/>
+  <rect x="30" y="51" width="4" height="5" fill="#A9473B" stroke="#22342C" stroke-width="2"/>
+  <rect x="26" y="56" width="12" height="4" fill="#A9473B" stroke="#22342C" stroke-width="2"/>
+  <rect x="26" y="60" width="3" height="3" fill="#A9473B"/>
+  <rect x="31" y="60" width="3" height="3" fill="#A9473B"/>
+  <rect x="36" y="60" width="3" height="3" fill="#A9473B"/>
+</svg>

@@ -17,6 +17,8 @@ from app.api.run import router as run_router
 from app.api.saves import router as saves_router
 from app.api.settle import router as settle_router
 from app.api.weapons import router as weapons_router
+from app.api.equipment import router as equipment_router
+from app.api.world import router as world_router
 from app.db import create_engine, create_session_factory
 
 
@@ -49,3 +51,5 @@ app.include_router(settle_router, prefix="/api")
 app.include_router(weapons_router, prefix="/api")
 app.include_router(facilities_router, prefix="/api")
 app.include_router(garrison_router, prefix="/api")
+app.include_router(equipment_router, prefix="/api")
+app.include_router(world_router, prefix="/api")

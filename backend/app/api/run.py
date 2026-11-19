@@ -1,6 +1,7 @@
 """出征命令：revision 防重放，战斗与资源由服务端结算。"""
 
 from typing import Literal
+from copy import deepcopy
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,8 +9,8 @@ from pydantic import Field
 
 from app.api.saves import get_repo
 from app.api.state import commit_mutation, prepare_mutation, snapshot, status_of
-from app.config_loader import load_affixes, load_bonds, load_disciples, load_enemies, load_modes, load_sects, load_skills, load_weapons
-from app.domain import conquest, run_engine
+from app.config_loader import load_affixes, load_bonds, load_disciples, load_enemies, load_modes, load_sects, load_skills, load_weapons, load_world
+from app.domain import conquest, run_engine, world
 from app.models.api import RevisionRequest, RunResponse, RunSettleResponse
 from app.models.save import GameState
 from app.repositories.saves import SaveRepository
@@ -59,15 +60,18 @@ async def start(
 ) -> RunResponse:
     command = await prepare_mutation(slot_id, repo, payload.revision)
     modes = load_modes()
-    mode = modes.get(payload.mode)
+    mode = deepcopy(modes.get(payload.mode))
     if not mode or not mode.get("enabled"):
         raise HTTPException(status_code=400, detail="该远行模式尚未开放")
     sect = None
     if payload.mode == "expedition":
-        conquest.ensure_sects(command.state, load_sects(), load_enemies())
+        conquest.ensure_sects(command.state, load_sects(), load_enemies(), load_world())
         sect = next((item for item in command.state.sects if item.id == payload.sect_id), None)
         if sect is None:
             raise HTTPException(status_code=400, detail="请先选择要征讨的宗门")
+        region = command.state.world.current_region
+        if sect.region_id != region or sect.area > command.state.world.unlocked_areas.get(str(region), 1):
+            raise HTTPException(status_code=400, detail="请先前往宗门所在地区，并击败前一片区守关首领")
     elif payload.sect_id is not None:
         raise HTTPException(status_code=400, detail="问道塔不接受宗门目标")
     retrial_reward = None
@@ -75,7 +79,10 @@ async def start(
         if payload.mode != "expedition" or sect is None:
             raise HTTPException(status_code=400, detail="论道属于远行码头的已攻克宗门")
         style = next((item for item in load_sects()["styles"] if item["name"] == sect.style), None)
-        retrial_reward = (style or {}).get("retrial_reward") or None
+        scale = next(item for item in load_world()["regions"] if item["id"] == sect.region_id)["reward_scale"]
+        retrial_reward = {key: value * scale for key, value in (style or {}).get("retrial_reward", {}).items()} or None
+    if payload.mode == "tower":
+        mode = world.tower_mode(command.state, mode, load_world())
     error = run_engine.start_run(
         command.state, payload.party, load_disciples(), mode, command.settled_at,
         seed=secrets.randbits(63), bonds=load_bonds(), skills=load_skills(), enemies=load_enemies(),

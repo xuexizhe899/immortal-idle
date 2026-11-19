@@ -37,6 +37,12 @@
       "name": "九叶灵芝"
     },
     {
+      "file": "lian_qi_jing_cui.svg",
+      "id": "lian_qi_jing_cui",
+      "kind": "material",
+      "name": "炼器精粹"
+    },
+    {
       "file": "ling_cao.svg",
       "id": "ling_cao",
       "kind": "material",
@@ -59,6 +65,12 @@
       "id": "qing_shi",
       "kind": "material",
       "name": "青石"
+    },
+    {
+      "file": "sheng_xian_ling.svg",
+      "id": "sheng_xian_ling",
+      "kind": "material",
+      "name": "升仙令"
     },
     {
       "file": "xuan_jing.svg",

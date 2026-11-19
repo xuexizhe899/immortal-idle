@@ -88,3 +88,15 @@ def load_facilities() -> dict[str, dict]:
 def load_sects() -> dict:
     """宗门生成的组合规则与特色资源。"""
     return json.loads((CONFIG_DIR / "sects.json").read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def load_equipment() -> dict:
+    """个人装备定义、随机属性和投入成本。"""
+    return json.loads((CONFIG_DIR / "equipment.json").read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def load_world() -> dict:
+    """地区、片区、入侵和飞升规则。"""
+    return json.loads((CONFIG_DIR / "world.json").read_text(encoding="utf-8"))

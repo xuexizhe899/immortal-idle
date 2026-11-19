@@ -13,6 +13,13 @@ const viewingCity = ref(false)
 const cityMode = computed(() => !!store.state && (!inRun.value || viewingCity.value))
 watch([() => store.slotId, () => store.state?.active_run?.run_seed], () => { viewingCity.value = false })
 const currentSave = computed(() => store.saves.find(save => save.slot_id === store.slotId))
+const runLocation = computed(() => {
+  const run = store.state?.active_run
+  if (!run) return '山中岁月，自有所得'
+  if (run.practice) return '阵容演练中'
+  if (run.world_node_id) return String(run.party_snapshot?.mode.world_node && (run.party_snapshot.mode.world_node as Record<string, unknown>).name || '山河历练中')
+  return run.sect_id ? '宗门征讨中' : run.mode === 'expedition' ? '远行中' : '问道塔出征中'
+})
 const resources = [{ key: 'cultivation', label: '修为', icon: 'leaf' }, { key: 'spirit_stone', label: '灵石', icon: 'stone' }, { key: 'stamina', label: '行动力', icon: 'flame' }, { key: 'reputation', label: '声望', icon: 'star' }] as const
 const busyMessage = computed(() => store.operation ? `正在${store.operation}` : '正在处理')
 onMounted(() => { void store.bootstrap() })
@@ -22,7 +29,7 @@ onMounted(() => { void store.bootstrap() })
     <header class="game-header">
       <div class="brand"><span class="brand-seal">道</span><div><h1>云岫仙宗</h1><span class="brand-sub">山海有灵 · 问道长生</span></div></div>
       <div class="resource-hud" aria-label="宗门资源"><div v-for="item in resources" :key="item.key" class="hud-item"><GameIcon :name="item.icon" /><div><span>{{ item.label }}</span><strong>{{ number(store.resources?.[item.key], item.key === 'stamina' ? 1 : 0) }}</strong></div></div></div>
-      <div class="save-indicator"><span class="status-dot"></span>{{ currentSave?.name ?? '宗门存档' }}<small>{{ inRun ? store.state?.active_run?.sect_id ? '宗门征讨中' : store.state?.active_run?.mode==='expedition' ? '远行中' : '问道塔出征中' : '山中岁月，自有所得' }}</small></div>
+      <div class="save-indicator"><span class="status-dot"></span>{{ currentSave?.name ?? '宗门存档' }}<small>{{ runLocation }}</small></div>
     </header>
     <main class="game-main">
       <div v-if="!store.state" class="boot-screen"><span class="boot-seal">仙</span><h2>{{ store.error ? '山门暂未开启' : '正在叩开山门' }}</h2><p class="muted">{{ store.error ?? '整理宗门典籍，片刻便好…' }}</p><button v-if="store.error" class="btn btn-primary" @click="store.bootstrap()">重新尝试</button></div>

@@ -7,8 +7,10 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
-from app.config_loader import load_bonds, load_disciples, load_enemies, load_sects
+from app.config_loader import load_bonds, load_disciples, load_enemies, load_recipes, load_sects, load_world
 from app.domain.conquest import ensure_sects
+from app.domain.equipment import migrate_equipment
+from app.domain.world import ensure_world
 from app.domain.duty import rates_of, record_event, garrison_production
 from app.domain.run_engine import run_status
 from app.domain.settle import (
@@ -20,11 +22,13 @@ from app.models.save import GameState
 from app.repositories.saves import SaveRepository
 
 
-def initialize_world(state: GameState) -> None:
+def initialize_world(state: GameState, now: datetime | None = None) -> None:
     """世界只按缺少的等级补生成，已有宗门的身份与守军不重抽。"""
     if not state.rng_seed:
         state.rng_seed = secrets.randbits(63) or 1
-    ensure_sects(state, load_sects(), load_enemies())
+    ensure_sects(state, load_sects(), load_enemies(), load_world())
+    if now is not None:
+        ensure_world(state, now, load_world())
 
 
 def status_of(state: GameState) -> RunStatus:
@@ -73,12 +77,14 @@ async def prepare_mutation(
         raise HTTPException(status_code=404, detail="存档不存在")
     now = datetime.now(timezone.utc)
     report = settle(state, last, now)
-    initialize_world(state)
+    # 旧收益先按旧全局器具结清，转换后的个人装备只影响此刻起的区间。
+    migrate_equipment(state, load_recipes())
+    initialize_world(state, max(last, now))
     return Mutation(state, current, now, max(last, now), report)
 
 
 async def commit_mutation(slot_id: int, mutation: Mutation, repo: SaveRepository) -> None:
-    initialize_world(mutation.state)
+    initialize_world(mutation.state, mutation.settled_at)
     current_rates = rates_of(mutation.state, load_disciples(), load_bonds())
     last_rates = mutation.state.duty_events[-1].rates if mutation.state.duty_events else {}
     if current_rates != last_rates:

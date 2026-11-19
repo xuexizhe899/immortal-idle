@@ -22,18 +22,16 @@ def test_batch_craft_uses_server_maximum_and_rejects_overspend():
     assert craft(state, "liao_shang_dan", recipes, quantity=0)
 
 
-def test_legacy_artifact_upgrade_only_adds_its_difference():
+def test_legacy_artifact_upgrade_is_rejected_without_spending():
     state = GameState(
         crafted_recipes=["qing_feng_jian"], bonuses={"atk": .18},
         inventory={"han_tie": 20}, facility_levels={"forge": 3},
     )
     recipes = load_recipes()
-    assert craft(state, "qing_feng_jian", recipes, grade=2) is None
-    assert state.bonuses["atk"] == pytest.approx(.22)
-    assert craft(state, "qing_feng_jian", recipes, grade=3) is None
-    assert state.bonuses["atk"] == pytest.approx(.26)
     before = state.model_dump()
-    assert craft(state, "qing_feng_jian", recipes, grade=3)
+    assert "副本与首领掉落" in craft(state, "qing_feng_jian", recipes, grade=2)
+    assert "副本与首领掉落" in craft(state, "qing_feng_jian", recipes, grade=3)
+    assert recipe_view(state, recipes["qing_feng_jian"]).max_quantity == 0
     assert state.model_dump() == before
 
 

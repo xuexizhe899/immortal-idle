@@ -1,0 +1,119 @@
+{
+  "invasion": {
+    "hours_per_wave": 4,
+    "pending_cap": 3,
+    "initial_pending": 1,
+    "wave_growth": 0.025,
+    "wave_scale_cap": 2.5,
+    "enemies": ["cinder_blade", "cloud_archer", "stone_guard"],
+    "reward": {"cultivation": 35, "spirit_stone": 15, "ling_mu": 2, "qing_shi": 2}
+  },
+  "ascension_token": "sheng_xian_ling",
+  "dungeon_reputation": 2,
+  "tower_stamina_cost": 3,
+  "regions": [
+    {
+      "id": 1,
+      "name": "云岚下界",
+      "subtitle": "青山初立宗，踏遍九宗山河",
+      "palette": "jade",
+      "enemy_scale": 1.0,
+      "reward_scale": 1.0,
+      "gear_tier": 1,
+      "areas": [
+        {
+          "id": 1,
+          "name": "青溪山麓",
+          "description": "招贤立宗，寻得第一批称手装备。",
+          "scale": 0.9,
+          "enemies": ["stone_guard", "cloud_archer", "bamboo_swordsman"],
+          "elite": ["jade_warden", "cloud_archer", "bamboo_swordsman"],
+          "boss": ["bronze_beast", "frost_crane"],
+          "threat": "镇山兽重甲护身，破甲与持续输出更容易突破。",
+          "dungeons": [{"name": "竹影剑冢", "slot": "weapon"}, {"name": "青溪栈道", "slot": "boots"}],
+          "first_reward": {"spirit_stone": 20, "ling_mu": 8, "qing_shi": 8},
+          "invasion_reward": {"cultivation": 60, "spirit_stone": 25, "chi_tong": 5}
+        },
+        {
+          "id": 2,
+          "name": "赤霞群峰",
+          "description": "攻占资源要地，为六名弟子补齐防具与法戒。",
+          "scale": 1.5,
+          "gate_multiplier": 1.265,
+          "enemies": ["cinder_blade", "bamboo_swordsman", "cloud_archer"],
+          "elite": ["cinder_blade", "jade_warden", "frost_crane"],
+          "boss": ["cinder_blade", "bamboo_swordsman", "lantern_wraith"],
+          "threat": "刀卫与剑客先手猛烈，护盾与治疗有助稳住开局。",
+          "dungeons": [{"name": "赤炉遗窟", "slot": "armor"}, {"name": "流霞石林", "slot": "ring"}],
+          "first_reward": {"spirit_stone": 50, "ling_mu": 16, "qing_shi": 16, "chi_tong": 8},
+          "invasion_reward": {"cultivation": 120, "spirit_stone": 50, "gong_fa_qi_pei": 3}
+        },
+        {
+          "id": 3,
+          "name": "问道云巅",
+          "description": "磨砺主力，击退来犯首领，取得升仙令。",
+          "scale": 2.25,
+          "gate_multiplier": 1.3225,
+          "invasion_multiplier": 1.4222222222222223,
+          "enemies": ["bamboo_swordsman", "cinder_blade", "frost_crane"],
+          "elite": ["bronze_beast", "vine_spirit", "lantern_wraith"],
+          "boss": ["tower_master", "jade_warden", "lantern_wraith"],
+          "threat": "首领群攻配合护卫与灯使，需兼顾存活和集火效率。",
+          "dungeons": [{"name": "云巅古境", "slot": ""}, {"name": "灵台幻境", "slot": ""}],
+          "first_reward": {"cultivation": 160, "spirit_stone": 70, "xuan_jing": 5},
+          "invasion_reward": {"cultivation": 240, "spirit_stone": 100, "sheng_xian_ling": 1}
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "青冥灵域",
+      "subtitle": "携旧日道果，征新界山河",
+      "palette": "azure",
+      "enemy_scale": 3.2,
+      "reward_scale": 2.5,
+      "gear_tier": 2,
+      "areas": [
+        {
+          "id": 1,
+          "name": "碧落渡口",
+          "description": "灵域之门已经开启，先建立新的资源据点。",
+          "scale": 1.0,
+          "enemies": ["bamboo_swordsman", "cinder_blade", "cloud_archer"],
+          "elite": ["jade_warden", "frost_crane", "lantern_wraith"],
+          "boss": ["bronze_beast", "vine_spirit", "frost_crane"],
+          "threat": "护盾与治疗相互掩护，破甲和集火是可尝试的突破口。",
+          "dungeons": [{"name": "碧落剑渊", "slot": "weapon"}, {"name": "逐风浮岛", "slot": "boots"}],
+          "first_reward": {"spirit_stone": 80, "ling_mu": 20, "qing_shi": 20},
+          "invasion_reward": {"cultivation": 180, "spirit_stone": 75, "chi_tong": 10}
+        },
+        {
+          "id": 2,
+          "name": "星河诸峰",
+          "description": "星河险阻，合理配置护持与攻伐弟子。",
+          "scale": 1.4,
+          "enemies": ["cinder_blade", "cloud_archer", "frost_crane"],
+          "elite": ["bronze_beast", "jade_warden", "lantern_wraith"],
+          "boss": ["tower_master", "frost_crane", "vine_spirit"],
+          "threat": "长线回复与群体压力并存，伤害和续航需要取得平衡。",
+          "dungeons": [{"name": "玄星甲冢", "slot": "armor"}, {"name": "映月灵池", "slot": "ring"}],
+          "first_reward": {"spirit_stone": 150, "han_tie": 15, "xuan_jing": 8},
+          "invasion_reward": {"cultivation": 300, "spirit_stone": 120, "hu_chi_qi_pei": 5}
+        },
+        {
+          "id": 3,
+          "name": "太清天门",
+          "description": "在灵域之巅，检验六名主力积累的道果。",
+          "scale": 1.9,
+          "enemies": ["cinder_blade", "bamboo_swordsman", "lantern_wraith"],
+          "elite": ["bronze_beast", "vine_spirit", "frost_crane"],
+          "boss": ["tower_master", "bronze_beast", "lantern_wraith"],
+          "threat": "重甲前排掩护强攻首领，需要针对敌情配置全队。",
+          "dungeons": [{"name": "太清天境", "slot": ""}, {"name": "星海归墟", "slot": ""}],
+          "first_reward": {"cultivation": 600, "spirit_stone": 200, "xuan_jing": 15},
+          "invasion_reward": {"cultivation": 800, "spirit_stone": 300, "sheng_xian_ling": 1}
+        }
+      ]
+    }
+  ]
+}

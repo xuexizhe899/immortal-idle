@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import ItemIcon from '../components/game/ItemIcon.vue'
 import type { RecipeView, WeaponView } from '../api/client'
 import { effectText, injuryText, resourceName } from '../presentation/gameText'
 import { number } from '../shared/format'
 import { useGameStore } from '../stores/game'
+import EquipmentPanel from './EquipmentPanel.vue'
 
 const props = defineProps<{ kind?: string; readOnly?: boolean }>()
 const emit = defineEmits<{ open: [panel: string] }>()
@@ -17,7 +18,7 @@ const loading = ref(false)
 const useItem = ref('')
 const useTarget = ref('')
 let previewRequest = 0
-const recipes = computed(() => previews.value.filter(recipe => !props.kind || recipe.kind === props.kind))
+const recipes = computed(() => previews.value.filter(recipe => recipe.kind === 'pill' && (!props.kind || recipe.kind === props.kind)))
 const recipe = computed(() => recipes.value.find(item => item.id === selectedId.value))
 const maxGrade = computed(() => store.state?.facility_levels.alchemy ?? 1)
 const isPill = computed(() => props.kind === 'pill')
@@ -53,8 +54,9 @@ const useReason = computed(() => {
 })
 const usedGrades = computed(() => target.value?.pill_grades[basePillId.value]
   ?? Array(target.value?.pill_uses[basePillId.value] ?? 0).fill(1))
-watch([grade, () => store.revision, () => store.slotId], async () => {
+watch([grade, () => props.kind, () => store.revision, () => store.slotId], async () => {
   const request = ++previewRequest
+  if (!isPill.value) { previews.value = []; loading.value = false; return }
   loading.value = true
   previews.value = []
   const result = await store.previewRecipes(grade.value)
@@ -70,8 +72,7 @@ watch(maxGrade, limit => {
 watch(pills, list => {
   if (!list.some(([id]) => id === useItem.value)) useItem.value = list[0]?.[0] ?? ''
 }, { immediate: true })
-watch(() => store.revision, () => { void store.loadWeapons() })
-onMounted(() => { void store.loadWeapons() })
+watch([() => props.kind, () => store.revision, () => store.slotId], () => { if (!isPill.value) void store.loadWeapons() }, { immediate: true })
 function held(id: string) { return store.state?.inventory[id] ?? 0 }
 function findMaterial(id: string) {
   emit('open', store.planProduction(id))
@@ -86,8 +87,8 @@ function weaponReason(weapon: WeaponView) {
   return weapon.owned ? weapon.upgrade_reason : weapon.reason
 }
 async function craft() {
-  if (!recipe.value || reason.value) return
-  await store.craft(recipe.value.id, recipe.value.kind === 'pill' ? quantity.value : 1, recipe.value.grade)
+  if (!isPill.value || !recipe.value || reason.value) return
+  await store.craft(recipe.value.id, quantity.value, recipe.value.grade)
 }
 </script>
 
@@ -97,12 +98,13 @@ async function craft() {
       <div>
         <span class="eyebrow">{{ isPill ? '炉火温养 · 因材炼丹' : '百炼成器 · 以器助道' }}</span>
         <h3>
-          {{ isPill ? '炼丹房' : '炼器炉' }}
+          {{ isPill ? '炼丹房' : '炼器阁' }}
           <small>{{ store.state?.facility_levels[isPill?'alchemy':'forge'] ?? 1 }} 级</small>
         </h3>
       </div>
       <button class="btn btn-small btn-quiet" @click="emit('open','sect')">查看设施升级</button>
     </div>
+    <EquipmentPanel v-if="!isPill" :read-only="readOnly" @open="emit('open',$event)" />
     <label v-if="isPill" class="grade-control">
       炼制品级
       <select v-model.number="grade">
@@ -110,8 +112,8 @@ async function craft() {
       </select>
       <span class="muted">高阶属性丹可替换低阶效果</span>
     </label>
-    <p v-if="loading" class="notice-box" role="status">正在查阅配方与可炼数量……</p>
-    <div v-else class="craft-layout">
+    <p v-if="isPill&&loading" class="notice-box" role="status">正在查阅配方与可炼数量……</p>
+    <div v-else-if="isPill" class="craft-layout">
       <div class="recipe-list" aria-label="选择配方">
         <button
           v-for="item in recipes"
@@ -124,7 +126,7 @@ async function craft() {
           <span>
             <strong>{{ item.name }}</strong>
             <small>
-              {{ item.kind==='pill' ? item.grade+'品 · 库存 '+item.stock : item.current_level ? '当前 '+item.current_level+' 级' : '尚未打造' }}
+              {{ item.grade }}品 · 库存 {{ item.stock }}
             </small>
           </span>
         </button>
@@ -133,10 +135,10 @@ async function craft() {
         <div class="recipe-head">
           <ItemIcon :id="recipe.id" variant="display" />
           <div>
-            <span class="eyebrow">{{ recipe.kind==='pill' ? recipe.grade+'品丹方' : '器具提升' }}</span>
+            <span class="eyebrow">{{ recipe.grade }}品丹方</span>
             <h3>{{ recipe.name }}</h3>
             <p>
-              {{ recipe.kind==='pill' ? '本次炼制 '+quantity+' 颗' : recipe.current_level>=recipe.max_grade ? '已达到设施允许的最高等级' : recipe.current_level ? recipe.current_level+' → '+recipe.grade+' 级' : '打造 1 级器具' }}
+              本次炼制 {{ quantity }} 颗
             </p>
           </div>
         </div>
@@ -145,7 +147,6 @@ async function craft() {
           <span v-if="store.catalog?.recipes[recipe.id]?.special==='heal'">清除目标全部伤势</span>
           <span v-if="store.catalog?.recipes[recipe.id]?.special==='realm'">达到当前境界等级上限后，境界提升一重</span>
         </div>
-        <p v-if="recipe.kind==='artifact'" class="muted">升级替换这件器具的旧增益，其他器具加成保留。</p>
         <div class="ingredient-list">
           <div v-for="(count,id) in recipe.inputs" :key="id" :class="{missing:held(id)<count*quantity}">
             <ItemIcon :id="id" :size="22" />
@@ -156,7 +157,7 @@ async function craft() {
             </button>
           </div>
         </div>
-        <div v-if="recipe.kind==='pill'" class="quantity-control">
+        <div class="quantity-control">
           <label>
             数量
             <input
@@ -179,7 +180,7 @@ async function craft() {
         </div>
         <p v-if="reason" class="craft-reason">{{ reason }}</p>
         <button class="btn btn-primary craft-button" :disabled="store.busy||!!reason" @click="craft">
-          {{ recipe.kind==='pill' ? '炼制 '+quantity+' 颗' : recipe.current_level ? '提升器具等级' : '打造器具' }}
+          炼制 {{ quantity }} 颗
         </button>
       </article>
       <p v-else class="notice-box">暂无可用配方，请刷新进度后重试。</p>
@@ -283,7 +284,7 @@ async function craft() {
             :disabled="store.busy||readOnly||!(weapon.owned?weapon.upgradeable:weapon.craftable)"
             @click="weapon.owned?store.upgradeWeapon(weapon.id):store.craftWeapon(weapon.id)"
           >
-            {{ weapon.owned ? weapon.level>=3 ? '已达本期上限' : weapon.level>=weapon.max_level ? '先升级炼器炉' : '升级专武' : '锻造专武' }}
+            {{ weapon.owned ? weapon.level>=3 ? '已达本期上限' : weapon.level>=weapon.max_level ? '先升级炼器阁' : '升级专武' : '锻造专武' }}
           </button>
         </article>
       </div>

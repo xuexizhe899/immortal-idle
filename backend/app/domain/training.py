@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 from app.domain.duty import personal_duty_rates
+from app.domain.equipment import combat_equipment_bonuses
 from app.domain.progression import (
-    LEVEL_CAPS, MAX_REALM, breakthrough_cost, is_on_run, level_cap, upgrade_cost,
+    breakthrough_cost, growth_caps, is_on_run, level_cap, upgrade_cost,
 )
 from app.domain.run_engine import combatant
 from app.domain.weapons import combat_bonuses
@@ -19,13 +20,16 @@ def stats_for(
     disciple: DiscipleState, template: dict, skills: dict[str, dict],
     bonuses: dict[str, float], weapons: dict[str, dict], slot: int = 0,
     weapon_levels: dict[str, int] | None = None, training_level: int = 1,
+    gear_bonuses: dict[str, float] | None = None,
 ) -> TrainingStats:
-    """等级、境界、伤势、个人/宗门加成与已装备专武后的当前属性。"""
+    """等级、境界、伤势、个人/宗门加成与已穿戴装备后的当前属性。"""
+    merged = combat_bonuses(disciple, bonuses, weapons, weapon_levels)
+    for stat, value in (gear_bonuses or {}).items():
+        merged[stat] = merged.get(stat, 0) + value
     unit = combatant(
-        disciple, template, skills,
-        combat_bonuses(disciple, bonuses, weapons, weapon_levels), slot,
+        disciple, template, skills, merged, slot,
     )
-    rates = personal_duty_rates(disciple, template, training_level)
+    rates = personal_duty_rates(disciple, template, training_level, equipment_bonuses=gear_bonuses)
     return TrainingStats(
         level=disciple.level, realm=disciple.realm,
         health=unit.health, attack=round(unit.attack, 2),
@@ -39,12 +43,14 @@ def preview(
     weapons: dict[str, dict],
 ) -> TrainingPreview:
     """生成当前/下一等级的只读预览，包含限制原因与旧档超限标记。"""
-    cap = level_cap(disciple.realm)
+    max_level, max_realm = growth_caps(state)
+    cap = min(level_cap(disciple.realm), max_level)
     slot = next(
         (index for index, item in enumerate(state.disciples) if item.id == disciple.id), 0,
     )
     training_level = state.facility_levels.get("training", 1)
-    current = stats_for(disciple, template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level)
+    gear_bonuses = combat_equipment_bonuses(state, disciple)
+    current = stats_for(disciple, template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level, gear_bonuses)
 
     if disciple.level >= cap:
         next_level = TrainingStep(
@@ -62,41 +68,36 @@ def preview(
             kind="level", allowed=not reason, reason=reason, costs=costs,
             target=stats_for(
                 disciple.model_copy(update={"level": disciple.level + 1}),
-                template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level,
+                template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level, gear_bonuses,
             ),
         )
 
-    if disciple.realm >= MAX_REALM:
+    if disciple.realm >= max_realm:
         next_realm = TrainingStep(
             kind="realm", allowed=False, reason="已达当前最高境界",
         )
     else:
-        required = LEVEL_CAPS.get(disciple.realm)
-        if required is None:
-            next_realm = TrainingStep(
-                kind="realm", allowed=False, reason="当前境界不支持继续突破",
-            )
-        else:
-            costs = breakthrough_cost(disciple, template)
-            reason = ""
-            if is_on_run(state, disciple):
-                reason = "出征中的弟子暂不可突破"
-            elif disciple.level < required:
-                reason = f"需要达到 {required} 级才能突破至境界 {disciple.realm + 1}"
-            elif state.resources.reputation < costs.get("reputation", 0.0):
-                reason = f"声望不足（需要 {costs.get('reputation', 0.0):g}）"
-            next_realm = TrainingStep(
-                kind="realm", allowed=not reason, reason=reason, costs=costs,
-                requires_level=required, alternative_recipe_id="po_jing_dan",
-                target=stats_for(
-                    disciple.model_copy(update={"realm": disciple.realm + 1}),
-                    template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level,
-                ),
-            )
+        required = level_cap(disciple.realm)
+        costs = breakthrough_cost(disciple, template)
+        reason = ""
+        if is_on_run(state, disciple):
+            reason = "出征中的弟子暂不可突破"
+        elif disciple.level < required:
+            reason = f"需要达到 {required} 级才能突破至境界 {disciple.realm + 1}"
+        elif state.resources.reputation < costs.get("reputation", 0.0):
+            reason = f"声望不足（需要 {costs.get('reputation', 0.0):g}）"
+        next_realm = TrainingStep(
+            kind="realm", allowed=not reason, reason=reason, costs=costs,
+            requires_level=required, alternative_recipe_id="po_jing_dan",
+            target=stats_for(
+                disciple.model_copy(update={"realm": disciple.realm + 1}),
+                template, skills, state.bonuses, weapons, slot, state.weapon_levels, training_level, gear_bonuses,
+            ),
+        )
 
     return TrainingPreview(
         disciple_id=disciple.id, level=disciple.level, realm=disciple.realm,
-        level_cap=cap, max_realm=MAX_REALM,
-        legacy_over_cap=disciple.level > cap or disciple.realm > MAX_REALM,
+        level_cap=cap, max_realm=max_realm,
+        legacy_over_cap=disciple.level > cap or disciple.realm > max_realm,
         current=current, next_level=next_level, next_realm=next_realm,
     )

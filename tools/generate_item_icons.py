@@ -787,7 +787,35 @@ def art_po_jing_ling_cai() -> list[str]:
     ]
 
 
+def art_lian_qi_jing_cui() -> list[str]:
+    """炼器精粹：错落棱晶托于金属坩埚，区别于整块矿石。"""
+    return [
+        poly([(11, 36), (53, 36), (47, 54), (17, 54)], IRON),
+        rect(17, 54, 30, 4, IRON_DEEP),
+        poly([(16, 34), (21, 15), (30, 24), (28, 40)], CRYSTAL_LIGHT),
+        poly([(29, 38), (31, 7), (42, 17), (40, 39)], CRYSTAL),
+        poly([(39, 39), (46, 22), (53, 28), (49, 40)], GOLD),
+        poly([(31, 10), (35, 18), (33, 33)], CRYSTAL_PALE, stroke=None),
+        rect(14, 36, 36, 5, GOLD_DEEP), rect(17, 37, 30, 2, GOLD_LIGHT, stroke=None),
+        rect(27, 44, 10, 6, JADE_DEEP), rect(30, 45, 4, 4, JADE_LIGHT, stroke=None),
+    ]
+
+
+def art_sheng_xian_ling() -> list[str]:
+    """升仙令：飞檐轮廓玉牌、天门纹与红穗，轮廓区别于玉佩。"""
+    return [
+        poly([(18, 14), (24, 7), (40, 7), (46, 14), (46, 44), (39, 51), (25, 51), (18, 44)], GOLD),
+        poly([(22, 16), (27, 11), (37, 11), (42, 16), (42, 42), (37, 47), (27, 47), (22, 42)], JADE),
+        rect(25, 20, 14, 4, IVORY), rect(27, 24, 3, 14, IVORY), rect(34, 24, 3, 14, IVORY),
+        rect(24, 38, 16, 3, GOLD_LIGHT), circle(32, 15, 2, GOLD_LIGHT, stroke=None),
+        rect(30, 51, 4, 5, RED), rect(26, 56, 12, 4, RED),
+        rect(26, 60, 3, 3, RED, stroke=None), rect(31, 60, 3, 3, RED, stroke=None),
+        rect(36, 60, 3, 3, RED, stroke=None),
+    ]
+
+
 ART: dict[str, Callable[[], list[str]]] = {
+    "lian_qi_jing_cui": art_lian_qi_jing_cui, "sheng_xian_ling": art_sheng_xian_ling,
     "ling_mu": art_ling_mu, "qing_shi": art_qing_shi, "chi_tong": art_chi_tong,
     "yao_shou_pi": art_yao_shou_pi, "gong_fa_qi_pei": art_gong_fa_qi_pei,
     "hu_chi_qi_pei": art_hu_chi_qi_pei, "po_jing_ling_cai": art_po_jing_ling_cai,

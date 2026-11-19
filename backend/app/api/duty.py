@@ -6,6 +6,7 @@ from app.api.saves import get_repo
 from app.api.state import commit_mutation, prepare_mutation, snapshot
 from app.config_loader import load_bonds, load_disciples
 from app.domain.duty import assign, member_garrison_rates, personal_duty_rates, rates_of, unassign
+from app.domain.equipment import combat_equipment_bonuses
 from app.domain.progression import is_on_run
 from app.models.api import AssignmentListResponse, AssignmentView, DutyResponse, RevisionRequest
 from app.models.save import GameState
@@ -65,8 +66,8 @@ async def assignments(slot_id: int, repo: SaveRepository = Depends(get_repo)) ->
         post = "run" if is_on_run(state, disciple) else "duty" if disciple.id in duty_ids else "garrison" if sect else "idle"
         views.append(AssignmentView(
             disciple_id=disciple.id, post=post, sect_id=sect.id if sect else None,
-            duty_rates=personal_duty_rates(disciple, template, training),
-            garrison_rates=member_garrison_rates(sect, disciple, template) if post == "garrison" and sect else {},
+            duty_rates=personal_duty_rates(disciple, template, training, combat_equipment_bonuses(state, disciple)),
+            garrison_rates=member_garrison_rates(sect, disciple, template, combat_equipment_bonuses(state, disciple)) if post == "garrison" and sect else {},
         ))
     return AssignmentListResponse(revision=revision, assignments=views)
 

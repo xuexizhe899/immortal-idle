@@ -109,6 +109,8 @@ def equip_weapon(
         return "已装备该专武"
     if disciple.equipment:
         return "请先卸下当前专武"
+    if disciple.gear_slots.get("weapon"):
+        return "请先卸下当前武器"
 
     remaining = state.inventory[weapon_id] - 1
     if remaining:

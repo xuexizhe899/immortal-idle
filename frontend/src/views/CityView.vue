@@ -4,7 +4,7 @@ import CityDock from '../components/game/CityDock.vue'
 import PanelModal from '../components/ui/PanelModal.vue'
 import GameIcon from '../components/ui/GameIcon.vue'
 import { discipleImage } from '../presentation/assetPaths'
-import { effectText, resourceName, type DisplayCatalog } from '../presentation/gameText'
+import { resourceName, type DisplayCatalog } from '../presentation/gameText'
 import { pickNextAction, type NextAction } from '../presentation/nextAction'
 import CityScene from '../rendering/hd2d/CityScene.vue'
 import { projectCityActors } from '../rendering/hd2d/cityModel'
@@ -16,7 +16,7 @@ import CraftPanel from './CraftPanel.vue'
 import DutyPanel from './DutyPanel.vue'
 import SectPanel from './SectPanel.vue'
 import PreparePanel from './PreparePanel.vue'
-import ExpeditionPanel from './ExpeditionPanel.vue'
+import WorldPanel from './WorldPanel.vue'
 const emit = defineEmits<{ resumeRun: [] }>()
 const store = useGameStore()
 const { selection, phaseName, lighting } = useDayCycle()
@@ -33,33 +33,36 @@ const buildings = computed(() => (city.value?.hotspots ?? []).map(spot => ({ id:
 const activeRun = computed(() => store.state?.active_run ?? null)
 const runEnded = computed(() => store.status === 'cleared' || store.status === 'defeated')
 const runStep = computed(() => (activeRun.value?.nodes.length ?? 0) + (runEnded.value || store.status === 'choosing_affix' ? 0 : 1))
+const runUnit = computed(() => activeRun.value?.mode === 'tower' ? '层' : activeRun.value?.mode === 'expedition' ? '段' : '关')
+const runName = computed(() => String((activeRun.value?.party_snapshot?.mode.world_node as Record<string, unknown> | undefined)?.name ?? (activeRun.value?.mode === 'tower' ? '问道塔试炼' : activeRun.value?.mode === 'dungeon' ? '秘境历练' : '山河历练')))
+const currentTowerBest = computed(() => Math.max((store.state?.world.current_region ?? 1) === 1 ? store.state?.tower_floor ?? 0 : 0, ...Object.values(store.state?.tower_tiers ?? {})))
 const towerLabel = computed(() => activeRun.value?.mode === 'tower' ? runEnded.value ? '待结算' : '继续出征' : '问道')
-const towerHint = computed(() => activeRun.value?.mode === 'expedition' ? '远行中 · 点击继续' : activeRun.value ? `第 ${runStep.value} 层 · ${runEnded.value ? '收取战利品' : '试炼未歇'}` : '登塔试炼')
-const expeditionLabel = computed(() => activeRun.value?.mode === 'expedition' ? (runEnded.value ? '待结算' : '继续远行') : '远行')
+const towerHint = computed(() => activeRun.value?.sect_id ? '征讨中 · 点击继续' : activeRun.value ? `${runName.value} · 第 ${runStep.value} ${runUnit.value} · ${runEnded.value ? '收取战利品' : '点击继续'}` : '登塔试炼')
+const expeditionLabel = computed(() => activeRun.value && activeRun.value.mode !== 'tower' ? (runEnded.value ? '待结算' : '继续出征') : '山河')
 const expeditionHint = computed(() => activeRun.value?.sect_id ? (activeRun.value.is_retrial ? '论道中 · 点击继续' : `守备 ${activeRun.value.guard} · ${runEnded.value ? '等待结算' : '宗门征讨中'}`) : activeRun.value ? '出征中 · 点击继续' : `已攻克 ${store.state?.sects.filter(sect=>sect.conquered).length ?? 0} / ${store.state?.sects.length ?? 0} 座宗门`)
-const runLocation = computed(() => activeRun.value?.sect_id ? `${activeRun.value.is_retrial ? '论道' : '宗门征讨'} · ${runEnded.value ? '等待结算' : activeRun.value.guard===0 ? '等待挑战宗主' : '守备 '+activeRun.value.guard+' · 等待安排上阵'}` : runEnded.value ? `此次到达 ${runStep.value}${activeRun.value?.mode === 'expedition' ? ' 段' : ' 层'}，尚待结算` : store.status === 'choosing_affix' ? `第 ${activeRun.value?.nodes.length ?? 0}${activeRun.value?.mode === 'expedition' ? ' 段' : ' 层'}获胜，等待领悟道法` : `${activeRun.value?.mode === 'expedition' ? '第 ' + runStep.value + ' 段远行' : '第 ' + runStep.value + ' 层试炼'}，等待选择路线`)
-const TITLES: Record<string,string> = { codex:'弟子堂', sect:'宗门主殿', expedition:'远行码头', duty:'值守编制', forge:'炼器炉', alchemy:'炼丹房', tower:'问道塔 · 出征准备' }
+const runLocation = computed(() => activeRun.value?.sect_id ? `${activeRun.value.is_retrial ? '论道' : '宗门征讨'} · ${runEnded.value ? '等待结算' : activeRun.value.guard===0 ? '等待挑战宗主' : '守备 '+activeRun.value.guard+' · 等待安排上阵'}` : `${runName.value} · ${runEnded.value ? `此次到达 ${runStep.value} ${runUnit.value}，尚待结算` : store.status === 'choosing_affix' ? `第 ${activeRun.value?.nodes.length ?? 0} ${runUnit.value}获胜，等待领悟道法` : `第 ${runStep.value} ${runUnit.value}，等待选择路线`}`)
+const TITLES: Record<string,string> = { codex:'弟子堂', sect:'宗门主殿', expedition:'山河地图', duty:'值守编制', forge:'炼器阁', alchemy:'炼丹房', tower:'问道塔 · 出征准备' }
 const injured = computed(() => store.disciples.filter(d => d.injury_stacks > 0).length)
 const recruitable = computed(() => Object.entries(catalog.value?.disciples ?? {}).filter(([id,d]) => !(store.state?.unlocks ?? []).includes(id) && (store.resources?.reputation ?? 0) >= (d.unlock_cost?.reputation??0)).length)
 const currentGoal = computed(() => {
-  if (activeRun.value) return runEnded.value ? '收取此次出征战利品' : activeRun.value.mode === 'expedition' ? '继续远行码头行程' : '继续问道塔试炼'
+  if (activeRun.value) return runEnded.value ? '收取此次出征战利品' : activeRun.value.world_node_id ? '继续山河历练' : activeRun.value.mode === 'expedition' ? '继续宗门征讨' : '继续问道塔试炼'
   if (!store.disciples.length) return '招募首位门下弟子'
   if (store.state?.last_run_review && !store.state.last_run_review.victory) return '复盘上次出征，调整队伍'
   if (!store.state?.duty_slots.length) return '安排弟子值守'
-  if (!store.state.tower_floor) return '开启首次问道试炼'
-  const total = catalog.value?.mode.node_count ?? 0
-  return total && store.state.tower_floor >= total ? '修炼弟子，巩固道途' : `向问道塔第 ${store.state.tower_floor + 1} 层进发`
+  if (!Object.keys(store.state.gear ?? {}).length) return '探索秘境，获取个人装备'
+  const region = store.state.world.current_region
+  if (!store.state.world.cleared_nodes.includes(`r${region}:invasion:3`)) return '推进片区守关，迎击关键入侵'
+  return region === 1 ? '使用升仙令，飞升青冥灵域' : '修炼配装，挑战新境山河'
 })
-const permanentBonuses = computed(() => Object.entries(store.state?.bonuses ?? {}).map(([stat,value]) => effectText({stat,value,mode:'add_pct'})))
 function statusOf(panel: string) {
   switch(panel) {
     case 'sect': return currentGoal.value
     case 'codex': return `弟子 / 招贤 · 门下 ${store.disciples.length} 人`
     case 'duty': return `值守 ${store.state?.duty_slots.length ?? 0} / ${catalog.value?.rules.max_duty ?? 6}`
-    case 'tower': return activeRun.value?.mode === 'expedition' ? '已有远行行程，点击继续' : activeRun.value ? `${runEnded.value ? '待结算' : '继续出征'} · 第 ${runStep.value} 层` : `最高记录 ${store.state?.tower_floor ?? 0} 层`
+    case 'tower': return activeRun.value ? `${runEnded.value ? '待结算' : '继续出征'} · 第 ${runStep.value} ${runUnit.value}` : `本地区最高记录 ${currentTowerBest.value} 层`
     case 'expedition': return expeditionHint.value
     case 'alchemy': return `伤员 ${injured.value} 人 · 炼丹房 ${store.state?.facility_levels.alchemy ?? 1} 级`
-    case 'forge': return `炼器炉 ${store.state?.facility_levels.forge ?? 1} 级 · 器具与专武培养`
+    case 'forge': return `炼器阁 ${store.state?.facility_levels.forge ?? 1} 级 · 四槽装备与专武培养`
     default: return '尚未开放'
   }
 }
@@ -68,10 +71,10 @@ function secondaryStatusOf(panel: string) {
     case 'sect': return store.lastSettle && store.lastSettle.elapsed_hours >= .05 ? `离线收益已收取 ${number(store.lastSettle.elapsed_hours,1)} 小时 · 存档管理` : '设施升级 · 离线收益 · 存档管理'
     case 'codex': return recruitable.value ? `${recruitable.value} 位贤才可招募` : '查看道法与同道羁绊'
     case 'duty': return `修为 +${number(store.production.cultivation,1)}/时 · 灵石 +${number(store.production.spirit_stone,1)}/时`
-    case 'tower': return activeRun.value ? `最高记录 ${store.state?.tower_floor ?? 0} 层 · 队伍已锁定` : `${catalog.value?.mode.node_count ?? 0} 层试炼 · 行动力 ${catalog.value?.mode.stamina_cost ?? 1}`
-    case 'expedition': return activeRun.value ? '当前已有出征，先完成或结算后再启程' : '宗门擂台 · 攻克驻守 · 2 行动力'
+    case 'tower': return activeRun.value ? `本地区最高记录 ${currentTowerBest.value} 层 · 队伍已锁定` : `${catalog.value?.mode.node_count ?? 0} 层试炼 · 行动力 ${catalog.value?.mode.stamina_cost ?? 1}`
+    case 'expedition': return activeRun.value ? '当前已有出征，先完成或结算后再启程' : '秘境寻器 · 攻宗驻守 · 迎击飞升'
     case 'alchemy': return '疗伤丹药 · 永久增益'
-    case 'forge': return permanentBonuses.value.length ? `永久 ${permanentBonuses.value.slice(0,2).join(' · ')}` : '炼制法器，获得永久加成'
+    case 'forge': return '个人装备强化 · 洗练 · 熔炼 · 专武锻造'
     default: return '远征行程筹备中'
   }
 }
@@ -114,8 +117,7 @@ function followGoal() {
   if (!store.disciples.length) { open('codex'); return }
   if (store.state?.last_run_review && !store.state.last_run_review.victory) { open('sect'); return }
   if (!store.state?.duty_slots.length) { open('duty'); return }
-  const total = catalog.value?.mode.node_count ?? 0
-  open(total && (store.state?.tower_floor ?? 0) >= total ? 'codex' : 'tower')
+  open('expedition')
 }
 </script>
 <template>
@@ -134,7 +136,7 @@ function followGoal() {
       <span class="map-help">点击殿阁或同道 · 拖动游览，滚轮或双指缩放</span>
     </section>
     <CityDock :tower-label="towerLabel" :tower-hint="towerHint" :expedition-label="expeditionLabel" :expedition-hint="expeditionHint" :disciple-count="store.disciples.length" :duty-count="store.state?.duty_slots.length ?? 0" :active="openPanel" @open="open" />
-    <PanelModal v-if="openPanel" :title="TITLES[openPanel] ?? '宗门事务'" :wide="['codex','tower','expedition','sect'].includes(openPanel)" @close="openPanel = null"><div v-if="activeRun && ['codex','duty','alchemy','forge'].includes(openPanel)" class="notice-box" style="margin-bottom:18px">出征尚未结算，可查阅宗门资料；阵容、弟子修炼、值守与炼制将在结算后恢复调整。</div><button v-if="openPanel==='codex' && preparationReturn" class="btn btn-small" style="margin-bottom:16px" @click="returnToPreparation">阵容已安排 · 返回{{ preparationReturn==='expedition'?'征讨整备':'问道准备' }}</button><CodexPanel v-if="openPanel === 'codex'" :read-only="!!activeRun" :initial-disciple-id="focusedDiscipleId" /><SectPanel v-else-if="openPanel === 'sect'" @open="open" /><DutyPanel v-else-if="openPanel === 'duty'" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'alchemy'" kind="pill" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'forge'" kind="artifact" :read-only="!!activeRun" @open="open" /><PreparePanel v-else-if="openPanel === 'tower'" @edit="editPreparation('tower')" /><ExpeditionPanel v-else-if="openPanel === 'expedition'" @edit="editPreparation('expedition')" /><div v-else class="empty-state"><strong>远行之路，尚待开启</strong>先经营宗门，在问道塔中磨砺弟子。</div></PanelModal>
+    <PanelModal v-if="openPanel" :title="TITLES[openPanel] ?? '宗门事务'" :wide="['codex','tower','expedition','sect'].includes(openPanel)" @close="openPanel = null"><div v-if="activeRun && ['codex','duty','alchemy','forge'].includes(openPanel)" class="notice-box" style="margin-bottom:18px">出征尚未结算，可查阅宗门资料；阵容、弟子修炼、值守与炼制将在结算后恢复调整。</div><button v-if="openPanel==='codex' && preparationReturn" class="btn btn-small" style="margin-bottom:16px" @click="returnToPreparation">阵容已安排 · 返回{{ preparationReturn==='expedition'?'征讨整备':'问道准备' }}</button><CodexPanel v-if="openPanel === 'codex'" :read-only="!!activeRun" :initial-disciple-id="focusedDiscipleId" /><SectPanel v-else-if="openPanel === 'sect'" @open="open" /><DutyPanel v-else-if="openPanel === 'duty'" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'alchemy'" kind="pill" :read-only="!!activeRun" @open="open" /><CraftPanel v-else-if="openPanel === 'forge'" kind="artifact" :read-only="!!activeRun" @open="open" /><PreparePanel v-else-if="openPanel === 'tower'" @edit="editPreparation('tower')" /><WorldPanel v-else-if="openPanel === 'expedition'" @edit="editPreparation('expedition')" /><div v-else class="empty-state"><strong>远行之路，尚待开启</strong>先经营宗门，在问道塔中磨砺弟子。</div></PanelModal>
   </div>
 </template>
 <style scoped>

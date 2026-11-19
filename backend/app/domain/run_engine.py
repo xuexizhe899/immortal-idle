@@ -7,10 +7,11 @@ from datetime import datetime
 from math import floor
 import secrets
 
-from app.config_loader import load_affixes, load_enemies, load_skills, load_weapons
+from app.config_loader import load_affixes, load_enemies, load_equipment, load_skills, load_weapons, load_world
 from app.domain.affix import draw, pick_group
 from app.domain.battle import simulate_battle
 from app.domain.deployment import detach_for_run, restore_after_run
+from app.domain.equipment import combat_equipment_bonuses, roll_drop
 from app.domain.injuries import apply_injury, attack_multiplier
 from app.domain.progression import LEVEL_GROWTH, REALM_GROWTH
 from app.domain.rng import Pcg32
@@ -70,6 +71,7 @@ def combatant(
     disciple: DiscipleState, template: dict, skills: dict[str, dict],
     bonuses: dict[str, float], slot: int,
     unit_bonuses: dict[str, float] | None = None,
+    equipment_bonuses: dict[str, float] | None = None,
 ) -> BattleUnit:
     """等级、伤势、个人/宗门永久加成及自身常驻属性只在出发时应用一次。"""
     base = template["base_stats"]
@@ -77,6 +79,11 @@ def combatant(
     passive = SkillDefinition.model_validate(skills[template["passive"]]) if template.get("passive") in skills else basic_skill(disciple.template_id, True)
     growth = 1 + LEVEL_GROWTH * (disciple.level - 1) + REALM_GROWTH * (disciple.realm - 1)
     own = passive.bonuses if passive.condition == "always" else {}
+    bonuses = dict(bonuses)
+    battle = dict(unit_bonuses or {})
+    for key, amount in (equipment_bonuses or {}).items():
+        target = bonuses if key in {"hp", "atk", "def", "spd"} else battle
+        target[key] = target.get(key, 0) + amount
     def value(stat: str) -> float:
         return base[stat] * (growth if stat != "spd" else 1) * (1 + bonuses.get(stat, 0) + own.get(stat, 0))
     return BattleUnit(
@@ -84,7 +91,7 @@ def combatant(
         asset_id=template.get("asset_id", ""), slot=slot,
         attack=value("atk") * attack_multiplier(disciple.injury_stacks), defense=value("def"),
         health=max(1, floor(value("hp"))), speed=value("spd"), active=active, passive=passive,
-        bonuses=dict(unit_bonuses or {}),
+        bonuses=battle,
     )
 
 
@@ -217,6 +224,16 @@ def roll_choices(rng: Pcg32, step: int, snapshot: RunPartySnapshot) -> list[RunN
             kind=kind, enemy=f"{kind}_{step}_{index}", enemies=roster, power=power,
             reward=route_reward(kind, mode, step, power, baseline),
         ))
+    if mode.get("opportunities") and not is_boss and step in {1, 3}:
+        # 机缘是明确取舍：避战休整或取材会放弃本段战斗掉装与道法。
+        opportunity = RunNode(
+            kind="rest" if step == 1 else "event", enemy="灵泉休整" if step == 1 else "采集灵脉",
+            power=0, healing_ratio=.35 if step == 1 else 0,
+            description="存活弟子回复35%最大气血，本段不掉装备、不领悟道法。" if step == 1
+            else "取得炼器精粹，放弃本段战斗的装备与道法。",
+            reward={} if step == 1 else {"lian_qi_jing_cui": 4 * mode.get("gear_tier", 1)},
+        )
+        return nodes[:1] + [opportunity]
     return nodes
 
 
@@ -296,7 +313,7 @@ def start_run(
     if mode["id"] == "tower":
         if not 1 <= tower_tier <= min(3, state.facility_levels.get("tower", 1)):
             return "请先升级问道塔，开放对应塔阶"
-        previous = max(state.tower_tiers.get(str(tower_tier - 1), 0), state.tower_floor if tower_tier == 2 else 0)
+        previous = max(state.tower_tiers.get(str(tower_tier - 1), 0), state.tower_floor if tower_tier == 2 and state.world.current_region == 1 else 0)
         if tower_tier > 1 and previous < 20:
             return "请先通关前一阶问道塔"
     if state.resources.stamina < mode["stamina_cost"]:
@@ -313,6 +330,9 @@ def start_run(
     members = set(by_id[key].template_id for key in party_ids)
     weapon_map = weapons if weapons is not None else load_weapons()
     frozen_mode = deepcopy(mode)
+    # 掉落定义与战斗定义同样固化，改配置和刷新不能重抽本局奖励。
+    frozen_mode["equipment_rules"] = deepcopy(load_equipment())
+    frozen_mode.setdefault("gear_tier", state.world.current_region)
     if sect is not None:
         # 征讨不生成问道路线，也不抽道法；守军、首胜奖励随本局一起固化。论道单场宗主战，守备直接归零。
         frozen_mode.update(node_count=1 if is_retrial else 4, sect=sect.model_dump(mode="json"))
@@ -334,6 +354,7 @@ def start_run(
                 skills if skills is not None else load_skills(),
                 combat_bonuses(by_id[key], state.bonuses, weapon_map, state.weapon_levels), index,
                 battle_bonuses(by_id[key], weapon_map, state.weapon_levels),
+                combat_equipment_bonuses(state, by_id[key]),
             )
             for index, key in enumerate(party_ids)
         ),
@@ -351,6 +372,7 @@ def start_run(
         choices=[] if sect is not None else roll_choices(rng, 0, snapshot), started_at=now,
         sect_id=sect.id if sect is not None else None, tower_tier=tower_tier,
         is_retrial=is_retrial, retrial_reward=dict(retrial_reward or {}),
+        region_id=state.world.current_region,
         guard=0 if is_retrial else 100,
         return_posts=detach_for_run(state, party_ids),
     )
@@ -378,6 +400,19 @@ def choose(state: GameState, choice_index: int, *_unused) -> str | None:
     node = run.choices[choice_index]
     run.nodes.append(node)
     run.choices = []
+    if node.kind in {"rest", "event"}:
+        for unit in with_affixes(run):
+            current = run.member_hp.get(unit.id, 0)
+            if current > 0:
+                run.member_hp[unit.id] = min(unit.health, current + floor(unit.health * node.healing_ratio))
+        run.hp = sum(run.member_hp.values())
+        for key, value in node.reward.items():
+            run.pending_loot[key] = run.pending_loot.get(key, 0) + value
+        rng = Pcg32(run.run_seed)
+        rng.advance_to(run.rng_cursor)
+        run.choices = roll_choices(rng, len(run.nodes), snapshot)
+        run.rng_cursor = rng.cursor
+        return None
     allies = with_affixes(run)
     foes = enemy_units(run, node)
     hp_before = run.hp
@@ -403,10 +438,21 @@ def choose(state: GameState, choice_index: int, *_unused) -> str | None:
         return None
     for key, value in loot.items():
         run.pending_loot[key] = run.pending_loot.get(key, 0) + value
-    if len(run.nodes) >= mode["node_count"]:
-        return None
     rng = Pcg32(run.run_seed)
     rng.advance_to(run.rng_cursor)
+    gear_rules = mode.get("equipment_rules")
+    if gear_rules and not run.practice and (
+        mode.get("world_node", {}).get("kind") in {None, "dungeon", "tower"}
+    ):
+        # 首领必掉，普通与精英轻随机；只在胜利命令中生成并保存待结算实例。
+        chance = 100 if node.kind == "boss" else 65 if node.kind == "elite" else 35
+        if rng.randint(1, 100) <= chance:
+            run.pending_gear.append(roll_drop(
+                state, rng, mode.get("gear_tier", 1), mode.get("gear_slot") or None, config=gear_rules,
+            ))
+    run.rng_cursor = rng.cursor
+    if len(run.nodes) >= mode["node_count"]:
+        return None
     owned = set(run.affixes)
     available = [affix for affix in snapshot.affix_pool if affix["id"] not in owned]
     if available:
@@ -524,7 +570,18 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
             if victory:
                 target.conquered = True
     else:
-        loot = dict(run.pending_loot) if victory else defeat_loot(run.pending_loot, cleared, mode)
+        loot = dict(run.pending_loot) if victory or run.mode == "dungeon" else defeat_loot(run.pending_loot, cleared, mode)
+    world_node = mode.get("world_node")
+    if world_node:
+        from app.domain.world import finish_world_node
+
+        for key, value in finish_world_node(state, world_node, victory, now, load_world(), practice=run.practice).items():
+            loot[key] = loot.get(key, 0) + value
+    if run.practice:
+        loot = {}
+    recovered_gear = run.pending_gear if not run.practice and (victory or run.mode == "dungeon") else []
+    for item in recovered_gear:
+        state.gear[item.id] = item
     for key, value in loot.items():
         if key in {"cultivation", "spirit_stone", "reputation", "stamina"}:
             setattr(state.resources, key, getattr(state.resources, key) + value)
@@ -535,6 +592,8 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
     last_battle = run.last_battle
     state.last_run_review = RunReview(
         mode=run.mode, cleared=cleared, total_nodes=cleared if run.sect_id and victory else mode["node_count"], victory=victory,
+        world_node_id=run.world_node_id, world_node_name=(world_node or {}).get("name", ""),
+        region_id=run.region_id, practice=run.practice,
         sect_id=run.sect_id, sect_name=mode["sect"]["name"] if run.sect_id else None,
         is_retrial=run.is_retrial,
         tower_tier=run.tower_tier,
@@ -544,21 +603,23 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
     )
     if run.mode == "expedition" and not run.sect_id:
         state.expedition_floor = max(state.expedition_floor, cleared)
-    elif run.mode == "tower":
-        previous_floor = state.tower_floor if run.tower_tier == 1 else 0
+    elif run.mode == "tower" and not run.practice:
+        previous_floor = state.tower_floor if run.tower_tier == 1 and run.region_id == 1 else 0
         # 失败节点只是到达，不能算通关；尤其第20层失败不能解锁下一塔阶。
         completed = cleared - int(last_battle is not None and not last_battle.won)
-        state.tower_floor = max(state.tower_floor, completed)
+        if run.region_id == 1:
+            state.tower_floor = max(state.tower_floor, completed)
         tier = str(run.tower_tier)
         state.tower_tiers[tier] = max(state.tower_tiers.get(tier, 0), previous_floor, completed)
+        state.world.tower_records[str(run.region_id)] = dict(state.tower_tiers)
     for disciple in state.disciples:
         if disciple.id in run.party:
             disciple.busy = False
-            if not victory and (not run.sect_id or disciple.id in run.deployed):
+            if not victory and not run.practice and (not run.sect_id or disciple.id in run.deployed):
                 apply_injury(disciple, now)
     missing = restore_after_run(state, run.return_posts, now)
     if missing:
         names = [next((unit.name for unit in run.party_snapshot.combatants if unit.id == key), key) for key in missing]
         state.logs.append(f"原岗位已满，未自动回岗：{'、'.join(names)}")
     state.active_run = None
-    return {"cleared": cleared, "victory": victory, "loot": loot}
+    return {"cleared": cleared, "victory": victory, "loot": loot, "gear": recovered_gear}

@@ -13,6 +13,8 @@ from pydantic import ConfigDict, Field
 
 from app.models.base import ContractModel as BaseModel
 from app.models.battle import BattleBond, BattleEvent, BattleUnit, BattleUnitState, EnemyDefinition
+from app.models.equipment import GearItem
+from app.models.world import WorldProgress
 
 CURRENT_SCHEMA_VERSION = 1
 FacilityLevel = Annotated[int, Field(ge=1, le=3)]
@@ -39,6 +41,7 @@ class DiscipleState(BaseModel):
     # 个人永久加成（丹药等），加区小数；与宗门 bonuses 分开，出发时再合并。
     bonuses: dict[str, float] = Field(default_factory=dict)
     equipment: list[str] = Field(default_factory=list)
+    gear_slots: dict[str, str] = Field(default_factory=dict)
     # 个人丹药使用次数，用于每种丹药的服用上限；旧档默认空。
     pill_uses: dict[str, int] = Field(default_factory=dict)
     # 同类属性丹的强化名额保存品级，高阶丹仅替换低阶差额。
@@ -59,6 +62,8 @@ class NpcSect(BaseModel):
     """生成后固定的外宗身份、守军与驻守编制。"""
 
     id: str
+    region_id: int = 1
+    area: int = 1
     name: str
     level: int = Field(ge=1, le=3)
     style: str
@@ -86,6 +91,8 @@ class RunNode(BaseModel):
     # 候选的实际编成；为空表示旧局节点，按类型与层数回退生成。
     enemies: list[str] = Field(default_factory=list)
     power: int
+    description: str = ""
+    healing_ratio: float = 0.0
     reward: dict[str, float] = Field(default_factory=dict)
 
 
@@ -134,6 +141,10 @@ class RunReview(BaseModel):
     """最近一次已结算出征的事实摘要，供下次准备时复盘。"""
 
     mode: str
+    world_node_id: str = ""
+    world_node_name: str = ""
+    region_id: int = 1
+    practice: bool = False
     sect_id: str | None = None
     sect_name: str | None = None
     is_retrial: bool = False
@@ -166,6 +177,10 @@ class ActiveRun(BaseModel):
     run_seed: int
     rng_cursor: int = 0
     mode: str = "tower"
+    world_node_id: str = ""
+    region_id: int = 1
+    practice: bool = False
+    pending_gear: list[GearItem] = Field(default_factory=list)
     sect_id: str | None = None
     # 论道：已攻克宗门的单场宗主战；奖励出发时固化，不重复发首胜奖。
     is_retrial: bool = False
@@ -202,6 +217,11 @@ class GameState(BaseModel):
     duty_slots: list[DutySlot] = Field(default_factory=list)
     duty_events: list[DutyEvent] = Field(default_factory=list)
     inventory: dict[str, int] = Field(default_factory=dict)
+    gear: dict[str, GearItem] = Field(default_factory=dict)
+    next_gear_id: int = 1
+    gear_rng_cursor: int = 0
+    equipment_version: int = 0
+    world: WorldProgress = Field(default_factory=WorldProgress)
     material_remainders: dict[str, float] = Field(default_factory=dict)
     bonuses: dict[str, float] = Field(default_factory=dict)
     # 已打造的一次性器方；丹药可重复炼制，不写入这里。

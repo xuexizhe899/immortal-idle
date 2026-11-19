@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { materialSources, type MaterialSource } from '../../presentation/materialSources'
 import { number } from '../../shared/format'
 import { useGameStore } from '../../stores/game'
 
 const emit = defineEmits<{ open: [panel: string] }>()
 const store = useGameStore()
-const sources = computed(() => materialSources(store.catalog, store.state))
+const sources = computed(() => materialSources(store.catalog, store.state, store.worldMap))
+watch([() => store.slotId, () => store.revision], () => { void store.loadWorld(true) }, { immediate: true })
 function blockedLabel(source: MaterialSource) {
-  return source.kind === 'conquest' ? '已领取' : source.kind === 'garrison' ? '需攻克' : '未开放'
+  return source.blockedReason || (source.kind === 'conquest' ? '已领取' : source.kind === 'garrison' ? '需攻克' : '未开放')
 }
 function go(id: string, source: MaterialSource) {
-  if (source.panel === 'tower') emit('open', 'tower')
-  else emit('open', store.planProduction(id))
+  store.productionTarget = id
+  if (source.panel === 'expedition') store.targetSectId = source.sectId ?? ''
+  emit('open', source.panel)
 }
 </script>
 
@@ -21,10 +23,10 @@ function go(id: string, source: MaterialSource) {
     <div class="section-heading">
       <div><span class="eyebrow">缺什么，就去哪里</span><h3>材料来源总览</h3></div>
     </div>
-    <p class="muted">速率按当前演武等级与宗门阶数展示，专长匹配驻守翻倍；一次性奖励以实际结算为准。</p>
+    <p class="muted">驻守实际产出见宗门详情；跨地区来源需先切换图层，奖励按来源所在地区展示。</p>
     <article v-for="(name,id) in store.catalog?.materials" :key="id" class="source-card">
       <h4>{{ name }}</h4>
-      <div v-for="source in sources[id]" :key="source.kind + source.label" class="source-row" :class="{unavailable:!source.available}">
+      <div v-for="source in sources[id]" :key="source.kind + (source.sectId ?? source.label)" class="source-row" :class="{unavailable:!source.available}">
         <span class="source-label">{{ source.label }}</span>
         <span class="source-detail">{{ source.detail }}</span>
         <strong v-if="source.rate !== undefined">+{{ number(source.rate,2) }}/时</strong>

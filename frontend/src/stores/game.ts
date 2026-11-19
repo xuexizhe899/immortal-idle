@@ -5,6 +5,7 @@ import {
   api, ApiError, type Catalog, type GameState, type SaveContent, type RunPayload,
   type RunSettleResult, type SaveSlotMeta, type SettleResult, type Production,
   type TrainingPreview, type WeaponView, type AssignmentView,
+  type GearView, type EquipmentList, type EquipmentAction, type EquipmentOptions, type WorldMap,
 } from '../api/client'
 
 const PREFERENCES_KEY = 'immortal-idle.preferences.v1'
@@ -53,6 +54,13 @@ export const useGameStore = defineStore('game', () => {
   let trainingRequest = 0
   const weapons = ref<WeaponView[]>([])
   let weaponsRequest = 0
+  const gearList = ref<GearView[]>([])
+  const gearRules = ref<EquipmentList | null>(null)
+  const equipmentLoading = ref(false)
+  let equipmentRequest = 0
+  const worldMap = ref<WorldMap | null>(null)
+  const worldLoading = ref(false)
+  let worldRequest = 0
   const assignments = ref<AssignmentView[]>([])
   const assignmentsLoading = ref(false)
   let assignmentsRequest = 0
@@ -151,6 +159,8 @@ export const useGameStore = defineStore('game', () => {
             }
           } else await readCurrent(slotId.value)
           void loadWeapons(true)
+          void loadEquipment(true)
+          void loadWorld(true)
           error.value = cause.status === 409
             ? '进度已有更新，已为你同步。请确认当前状态后继续。'
             : '已重新确认最新进度，请查看结果后继续。'
@@ -186,6 +196,13 @@ export const useGameStore = defineStore('game', () => {
     trainingRequest += 1
     weapons.value = []
     weaponsRequest += 1
+    gearList.value = []
+    gearRules.value = null
+    equipmentRequest += 1
+    equipmentLoading.value = false
+    worldMap.value = null
+    worldRequest += 1
+    worldLoading.value = false
     assignments.value = []
     assignmentsLoading.value = false
     assignmentsRequest += 1
@@ -285,6 +302,8 @@ export const useGameStore = defineStore('game', () => {
       const result = await api.settleRun(id, revision.value)
       applySnapshot(result, id)
       lastRun.value = result
+      notice.value = result.state.last_run_review?.practice ? '演练已结束，可以调整阵容后继续。'
+        : `战利品已带回宗门${result.gear?.length ? `，新增 ${result.gear.length} 件个人装备，可在弟子详情中穿戴` : ''}。`
       const missing = Object.entries(returning).filter(([discipleId,post]) => post === 'home'
         ? !result.state.duty_slots.some(slot => slot.disciple_id === discipleId)
         : !result.state.sects.find(sect => sect.id === post)?.garrison.some(slot => slot.disciple_id === discipleId))
@@ -413,7 +432,7 @@ export const useGameStore = defineStore('game', () => {
     catch (cause) { error.value = cause instanceof Error ? cause.message : String(cause) }
   }
 
-  async function readPreview<T extends { revision: number }>(read: (id: number) => Promise<T>): Promise<T | null> {
+  async function readPreview<T extends { revision: number }>(read: (id: number) => Promise<T>, silent = false): Promise<T | null> {
     const id = slotId.value
     if (id === null) return null
     const requestedRevision = revision.value
@@ -425,7 +444,7 @@ export const useGameStore = defineStore('game', () => {
       if (result.revision > revision.value) await readCurrent(id)
       return session === slotSession && slotId.value === id && result.revision === revision.value ? result : null
     } catch (cause) {
-      if (session === slotSession && slotId.value === id && requestedRevision === revision.value) error.value = cause instanceof Error ? cause.message : String(cause)
+      if (!silent && session === slotSession && slotId.value === id && requestedRevision === revision.value) error.value = cause instanceof Error ? cause.message : String(cause)
       return null
     }
   }
@@ -433,6 +452,74 @@ export const useGameStore = defineStore('game', () => {
   const previewFacilities = () => readPreview(id => api.facilities(id))
   const previewRecipes = (grade: number) => readPreview(id => api.recipes(id, grade))
   const previewHealing = (partyIds: string[]) => readPreview(id => api.healPreview(id, partyIds))
+
+  async function loadEquipment(silent = false): Promise<void> {
+    const request = ++equipmentRequest
+    equipmentLoading.value = true
+    const result = await readPreview(id => api.equipment(id), silent)
+    if (request !== equipmentRequest) return
+    if (result) {
+      gearList.value = result.items
+      gearRules.value = result
+    }
+    equipmentLoading.value = false
+  }
+
+  async function equipmentAction(action: EquipmentAction, itemId: string, options: EquipmentOptions = {}): Promise<void> {
+    await guard('打理装备', async () => {
+      const id = currentSlot()
+      const result = await api.equipmentAction(id, revision.value, action, itemId, options)
+      applySnapshot(result, id)
+      equipmentRequest += 1
+      gearList.value = result.items
+      equipmentLoading.value = false
+      notice.value = result.message
+    })
+  }
+
+  async function loadWorld(silent = false): Promise<void> {
+    const request = ++worldRequest
+    worldLoading.value = true
+    const result = await readPreview(id => api.world(id), silent)
+    if (request !== worldRequest) return
+    if (result) worldMap.value = result.world
+    worldLoading.value = false
+  }
+
+  async function travelRegion(regionId: number, sectId = ''): Promise<void> {
+    await guard('切换地区', async () => {
+      const id = currentSlot()
+      const result = await api.travelRegion(id, revision.value, regionId)
+      applySnapshot(result, id)
+      worldRequest += 1
+      worldMap.value = result.world
+      worldLoading.value = false
+      targetSectId.value = sectId
+      notice.value = '已抵达所选地区，旧地区驻守继续产出。'
+    })
+  }
+
+  async function ascend(): Promise<void> {
+    await guard('飞升新境', async () => {
+      const id = currentSlot()
+      const result = await api.ascend(id, revision.value)
+      applySnapshot(result, id)
+      worldRequest += 1
+      worldMap.value = result.world
+      worldLoading.value = false
+      targetSectId.value = ''
+      notice.value = '飞升成功，新地区已开放，弟子与装备培养完整保留。'
+    })
+  }
+
+  async function startWorld(nodeId: string, practice = false, towerTier = 1): Promise<void> {
+    await guard(practice ? '开始演练' : '前往地图目标', async () => {
+      const id = currentSlot()
+      const result = await api.startWorld(id, revision.value, nodeId, party.value, practice, towerTier)
+      applySnapshot(result, id)
+      lastRun.value = null
+    })
+  }
 
   async function loadAssignments(): Promise<void> {
     const id = slotId.value
@@ -446,22 +533,31 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function productionDestination(resourceId: string): { panel: 'duty' | 'expedition'; label: string; hint: string; sectId?: string } {
-    if (catalog.value?.production.materials[resourceId] !== 0) {
+    if (resourceId === 'sheng_xian_ling') return { panel: 'expedition', label: '迎击地区最终入侵', hint: '在山河地图推进守关与关键入侵，最后片区关键入侵首胜获得升仙令。' }
+    if ((catalog.value?.production.materials[resourceId] ?? 0) > 0) {
       return { panel: 'duty', label: '安排值守', hint: '' }
     }
-    // 本宗没有基础产出的材料只能从外宗获取，优先带玩家查看已经攻克的产地。
+    // 只推荐已开放地区内可达的产地，当前图层优先，跨区由玩家确认切换。
     const sources = state.value?.sects.filter(sect =>
       sect.material_id === resourceId || sect.special_material_id === resourceId,
     ) ?? []
-    const source = sources.find(sect => sect.conquered) ?? sources[0]
+    const world = state.value?.world
+    const currentRegion = world?.current_region ?? 1
+    const reachable = sources.filter(sect => (world?.unlocked_regions ?? [1]).includes(sect.region_id ?? 1)
+      && (sect.area ?? 1) <= (world?.unlocked_areas[String(sect.region_id ?? 1)] ?? 1))
+    const local = reachable.filter(sect => (sect.region_id ?? 1) === currentRegion)
+    const source = local.find(sect => sect.conquered) ?? local[0] ?? reachable.find(sect => sect.conquered) ?? reachable[0]
+    const regionName = worldMap.value?.regions.find(region => region.id === source?.region_id)?.name ?? '目标地区'
+    const travelHint = source && (source.region_id ?? 1) !== currentRegion ? `请先在地图切换至${regionName}。` : ''
     return {
       panel: 'expedition',
       sectId: source?.id,
       label: source?.conquered ? '安排外宗驻守' : source ? '征讨资源宗门' : '查看外宗产地',
-      hint: source?.conquered
+      hint: travelHint + (source?.conquered
         ? `${source.name}可产出所需材料，请在当地安排驻守。`
         : source ? `需要先攻克${source.name}，再领取奖励或安排驻守获取材料。`
-          : '当前尚未发现该材料的产地，可升级宗门主殿探索更多宗门。',
+          : sources.length ? '当前产地尚不可达，请先推进守关、开放对应片区与地区。'
+            : '当前尚未发现该材料的产地，可升级宗门主殿探索更多宗门。'),
     }
   }
 
@@ -581,6 +677,8 @@ export const useGameStore = defineStore('game', () => {
     slotId, revision, state, run, catalog, lastRun, lastSettle, saves, party, productionTarget, targetSectId, busy, ready,
     operation, error, notice, noticeId, disciples, resources, status, production, battleResult,
     training, trainingFor, trainingLoading, weapons, assignments, assignmentsLoading,
+    gearList, gearRules, equipmentLoading, worldMap, worldLoading,
+    loadEquipment, equipmentAction, loadWorld, travelRegion, ascend, startWorld,
     bootstrap, loadSave, refresh: settle, settle, startRun, toggleParty, moveParty, choose, pickAffix,
     settleRun, assignDuty, unassignDuty, recruit, craft, usePill, craftWeapon, equipWeapon, unequipWeapon,
     loadWeapons, upgrade, breakthrough, loadTraining, loadAssignments,

@@ -15,7 +15,8 @@ const selectedId = computed({
 })
 const recruitId = ref('')
 const filter = ref('all')
-const sects = computed(() => store.state?.sects ?? [])
+const sects = computed(() => store.state?.sects.filter(sect => (sect.region_id ?? 1) === (store.state?.world?.current_region ?? 1)) ?? [])
+const areaReason = computed(() => selected.value && selected.value.area > (store.state?.world?.unlocked_areas[String(store.state.world.current_region)] ?? 1) ? '请先击败前一片区的守关首领' : '')
 const visible = computed(() => sects.value.filter(sect =>
   filter.value === 'all' || (filter.value === 'conquered' ? sect.conquered : !sect.conquered),
 ))
@@ -31,14 +32,18 @@ const resourceGoal = computed(() => {
     : `当前需要${material}。先攻克这座宗门，获得战利品后即可派遣弟子驻守。`
 })
 const cost = computed(() => store.catalog?.modes.expedition?.stamina_cost ?? 2)
-const retrialReward = computed(() => store.catalog?.sect_styles.find(style => style.name === selected.value?.style)?.retrial_reward ?? {})
+const retrialReward = computed(() => store.worldMap?.regions
+  .find(region => region.id === (selected.value?.region_id ?? 1))?.nodes
+  .find(node => node.sect_id === selected.value?.id)?.retrial_rewards ?? {})
 const retrialReason = computed(() => {
+  if (areaReason.value) return areaReason.value
   if (store.state?.active_run) return '已有进行中的出征，请先完成或结算'
   if (party.value.length < 3) return '至少需要三位随行弟子，最多可带六人轮换'
   if (party.value.some(d => d.busy)) return '队伍中有正在出征的弟子'
   return (store.resources?.stamina ?? 0) < cost.value ? '行动力不足，先收取宗门收益再来' : ''
 })
 const reason = computed(() => {
+  if (areaReason.value) return areaReason.value
   if (store.state?.active_run) return '已有进行中的出征，请先完成或结算'
   if (!selected.value || selected.value.conquered) return '请选择尚未攻克的宗门'
   if (party.value.length < 3) return '至少需要三位随行弟子，最多可带六人轮换'
@@ -192,6 +197,7 @@ async function assign() {
           <div class="first-loot">
             <strong>论道所得</strong>
             <span v-for="(amount,id) in retrialReward" :key="id">{{ resourceName(id,store.catalog) }} +{{ number(amount,1) }}</span>
+            <span v-if="!Object.keys(retrialReward).length">正在读取此宗门所在地区的奖励预览</span>
           </div>
           <div class="leader-intel">
             <span>宗主决战 · 3v1</span>

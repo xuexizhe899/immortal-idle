@@ -34,3 +34,6 @@ Thumbs.db
 
 # local assistant workspace data (memory logs etc.), not source
 .workbuddy/
+
+# local progression parameter experiments; formal evidence stays versioned
+artifacts/progression/local/

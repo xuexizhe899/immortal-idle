@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -59,7 +60,7 @@ async def create_slot(
 ) -> dict:
     """新建存档槽，返回 slot_id。"""
     state = new_game_state()
-    initialize_world(state)
+    initialize_world(state, datetime.now(timezone.utc))
     slot_id = await repo.create_slot(payload.name, state)
     return {"slot_id": slot_id}
 

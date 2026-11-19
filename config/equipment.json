@@ -1,0 +1,28 @@
+{
+  "slots": {"weapon": "武器", "armor": "盔甲", "boots": "靴子", "ring": "戒指"},
+  "material": "lian_qi_jing_cui",
+  "material_name": "炼器精粹",
+  "levels_per_forge": 3,
+  "growth_per_level": 0.1,
+  "upgrade_base_cost": 2,
+  "reforge_base_cost": 3,
+  "smelt_base": 2,
+  "tier_growth": 0.5,
+  "affix_grades": [0.02, 0.04, 0.06],
+  "affix_pools": {
+    "weapon": ["atk", "spd", "damage"],
+    "armor": ["hp", "def", "shielding"],
+    "boots": ["hp", "atk", "healing"],
+    "ring": ["atk", "hp", "healing", "shielding"]
+  },
+  "definitions": [
+    {"id": "qing_feng_blade", "name": "青锋剑", "slot": "weapon", "stat": "atk", "value": 0.08},
+    {"id": "po_jun_spear", "name": "破军枪", "slot": "weapon", "stat": "damage", "value": 0.07},
+    {"id": "xuan_tie_mail", "name": "玄铁甲", "slot": "armor", "stat": "def", "value": 0.10},
+    {"id": "yun_wen_robe", "name": "云纹袍", "slot": "armor", "stat": "hp", "value": 0.12},
+    {"id": "liu_yun_boots", "name": "流云靴", "slot": "boots", "stat": "spd", "value": 0.08},
+    {"id": "ta_feng_boots", "name": "踏风履", "slot": "boots", "stat": "spd", "value": 0.10},
+    {"id": "qing_yu_ring", "name": "青玉戒", "slot": "ring", "stat": "healing", "value": 0.09},
+    {"id": "hu_xin_ring", "name": "护心戒", "slot": "ring", "stat": "shielding", "value": 0.09}
+  ]
+}

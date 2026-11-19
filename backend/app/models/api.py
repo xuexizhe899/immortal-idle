@@ -10,6 +10,7 @@ from app.models.base import ContractModel as BaseModel
 
 from app.models.save import ActiveRun, BattleSummary, DiscipleState, DutySlot, GameState
 from app.models.battle import BattleAction, BondModifier, Condition, EnemyDefinition
+from app.models.equipment import GearItem
 
 RunStatus = Literal["idle", "choosing_node", "choosing_affix", "defeated", "cleared"]
 
@@ -43,6 +44,7 @@ class RunSettleResponse(GameSnapshot):
     cleared: int
     victory: bool
     loot: dict[str, float]
+    gear: list[GearItem] = Field(default_factory=list)
 
 
 class RecruitResponse(GameSnapshot):

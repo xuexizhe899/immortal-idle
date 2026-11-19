@@ -38,6 +38,14 @@ export type HealPreview = Schemas['HealPartyPreview']
 export type HealResult = Schemas['HealPartyResponse']
 export type AssignmentView = Schemas['AssignmentView']
 export type AssignmentList = Schemas['AssignmentListResponse']
+export type GearView = Schemas['GearView']
+export type EquipmentList = Schemas['EquipmentListResponse']
+export type EquipmentResult = Schemas['EquipmentResponse']
+export type EquipmentAction = Schemas['EquipmentRequest']['action']
+export type EquipmentOptions = Partial<Pick<Schemas['EquipmentRequest'], 'disciple_id' | 'keep' | 'locked'>>
+export type WorldMap = Schemas['WorldView']
+export type WorldNode = Schemas['WorldNodeView']
+export type WorldResult = Schemas['WorldResponse']
 
 export class ApiError extends Error {
   readonly status: number
@@ -84,6 +92,12 @@ function post<T>(path: string, payload?: unknown): Promise<T> {
 }
 
 export const api = {
+  equipment: (slotId: number) => request<EquipmentList>(`/saves/${slotId}/equipment`),
+  equipmentAction: (slotId: number, revision: number, action: EquipmentAction, itemId: string, options: EquipmentOptions = {}) => post<EquipmentResult>(`/saves/${slotId}/equipment`, { revision, action, item_id: itemId, ...options }),
+  world: (slotId: number) => request<WorldResult>(`/saves/${slotId}/world`),
+  travelRegion: (slotId: number, revision: number, regionId: number) => post<WorldResult>(`/saves/${slotId}/world/travel`, { revision, region_id: regionId }),
+  ascend: (slotId: number, revision: number) => post<WorldResult>(`/saves/${slotId}/world/ascend`, { revision }),
+  startWorld: (slotId: number, revision: number, nodeId: string, party: string[], practice = false, towerTier = 1) => post<RunPayload>(`/saves/${slotId}/world/start`, { revision, node_id: nodeId, party, practice, tower_tier: towerTier }),
   catalog: () => request<Catalog>('/catalog'),
   listSaves: () => request<SaveSlotMeta[]>('/saves'),
   createSave: (name: string) => post<{ slot_id: number }>('/saves', { name }),

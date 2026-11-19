@@ -13,14 +13,14 @@ const tier = ref(1)
 const mode = computed(() => store.catalog?.mode)
 const party = computed(() => store.party.map(id => store.disciples.find(d => d.id === id)).filter(d => !!d))
 const cost = computed(() => mode.value?.stamina_cost ?? 1)
-const currentBest = computed(() => tier.value === 1
+const currentBest = computed(() => tier.value === 1 && (store.state?.world.current_region ?? 1) === 1
   ? Math.max(store.state?.tower_floor ?? 0, store.state?.tower_tiers['1'] ?? 0)
   : store.state?.tower_tiers[String(tier.value)] ?? 0)
 const reason = computed(() => {
   if (!party.value.length) return '请先安排至少一位出征弟子'
   if (party.value.some(d => d.busy)) return '队伍中有正在出征的弟子'
   if (tier.value > (store.state?.facility_levels.tower ?? 1)) return '先在宗门主殿升级问道塔，再挑战这一阶'
-  const previous = tier.value === 2
+  const previous = tier.value === 2 && (store.state?.world.current_region ?? 1) === 1
     ? Math.max(store.state?.tower_floor ?? 0, store.state?.tower_tiers['1'] ?? 0)
     : store.state?.tower_tiers[String(tier.value - 1)] ?? 0
   if (tier.value > 1 && previous < 20) return '需要先通关前一阶问道塔'

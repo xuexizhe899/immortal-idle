@@ -1,10 +1,8 @@
-"""炼制测试：丹药入行囊、法器立即提供宗门加成。"""
+"""炼制测试：丹药入行囊，普通装备不再通过器方提供宗门加成。"""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-
-import pytest
 
 from app.domain.craft import craft
 from app.models.save import DiscipleState, GameState
@@ -84,24 +82,22 @@ def test_craft_rejects_unknown_recipe() -> None:
     assert craft(state, "ghost", RECIPES) == "配方不存在"
 
 
-def test_artifact_craft_applies_permanent_bonus() -> None:
-    """普通器方继续提供宗门永久加成。"""
+def test_artifact_craft_is_rejected_without_spending() -> None:
+    """普通装备改由掉落取得，旧器方命令不扣材料或发全局加成。"""
     state = make_state(han_tie=3)
+    before = state.model_dump()
+    assert "副本与首领掉落" in craft(state, "artifact", RECIPES)
+    assert state.model_dump() == before
 
-    assert craft(state, "artifact", RECIPES) is None
-    assert state.inventory.get("han_tie") is None
-    assert state.bonuses["atk"] == pytest.approx(0.08)
 
-
-def test_artifact_cannot_be_crafted_twice() -> None:
-    """普通器方只打造一次，避免永久加成重复叠加。"""
+def test_legacy_artifact_cannot_be_crafted_again() -> None:
+    """已有旧器方记录也不能继续制造或升级全局器具。"""
     state = make_state(han_tie=6)
-
-    assert craft(state, "artifact", RECIPES) is None
-    assert state.crafted_recipes == ["artifact"]
-    assert craft(state, "artifact", RECIPES) == "该法器已打造，无法重复炼制"
-    assert state.inventory["han_tie"] == 3
-    assert state.bonuses["atk"] == pytest.approx(0.08)
+    state.crafted_recipes = ["artifact"]
+    state.bonuses = {"atk": .08}
+    before = state.model_dump()
+    assert "副本与首领掉落" in craft(state, "artifact", RECIPES)
+    assert state.model_dump() == before
 
 
 def test_craft_is_locked_during_active_run() -> None:

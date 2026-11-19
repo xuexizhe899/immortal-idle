@@ -21,6 +21,8 @@ BASE_MATERIALS_PER_HOUR = {
     "jiao_gu": 0.15, "xuan_jing": 0.1, "jiu_ye": 0.1,
     "ling_mu": 0.5, "qing_shi": 0.5, "chi_tong": 0.5, "yao_shou_pi": 0.5,
     "gong_fa_qi_pei": 0.0, "hu_chi_qi_pei": 0.0, "po_jing_ling_cai": 0.0,
+    "lian_qi_jing_cui": 0.5,
+    "sheng_xian_ling": 0.0,
 }
 
 # 离线最多补算 12 小时，超出部分丢弃

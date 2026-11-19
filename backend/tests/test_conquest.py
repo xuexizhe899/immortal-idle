@@ -307,7 +307,7 @@ def test_tower_tier_requires_facility_and_previous_clear_and_freezes_scaling():
     run = state.active_run
     assert run.tower_tier == 2
     assert run.party_snapshot.mode["kind_stat_multiplier"]["battle"] == 1.6
-    assert run.party_snapshot.mode["rewards"]["battle"]["cultivation"] == 15
+    assert run.party_snapshot.mode["rewards"]["battle"]["cultivation"] == mode["rewards"]["battle"]["cultivation"] * 1.5
     assert mode["kind_stat_multiplier"]["battle"] == 1
     run.nodes = [RunNode(kind="battle", enemy="test", power=0)] * 20
     settle_run(state, {}, NOW)

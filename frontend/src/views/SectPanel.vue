@@ -17,7 +17,12 @@ const chronicles=computed(()=>[
   store.disciples.some(d=>d.injury_stacks) ? `${store.disciples.filter(d=>d.injury_stacks).length} 位弟子有伤在身，可前往炼丹房疗伤。` : '门下弟子状态良好，随时可整装出发。',
 ])
 const review=computed(()=>store.state?.last_run_review)
-const reviewModeName=computed(()=>review.value?.sect_id ? `${review.value.is_retrial ? '论道' : '征讨'} · ${review.value.sect_name ?? '外宗'}` : review.value?.mode==='expedition'?'远行':`问道塔 · ${review.value?.tower_tier ?? 1} 阶`)
+const reviewModeName=computed(()=>{
+  if(review.value?.sect_id)return `${review.value.is_retrial?'论道':'征讨'} · ${review.value.sect_name??'外宗'}`
+  const name=review.value?.world_node_name||(review.value?.mode==='expedition'?'远行':review.value?.mode==='dungeon'?'秘境历练':review.value?.mode==='world'?'守关与迎击':`问道塔 · ${review.value?.tower_tier??1} 阶`)
+  return review.value?.world_node_id?`第 ${review.value.region_id} 地区 · ${name}`:name
+})
+const reviewUnit=computed(()=>review.value?.sect_id?'场':review.value?.mode==='expedition'?'段':review.value?.mode==='dungeon'||review.value?.mode==='world'?'关':'层')
 const reviewEndText=computed(()=>({guard_unbroken:'守备未破',insufficient_fighters:'可战弟子不足',round_limit:'回合耗尽',retreated:'主动撤退'} as Record<string,string>)[review.value?.end_reason ?? ''] ?? '战斗失利')
 const injuredCount=computed(()=>store.disciples.filter(d=>d.injury_stacks>0).length)
 const reviewAdvice=computed(()=>{
@@ -29,9 +34,9 @@ const reviewAdvice=computed(()=>{
 })
 </script>
 <template><div class="tabs" role="tablist" aria-label="宗门事务"><button :class="{active:tab==='overview'}" role="tab" :aria-selected="tab==='overview'" @click="tab='overview'">宗门总览</button><button :class="{active:tab==='sources'}" role="tab" :aria-selected="tab==='sources'" @click="tab='sources'">材料来源</button><button :class="{active:tab==='saves'}" role="tab" :aria-selected="tab==='saves'" @click="tab='saves'">存档管理</button></div><SaveSlotsPanel v-if="tab==='saves'" /><MaterialSources v-else-if="tab==='sources'" @open="emit('open',$event)" /><template v-else><div class="sect-intro"><span class="sect-seal">仙</span><div><span class="eyebrow">云岫仙宗</span><h3>兴修山门，育养同道。</h3><p class="muted">门下 {{ store.disciples.length }} 位弟子 · 值守 {{ store.state?.duty_slots?.length??0 }} / 6 · 问道塔 {{ store.state?.tower_floor??0 }} 层</p></div></div><div class="stat-grid"><div v-for="key in ['cultivation','spirit_stone','stamina','reputation'] as const" :key="key" class="stat-cell"><span>{{ statNames[key] }}</span><strong>{{ number(store.resources?.[key],1) }}</strong></div></div><FacilitiesSection @open="emit('open',$event)" /><div class="idle-section"><div><h3>收取挂机收益</h3><p class="muted">离开后宗门仍在修行，最多结算 12 小时收益。</p></div><button class="btn btn-primary" :disabled="store.busy" @click="store.settle()"><GameIcon name="leaf" />收取收益</button></div><div v-if="store.lastSettle" class="settle-result notice-box"><span class="eyebrow">此次修行所得</span><p>已结算 {{ number(store.lastSettle.elapsed_hours,2) }} 小时</p><div class="chips"><span v-for="(n,key) in settleGains" :key="key" class="badge">{{ resourceName(key,catalog) }} +{{ number(n,2) }}</span></div><p v-if="store.lastSettle.dropped_hours>0" class="muted">超出 12 小时的 {{ number(store.lastSettle.dropped_hours,1) }} 小时不计入收益。</p></div><div v-if="store.lastRun && !review" class="run-result notice-box"><span class="eyebrow">最近出征</span><h3>{{ store.lastRun.victory ? '问道功成' : '整顿再来' }}</h3><p>到达 {{ store.lastRun.cleared }} 层 · 战利品已入库</p><div class="chips"><span v-for="(value,key) in store.lastRun.loot" :key="key" class="badge">{{ resourceName(key,catalog) }} +{{ number(value,1) }}</span></div></div><section v-if="review" class="run-review notice-box">
-  <span class="eyebrow">上次出征复盘</span>
+  <span class="eyebrow">上次出征复盘</span><span v-if="review.practice" class="badge badge-muted">演练 · 无正式奖励</span>
   <h3>{{ reviewModeName }} · {{ review.victory ? '已完成' : '暂告失败' }}</h3>
-  <p>{{ review.sect_id ? '完成交锋' : '到达' }} {{ review.cleared }} / {{ review.total_nodes }} {{ review.sect_id ? '场' : review.mode==='expedition'?'段':'层' }} · {{ review.victory ? '战利品已结算' : reviewEndText }}</p>
+  <p>{{ review.sect_id ? '完成交锋' : '到达' }} {{ review.cleared }} / {{ review.total_nodes }} {{ reviewUnit }} · {{ review.practice ? '演练无正式奖励'+(review.victory?'':' · '+reviewEndText) : review.victory ? '战利品已结算' : reviewEndText }}</p>
   <template v-if="review.last_battle">
     <p>末战 {{ review.last_battle.rounds }} 轮 · 我方承伤 {{ review.last_battle.damage }} · 气血 {{ review.last_battle.hp_before }} → {{ review.last_battle.hp_after }}</p>
     <p v-if="review.last_battle.first_down_name">本场先倒下：{{ review.last_battle.first_down_name }}</p>
@@ -44,7 +49,7 @@ const reviewAdvice=computed(()=>{
   </template>
   <p v-else class="muted">本次未记录末战详情。</p>
   <div class="chips"><span v-for="(value,key) in review.loot" :key="key" class="badge">{{ resourceName(key,catalog) }} +{{ number(value,1) }}</span></div>
-  <p class="review-advice">下次可尝试：{{ reviewAdvice }}</p>
+  <p class="review-advice">下次可尝试：{{ review.practice?'调整阵容与装备后再次演练，比较交锋轮数与存活人数。':reviewAdvice }}</p>
   <p v-if="store.state?.active_run" class="muted">当前出征尚未结算，可先查阅；结束后再调整阵容和培养。</p>
   <div class="review-actions">
     <button class="btn btn-small" @click="emit('open','codex')">查看阵容与培养</button>

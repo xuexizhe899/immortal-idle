@@ -61,12 +61,16 @@ def compute_rates(members: Iterable[DutyMember]) -> dict[str, float]:
 
 def personal_duty_rates(
     disciple: DiscipleState, template: dict, training_level: int = 1,
+    equipment_bonuses: dict[str, float] | None = None,
 ) -> dict[str, float]:
     """个人倾向与专长贡献；不包含本宗基础收益、羁绊或外宗驻守。"""
     multiplier = 1 + 0.25 * (training_level - 1)
+    bonuses = dict(disciple.bonuses)
+    for key, value in (equipment_bonuses or {}).items():
+        bonuses[key] = bonuses.get(key, 0) + value
     rates = compute_rates([DutyMember(
         lean=template["lean"], rarity=template["rarity"], realm=disciple.realm,
-        bonuses=disciple.bonuses,
+        bonuses=bonuses,
     )])
     rates = {key: value * multiplier for key, value in rates.items()}
     specialty = template.get("production_specialty")
@@ -80,6 +84,8 @@ def rates_of(
     state: GameState, templates: dict[str, dict], bonds: dict[str, dict] | None = None,
 ) -> dict[str, float]:
     """值守倾向、生活专长和驻守共同决定当期速率。"""
+    from app.domain.equipment import combat_equipment_bonuses
+
     training = 1 + 0.25 * (state.facility_levels.get("training", 1) - 1)
     rates = dict.fromkeys(RATE_KEYS, 0.0)
     by_id = {d.id: d for d in state.disciples}
@@ -91,7 +97,10 @@ def rates_of(
         active.add(disciple.template_id)
         template = templates.get(disciple.template_id)
         if template:
-            for key, value in personal_duty_rates(disciple, template, state.facility_levels.get("training", 1)).items():
+            for key, value in personal_duty_rates(
+                disciple, template, state.facility_levels.get("training", 1),
+                equipment_bonuses=combat_equipment_bonuses(state, disciple),
+            ).items():
                 rates[key] = rates.get(key, 0.0) + value
     for bond in (bonds or {}).values():
         if len(active & set(bond["members"])) < bond.get("requires", len(bond["members"])):
@@ -106,17 +115,23 @@ def rates_of(
     return rates
 
 
-def member_garrison_rates(sect: NpcSect, disciple: DiscipleState, template: dict) -> dict[str, float]:
+def member_garrison_rates(
+    sect: NpcSect, disciple: DiscipleState, template: dict,
+    equipment_bonuses: dict[str, float] | None = None,
+) -> dict[str, float]:
     """单个驻守弟子的贡献；专长匹配对应产物时翻倍。预览与结算共用同一公式。"""
     specialty = template.get("production_specialty")
     return {
-        material: base * sect.level * (2 if specialty == material else 1)
+        material: base * sect.level * (1 + .75 * (sect.region_id - 1))
+        * (2 if specialty == material else 1) * (1 + (equipment_bonuses or {}).get("material_rate", 0))
         for material, base in ((sect.material_id, 0.5), (sect.special_material_id, 0.15))
     }
 
 
 def garrison_production(state: GameState, templates: dict[str, dict]) -> dict[str, dict[str, float]]:
     """每名驻守者独立贡献，匹配对应产物的专长翻倍。"""
+    from app.domain.equipment import combat_equipment_bonuses
+
     by_id = {disciple.id: disciple for disciple in state.disciples}
     production = {}
     for sect in state.sects:
@@ -127,7 +142,9 @@ def garrison_production(state: GameState, templates: dict[str, dict]) -> dict[st
             disciple = by_id.get(slot.disciple_id)
             if disciple is None or is_on_run(state, disciple):
                 continue
-            for material, value in member_garrison_rates(sect, disciple, templates.get(disciple.template_id, {})).items():
+            for material, value in member_garrison_rates(
+                sect, disciple, templates.get(disciple.template_id, {}), combat_equipment_bonuses(state, disciple),
+            ).items():
                 materials[material] += value
         production[sect.id] = materials
     return production

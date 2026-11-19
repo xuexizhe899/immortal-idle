@@ -2,7 +2,7 @@
   "id": "tower",
   "name": "问道塔",
   "enabled": true,
-  "stamina_cost": 1,
+  "stamina_cost": 3,
   "node_count": 20,
   "start_hp": 600,
   "base_enemy_power": 20,
@@ -16,8 +16,8 @@
   "elite_chance": 20,
   "defeat_ratio": 0.5,
   "defeat_floor_reward": {
-    "cultivation": 3.0,
-    "reputation": 1.0
+    "cultivation": 1.95,
+    "reputation": 0.65
   },
   "kind_stat_multiplier": {
     "battle": 1.0,
@@ -26,30 +26,30 @@
   },
   "rewards": {
     "battle": {
-      "cultivation": 10.0,
-      "spirit_stone": 5.0,
-      "reputation": 3.0,
-      "ling_cao": 1,
-      "yun_mu": 1,
-      "han_tie": 1
+      "cultivation": 6.5,
+      "spirit_stone": 3.25,
+      "reputation": 1.95,
+      "ling_cao": 0.65,
+      "yun_mu": 0.65,
+      "han_tie": 0.65
     },
     "elite": {
-      "cultivation": 20.0,
-      "spirit_stone": 10.0,
-      "reputation": 6.0,
-      "ling_cao": 2,
-      "jiao_gu": 1,
-      "xuan_jing": 1
+      "cultivation": 13.0,
+      "spirit_stone": 6.5,
+      "reputation": 3.9,
+      "ling_cao": 1.3,
+      "jiao_gu": 0.65,
+      "xuan_jing": 0.65
     },
     "boss": {
-      "cultivation": 50.0,
-      "spirit_stone": 25.0,
-      "reputation": 15.0,
-      "ling_cao": 5,
-      "han_tie": 3,
-      "yun_mu": 2,
-      "jiu_ye": 2,
-      "xuan_jing": 2
+      "cultivation": 32.5,
+      "spirit_stone": 16.25,
+      "reputation": 9.75,
+      "ling_cao": 3.25,
+      "han_tie": 1.95,
+      "yun_mu": 1.3,
+      "jiu_ye": 1.3,
+      "xuan_jing": 1.3
     }
   },
   "segments": 5,

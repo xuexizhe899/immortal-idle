@@ -156,28 +156,28 @@ async def test_repeat_command_is_rejected_and_refresh_preserves_battle(game_clie
     assert battle["loot"] == restored["run"]["pending_loot"]
 
 
-async def test_normal_artifact_can_only_be_crafted_once(game_client):
+async def test_normal_artifact_cannot_regrant_global_bonuses(game_client):
     client, _ = game_client
     slot, content = await new_slot(client)
 
     first = await client.post(f"/api/saves/{slot}/craft", json={
         "revision": content["revision"], "recipe_id": "qing_feng_jian",
     })
-    assert first.status_code == 200
-    content = first.json()
-    assert content["state"]["crafted_recipes"] == ["qing_feng_jian"]
-    assert content["bonuses"]["atk"] == pytest.approx(.08)
+    assert first.status_code == 400
+    assert "副本与首领掉落" in first.json()["detail"]
     remaining = content["state"]["inventory"]["han_tie"]
 
     second = await client.post(f"/api/saves/{slot}/craft", json={
         "revision": content["revision"], "recipe_id": "qing_feng_jian",
     })
     assert second.status_code == 400
-    assert "已打造" in second.json()["detail"]
+    assert "副本与首领掉落" in second.json()["detail"]
 
     latest = (await client.get(f"/api/saves/{slot}")).json()
     assert latest["state"]["inventory"]["han_tie"] == remaining
-    assert latest["state"]["bonuses"]["atk"] == pytest.approx(.08)
+    assert latest["revision"] == content["revision"]
+    assert latest["state"]["bonuses"] == {}
+    assert latest["state"]["crafted_recipes"] == []
 
 
 async def test_write_settles_old_time_before_using_pill_and_keeps_anchor(game_client):

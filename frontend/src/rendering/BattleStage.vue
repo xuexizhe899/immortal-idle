@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { BattleResult } from '../api/client'
 import { characterImage, TOWER_SCENE_IMAGE } from '../presentation/assetPaths'
+import { number } from '../shared/format'
 import { affixSourceText, battleUnitsAt, effectLabel, playbackIndices, type BattleEvent, type BattleUnit, type PlaybackMode } from './battlePlayback'
 import EnemyFigure from './EnemyFigure.vue'
 import SkillVfx from './SkillVfx.vue'
@@ -11,6 +12,8 @@ const props = defineProps<{
   result: BattleResult | null
   bondNames?: Record<string, string>
   setting?: 'tower' | 'sect'
+  title?: string
+  enemyLabel?: string
 }>()
 const emit = defineEmits<{ playing: [value: boolean] }>()
 const playing = ref(false)
@@ -20,14 +23,18 @@ const mode = ref<PlaybackMode>('key')
 const reduced = ref(false)
 const failedImages = ref<Set<string>>(new Set())
 const sceneFailed = ref(false)
+const inspectedUnitId = ref<string | null>(null)
 let timer: number | undefined
 let watchdog: number | undefined
 let motionQuery: MediaQueryList | undefined
 let playbackToken = 0
 const event = computed(() => props.result?.events[cursor.value] ?? null)
 const encounterKind = computed(() => props.result?.node?.kind ?? 'battle')
-const enemyArmyName = computed(() => props.setting === 'sect' ? encounterKind.value === 'boss' ? '镇宗宗主' : '守擂弟子' : encounterKind.value === 'boss' ? '首领与护卫' : encounterKind.value === 'elite' ? '精锐灵卫' : '守塔灵卫')
+const enemyArmyName = computed(() => props.enemyLabel ?? (props.setting === 'sect' ? encounterKind.value === 'boss' ? '镇宗宗主' : '守擂弟子' : encounterKind.value === 'boss' ? '首领与护卫' : encounterKind.value === 'elite' ? '精锐灵卫' : '守塔灵卫'))
 const units = computed(() => props.result ? battleUnitsAt(props.result, cursor.value) : [])
+const inspectedUnit = computed(() => units.value.find(unit => unit.id === inspectedUnitId.value))
+const reviewing = computed(() => !!props.result && !playing.value && cursor.value < props.result.events.length)
+const frameLabel = computed(() => cursor.value < 0 ? '交锋前' : reviewing.value && event.value ? `回看 · 第 ${event.value.round} 轮，第 ${cursor.value + 1} 次行动` : '战后状态')
 const armies = computed(() => [
   { side: 'ally', name: '门下同道', units: units.value.filter(unit => unit.side === 'ally').sort((a, b) => a.slot - b.slot) },
   { side: 'enemy', name: enemyArmyName.value, units: units.value.filter(unit => unit.side === 'enemy').sort((a, b) => a.slot - b.slot) },
@@ -59,6 +66,15 @@ function eventText(item: BattleEvent) {
   const actor = nameById.value.get(item.actor_id) ?? item.actor_id
   return `${actor} · ${item.skill_name}：${item.effects.map(effect => `${nameById.value.get(effect.target_id) ?? effect.target_id} ${effectLabel(effect, nameById.value)}`).join('；') || '本次行动结束'}`
 }
+function armyHealth(members: BattleUnit[]) {
+  return { hp: members.reduce((sum, unit) => sum + unit.hp, 0), max: members.reduce((sum, unit) => sum + unit.max_hp, 0) }
+}
+function inspectFrame(index: number) {
+  if (!props.result || playing.value) return
+  // 回看仅移动展示游标；下一次决策仍使用服务端已保存的战后状态。
+  cursor.value = Math.max(-1, Math.min(props.result.events.length, index))
+}
+function scrub(event: Event) { inspectFrame(Number((event.target as HTMLInputElement).value)) }
 function clearTimers() {
   if (timer !== undefined) window.clearTimeout(timer)
   if (watchdog !== undefined) window.clearTimeout(watchdog)
@@ -101,6 +117,7 @@ function motionChanged() {
 watch(mode, value => { if (value === 'result') finish() })
 watch(() => props.result?.id, (id, previous) => {
   failedImages.value = new Set()
+  inspectedUnitId.value = null
   if (id && previous !== id) play()
   else if (!id) finish()
 })
@@ -117,13 +134,15 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <section class="battle-stage" :class="{'sect-arena':setting==='sect'}" :aria-label="setting==='sect'?'宗门擂台交锋':'问道塔交锋'">
+  <section class="battle-stage" :class="{'sect-arena':setting==='sect'}" :aria-label="title ?? (setting==='sect'?'宗门擂台交锋':'问道塔交锋')">
     <img v-if="setting!=='sect' && !sceneFailed" class="stage-scene pixel-art" :src="TOWER_SCENE_IMAGE" alt="" draggable="false" @error="sceneFailed = true" />
     <div class="stage-veil"></div>
-    <header class="stage-caption"><span class="eyebrow">{{ setting==='sect'?'宗门擂台 · 同道交锋':'问道塔 · 同道试炼' }}</span><span>{{ playing && event ? `第 ${event.round} 轮 · ${event.skill_name}` : outcome }}</span></header>
+    <header class="stage-caption"><span class="eyebrow">{{ title ?? (setting==='sect'?'宗门擂台 · 同道交锋':'问道塔 · 同道试炼') }}</span><span>{{ playing && event ? `第 ${event.round} 轮 · ${event.skill_name}` : reviewing ? frameLabel : outcome }}</span></header>
     <div v-if="result" class="battle-armies">
       <section v-for="army in armies" :key="army.side" class="army" :class="army.side" :aria-label="army.name">
-        <h4>{{ army.name }} <small>{{ army.units.filter(unit => unit.hp > 0).length }} / {{ army.units.length }}</small></h4>
+        <h4>{{ army.name }} <small>在场 {{ army.units.filter(unit => unit.hp > 0).length }} / {{ army.units.length }}</small></h4>
+        <div class="army-summary"><span>气血合计</span><strong>{{ armyHealth(army.units).hp }} / {{ armyHealth(army.units).max }}</strong></div>
+        <div class="army-health"><i :style="{width:`${armyHealth(army.units).hp / Math.max(1,armyHealth(army.units).max) * 100}%`}"></i></div>
         <div class="combatants">
           <article v-for="unit in army.units" :key="unit.id" :class="['combatant', { fallen: unit.hp === 0, boss: unit.side === 'enemy' && encounterKind === 'boss', elite: unit.side === 'enemy' && encounterKind === 'elite', acting: playing && event?.actor_id === unit.id, targeted: isTarget(unit.id) }]" :aria-label="`${unit.name}，气血${unit.hp}/${unit.max_hp}，护盾${unit.shield}`">
             <div class="unit-portrait">
@@ -134,7 +153,7 @@ onUnmounted(() => {
               <SkillVfx v-if="isTarget(unit.id)" :key="`${event?.sequence}-${unit.id}`" :kind="event?.vfx ?? 'strike'" :defensive="effectsFor(unit.id).some(effect => effect.kind === 'heal' || effect.kind === 'shield')" />
               <div v-if="isTarget(unit.id)" class="effect-numbers"><span v-for="(effect,index) in effectsFor(unit.id)" :key="index" :class="effect.kind">{{ effectLabel(effect) }}</span></div>
             </div>
-            <div class="unit-name"><strong>{{ unit.name }}</strong><span v-if="unit.cooldown">冷却 {{ unit.cooldown }}</span><span v-else class="ready">就绪</span></div>
+            <button class="unit-name unit-inspect" :aria-label="`查看${unit.name}的当前状态`" :aria-expanded="inspectedUnitId===unit.id" aria-controls="battle-unit-details" @click="inspectedUnitId=inspectedUnitId===unit.id?null:unit.id"><strong>{{ unit.name }}</strong><span v-if="unit.cooldown">冷却 {{ unit.cooldown }}</span><span v-else class="ready">就绪</span></button>
             <div class="unit-health"><i :style="{ width: `${unit.hp / Math.max(1,unit.max_hp) * 100}%` }"></i></div>
             <small class="unit-vitals">{{ unit.hp }}/{{ unit.max_hp }}<b v-if="unit.shield"> · 盾 {{ unit.shield }}</b></small>
             <span class="unit-status" :title="statusDetails(unit)">{{ stateText(unit) || ' ' }}</span>
@@ -142,7 +161,13 @@ onUnmounted(() => {
         </div>
       </section>
     </div>
-    <div v-else class="waiting-party"><div v-for="member in party" :key="member.id"><img v-if="!failedImages.has(member.id)" :src="member.image" alt="" class="pixel-art" decoding="async" @error="markBroken(member.id)" /><EnemyFigure v-else kind="warden" /><strong>{{ member.name }}</strong></div><p v-if="!party.length">等待同道入场</p></div>
+    <section v-if="inspectedUnit" id="battle-unit-details" class="unit-detail" aria-label="同道与敌方状态详情">
+      <header><div><strong>{{ inspectedUnit.name }}</strong><span>{{ playing ? '交锋中状态' : frameLabel }}</span></div><button class="btn btn-small btn-quiet" aria-label="收起角色状态" @click="inspectedUnitId=null">收起</button></header>
+      <dl><div><dt>攻击</dt><dd>{{ number(inspectedUnit.attack,1) }}</dd></div><div><dt>防御</dt><dd>{{ number(inspectedUnit.defense,1) }}</dd></div><div><dt>身法</dt><dd>{{ number(inspectedUnit.speed,1) }}</dd></div><div><dt>护盾</dt><dd>{{ inspectedUnit.shield }}</dd></div></dl>
+      <p>{{ statusDetails(inspectedUnit) || '当前没有持续增减益或护盾效果。' }}</p>
+      <p v-if="inspectedUnit.affixes?.length">道法修正：{{ affixSourceText(inspectedUnit.affixes,nameById) }}</p>
+    </section>
+    <div v-if="!result" class="waiting-party"><div v-for="member in party" :key="member.id"><img v-if="!failedImages.has(member.id)" :src="member.image" alt="" class="pixel-art" decoding="async" @error="markBroken(member.id)" /><EnemyFigure v-else kind="warden" /><strong>{{ member.name }}</strong></div><p v-if="!party.length">等待同道入场</p></div>
     <div class="battle-controls">
       <span v-if="result" class="battle-outcome" :class="{ lost: !result.won }">{{ playing ? '交锋' : result.won ? '获胜' : '暂歇' }}<small>{{ result.rounds }} 轮 · {{ result.events.length }} 次行动</small></span>
       <label>演出<select v-model="mode"><option value="key" :disabled="playing">关键招式</option><option value="all" :disabled="playing">完整交锋</option><option value="result">直接看结果</option></select></label>
@@ -150,10 +175,15 @@ onUnmounted(() => {
       <button v-if="playing" class="btn btn-small" @click="finish">跳过演出</button><button v-else-if="result" class="btn btn-small" :disabled="mode === 'result' || reduced || !result.events.length" @click="play">重播此战</button>
       <p v-if="reduced" class="motion-note">已按减少动态效果偏好展示战果，可展开完整战报。</p>
       <p v-else-if="mode === 'result'" class="motion-note">{{ setting==='sect'?'后续交锋直接展示战果，每场上阵弟子仍由你选择。':'后续交锋直接展示战果，路线与道法仍由你选择。' }}</p>
-      <p v-if="result" class="battle-totals">同道实际承伤 {{ result.damage }} · 恢复 {{ result.healed }} · 战后气血 {{ result.hp_after }}</p>
+      <p v-if="result" class="battle-totals">本场实际承伤 {{ result.damage }} · 恢复 {{ result.healed }} · 战后气血 {{ result.hp_after }}</p>
+    </div>
+    <div v-if="result?.events.length" class="battle-review">
+      <div class="review-heading"><strong>{{ playing ? '正在播放交锋' : frameLabel }}</strong><span>{{ playing ? '跳过演出后可逐条回看' : '拖动查看每次行动后的气血与状态' }}</span></div>
+      <div class="review-controls"><button class="btn btn-small" :disabled="playing||cursor<=-1" aria-label="查看上一次行动" @click="inspectFrame(Math.min(cursor,result.events.length)-1)">上一帧</button><input type="range" min="-1" :max="result.events.length" :value="Math.min(cursor,result.events.length)" :disabled="playing" :aria-label="`战斗回看，${frameLabel}`" @input="scrub" /><button class="btn btn-small" :disabled="playing||cursor>=result.events.length" aria-label="查看下一次行动" @click="inspectFrame(cursor+1)">下一帧</button></div>
+      <button v-if="reviewing" class="review-return" @click="finish">回到战后状态 →</button>
     </div>
     <div v-if="result" class="battle-log">
-      <p class="current-action" aria-live="polite">{{ playing && event ? `${nameById.get(event.actor_id)} · ${event.skill_name}` : outcome }}<span v-if="playing && event?.bonds.length" class="bond-flare">{{ event.bonds.map(id => bondNames?.[id] ?? id).join(' · ') }}</span></p>
+      <p class="current-action" aria-live="polite">{{ (playing||reviewing) && event ? `${nameById.get(event.actor_id)} · ${event.skill_name}` : reviewing ? frameLabel : outcome }}<span v-if="(playing||reviewing) && event?.bonds.length" class="bond-flare">{{ event.bonds.map(id => bondNames?.[id] ?? id).join(' · ') }}</span></p>
       <ol class="recent-events"><li v-for="item in latestEvents" :key="item.sequence"><small>第{{ item.round }}轮</small>{{ eventText(item) }}<b v-for="id in item.bonds" :key="id">{{ bondNames?.[id] ?? id }}</b></li></ol>
       <details><summary>完整战报 · {{ result.events.length }} 次行动</summary><template v-if="initialAffixes.length"><p>入场道法修正</p><ul class="initial-affixes"><li v-for="unit in initialAffixes" :key="unit.id">{{ affixSourceText(unit.affixes, nameById) }}</li></ul></template><ol class="full-events"><li v-for="item in result.events" :key="item.sequence"><small>第{{ item.round }}轮</small>{{ eventText(item) }}<b v-for="id in item.bonds" :key="id">{{ bondNames?.[id] ?? id }}</b></li></ol></details>
     </div>
@@ -164,6 +194,10 @@ onUnmounted(() => {
 .battle-stage{position:relative;overflow:hidden;background:#d5ddc6;border:1px solid #b7bba0}.stage-scene{position:absolute;inset:0;width:100%;height:490px;object-fit:cover;object-position:center 65%;opacity:.6;pointer-events:none}.stage-veil{position:absolute;inset:0;background:linear-gradient(#edf0dc35,#e2e8d0aa 440px,#f5efdf 550px);pointer-events:none}.stage-caption{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;color:#385940;font-size:11px}.stage-caption .eyebrow{font-size:9px;background:#faf4dfd9;padding:4px 7px}.battle-armies{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:0 18px 16px}.army{min-width:0}.army h4{font:15px 'SimSun',serif;margin:0 0 8px;color:#3d604a;border-bottom:1px solid #7b917b66;padding-bottom:5px}.enemy h4{color:#805d3f}.army h4 small{float:right;font:10px system-ui}.combatants{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px}.combatant{position:relative;min-width:0;padding:3px 4px;background:#f4efdbc9;border:1px solid #b3bea3;transition:background .12s}.enemy .combatant{background:#e7e4d5c9;border-color:#b3ad91}.combatant.acting{border-color:#9c7a39;box-shadow:inset 0 0 0 2px #c3a75c}.combatant.targeted{background:#fff7d9}.unit-portrait{position:relative;height:112px;display:flex;align-items:flex-end;justify-content:center}.unit-portrait>img{width:100%;height:100%;object-fit:contain;object-position:center 25%}.unit-portrait>.enemy-figure{height:112px;width:100%}.combatant.boss{border-color:#aa9461;background:#e9e4d2}.combatant.boss .unit-name strong{color:#77582e}.combatant.boss.targeted{background:#fff7d9}.combatant.elite{border-color:#b9a06a;background:#eeead8}.combatant.elite .unit-name strong{color:#7b6236}.unit-slot{position:absolute;top:1px;left:1px;font-size:8px;color:#66785e}.unit-name{display:flex;justify-content:space-between;gap:2px;align-items:center;font-size:9px}.unit-name strong{font:12px 'SimSun',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.unit-name>span{font-size:8px;white-space:nowrap;color:#8b7651}.unit-name .ready{color:#597b5f}.unit-health{height:4px;background:#a9ad93;margin-top:4px;overflow:hidden}.unit-health i{display:block;height:100%;background:#538465;transition:width .18s}.enemy .unit-health i{background:#9b7958}.unit-vitals{display:block;font-size:8px;color:#4b634b;white-space:nowrap;font-variant-numeric:tabular-nums}.unit-vitals b{font-weight:400;color:#426f88}.unit-status{font-size:8px;color:#8c6348;display:block;min-height:12px}.fallen{filter:grayscale(.7);opacity:.62}.fallen-label{position:absolute;bottom:20px;color:#eee4ca;background:#52634be0;font:14px 'SimSun',serif;padding:2px 8px}.effect-numbers{position:absolute;top:24%;left:0;right:0;z-index:2;display:flex;align-items:center;flex-direction:column;gap:3px;font-size:11px;font-weight:700;color:#8e3f2f;text-shadow:0 1px #fff7df,1px 0 #fff7df,-1px 0 #fff7df}.effect-numbers>span{background:#f6efdbd9;padding:1px 3px}.effect-numbers .heal{color:#286848}.effect-numbers .shield{color:#386e83}.effect-numbers .buff{color:#805b30}.battle-controls{position:relative;display:flex;align-items:center;gap:12px;padding:12px 16px;background:#f7f0de;border-block:1px solid #b9baa0;flex-wrap:wrap}.battle-outcome{font:19px 'SimSun',serif;color:var(--jade);margin-right:auto}.battle-outcome small{display:block;font:9px system-ui;color:var(--muted);margin-top:4px}.battle-outcome.lost{color:var(--danger)}.battle-controls label{font-size:9px;color:var(--muted)}.battle-controls select{display:block;margin-top:2px;font-size:10px;min-height:32px;padding:4px 18px 4px 5px}.battle-controls .btn{min-height:36px;font-size:11px}.battle-totals{width:100%;font-size:10px;color:#68755b;margin:0}.motion-note{width:100%;font-size:10px;margin:0;color:var(--muted)}.battle-log{position:relative;background:#f3efdf;padding:10px 16px}.current-action{margin:0 0 7px;font-size:12px;color:var(--jade)}.bond-flare{display:inline-block;margin-left:8px;padding:1px 6px;border:1px solid #bca668;color:#86632c;font-size:10px}.recent-events,.full-events{list-style:none;padding:0;margin:0;font-size:10px;color:#596951}.recent-events{min-height:64px}.recent-events li,.full-events li{padding:3px 0;border-top:1px solid #d3d3bc;overflow-wrap:anywhere}.battle-log li small{font-size:8px;margin-right:6px;color:#8b8a6d}.battle-log li b{display:inline-block;margin-left:5px;color:#96702c;font-weight:500}.battle-log details{margin-top:8px;font-size:10px}.battle-log summary{cursor:pointer;padding:6px 0;color:#6c775c}.full-events{max-height:300px;overflow-y:auto}.waiting-party{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;min-height:200px;align-items:end;padding:25px 20px}.waiting-party>div{min-width:0;text-align:center}.waiting-party img,.waiting-party .enemy-figure{width:100%;height:145px;object-fit:contain}.waiting-party strong{display:block;font:12px 'SimSun',serif;color:#3e5f46}.stage-bottom{position:relative;text-align:center;font-size:11px;color:var(--muted);margin:0;padding:12px;background:#f5efdfe0}
 @media(max-width:640px){.stage-caption{padding:10px;gap:6px;font-size:9px}.stage-caption .eyebrow{font-size:8px}.battle-armies{grid-template-columns:1fr;gap:14px;padding:0 12px 14px}.army h4{font-size:13px}.combatants{gap:7px}.unit-portrait{height:94px}.unit-portrait>.enemy-figure{height:94px;width:100%}.unit-name strong{font-size:12px}.unit-vitals{font-size:9px}.unit-name>span{font-size:9px}.unit-status{font-size:9px}.battle-controls{gap:8px;padding:10px}.battle-controls select{min-height:36px}.battle-controls .btn{font-size:10px;padding-inline:8px}.battle-outcome{font-size:17px}.battle-outcome small{font-size:8px}.battle-log{padding:10px}.recent-events,.full-events{font-size:10px}.waiting-party{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:10px 15px}.waiting-party img,.waiting-party .enemy-figure{height:100px}.stage-scene{height:700px}.effect-numbers{font-size:10px}}
 .initial-affixes{list-style:none;margin:0 0 10px;padding:0;color:#596951}
+.army-summary{display:flex;justify-content:space-between;gap:8px;color:#65765c;font-size:10px;margin:2px 0 5px}.army-summary strong{font-weight:500;font-variant-numeric:tabular-nums}.army-health{height:3px;background:#bac5aa;margin-bottom:12px}.army-health i{display:block;height:100%;background:#668d6b}.enemy .army-health i{background:#a78b65}
+.unit-inspect{width:100%;min-height:34px;text-align:left;padding:4px 0;background:transparent;border:0;border-bottom:1px dashed #9ba88e}.unit-inspect:hover,.unit-inspect[aria-expanded="true"]{background:#d7e2ca;color:var(--jade)}.unit-inspect strong{min-width:0}.unit-detail{position:relative;margin:0 18px 16px;padding:12px 14px;background:#faf5e7;border:1px solid #a5b694;border-left:3px solid #668d6b}.unit-detail header{display:flex;justify-content:space-between;align-items:center;gap:10px}.unit-detail header strong{font:17px 'SimSun',serif;color:var(--jade)}.unit-detail header span{margin-left:12px;color:var(--muted);font-size:10px}.unit-detail dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0}.unit-detail dl>div{border-top:1px solid #d3d8c0;padding-top:6px}.unit-detail dt{font-size:10px;color:var(--muted)}.unit-detail dd{margin:2px 0 0;font-size:14px;color:var(--jade);font-variant-numeric:tabular-nums}.unit-detail p{font-size:11px;color:var(--muted);line-height:1.8;margin:5px 0 0;overflow-wrap:anywhere}
+.battle-review{position:relative;padding:12px 16px;background:#e8ead9;border-bottom:1px solid #c6ccb2}.review-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;font-size:10px;color:var(--muted)}.review-heading strong{color:var(--jade);font-weight:500}.review-controls{display:flex;align-items:center;gap:10px}.review-controls input{flex:1;width:0;min-width:36px;min-height:36px;margin:0;padding:0;border:0;accent-color:var(--jade);background:transparent}.review-controls .btn{flex:none;font-size:10px;min-height:36px}.review-return{border:0;background:transparent;color:var(--jade);font-size:11px;min-height:36px;padding:8px 0 0;text-align:left}.battle-log summary{min-height:36px;display:list-item;padding-block:8px}
+@media(max-width:640px){.unit-inspect{min-height:44px;flex-wrap:wrap;gap:0}.unit-inspect strong{width:100%;font-size:13px}.unit-inspect>span{font-size:10px}.unit-detail{margin-inline:12px;padding:10px}.unit-detail header span{display:block;margin:3px 0 0}.unit-detail p{font-size:12px}.battle-review{padding:10px}.review-heading{align-items:flex-start;flex-direction:column;font-size:11px;gap:3px}.review-controls{gap:7px}.review-controls .btn,.review-controls input,.review-return,.battle-log summary{min-height:44px}.review-controls .btn{padding-inline:9px}.army-summary{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.unit-health i,.combatant{transition:none}}
 </style>
 

@@ -1,7 +1,7 @@
 """永久成长：修为与灵石换取弟子等级，境界决定阶段上限与值守。
 
 等级只影响战斗；境界影响战斗、值守速率和后续等级上限。
-境界 1/2/3 的等级上限为 3/6/10，突破需要达到当前上限并支付声望或使用破境丹。
+每地区续接三层境界和十级成长；突破需要达到当前上限并支付声望或使用破境丹。
 """
 
 from app.models.save import DiscipleState, GameState, Resources
@@ -11,7 +11,7 @@ REALM_GROWTH = 0.05
 UPGRADE_CULTIVATION_BASE = 20.0
 UPGRADE_SPIRIT_STONE_BASE = 10.0
 
-# 境界 -> 当前阶段可达到的最高等级；未列出的旧档境界按 10 级处理
+# 每三个境界构成一个地区的成长段，后续地区在此基础上累加十级。
 LEVEL_CAPS = {1: 3, 2: 6, 3: 10}
 MAX_REALM = 3
 MAX_LEVEL = 10
@@ -32,8 +32,17 @@ def new_game_state() -> GameState:
 
 
 def level_cap(realm: int) -> int:
-    """当前境界允许达到的最高等级；旧档超出设计境界时仍以 10 级为上限。"""
-    return LEVEL_CAPS.get(realm, MAX_LEVEL)
+    """境界 1..6 对应 3/6/10/13/16/20 级；跨区保留既有等级。"""
+    if realm < 1:
+        return MAX_LEVEL
+    region, stage = divmod(realm - 1, MAX_REALM)
+    return region * MAX_LEVEL + LEVEL_CAPS[stage + 1]
+
+
+def growth_caps(state: GameState) -> tuple[int, int]:
+    """返回已开放地区允许的最高等级、最高境界；回旧图不收回培养能力。"""
+    region = max(state.world.unlocked_regions, default=1)
+    return MAX_LEVEL * region, MAX_REALM * region
 
 
 def upgrade_cost(disciple: DiscipleState) -> dict[str, float]:
@@ -44,8 +53,8 @@ def upgrade_cost(disciple: DiscipleState) -> dict[str, float]:
 
 
 def breakthrough_cost(disciple: DiscipleState, template: dict) -> dict[str, float]:
-    """突破到下一境界所需声望；已到最高境界时返回空。"""
-    ratio = REALM_UP_RATIOS.get(disciple.realm + 1, 0.0)
+    """每提高一境，声望费用增加招募门槛的四分之一；是否开放由状态校验。"""
+    ratio = REALM_UP_RATIOS.get(disciple.realm + 1, (disciple.realm + 1) * .25)
     reputation = template.get("unlock_cost", {}).get("reputation", 0.0) * ratio
     return {"reputation": reputation} if reputation else {}
 
@@ -61,7 +70,7 @@ def can_upgrade(state: GameState, disciple: DiscipleState) -> str | None:
     """返回不能升级的原因；可升级返回 None。"""
     if is_on_run(state, disciple):
         return "出征中的弟子暂不可升级"
-    cap = level_cap(disciple.realm)
+    cap = min(level_cap(disciple.realm), growth_caps(state)[0])
     if disciple.level >= cap:
         return f"已达境界 {disciple.realm} 的等级上限 {cap}，请先突破"
     costs = upgrade_cost(disciple)
@@ -93,11 +102,9 @@ def can_breakthrough(
     costs = breakthrough_cost(disciple, template)
     if is_on_run(state, disciple):
         return costs, "出征中的弟子暂不可突破"
-    if disciple.realm >= MAX_REALM:
+    if disciple.realm >= growth_caps(state)[1]:
         return costs, "已达当前最高境界"
-    required = LEVEL_CAPS.get(disciple.realm)
-    if required is None:
-        return costs, "当前境界不支持继续突破"
+    required = level_cap(disciple.realm)
     if disciple.level < required:
         return costs, f"需要达到 {required} 级才能突破至境界 {disciple.realm + 1}"
     if pay_reputation and state.resources.reputation < costs.get("reputation", 0.0):

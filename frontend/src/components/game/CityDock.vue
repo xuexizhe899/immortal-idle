@@ -2,13 +2,13 @@
 import CityNavIcon from './CityNavIcon.vue'
 defineProps<{ towerLabel: string; towerHint: string; expeditionLabel: string; expeditionHint: string; discipleCount: number; dutyCount: number; active: string | null }>()
 defineEmits<{ open: [panel: string] }>()
-const entries = [{ id: 'sect', label: '宗门', hint: '设施 · 存档' }, { id: 'codex', label: '弟子', hint: '修炼 · 招贤' }, { id: 'duty', label: '值守', hint: '同道守山' }, { id: 'alchemy', label: '炼丹', hint: '丹火养元' }, { id: 'forge', label: '炼器', hint: '百炼成器' }, { id: 'expedition', label: '远行', hint: '征讨 · 驻守' }, { id: 'tower', label: '问道', hint: '登塔试炼' }]
+const entries = [{ id: 'sect', label: '宗门', hint: '设施 · 存档' }, { id: 'codex', label: '弟子', hint: '修炼 · 招贤' }, { id: 'duty', label: '值守', hint: '同道守山' }, { id: 'alchemy', label: '炼丹', hint: '丹火养元' }, { id: 'forge', label: '炼器', hint: '百炼成器' }, { id: 'expedition', label: '山河', hint: '寻器 · 守山' }, { id: 'tower', label: '问道', hint: '登塔试炼' }]
 </script>
 <template>
   <nav class="city-dock" aria-label="宗门功能">
     <div class="dock-inner">
       <button v-for="entry in entries" :key="entry.id" :class="['dock-entry', { 'dock-tower': entry.id === 'tower', 'dock-expedition': entry.id === 'expedition', selected: active === entry.id }]" :aria-label="entry.id === 'tower' ? `${towerLabel}，${towerHint}` : entry.id === 'expedition' ? `${expeditionLabel}，${expeditionHint}` : entry.label" @click="$emit('open', entry.id)">
-        <span class="dock-icon"><CityNavIcon :name="entry.id" /><span v-if="entry.id === 'codex' && discipleCount" class="dock-count">{{ discipleCount }}</span><i v-if="(entry.id === 'tower' && towerLabel !== '问道') || (entry.id === 'expedition' && expeditionLabel !== '远行')" class="run-dot"></i></span>
+        <span class="dock-icon"><CityNavIcon :name="entry.id" /><span v-if="entry.id === 'codex' && discipleCount" class="dock-count">{{ discipleCount }}</span><i v-if="(entry.id === 'tower' && towerLabel !== '问道') || (entry.id === 'expedition' && expeditionLabel !== '山河')" class="run-dot"></i></span>
         <span class="dock-label">{{ entry.id === 'tower' ? towerLabel : entry.id === 'expedition' ? expeditionLabel : entry.label }}</span>
         <small>{{ entry.id === 'tower' ? towerHint : entry.id === 'expedition' ? expeditionHint : entry.id === 'duty' ? `${dutyCount} 位值守` : entry.hint }}</small>
       </button>

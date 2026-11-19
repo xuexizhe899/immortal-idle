@@ -32,9 +32,15 @@ const state = {
     { id: 'sect_2', name: '赤霞丹宗', style: '丹修', level: 1, material_id: 'ling_cao', special_material_id: 'po_jing_ling_cai', conquered: false, loot: { ling_cao: 4, ling_mu: 8, spirit_stone: 30 } },
   ],
 }
+const world = {
+  regions: [{ id: 1, name: '云岚下界', unlocked: true, tower_rewards: catalog.mode.rewards, nodes: state.sects.map(sect => ({
+    kind: 'sect', sect_id: sect.id, locked: false,
+    retrial_rewards: catalog.sect_styles.find(style => style.name === sect.style).retrial_reward,
+  })) }],
+}
 
 test('source matrix covers every material and separates rates from one-time rewards', () => {
-  const matrix = materialSources(catalog, state)
+  const matrix = materialSources(catalog, state, world)
   assert.deepEqual(Object.keys(matrix).sort(), Object.keys(catalog.materials).sort())
   const lingcao = matrix.ling_cao
   assert.equal(lingcao.find(source => source.kind === 'idle').rate, .5)
@@ -48,11 +54,11 @@ test('source matrix covers every material and separates rates from one-time rewa
 })
 
 test('special materials have no idle or duty rate but show garrison and retrial gates', () => {
-  const matrix = materialSources(catalog, state)
+  const matrix = materialSources(catalog, state, world)
   const special = matrix.gong_fa_qi_pei
   assert.ok(!special.some(source => source.kind === 'idle' || source.kind === 'duty'))
   const garrison = special.find(source => source.kind === 'garrison')
-  assert.equal(garrison.rate, .15)
+  assert.equal(garrison.rate, undefined, 'garrison output must come from the actual server production view')
   assert.equal(garrison.available, true)
   const retrial = matrix.chi_tong.find(source => source.kind === 'retrial')
   assert.equal(retrial.available, true)

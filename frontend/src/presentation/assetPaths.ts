@@ -38,6 +38,7 @@ export const ITEM_ICON_IDS = new Set([
   'han_tie', 'jiao_gu', 'jiu_ye', 'ling_cao', 'xuan_jing', 'yun_mu',
   'ling_mu', 'qing_shi', 'chi_tong', 'yao_shou_pi',
   'gong_fa_qi_pei', 'hu_chi_qi_pei', 'po_jing_ling_cai',
+  'lian_qi_jing_cui', 'sheng_xian_ling',
   'gu_ti_dan', 'hui_ling_dan', 'ju_qi_dan', 'liao_shang_dan',
   'po_jing_dan', 'yang_shen_dan',
   'hu_xin_jing', 'ju_ling_pei', 'liu_yun_xue', 'po_mo_fu',

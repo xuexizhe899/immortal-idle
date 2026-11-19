@@ -2,6 +2,7 @@
 
 from app.models.api import FacilityView
 from app.models.save import GameState
+from app.domain.progression import growth_caps
 
 MAX_FACILITY_LEVEL = 3
 GRADE_MULTIPLIERS = {1: 1.0, 2: 1.5, 3: 2.0}
@@ -9,6 +10,7 @@ GRADE_MULTIPLIERS = {1: 1.0, 2: 1.5, 3: 2.0}
 
 def facility_views(state: GameState, definitions: dict[str, dict]) -> list[FacilityView]:
     views = []
+    maximum_level, maximum_realm = growth_caps(state)
     for facility_id, definition in definitions.items():
         level = state.facility_levels.get(facility_id, 1)
         costs = definition["costs"][level - 1] if level < MAX_FACILITY_LEVEL else {}
@@ -24,9 +26,14 @@ def facility_views(state: GameState, definitions: dict[str, dict]) -> list[Facil
             for key, count in costs.items()
         ):
             reason = "升级资源不足"
+        description = definition["descriptions"][level - 1]
+        if facility_id == "hall":
+            description += f"；每个已开放地区适用，个人培养上限 {maximum_level} 级、境界 {maximum_realm}"
+        elif facility_id == "tower" and state.world.current_region > 1:
+            description += "；当前地区敌人更强，塔阶纪录独立保留"
         views.append(FacilityView(
             id=facility_id, name=definition["name"], level=level,
-            description=definition["descriptions"][level - 1],
+            description=description,
             next_description=definition["descriptions"][level] if level < MAX_FACILITY_LEVEL else "",
             costs=costs, upgradeable=not reason, reason=reason,
         ))

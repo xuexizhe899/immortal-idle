@@ -5,6 +5,7 @@ from __future__ import annotations
 from math import floor
 
 from app.domain.battle import simulate_battle
+from app.domain.equipment import roll_drop
 from app.domain.rng import Pcg32
 from app.models.battle import BattleUnit, EnemyDefinition, SkillDefinition
 from app.models.save import BattleSummary, GameState, NpcSect, RunNode
@@ -30,12 +31,17 @@ def _sect_unit(
     )
 
 
-def ensure_sects(state: GameState, config: dict, enemies: dict[str, dict]) -> bool:
-    """每级补齐三座宗门；按编号独立播种，扩图不会重抽已生成的身份与守军。"""
+def ensure_sects(state: GameState, config: dict, enemies: dict[str, dict], world_config: dict | None = None) -> bool:
+    """每个已开放地区按殿级补齐三/六/九宗；地区与编号独立播种，不重抽旧守军。"""
     changed = False
     styles = {style["name"]: style for style in config["styles"]}
     # 旧宗门仅把塔敌占用图替换为流派人物，保留自定义图和已固化的出征、战报。
     for sect in state.sects:
+        if sect.id.startswith("sect_") and sect.id[5:].isdigit():
+            area = (int(sect.id[5:]) - 1) // 3 + 1
+            if 1 <= area <= 3 and (sect.region_id != 1 or sect.area != area):
+                sect.region_id, sect.area = 1, area
+                changed = True
         style = styles.get(sect.style)
         if style is None:
             continue
@@ -53,36 +59,40 @@ def ensure_sects(state: GameState, config: dict, enemies: dict[str, dict]) -> bo
 
     hall_level = min(3, max(1, state.facility_levels.get("hall", 1)))
     existing = {sect.id for sect in state.sects}
-    for index in range(hall_level * 3):
-        identity = f"sect_{index + 1}"
-        if identity in existing:
-            continue
-        rng = Pcg32(state.rng_seed + 104729 * (index + 1))
-        level = index // 3 + 1
-        style = config["styles"][index % 3]
-        prefix = rng.pick(config["name_prefixes"])
-        name = f"{prefix}{style['suffix']}·{config['level_names'][level - 1]}"
-        material = style["materials"][level - 1]
-        scale = config["level_scales"][level - 1]
-        teams = []
-        for round_index in range(3):
-            roster = style["teams"][rng.randint(0, len(style["teams"]) - 1)]
-            teams.append([
-                _sect_unit(enemies[enemy_id], f"{identity}:arena:{round_index}:{slot}",
-                           f"{style['name']}弟子·{slot + 1}", slot, scale * (1 + round_index * .08),
-                           asset_id=style.get("disciple_assets", {}).get(enemy_id, ""))
-                for slot, enemy_id in enumerate(roster)
-            ])
-        leader = _sect_unit(enemies[style["leader"]], f"{identity}:leader", f"{prefix}宗主", 0, scale, True,
-                            asset_id=style.get("leader_asset_id", ""))
-        state.sects.append(NpcSect(
-            id=identity, name=name, level=level, style=style["name"],
-            material_id=material, special_material_id=style["special_material"],
-            arena_teams=teams, leader=leader,
-            loot={"cultivation": 40 * level, "spirit_stone": 30 * level,
-                  "reputation": 60 * level, material: 8 * level, style["special_material"]: 3 * level},
-        ))
-        changed = True
+    regions = [item for item in world_config["regions"] if item["id"] in state.world.unlocked_regions] if world_config else [{"id": 1, "enemy_scale": 1, "reward_scale": 1}]
+    for region in regions:
+        region_id = region["id"]
+        for index in range(hall_level * 3):
+            identity = f"sect_{index + 1}" if region_id == 1 else f"r{region_id}:sect_{index + 1}"
+            if identity in existing:
+                continue
+            rng = Pcg32(state.rng_seed + 104729 * (index + 1) + 1000003 * (region_id - 1))
+            level = index // 3 + 1
+            style = config["styles"][index % 3]
+            prefix = rng.pick(config["name_prefixes"])
+            name = f"{prefix}{style['suffix']}·{config['level_names'][level - 1]}"
+            material = style["materials"][level - 1]
+            scale = config["level_scales"][level - 1] * region["enemy_scale"]
+            teams = []
+            for round_index in range(3):
+                roster = style["teams"][rng.randint(0, len(style["teams"]) - 1)]
+                teams.append([
+                    _sect_unit(enemies[enemy_id], f"{identity}:arena:{round_index}:{slot}",
+                               f"{style['name']}弟子·{slot + 1}", slot, scale * (1 + round_index * .08),
+                               asset_id=style.get("disciple_assets", {}).get(enemy_id, ""))
+                    for slot, enemy_id in enumerate(roster)
+                ])
+            leader = _sect_unit(enemies[style["leader"]], f"{identity}:leader", f"{prefix}宗主", 0, scale, True,
+                                asset_id=style.get("leader_asset_id", ""))
+            rewards = {"cultivation": 40 * level, "spirit_stone": 30 * level,
+                       "reputation": 60 * level, material: 8 * level, style["special_material"]: 3 * level}
+            state.sects.append(NpcSect(
+                id=identity, region_id=region_id, area=level, name=name, level=level, style=style["name"],
+                material_id=material, special_material_id=style["special_material"],
+                arena_teams=teams, leader=leader,
+                loot={key: value * region["reward_scale"] for key, value in rewards.items()},
+            ))
+            changed = True
     return changed
 
 
@@ -135,6 +145,15 @@ def arena(state: GameState, party_ids: list[str]) -> str | None:
     if is_boss:
         run.end_reason = "victory" if result.won else result.reason
         run.pending_loot = loot
+        rules = run.party_snapshot.mode.get("equipment_rules")
+        if result.won and rules and not run.practice:
+            # 宗主胜利才生成一件待结算装备；旧快照无掉落规则时不新增随机消耗。
+            rng = Pcg32(run.run_seed)
+            rng.advance_to(run.rng_cursor)
+            run.pending_gear.append(roll_drop(
+                state, rng, run.party_snapshot.mode.get("gear_tier", run.region_id), config=rules,
+            ))
+            run.rng_cursor = rng.cursor
     elif sum(hp > 0 for hp in run.member_hp.values()) < 3:
         run.end_reason = "insufficient_fighters"
     elif run.arena_round >= 3 and run.guard > 0:
