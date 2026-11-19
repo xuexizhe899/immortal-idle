@@ -14,7 +14,7 @@
 ::selection { background: #cbdcba; color: var(--ink); }
 body { margin: 0; min-width: 320px; }
 button, input, textarea, select { font: inherit; }
-button { -webkit-tap-highlight-color: transparent; cursor: pointer; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; cursor: pointer; color: inherit; }
 button, a, input, select, textarea { outline-offset: 4px; }
 :focus-visible { outline: 2px solid var(--jade); }
 button:disabled { cursor: not-allowed; opacity: .42; }
@@ -25,16 +25,12 @@ h2 { font-size: 22px; } h3 { font-size: 17px; }
 button, input, select, textarea { border-radius: 2px; }
 input, select, textarea { min-height: 42px; border: 1px solid var(--border); padding: 9px 12px; background: #fffaf0; color: var(--text); min-width: 0; }
 textarea { resize: vertical; width: 100%; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 8px 16px; border: 1px solid var(--border); background: #fdf7e8; color: var(--ink); text-decoration: none; box-shadow: inset 0 1px #fffdf4, 0 2px 0 #73694712; transition: background .15s, border-color .15s, transform .15s, box-shadow .15s; white-space: nowrap; }
-.btn:hover:not(:disabled) { background: #e9e9d8; border-color: var(--jade); }
-.btn:active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 1px 3px #26382f1a; }
-.btn-primary { background: var(--jade); border-color: var(--jade); color: #fff6dc; box-shadow: inset 0 0 0 3px #ffffff0b, 0 3px 0 #1f4b3e; }
-.btn-primary:hover:not(:disabled) { background: #235642; color: #fff8e8; }
-.btn-gold { background: #a97c3d; color: #fff7e2; border-color: #946c33; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 44px; min-height: 44px; padding: 9px 16px; border: 1px solid #bcba9f; border-radius: 4px; background: #fdf7e8; color: var(--ink); font-weight: 600; line-height: 1.4; text-decoration: none; box-shadow: inset 0 1px #fffdf4, 0 1px 2px #3a493012; transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s; white-space: nowrap; }
+.btn-primary { background: var(--jade); border-color: #28513f; color: #fff9e8; box-shadow: inset 0 1px #ffffff26, 0 2px 0 #24463533; }
+.btn-gold { background: #89632f; color: #fff9e8; border-color: #78552a; box-shadow: inset 0 1px #ffffff26, 0 2px 0 #68482026; }
 .btn-quiet { border-color: transparent; background: transparent; box-shadow: none; }
-.btn-small { min-height: 32px; padding: 4px 10px; font-size: 12px; }
+.btn-small { min-width: 40px; min-height: 40px; padding: 6px 11px; font-size: 13px; }
 .btn-danger { color: var(--danger); border-color: #c38e78; }
-.btn-danger:hover:not(:disabled) { color: #873d31; border-color: var(--danger); background: #f6e4d7; }
 /* 不可用操作仍保留清楚的文字，具体原因由按钮旁的业务文案说明。 */
 .btn:disabled { opacity: 1; color: #697066; background: #e8e3d4; border-color: #c7c1ad; box-shadow: none; }
 .btn[aria-busy="true"] { cursor: progress; }
@@ -55,9 +51,8 @@ textarea { resize: vertical; width: 100%; }
 .stat-cell span { display: block; font-size: 11px; color: var(--muted); }
 .stat-cell strong, .resource-value { font-variant-numeric: tabular-nums; font-size: 19px; font-weight: 600; color: var(--jade); }
 .tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); margin: -4px 0 20px; padding-bottom: 8px; }
-.tabs button { border: 1px solid transparent; min-height: 38px; padding: 8px 18px; background: transparent; color: var(--muted); transition: background .15s, color .15s, border-color .15s; }
-.tabs button:hover:not(:disabled) { background: #dfe8cf80; color: var(--ink); }
-.tabs button.active { background: var(--jade); border-color: var(--jade); color: #fff7df; box-shadow: inset 0 -2px #bda166; }
+.tabs button { border: 1px solid transparent; min-height: 44px; padding: 9px 18px; background: transparent; color: var(--muted); font-weight: 600; line-height: 1.4; transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s; }
+.tabs button.active { background: var(--jade); border-color: #28513f; color: #fff9e8; box-shadow: inset 0 1px #ffffff26; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .field-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
 summary { cursor: pointer; color: var(--ink); }
@@ -74,12 +69,28 @@ summary:focus-visible { outline: 2px solid var(--jade); outline-offset: 4px; }
 .pixel-art { image-rendering: pixelated; }
 .divider { height: 1px; background: var(--border); margin: 20px 0; opacity: .7; }
 .game-icon { width: 19px; height: 19px; flex: none; }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled) { background: #eaf0de; border-color: #839b74; }
+  .btn-primary:hover:not(:disabled) { background: #2a5b47; border-color: #234b39; color: #fff9e8; }
+  .btn-gold:hover:not(:disabled) { background: #795729; border-color: #684820; color: #fff9e8; }
+  .btn-quiet:hover:not(:disabled) { border-color: transparent; background: #e6ecd9; box-shadow: none; }
+  .btn-danger:hover:not(:disabled) { color: #873d31; border-color: var(--danger); background: #f6e4d7; }
+  .tabs button:hover:not(:disabled) { background: #e3ebd4; color: var(--ink); }
+  .tabs button.active:hover:not(:disabled) { background: #2a5b47; color: #fff9e8; }
+}
+.btn:active:not(:disabled) { background: #dde6cf; border-color: #78936a; box-shadow: inset 0 2px 3px #26382f24; }
+.btn-primary:active:not(:disabled) { background: #234c3b; border-color: #1c4031; color: #fff9e8; }
+.btn-gold:active:not(:disabled) { background: #715026; border-color: #62441f; color: #fff9e8; }
+.btn-quiet:active:not(:disabled) { border-color: transparent; background: #dce6cf; box-shadow: inset 0 1px 2px #26382f16; }
+.btn-danger:active:not(:disabled) { color: #873d31; border-color: var(--danger); background: #efd9ca; }
+.tabs button:active:not(:disabled) { background: #dce6cf; color: var(--ink); box-shadow: inset 0 1px 3px #26382f24; }
+.tabs button.active:active:not(:disabled) { background: #234c3b; color: #fff9e8; }
 @media (min-width: 1600px) { :root { font-size: 15px; } }
 @media (max-width: 640px) {
   :root { font-size: 13px; }
   .paper, .panel { padding: 16px; }
   .btn { min-height: 44px; padding: 9px 13px; }
-  .btn-small { min-height: 38px; padding: 6px 10px; }
+  .btn-small { min-width: 44px; min-height: 44px; padding: 8px 11px; }
   .tabs button { min-height: 44px; padding: 8px 12px; }
   .stat-grid { gap: 5px; }.stat-cell { padding: 10px 4px; }
 }

@@ -1,10 +1,10 @@
 import type { CityActor } from './cityModel'
 
-export interface CityMotionPose { x: number; z: number; bob: number; moving: boolean }
+export interface CityMotionPose { x: number; z: number; heading: number; moving: boolean }
 
 /** 常驻弟子沿广场短路停走；时钟和身份只决定演出，不改变值守或出征。 */
 export function sampleCityMotion(actor: CityActor, seconds: number, reduced = false): CityMotionPose {
-  const still = { x: actor.x, z: actor.z, bob: 0, moving: false }
+  const still = { x: actor.x, z: actor.z, heading: 0, moving: false }
   if (reduced || actor.duty || actor.injured) return still
   let seed = 0
   for (const letter of actor.id) seed = (Math.imul(seed, 31) + letter.charCodeAt(0)) >>> 0
@@ -17,14 +17,15 @@ export function sampleCityMotion(actor: CityActor, seconds: number, reduced = fa
   let time = (Math.max(0, seconds) + seed % 100 / 100 * period) % period
   for (let index = 0; index < points.length; index++) {
     const start = points[index]!, end = points[(index + 1) % points.length]!
-    if (time < pause) return { ...still, x: start[0], z: start[1] }
+    const previous = points[(index + points.length - 1) % points.length]!
+    if (time < pause) return { ...still, x: start[0], z: start[1], heading: Math.atan2(start[0] - previous[0], start[1] - previous[1]) }
     time -= pause
     const distance = Math.hypot(end[0] - start[0], end[1] - start[1])
     const duration = distance / speed
     if (time < duration) {
       const fraction = time / duration
       return { x: start[0] + (end[0] - start[0]) * fraction, z: start[1] + (end[1] - start[1]) * fraction,
-        bob: Math.abs(Math.sin(time * speed * Math.PI * 2 / .75)) * .035, moving: true }
+        heading: Math.atan2(end[0] - start[0], end[1] - start[1]), moving: true }
     }
     time -= duration
   }

@@ -62,7 +62,7 @@ onUnmounted(() => {
 .modal-head-controls{display:flex;align-items:center;gap:8px;flex:none}
 .modal-head h2{margin:3px 0 0;font-size:25px;line-height:1.4;letter-spacing:.08em;overflow-wrap:anywhere}
 .modal-body{padding:24px 26px;overflow-y:auto;min-height:0;overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#a4b091 #eee9d9}
-.modal-close{flex:none;width:40px;height:40px;padding:8px}
+.modal-close{flex:none;width:44px;height:44px;padding:8px}
 @keyframes veil-arrive{from{background:#16362b00}}
 @keyframes sheet-unroll{from{opacity:0;transform:translateY(8px)}}
 @media(max-width:640px){

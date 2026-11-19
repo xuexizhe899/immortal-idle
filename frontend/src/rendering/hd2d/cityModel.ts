@@ -2,6 +2,7 @@ import type { GameState } from '../../api/client'
 
 export interface CityActor {
   id: string
+  templateId: string
   name: string
   image: string
   x: number
@@ -74,6 +75,7 @@ export function projectCityActors(
       : IDLE_POSITIONS[index]!
     return {
       id: disciple.id,
+      templateId: disciple.template_id,
       ...describe(disciple.template_id),
       x, z, duty,
       injured: disciple.injury_stacks > 0,

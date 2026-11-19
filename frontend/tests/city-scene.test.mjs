@@ -202,9 +202,11 @@ test('duty and injury displays follow the current snapshot and use resolved iden
   assert.equal(actors[0].duty, true)
   assert.equal(actors[0].injured, true)
   assert.equal(actors[0].name, '姓名:template_duty')
+  assert.equal(actors[0].templateId, 'template_duty')
   assert.equal(actors[0].image, '/assets/template_duty.png')
   assert.equal(actors[1].duty, false)
   assert.equal(actors[1].injured, false)
+  assert.equal(actors[1].templateId, 'template_idle')
   assert.notDeepEqual([actors[0].x, actors[0].z], [actors[1].x, actors[1].z])
 })
 

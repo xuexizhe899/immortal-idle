@@ -57,7 +57,7 @@
 | `src/components/ui/` | 已有 | 通用弹窗、反馈气泡等；通过 props/emits 表达交互，不了解弟子或存档 |
 | `src/components/game/` | 已有 | 弟子卡、编队条、技能详情、道具图标等业务组件；组合 UI、展示转换和渲染 |
 | `src/presentation/` | 已有 | `gameText.ts` 等业务展示函数，以及 `assetPaths.ts` 资源解析；纯输入输出，无请求、store、DOM 或计时器 |
-| `src/rendering/` | 已有 | `hd2d/` 承担 Three.js 主城、相机、程序建筑与人物立牌；`BattleStage.vue`、`battlePlayback.ts`、`SkillVfx.vue`、`EnemyFigure.vue` 继续承担 Vue / SVG / CSS 战斗演出；`dayCycle.ts` 提供视觉天色 |
+| `src/rendering/` | 已有 | `characters/cultivatorModel.ts` 提供共享实体关节人物；`hd2d/` 承担 Three.js 主城；`BattleStage.vue` / `battlePlayback.ts` 管理真实战报播放，懒加载的 `BattleArena.vue` / `battleScene.ts` 承担三维战场；`SkillVfx.vue` / `EnemyFigure.vue` 保留降级演出；`dayCycle.ts` 提供视觉天色 |
 | `src/shared/` | 已有 | 如 `format.ts` 中纯数值格式化；只依赖标准库，不依赖游戏类型、Vue、浏览器存储或上层模块 |
 | `src/style.css` | 已有 | 全局主题变量、基础排版及确有复用的样式；页面布局和特效样式就近 scoped |
 | `src/assets/` | 已有 | 由构建工具 import 的少量界面静态素材；游戏立绘与场景放 `public/assets/` |
@@ -90,9 +90,10 @@ Vue 与 Pinia 等框架依赖按职责使用；表格约束项目内依赖。运
 - HD-2D 主城接收页面传入的只读显示输入，点击仅返回稳定的建筑或弟子 ID；由页面打开现有面板。场景不读 store、不请求接口、不修改岗位、资源或收益，Three.js 对象不进入游戏 store。
 - 主城世界坐标、尺寸与入口锚点归 `rendering/hd2d/cityModel.ts`，沿用现有建筑 ID 对接 catalog 的名称和面板。`config/ui/city.json` 的百分比热区保留原契约含义，不能直接作为三维世界坐标；纯视觉布局不写入存档。
 - `cityBuildings.ts` 负责连续地面、道路与场景几何，`cityScene.ts` 负责相机范围。地面覆盖相机可达的画面区域，道路从城心向四方延伸；默认缩放为 1.15，窄屏下限按视口适配，避免露出孤立地台边缘。`cityScene.ts` 从缩放并后的场景几何向下采样地面高度，按同一世界比例放置人物脚底，射线距离须覆盖缩放后的世界高度。
-- 广场边界 `CITY_PLAZA`、外围建筑位置和入口路径归 `cityModel.ts`；`cityBuildings.ts` 按路径绘制通向广场边缘的道路，保留城心留白。`cityMotion.ts` 只根据人物显示输入和场景演出时间返回巡游位置：闲置无伤者在广场短路停走，值守、受伤或减少动态效果时返回锚点，不消费玩法 RNG。
-- `cityScene.ts` 在后台暂停演出时钟，恢复后不补跑离开的时间。逐帧移动通过 `pixelSprites.ts` 更新已有网格位置与实际接地高度，保留人物 ID、纹理和几何；接地阴影同步移动，轻微起伏只作用于人物立牌。演出时钟和位置不进入 store 或存档。
-- 页面传入真实战报，播放模块选择事件并维护播放游标；暂停、跳过、减少动态效果只改变呈现。特效组件只接收显示参数，不发送结算命令。
+- 广场边界 `CITY_PLAZA`、外围建筑位置和入口路径归 `cityModel.ts`；`cityBuildings.ts` 按路径绘制通向广场边缘的道路，保留城心留白。`CityActor.templateId` 来自真实弟子模板；`cityMotion.ts` 只根据显示输入和场景演出时间返回原路线的位置、`heading` 与行走状态，值守、受伤或减少动态效果时返回锚点，不消费玩法 RNG。
+- `characters/cultivatorModel.ts` 创建成人比例实体关节模型，管理身体、衣袍、道具、内部姿态与资源释放；不读 store 或决定战斗。主城与战斗负责模型根节点的位置、朝向，模型 `pose` 只驱动内部关节。PNG 继续用于名册、详情、整备和降级，不作为三维人物纹理平面。
+- `cityScene.ts` 在后台暂停演出时钟，恢复后不补跑离开的时间。`pixelSprites.ts` 保留原文件名，现管理实体人物的模板、复用、贴地、转身、步态与释放；接地阴影跟随实际地表且不参与拾取，人物与建筑按真实网格射线距离遮挡和点选，不再使用透明 mask 或立牌深度 shader。演出时钟和位置不进入 store 或存档。
+- 页面传入真实战报，`BattleStage.vue` 维护播放游标与起势、接触、收势三阶段：起势显示前一次服务端快照，接触后显示本次快照；跳过、后台、减少动态效果或卸载清理计时器并落终帧，旧回调不能影响新战报。懒加载的 `BattleArena.vue` / `battleScene.ts` 只接收显示快照并驱动三维动作；DOM 状态与完整战报始终保留，WebGL 失败可降级，不阻塞玩法决策。特效组件不发送结算命令。
 - 数值转文案、状态名称、图鉴说明归 presentation；数值格式化等无业务基础函数归 shared。presentation 不计算真实伤害、收益或可领取奖励。
 - `assetPaths.ts` 统一处理资源键、现有路径兼容与资源映射。页面及渲染组件接收解析后的 URL，或调用该模块；不再各自拼 `/assets/`、版本目录和扩展名。
 - 本局人物名、技能与资源键优先使用固定快照；宗门与图鉴使用当前 catalog。资源解析只把输入转换为本地 URL，不根据最新配置改写本局身份或规则。
@@ -161,7 +162,7 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 | `assets/raw/` | 生图原始输出，沿用 gitignore；成功即落盘，筛选后才进入运行目录 |
 | `licenses/` | 复用的第三方代码许可、作者声明与来源/修改记录；不混入我方生图 manifest |
 | `frontend/public/assets/` | 正式运行资源；人物主用 `trial-v03/`，战斗背景、物品及外宗人物沿现有分组；`city-v03/` 保留原主城整图与构图参考 |
-| `frontend/src/rendering/` | 主城 Three.js 程序几何、像素纹理与立牌，以及 Vue / SVG / CSS / Canvas 演出源码和视觉生命周期 |
+| `frontend/src/rendering/` | 主城与战斗的 Three.js 程序几何、共享实体关节人物、像素纹理，以及 Vue / SVG / CSS / Canvas 展示、降级与视觉生命周期 |
 | `tools/`、`tools/tests/` | 资产生成与处理、内容草稿、契约辅助、配置与 RNG 校验、离线测量及其测试 |
 | `artifacts/<任务>/` | 草稿、对比图、截图、测量报告和验收记录；可审阅但不进入运行时依赖 |
 | `docs/plans/`、`docs/reviews/`、`tasks/` | 方案、审查与任务记录；完成状态须有代码及本次证据支持 |
@@ -183,7 +184,7 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 
 ### 6.3 选择程序绘图或位图
 
-图标、材料、丹药、技能特效、护盾与状态几何优先使用 SVG / CSS / Canvas；HD-2D 主城的连续地面、延伸道路、台基、建筑体块与像素纹理由 `rendering/hd2d/` 的 Three.js / Canvas 源码生成，人物复用透明 PNG 立牌。人物和复杂位图场景继续使用经筛选、裁切和压缩的本地资源。程序绘图源码与生成命令一同保留；运行文件与来源记录保持可追溯。
+图标、材料、丹药与 DOM 状态标识优先使用 SVG / CSS / Canvas；主城连续地面、道路、台基、建筑与像素纹理由 `rendering/hd2d/` 的 Three.js / Canvas 源码生成。主城和战斗人物共用 `characters/cultivatorModel.ts` 的实体关节几何，战场几何与命中特效归 `battleScene.ts`；原人物 PNG 和复杂位图场景继续供图片界面、背景与降级使用。程序绘制源码与必要生成命令保留，运行资源与来源记录保持可追溯。
 
 道具图标继续由 `tools/generate_item_icons.py` 生成，业务 ID、绘图定义、输出 `items/<id>.svg`、`items/index.json` 和前端允许的 ID 列表必须一致。当前 ID 列表位于 `presentation/assetPaths.ts`，组件只显示图标及本地占位。
 
@@ -219,4 +220,4 @@ main → db（创建引擎与会话工厂，供请求依赖使用）
 | 4 | `domain/run_engine.py` 在缺省参数时调用配置加载器及 `secrets` 创建初始种子 | 配置和种子改由编排入口显式提供，保持同输入重放、固定快照与 RNG 游标行为 |
 | 条件触发 | `api/state.py` 合并 HTTP 错误映射、共享编排、取时钟与响应投影 | 当前作为明确共享入口保留；出现第二类调用入口或实际维护困难时，提取可独立测试的完整命令流程，HTTP 映射留在 api |
 
-旧 `ui/`、`stage/` 是初始设想，当前是 `views/`、`components/ui`、`components/game`、`rendering`、`presentation` 与 `shared`。2026-11-17 主城新增 `rendering/hd2d/`，使用 Three.js；当前战场仍使用 Vue / SVG / CSS，PixiJS 依赖保留。部署目录和备份恢复脚本尚未落地，不列为已有能力。
+旧 `ui/`、`stage/` 是初始设想，当前是 `views/`、`components/ui`、`components/game`、`rendering`、`presentation` 与 `shared`。2026-11-17 主城新增 `rendering/hd2d/`，当时使用人物立牌且战斗保留 Vue / SVG / CSS；2026-11-19 主城与战斗人物改接共享实体关节模型，战场增加懒加载 Three.js 舞台，DOM 状态与降级保留，PixiJS 依赖保留。部署目录和备份恢复脚本尚未落地，不列为已有能力。

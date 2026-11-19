@@ -42,7 +42,7 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
   for (const [id, building] of world.buildings) building.userData = { kind: 'building', id }
   scene.add(world.group)
   world.group.updateMatrixWorld(true)
-  const sprites = createCityActors(options.imageFailure, request)
+  const sprites = createCityActors()
   sprites.group.scale.setScalar(CITY_WORLD_SCALE)
   scene.add(sprites.group)
   const post = createScenePost()
@@ -65,7 +65,7 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
     camera.right = -camera.left
     camera.top = span / 2; camera.bottom = -span / 2
     center.set(pose.x, 0, pose.z)
-    // 固定方位和俯角；仅平移与缩放，所有贴图共享同一空间投影。
+    // 固定方位和俯角；镜头仅平移与缩放，人物保持自身的世界朝向。
     camera.position.copy(center).add(new THREE.Vector3(27, 32, 38))
     camera.lookAt(center)
     const upY = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).y
@@ -99,7 +99,7 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
         ground = { x: position.x, z: position.z, height: groundAt(position.x, position.z) }
         groundHeights.set(actor.id, ground)
       }
-      sprites.move(actor.id, position, ground.height)
+      sprites.move(actor.id, position, ground.height, motionSeconds)
     }
     if (depth) post.render(renderer, scene, camera, center)
     else renderer.render(scene, camera)
@@ -130,17 +130,14 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
     const rect = canvas.getBoundingClientRect()
     raycaster.setFromCamera(new THREE.Vector2((event.clientX - rect.left) / rect.width * 2 - 1,
       1 - (event.clientY - rect.top) / rect.height * 2), camera)
-    const hits = raycaster.intersectObjects([world.group, sprites.group], true).flatMap(hit => {
-      const depth = hit.object.userData.kind === 'disciple' ? sprites.hitDepth(hit, camera)
-        : -hit.point.clone().applyMatrix4(camera.matrixWorldInverse).z
-      return depth === null ? [] : [{ hit, depth }]
-    }).sort((a, b) => a.depth - b.depth)
-    for (const { hit } of hits) {
+    // 人物与建筑共用真实几何深度，身体之外的空隙不会被矩形立牌截获。
+    const hits = raycaster.intersectObjects([world.group, sprites.group], true)
+    for (const hit of hits) {
       let object: THREE.Object3D | null = hit.object
       while (object && !object.userData.kind) object = object.parent
       if (object?.userData.kind) { options.select(object.userData.kind, object.userData.id); return }
-      // 接地阴影不拦截人物，实体地形/建筑装饰会挡住其后的目标。
-      if (!(hit.object instanceof THREE.Mesh && hit.object.material instanceof THREE.MeshBasicMaterial)) return
+      // 接地阴影已排除射线；实体地形与建筑装饰会挡住其后的目标。
+      return
     }
   }
   const listen = { signal: abort.signal }
@@ -191,7 +188,7 @@ export function createCityScene(container: HTMLElement, options: SceneOptions) {
     updateActors(actors: CityActor[]) {
       actorData = actors
       groundHeights.clear()
-      sprites.sync(actors, camera, groundAt)
+      sprites.sync(actors, groundAt)
       request()
     },
     updateLighting(light: SceneLighting) {

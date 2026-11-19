@@ -5,6 +5,16 @@ export type BattleUnit = BattleResult['initial_units'][number]
 export type BattleEffect = BattleEvent['effects'][number]
 export type PlaybackMode = 'key' | 'all' | 'result'
 
+/** 命中表现只读取真实效果；零伤害且未挡伤的行动不补造受击。 */
+export function battleImpact(effects: BattleEffect[]): 'hit' | 'blocked' | 'healed' | 'guarded' | 'empowered' | '' {
+  if (effects.some(effect => effect.kind === 'damage' && effect.amount > 0)) return 'hit'
+  if (effects.some(effect => effect.kind === 'damage' && effect.absorbed > 0)) return 'blocked'
+  if (effects.some(effect => effect.kind === 'heal' && effect.amount > 0)) return 'healed'
+  if (effects.some(effect => effect.kind === 'shield' && effect.amount > 0)) return 'guarded'
+  if (effects.some(effect => effect.kind === 'buff')) return 'empowered'
+  return ''
+}
+
 // 摘要只缩短播放，所有帧仍直接取服务端快照，完整战报始终保留。
 export function playbackIndices(events: BattleEvent[], mode: PlaybackMode): number[] {
   if (mode === 'result') return []

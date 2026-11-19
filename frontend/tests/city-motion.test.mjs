@@ -19,18 +19,26 @@ test('residents walk and pause on continuous deterministic routes without mutati
   const actor = residents[0]
   const before = structuredClone(actor)
   let previous = sampleCityMotion(actor, 0), walked = false, paused = false
-  const locations = new Set()
+  const locations = new Set(), headings = new Set()
   for (let tick = 1; tick <= 1200; tick++) {
     const pose = sampleCityMotion(actor, tick / 10)
     assert.deepEqual(pose, sampleCityMotion(structuredClone(actor), tick / 10))
     assert.ok(Math.hypot(pose.x - previous.x, pose.z - previous.z) <= .071001, 'the route never teleports at a turn or loop boundary')
-    assert.ok(pose.bob >= 0 && pose.bob <= .035)
+    assert.ok(Number.isFinite(pose.heading))
+    if (pose.moving) headings.add(pose.heading.toFixed(6))
+    if (pose.moving && previous.moving) {
+      const dx = pose.x - previous.x, dz = pose.z - previous.z
+      const distance = Math.hypot(dx, dz)
+      if (distance > 1e-8) assert.ok((Math.sin(pose.heading) * dx + Math.cos(pose.heading) * dz) / distance > .999999,
+        'the model faces the direction of its current route segment')
+    }
     walked ||= pose.moving
     paused ||= !pose.moving
     locations.add(`${pose.x.toFixed(2)},${pose.z.toFixed(2)}`)
     previous = pose
   }
   assert.ok(walked && paused && locations.size > 20)
+  assert.equal(headings.size, 4, 'the model turns along all four sides of the existing route')
   assert.deepEqual(actor, before)
   const sameSpot = { ...actor, id: 'another-resident' }
   assert.notDeepEqual(sampleCityMotion(actor, 3), sampleCityMotion(sameSpot, 3), 'identities stagger their walking and pauses')
@@ -40,7 +48,7 @@ test('duty, injury and reduced motion keep a resident at the stable ground ancho
   const base = residents[0]
   for (const [actor, reduced] of [[{ ...base, duty: true }, false], [{ ...base, injured: true }, false], [base, true]]) {
     for (const seconds of [0, 5, 30, 300]) {
-      assert.deepEqual(sampleCityMotion(actor, seconds, reduced), { x: base.x, z: base.z, bob: 0, moving: false })
+      assert.deepEqual(sampleCityMotion(actor, seconds, reduced), { x: base.x, z: base.z, heading: 0, moving: false })
     }
   }
 })
