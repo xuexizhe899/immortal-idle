@@ -579,7 +579,8 @@ def settle_run(state: GameState, mode: dict, now: datetime) -> dict:
             loot[key] = loot.get(key, 0) + value
     if run.practice:
         loot = {}
-    recovered_gear = run.pending_gear if not run.practice and (victory or run.mode == "dungeon") else []
+    # 秘境与问道塔的沿途装备不因后续落败丢失；演练仍不入库。
+    recovered_gear = run.pending_gear if not run.practice and (victory or run.mode in {"dungeon", "tower"}) else []
     for item in recovered_gear:
         state.gear[item.id] = item
     for key, value in loot.items():

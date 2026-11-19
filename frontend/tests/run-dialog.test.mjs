@@ -381,3 +381,25 @@ test('information tabs and affix buttons use fixed snapshots and never mutate sa
   await affix.props.onClick()
   assert.deepEqual(view.calls, [['pickAffix', 'new_art']])
 })
+
+test('both tower entry paths explain failed-run gear recovery and retain the actual pending drops', async t => {
+  for (const mapped of [false, true]) {
+    const view = setupView({ status: 'defeated' })
+    t.after(view.stop)
+    const run = view.store.state.active_run
+    run.end_reason = 'round_limit'
+    run.choices = []
+    if (mapped) run.party_snapshot.mode.world_node = { id: 'r1:tower', kind: 'tower', name: '问道塔' }
+    const before = JSON.stringify(run)
+    const { html } = await renderView(view)
+    assert.match(view.lootNote.value, /装备.*全部带回.*资源.*折算/)
+    assert.match(view.endingDescription.value, /二十轮已尽.*装备.*全部带回.*资源.*折算/)
+    assert.match(html, /云纹靴/)
+    assert.equal(JSON.stringify(run), before)
+    assert.deepEqual(view.calls, [])
+    run.practice = true
+    assert.match(view.lootNote.value, /演练不发放/)
+    assert.match(view.endingDescription.value, /演练不发放/)
+    assert.doesNotMatch(view.endingDescription.value, /全部带回/)
+  }
+})

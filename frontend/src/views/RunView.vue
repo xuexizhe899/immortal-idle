@@ -81,14 +81,14 @@ const partyVitals=computed(()=>party.value.map(member=>{
 const hasPartyVitals=computed(()=>partyVitals.value.length>0&&partyVitals.value.every(member=>member.maxHp>0&&Object.hasOwn(run.value?.member_hp??{},member.id)))
 const actionHint=computed(()=>playing.value?'正在播放交锋，可在战场中跳过后继续。':store.busy?'正在确认本次选择，请稍候。':store.status==='choosing_affix'?'点选一项道法立即领悟，随后继续前行。':'点选一条路线立即前往；敌情与收益可在卡片中查看。')
 const lastWasPeaceful=computed(()=>['rest','event'].includes(run.value?.nodes.at(-1)?.kind??''))
-const lootNote=computed(()=>run.value?.practice?'演练不发放正式战利品。':modeId.value==='dungeon'?'秘境失败仍可带回此前已取得的装备与材料。':worldNode.value?'挑战结束后统一结算，收益以结算结果为准。':'待出征结束后带回；落败按规则折算部分收益。')
+const lootNote=computed(()=>run.value?.practice?'演练不发放正式战利品。':modeId.value==='dungeon'?'秘境失败仍可带回此前已取得的装备与材料。':modeId.value==='tower'?'途中已获得的装备会在结算时全部带回；落败时资源仍按规则折算。':worldNode.value?'挑战结束后统一结算，收益以结算结果为准。':'待出征结束后带回；落败按规则折算部分收益。')
 const endingTitle=computed(()=>run.value?.practice?'演练结束，再研招式':store.status!=='cleared'?'暂别行程，整顿再来':worldNode.value?'此行告捷，历练有成':modeId.value==='expedition'?'远行抵达，满载而归':'登临绝顶，问道功成')
 const endingDescription=computed(()=>{
   if(run.value?.practice)return '本次演练不发放正式奖励。结算后可调整阵容，再次验证招式与配装。'
   const progress=worldNode.value?`此次完成 ${layers.value} ${stepUnit.value}。`:`此次到达 ${layers.value} ${stepUnit.value}，${modeName.value}最高记录 ${modeBest.value} ${stepUnit.value}。`
   if(store.status==='cleared')return `${progress}将战利品带回宗门，开启下一段修行。`
   const reason=run.value?.end_reason==='round_limit'?'二十轮已尽，未能击败敌人。':''
-  return `${progress}${reason}${modeId.value==='dungeon'?'此前已取得的装备与材料会随结算带回，可先在较低片区补装、强化或疗伤。':worldNode.value?'可先演练试阵，或到较低片区刷装培养后再来挑战。':'保留部分收益，结算后可回宗门疗伤。'}`
+  return `${progress}${reason}${modeId.value==='dungeon'?'此前已取得的装备与材料会随结算带回，可先在较低片区补装、强化或疗伤。':modeId.value==='tower'?'途中已获得的装备会随结算全部带回，资源按规则折算；可先回宗门疗伤、强化后再来。':worldNode.value?'可先演练试阵，或到较低片区刷装培养后再来挑战。':'保留部分收益，结算后可回宗门疗伤。'}`
 })
 function bondSkillNames(skillIds:string[]){return [...new Set(skillIds)].map(id=>run.value?.party_snapshot?.combatants.map(unit=>unit.active).find(skill=>skill.id===id)?.name??catalog.value?.skills[id]?.name??id).join(' · ')}
 </script>

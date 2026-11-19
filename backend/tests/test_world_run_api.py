@@ -34,18 +34,22 @@ ENEMIES = {
 }
 
 
-def start_staged_dungeon(state=None):
+def start_staged_run(state=None, *, mode_id="dungeon", world_node_id="r1:dungeon:1:1"):
     """用正常战斗先胜精英再败首领，固定种子保证首战实际掉装。"""
     state = state or GameState(
         equipment_version=1, rng_seed=71, resources=Resources(stamina=3),
         disciples=[DiscipleState(id="hero", template_id="test")],
     )
-    node, error = prepare_world_node(state, "r1:dungeon:1:1", load_world())
-    assert error is None
+    node = None
+    if world_node_id:
+        node, error = prepare_world_node(state, world_node_id, load_world())
+        assert error is None
     mode = deepcopy(load_modes()["tower"])
-    mode.update(node["mode_overrides"])
+    if node:
+        mode.update(node["mode_overrides"])
+        mode["world_node"] = node
     mode.update(
-        id="dungeon", world_node=node, gear_tier=1, gear_slot="weapon",
+        id=mode_id, gear_tier=1, gear_slot="weapon",
         node_count=2, boss_every=2, choices_per_step=1, elite_chance=100,
         enemy_growth=0, opportunities=False, encounter_variants={},
         encounters={"battle": ["weak"], "elite": ["weak"], "boss": ["strong"]},
@@ -56,7 +60,7 @@ def start_staged_dungeon(state=None):
         state, [d.id for d in state.disciples], TEMPLATES, mode, NOW,
         seed=2, bonds={}, skills={}, enemies=ENEMIES, affix_pool=[], weapons={}, route_version=2,
     ) is None
-    state.active_run.world_node_id = node["id"]
+    state.active_run.world_node_id = node["id"] if node else ""
     return state
 
 
@@ -286,9 +290,12 @@ def test_second_region_tower_does_not_unlock_first_region_tier_two():
     assert error == "请先通关前一阶问道塔"
 
 
-async def test_dungeon_defeat_preserves_pending_loot_and_gear_exactly_once(world_client):
+@pytest.mark.parametrize(("mode_id", "world_node_id"), [
+    ("dungeon", "r1:dungeon:1:1"), ("tower", None), ("tower", "r1:tower"),
+])
+async def test_defeat_recovers_dropped_gear_exactly_once_with_existing_resource_policy(world_client, mode_id, world_node_id):
     client, factory, create_slot = world_client
-    state = start_staged_dungeon()
+    state = start_staged_run(mode_id=mode_id, world_node_id=world_node_id)
     assert run_engine.choose(state, 0) is None
     assert state.active_run.last_battle.won
     assert len(state.active_run.pending_gear) == 1
@@ -297,6 +304,10 @@ async def test_dungeon_defeat_preserves_pending_loot_and_gear_exactly_once(world
     assert pending.id not in state.gear
     assert run_engine.choose(state, 0) is None
     assert run_engine.run_status(state.active_run) == "defeated"
+    expected_loot = loot if mode_id == "dungeon" else run_engine.defeat_loot(
+        loot, len(state.active_run.nodes), state.active_run.party_snapshot.mode,
+    )
+    expected_loot[MATERIAL] = int(expected_loot[MATERIAL])
     slot = await create_slot(state)
     stored, revision = await saved(factory, slot)
     refreshed = (await client.get(f"/api/saves/{slot}/run")).json()
@@ -305,12 +316,17 @@ async def test_dungeon_defeat_preserves_pending_loot_and_gear_exactly_once(world
     response = await client.post(f"/api/saves/{slot}/run/settle", json={"revision": revision})
     assert response.status_code == 200
     result = response.json()
-    assert result["loot"] == loot
+    assert result["victory"] is False
+    assert result["loot"] == expected_loot
     assert result["gear"] == [pending.model_dump(mode="json")]
     assert result["state"]["gear"][pending.id] == pending.model_dump(mode="json")
-    assert result["state"]["resources"]["cultivation"] == stored["resources"]["cultivation"] + loot["cultivation"]
-    assert result["state"]["inventory"][MATERIAL] == loot[MATERIAL]
+    assert result["state"]["resources"]["cultivation"] == stored["resources"]["cultivation"] + expected_loot["cultivation"]
+    assert result["state"]["inventory"][MATERIAL] == int(expected_loot[MATERIAL])
     assert result["state"]["disciples"][0]["injury_stacks"] == 1
+    assert result["state"]["active_run"] is None
+    if mode_id == "tower":
+        assert result["state"]["tower_tiers"] == {"1": 1}
+        assert result["state"]["world"]["tower_records"]["1"] == {"1": 1}
     after = await saved(factory, slot)
     assert (await client.post(f"/api/saves/{slot}/run/settle", json={"revision": revision})).status_code == 409
     assert (await client.post(f"/api/saves/{slot}/run/settle", json={"revision": after[1]})).status_code == 400
@@ -328,7 +344,7 @@ def test_run_freezes_equipped_stats_and_drop_rules_before_config_changes(monkeyp
         disciples=[DiscipleState(id="hero", template_id="test", gear_slots={"weapon": "owned"})],
         gear={"owned": GearItem(id="owned", definition_id="test", name="佩剑", slot="weapon", main_stat="atk", main_value=.2)},
     )
-    start_staged_dungeon(state)
+    start_staged_run(state)
     initial = state.active_run.party_snapshot.combatants[0].model_dump()
     assert initial["attack"] == 30
     assert "出征" in upgrade_gear(state, "owned", load_equipment())
@@ -362,7 +378,7 @@ def test_equipment_changes_real_personal_combat_and_duty_without_buffing_other_d
     assert second["cultivation_rate"] == pytest.approx(.05)
     assert rates_of(state, TEMPLATES)["cultivation_rate"] == pytest.approx(.125)
     trained = preview(state, hero, TEMPLATES["test"], {}, {}).current
-    start_staged_dungeon(state)
+    start_staged_run(state)
     first_unit, second_unit = state.active_run.party_snapshot.combatants
     assert first_unit.attack == trained.attack == 30
     assert second_unit.attack == 25

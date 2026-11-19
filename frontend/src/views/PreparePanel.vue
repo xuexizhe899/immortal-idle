@@ -75,7 +75,7 @@ const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).fi
           </strong>
         </div>
       </div>
-      <p class="prepare-rule muted">途中关闭页面可继续上次出征；落败仍有部分收益，弟子可能受伤。</p>
+      <p class="prepare-rule muted">途中关闭页面可继续上次出征；落败仍可带回途中已获得的装备，资源按规则折算，弟子可能受伤。</p>
       <p v-if="reason" class="error-box">{{ reason }}</p>
       <button
         class="btn btn-primary start-button"
