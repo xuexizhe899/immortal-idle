@@ -7,7 +7,7 @@ import ts from 'typescript'
 
 const source = await readFile(new URL('../src/rendering/characters/cultivatorModel.ts', import.meta.url), 'utf8')
 const output = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
-  .replace(/from 'three'/g, `from ${JSON.stringify(import.meta.resolve('three'))}`)
+  .replace(/from '([^']+)'/g, (_match, specifier) => `from ${JSON.stringify(import.meta.resolve(specifier))}`)
 const { createCultivatorModel } = await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`)
 const identities = ['zhugeliang', 'guanyu', 'change', 'baisuzhen', 'dufu', 'houyi', 'huatuo', 'jingwei', 'libai', 'nezha', 'yangjian', 'yuefei', 'zhangfei', 'zhangheng', 'zhaoyun', 'zhouyu']
 const joints = ['head', 'torso', 'leftUpperArm', 'rightUpperArm', 'leftForearm', 'rightForearm', 'leftThigh', 'rightThigh', 'leftLowerLeg', 'rightLowerLeg', 'leftFoot', 'rightFoot', 'weapon']

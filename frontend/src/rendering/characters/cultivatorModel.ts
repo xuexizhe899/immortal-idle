@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 
 type Garment = 'robe' | 'dress' | 'armor' | 'short'
 type Headdress = 'crown' | 'cap' | 'wrap' | 'bun' | 'doubleBun' | 'helmet' | 'loose'
@@ -41,12 +42,18 @@ function createMeshKit() {
   const geometries = new Set<THREE.BufferGeometry>()
   const materials = new Map<string, Surface>()
   function own<T extends THREE.BufferGeometry>(geometry: T) { geometries.add(geometry); return geometry }
-  const cube = own(new THREE.BoxGeometry(1, 1, 1))
-  const sphere = own(new THREE.SphereGeometry(1, 10, 7))
-  const cylinder = own(new THREE.CylinderGeometry(1, 1, 1, 8))
+  const cube = own(new RoundedBoxGeometry(1, 1, 1, 2, .035))
+  // 角色近景会直接暴露轮廓；提高基础曲面分段并使用平滑法线，避免脸、袖口和护具出现积木式折面。
+  const sphere = own(new THREE.SphereGeometry(1, 16, 10))
+  const cylinder = own(new THREE.CylinderGeometry(1, 1, 1, 12))
   function material(color: string, metal = false) {
     const key = `${color}:${metal}`
-    if (!materials.has(key)) materials.set(key, new THREE.MeshStandardMaterial({ color, roughness: metal ? .66 : .93, metalness: metal ? .35 : 0, flatShading: true }))
+    if (!materials.has(key)) materials.set(key, new THREE.MeshStandardMaterial({
+      color,
+      roughness: metal ? .48 : .86,
+      metalness: metal ? .52 : 0,
+      flatShading: false,
+    }))
     return materials.get(key)!
   }
   function mesh(parent: THREE.Object3D, geometry: THREE.BufferGeometry, surface: Surface, position: Point = [0, 0, 0], scale: Point = [1, 1, 1]) {
@@ -60,12 +67,18 @@ function createMeshKit() {
   function oval(parent: THREE.Object3D, size: Point, position: Point, surface: Surface) { return mesh(parent, sphere, surface, position, size) }
   function pole(parent: THREE.Object3D, radius: number, length: number, position: Point, surface: Surface) { return mesh(parent, cylinder, surface, position, [radius, length, radius]) }
   function taper(parent: THREE.Object3D, top: number, bottom: number, height: number, position: Point, surface: Surface, depth = 1) {
-    return mesh(parent, own(new THREE.CylinderGeometry(top, bottom, height, 8)), surface, position, [1, 1, depth])
+    return mesh(parent, own(new THREE.CylinderGeometry(top, bottom, height, 12)), surface, position, [1, 1, depth])
   }
   function solid(parent: THREE.Object3D, points: [number, number][], depth: number, position: Point, surface: Surface) {
     const outline = new THREE.Shape()
     points.forEach(([x, y], index) => index ? outline.lineTo(x, y) : outline.moveTo(x, y)); outline.closePath()
-    const geometry = own(new THREE.ExtrudeGeometry(outline, { depth, bevelEnabled: false }))
+    const geometry = own(new THREE.ExtrudeGeometry(outline, {
+      depth,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      bevelSize: Math.min(depth * .22, .012),
+      bevelThickness: Math.min(depth * .16, .008),
+    }))
     geometry.translate(0, 0, -depth / 2)
     return mesh(parent, geometry, surface, position)
   }
@@ -123,18 +136,57 @@ function joint(parent: THREE.Object3D, name: string, position: Point) {
   const part = new THREE.Group(); part.name = name; part.position.set(...position); parent.add(part); return part
 }
 
+type ClothRing = { y: number; rx: number; rz: number; x?: number; z?: number }
+
+function clothShell(kit: MeshKit, parent: THREE.Object3D, rings: ClothRing[], surface: Surface, position: Point = [0, 0, 0]) {
+  const segments = 16; const positions: number[] = []; const indices: number[] = []
+  for (const ring of rings) for (let index = 0; index < segments; index++) {
+    const angle = index / segments * Math.PI * 2
+    positions.push((ring.x ?? 0) + Math.cos(angle) * ring.rx, ring.y, (ring.z ?? 0) + Math.sin(angle) * ring.rz)
+  }
+  for (let row = 0; row < rings.length - 1; row++) for (let index = 0; index < segments; index++) {
+    const next = (index + 1) % segments; const a = row * segments + index; const b = (row + 1) * segments + index
+    const c = row * segments + next; const d = (row + 1) * segments + next
+    indices.push(a, c, b, b, c, d)
+  }
+  const geometry = kit.own(new THREE.BufferGeometry())
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geometry.setIndex(indices); geometry.computeVertexNormals()
+  return kit.mesh(parent, geometry, surface, position)
+}
+
+function curvedStitch(kit: MeshKit, parent: THREE.Object3D, points: Point[], radius: number, surface: Surface) {
+  const curve = new THREE.CatmullRomCurve3(points.map(point => new THREE.Vector3(...point)))
+  return kit.mesh(parent, kit.own(new THREE.TubeGeometry(curve, 9, radius, 4, false)), surface)
+}
+
+function ellipseTrim(kit: MeshKit, parent: THREE.Object3D, position: Point, rx: number, rz: number, thickness: number, surface: Surface) {
+  const ring = kit.mesh(parent, kit.own(new THREE.TorusGeometry(1, thickness, 4, 20)), surface, position, [rx, rz, 1])
+  ring.rotation.x = Math.PI / 2
+  return ring
+}
+
 function createLeg(kit: MeshKit, pelvis: THREE.Group, side: number, profile: Profile): Limb {
   const prefix = side < 0 ? 'left' : 'right'
   const upper = joint(pelvis, `${prefix}Thigh`, [side * (profile.broad ? .19 : .155), 0, 0])
   const cloth = kit.material(profile.lining); const boot = kit.material('#3d4940')
-  kit.taper(upper, .115, .092, .49, [0, -.245, 0], cloth, .9)
+  clothShell(kit, upper, [
+    { y: .01, rx: .103, rz: .105 }, { y: -.10, rx: .119, rz: .12 },
+    { y: -.28, rx: .112, rz: .11 }, { y: -.43, rx: .094, rz: .092 }, { y: -.49, rx: .088, rz: .087 },
+  ], cloth)
   const lower = joint(upper, `${prefix}LowerLeg`, [0, -.49, 0])
-  kit.taper(lower, .092, .068, .47, [0, -.235, 0], cloth, .9)
-  kit.taper(lower, .10, .077, .25, [0, -.345, 0], boot, 1)
+  clothShell(kit, lower, [
+    { y: .015, rx: .089, rz: .088 }, { y: -.09, rx: .087, rz: .091 },
+    { y: -.23, rx: .075, rz: .081 }, { y: -.32, rx: .071, rz: .076 },
+  ], cloth)
+  clothShell(kit, lower, [
+    { y: -.205, rx: .079, rz: .088 }, { y: -.24, rx: .083, rz: .091 },
+    { y: -.39, rx: .085, rz: .099 }, { y: -.47, rx: .077, rz: .09 },
+  ], boot)
+  ellipseTrim(kit, lower, [0, -.235, 0], .084, .092, .014, kit.material(profile.trim))
   const end = joint(lower, `${prefix}Foot`, [0, -.47, 0])
-  kit.box(end, [.18, .18, .34], [0, -.09, .065], boot)
-  kit.box(end, [.185, .035, .35], [0, -.1625, .07], kit.material('#303a33'))
-  kit.box(lower, [.13, .025, .025], [0, -.25, .088], kit.material(profile.trim))
+  kit.oval(end, [.095, .068, .178], [0, -.074, .065], boot)
+  kit.oval(end, [.096, .018, .185], [0, -.162, .07], kit.material('#303a33'))
+  curvedStitch(kit, end, [[-.073, -.055, .19], [0, -.047, .228], [.073, -.055, .19]], .005, kit.material(profile.trim))
   return { upper, lower, end }
 }
 
@@ -142,13 +194,23 @@ function createArm(kit: MeshKit, torso: THREE.Group, side: number, profile: Prof
   const prefix = side < 0 ? 'left' : 'right'
   const armored = profile.garment === 'armor'
   const upper = joint(torso, `${prefix}UpperArm`, [side * (profile.broad ? .42 : profile.female ? .30 : .35), .70, 0])
-  kit.oval(upper, [armored ? .16 : .12, .15, .14], [0, -.055, 0], kit.material(armored ? profile.metal : profile.cloth, armored))
-  kit.taper(upper, .12, armored ? .115 : .15, .35, [0, -.175, 0], kit.material(profile.cloth), 1)
+  kit.oval(upper, [armored ? .17 : .13, .14, .145], [0, -.035, 0], kit.material(armored ? profile.metal : profile.cloth, armored))
+  clothShell(kit, upper, [
+    { y: .015, rx: .11, rz: .12 }, { y: -.075, rx: armored ? .13 : .145, rz: .13 },
+    { y: -.20, rx: .122, rz: .118 }, { y: -.34, rx: .105, rz: .105 },
+  ], kit.material(profile.cloth))
   const lower = joint(upper, `${prefix}Forearm`, [0, -.35, 0])
-  const sleeve = profile.garment === 'dress' || profile.garment === 'robe'
-  kit.taper(lower, .13, sleeve ? .195 : .095, .34, [0, -.17, 0], kit.material(profile.cloth), sleeve ? .85 : 1)
-  kit.taper(lower, sleeve ? .193 : .10, sleeve ? .19 : .10, .055, [0, -.315, 0], kit.material(profile.trim), .86)
-  if (armored) kit.box(lower, [.15, .20, .07], [0, -.19, .095], kit.material(profile.metal, true))
+  const flowing = profile.garment === 'dress' || profile.garment === 'robe'
+  clothShell(kit, lower, [
+    { y: .015, rx: .115, rz: .12 }, { y: -.07, rx: flowing ? .145 : .11, rz: flowing ? .135 : .10 },
+    { y: -.21, rx: flowing ? .176 : .105, rz: flowing ? .16 : .098 },
+    { y: -.32, rx: flowing ? .184 : .10, rz: flowing ? .164 : .094 }, { y: -.36, rx: flowing ? .168 : .095, rz: flowing ? .15 : .09 },
+  ], kit.material(profile.cloth))
+  ellipseTrim(kit, lower, [0, -.345, 0], flowing ? .17 : .096, flowing ? .15 : .09, .012, kit.material(profile.trim))
+  if (armored) {
+    kit.oval(lower, [.105, .17, .036], [0, -.18, .093], kit.material(profile.metal, true))
+    curvedStitch(kit, lower, [[-.07, -.07, .116], [0, -.11, .132], [.07, -.07, .116]], .006, kit.material(profile.trim, true))
+  }
   const end = joint(lower, `${prefix}Hand`, [0, -.385, 0])
   kit.oval(end, [.075, .105, .065], [0, -.005, 0], kit.material(profile.skin ?? '#c9a17d'))
   return { upper, lower, end }
@@ -157,29 +219,43 @@ function createArm(kit: MeshKit, torso: THREE.Group, side: number, profile: Prof
 function createGarment(kit: MeshKit, pelvis: THREE.Group, torso: THREE.Group, profile: Profile) {
   const cloth = kit.material(profile.cloth); const lining = kit.material(profile.lining); const trim = kit.material(profile.trim)
   const armored = profile.garment === 'armor'; const width = profile.broad ? .36 : profile.female ? .25 : .29
-  kit.taper(torso, width * 1.08, width * .82, .65, [0, .40, 0], cloth, .68)
-  kit.taper(pelvis, width * .85, width * 1.05, .32, [0, .04, 0], lining, .67)
-  const collarLeft = kit.box(torso, [.085, .51, .045], [-.10, .48, .19], lining); collarLeft.rotation.z = -.36
-  const collarRight = kit.box(torso, [.075, .42, .05], [.095, .48, .20], lining); collarRight.rotation.z = .40
-  kit.taper(pelvis, width * .91, width * .91, .105, [0, .12, 0], trim, .75)
-  kit.box(pelvis, [.105, .11, .045], [0, .12, width * .75], kit.material(profile.metal, true))
+  clothShell(kit, torso, [
+    { y: .08, rx: width * .86, rz: width * .47 }, { y: .23, rx: width * .84, rz: width * .47 },
+    { y: .38, rx: width * .94, rz: width * .51 }, { y: .55, rx: width * 1.06, rz: width * .55 },
+    { y: .70, rx: width * .91, rz: width * .46 },
+  ], cloth)
+  clothShell(kit, pelvis, [
+    { y: .17, rx: width * .82, rz: width * .48 }, { y: .04, rx: width * .85, rz: width * .49 },
+    { y: -.18, rx: width * .98, rz: width * .57 }, { y: -.50, rx: width * 1.10, rz: width * .66 },
+    { y: -.88, rx: width * 1.22, rz: width * .72 },
+  ], lining)
+  curvedStitch(kit, torso, [[.035, .74, .17], [.12, .63, .205], [.085, .47, .22], [-.04, .32, .20], [-.035, .19, .17]], .011, trim)
+  ellipseTrim(kit, pelvis, [0, -.10, 0], width * .92, width * .53, .008, trim)
   const panels: ClothJoint[] = []
   const hem = profile.garment === 'short' ? .48 : armored ? .72 : profile.female ? 1 : .93
   for (const back of [false, true]) for (const side of [-1, 1]) {
     const part = joint(pelvis, `${back ? 'back' : 'front'}Robe${side < 0 ? 'Left' : 'Right'}`, [side * width * .50, .04, back ? -.13 : .14])
     const panelWidth = profile.garment === 'dress' ? .40 : armored ? .31 : .37
-    const body = kit.solid(part, [[-.12, 0], [.12, 0], [panelWidth / 2, -hem], [-panelWidth / 2, -hem]], .08, [0, 0, 0], back ? lining : cloth)
+    const shape = new THREE.Shape()
+    shape.moveTo(-.105, 0); shape.lineTo(.105, 0)
+    shape.quadraticCurveTo(.14, -.08, .145, -.18); shape.quadraticCurveTo(.18, -hem * .74, panelWidth / 2, -hem)
+    shape.lineTo(-panelWidth / 2, -hem); shape.quadraticCurveTo(-.18, -hem * .74, -.145, -.18); shape.quadraticCurveTo(-.14, -.08, -.105, 0)
+    const geometry = kit.own(new THREE.ExtrudeGeometry(shape, { depth: .055, bevelEnabled: true, bevelSegments: 1, bevelThickness: .008, bevelSize: .006 }))
+    geometry.translate(0, 0, -.0275)
+    const body = kit.mesh(part, geometry, back ? lining : cloth)
     body.rotation.y = side * (back ? -.25 : .16)
-    kit.box(part, [.027, hem * .9, .025], [side * panelWidth * .25, -hem * .49, .057], trim)
+    if (!back) curvedStitch(kit, part, [[side * .075, -.10, .04], [side * .10, -hem * .30, .04], [side * .14, -hem * .66, .04], [side * panelWidth * .39, -hem + .035, .04]], .006, trim)
     panels.push({ joint: part, side, back })
   }
   if (armored) {
     const metal = kit.material(profile.metal, true)
-    kit.taper(torso, width * 1.10, width * .88, .49, [0, .40, .006], metal, .74)
-    for (const y of [.28, .41, .54]) for (const side of [-1, 1]) {
-      kit.box(torso, [width * .72, .07, .045], [side * width * .47, y, .22], kit.material(profile.trim, true))
-    }
-    kit.box(torso, [.10, .17, .055], [0, .59, .23], trim)
+    clothShell(kit, torso, [
+      { y: .17, rx: width * .88, rz: width * .48 }, { y: .28, rx: width * .91, rz: width * .50 },
+      { y: .43, rx: width * 1.00, rz: width * .54 }, { y: .57, rx: width * 1.08, rz: width * .56 },
+      { y: .66, rx: width * .90, rz: width * .46 },
+    ], metal, [0, 0, .006])
+    for (const [y, scale] of [[.27, .91], [.42, 1], [.56, 1.07]]) ellipseTrim(kit, torso, [0, y, .006], width * scale, width * .51, .008, kit.material(profile.trim, true))
+    kit.oval(torso, [.055, .10, .035], [0, .62, .208], trim)
   }
   let cape: THREE.Group | undefined
   if (profile.cape) {
@@ -193,40 +269,52 @@ function createGarment(kit: MeshKit, pelvis: THREE.Group, torso: THREE.Group, pr
 function createHead(kit: MeshKit, torso: THREE.Group, profile: Profile, templateId: string) {
   const head = joint(torso, 'head', [0, .89, 0]); const hair = kit.material(profile.hair ?? '#303d37')
   const trim = kit.material(profile.trim); const skin = kit.material(profile.skin ?? '#c9a17d')
-  kit.pole(head, .075, .14, [0, -.025, 0], skin)
-  kit.oval(head, [.172, .215, .16], [0, .18, .005], skin)
-  kit.oval(head, [.18, .17, .17], [0, .27, -.027], hair)
-  kit.oval(head, [.12, .23, .07], [0, .11, -.135], hair)
-  kit.oval(head, [.042, .055, .045], [-.168, .16, 0], skin); kit.oval(head, [.042, .055, .045], [.168, .16, 0], skin)
-  kit.box(head, [.040, .055, .055], [0, .175, .161], skin)
+  const ink = kit.material('#2d3b35')
+  kit.pole(head, .075, .14, [0, -.035, 0], skin)
+  // 额头、颊面和下颌分层，保留成人比例的面部转折而不是一颗均匀球体。
+  kit.oval(head, [.171, .198, .145], [0, .17, 0], skin)
+  kit.oval(head, [.145, .122, .13], [0, .055, .035], skin)
+  kit.oval(head, [.088, .10, .112], [-.082, .145, .053], skin)
+  kit.oval(head, [.088, .10, .112], [.082, .145, .053], skin)
+  kit.oval(head, [.18, .17, .16], [0, .285, -.025], hair)
+  kit.solid(head, [[-.13, 0], [.13, 0], [.11, -.055], [.07, -.10], [0, -.075], [-.07, -.10], [-.11, -.055]], .07, [0, .30, .10], hair)
   for (const side of [-1, 1]) {
-    kit.box(head, [.045, .016, .015], [side * .067, .228, .151], hair)
-    kit.box(head, [.034, .012, .016], [side * .067, .206, .157], kit.material('#33473e'))
+    kit.between(head, [side * .095, .224, .164], [side * .035, .234, .167], .008, ink)
+    kit.oval(head, [.023, .008, .006], [side * .062, .202, .166], ink)
   }
+  const nose = kit.taper(head, .028, .019, .09, [0, .15, .15], skin, .86)
+  nose.rotation.z = .02
+  nose.position.z = .17
+  kit.between(head, [-.026, .102, .152], [.026, .102, .152], .005, ink)
   if (profile.female || profile.hat === 'loose') for (const side of [-1, 1]) {
-    kit.oval(head, [.055, .30, .065], [side * .15, -.03, -.09], hair)
+    const lock = kit.taper(head, .060, .036, .34, [side * .15, 0, -.072], hair, .88)
+    lock.rotation.z = side * .10
   }
   if (profile.hat === 'crown') {
-    kit.taper(head, .12, .16, .21, [0, .44, -.015], kit.material(profile.lining), .74)
-    kit.box(head, [.19, .035, .22], [0, .36, -.02], trim)
-    kit.box(head, [.033, .18, .023], [0, .44, .10], trim)
+    const crown = kit.taper(head, .13, .17, .19, [0, .445, -.01], kit.material(profile.lining), .78)
+    crown.rotation.y = .08
+    kit.box(head, [.20, .035, .16], [0, .356, -.015], trim)
+    kit.taper(head, .025, .045, .12, [0, .55, .015], trim, .80)
   } else if (profile.hat === 'cap' || profile.hat === 'wrap') {
-    kit.taper(head, .115, .185, .125, [0, .39, -.025], kit.material(profile.hat === 'wrap' ? profile.cloth : profile.lining), .83)
-    kit.box(head, [.045, .08, .025], [0, .395, .12], trim)
+    kit.taper(head, .125, .185, .13, [0, .395, -.035], kit.material(profile.hat === 'wrap' ? profile.cloth : profile.lining), .82)
+    kit.oval(head, [.035, .065, .025], [0, .41, .12], trim)
   } else if (profile.hat === 'helmet') {
     const metal = kit.material(profile.metal, true)
-    kit.oval(head, [.195, .16, .175], [0, .335, -.02], metal)
+    kit.oval(head, [.19, .17, .17], [0, .355, -.02], metal)
     kit.box(head, [.28, .04, .065], [0, .35, .13], trim)
-    for (const side of [-1, 1]) kit.box(head, [.045, .18, .15], [side * .177, .19, -.03], metal)
-    kit.oval(head, [.045, .15, .05], [0, .49, -.04], kit.material(profile.cape ?? profile.lining))
+    for (const side of [-1, 1]) {
+      const guard = kit.taper(head, .055, .08, .17, [side * .177, .22, -.03], metal, .80)
+      guard.rotation.z = side * .08
+    }
+    kit.taper(head, .035, .055, .14, [0, .49, -.04], kit.material(profile.cape ?? profile.lining), .90)
   } else if (profile.hat === 'doubleBun') {
     for (const side of [-1, 1]) {
-      kit.oval(head, [.10, .10, .10], [side * .16, .37, -.025], hair)
-      kit.box(head, [.05, .035, .14], [side * .16, .37, .015], kit.material(profile.lining))
+      kit.oval(head, [.105, .11, .10], [side * .16, .40, -.025], hair)
+      kit.taper(head, .027, .045, .13, [side * .16, .38, .035], kit.material(profile.lining), .80)
     }
   } else {
-    kit.oval(head, [.105, .105, .09], [0, .415, -.08], hair)
-    kit.between(head, [-.19, .42, -.04], [.19, .42, -.04], .016, trim)
+    kit.oval(head, [.105, .11, .09], [0, .425, -.08], hair)
+    kit.between(head, [-.19, .425, -.04], [.19, .425, -.04], .016, trim)
   }
   const beard = profile.beard ?? 'none'
   if (beard !== 'none') {
@@ -244,24 +332,37 @@ function createHead(kit: MeshKit, torso: THREE.Group, profile: Profile, template
 }
 
 function addBlade(kit: MeshKit, parent: THREE.Group, profile: Profile, shape: Prop) {
-  const steel = kit.material(profile.metal, true); const gold = kit.material(profile.trim, true); const wood = kit.material('#756348')
+  const steel = kit.material(profile.metal, true); const edge = kit.material('#d8ded0', true)
+  const gold = kit.material(profile.trim, true); const wood = kit.material('#756348')
   if (shape === 'sword') {
-    kit.pole(parent, .028, .21, [0, -.02, 0], wood)
-    kit.box(parent, [.25, .045, .065], [0, .105, 0], gold)
-    kit.solid(parent, [[-.047, .12], [.047, .12], [.036, .88], [0, 1.02], [-.036, .88]], .045, [0, 0, 0], steel)
-    kit.box(parent, [.016, .70, .013], [0, .49, .029], kit.material('#d8ded0', true))
+    kit.taper(parent, .026, .034, .24, [0, -.02, 0], wood)
+    kit.between(parent, [-.14, .105, 0], [.14, .105, 0], .018, gold)
+    kit.taper(parent, .034, .046, .055, [0, .105, 0], gold, .72)
+    kit.solid(parent, [[-.048, .13], [.048, .13], [.032, .79], [.006, 1.02], [-.032, .79]], .045, [0, 0, 0], steel)
+    kit.between(parent, [0, .18, .029], [0, .89, .029], .008, edge)
+    kit.oval(parent, [.045, .055, .045], [0, -.15, 0], gold)
     return
   }
-  kit.pole(parent, .032, 1.83, [0, .16, 0], wood)
-  kit.pole(parent, .040, .13, [0, .96, 0], gold)
+  kit.taper(parent, .022, .036, 1.86, [0, .15, 0], wood)
+  const collar = kit.mesh(parent, kit.own(new THREE.TorusGeometry(.052, .012, 5, 12)), gold, [0, .96, 0]); collar.rotation.x = Math.PI / 2
   if (shape === 'guandao') {
-    kit.solid(parent, [[-.035, .94], [.10, .99], [.28, 1.18], [.23, 1.46], [.11, 1.62], [.13, 1.30], [-.035, 1.16]], .055, [0, 0, 0], steel)
-    kit.box(parent, [.12, .055, .07], [.025, 1.03, 0], gold)
+    kit.solid(parent, [[-.035, .95], [.085, 1.00], [.24, 1.15], [.30, 1.35], [.24, 1.57], [.11, 1.69], [.12, 1.37], [-.01, 1.20], [-.055, 1.08]], .055, [0, 0, 0], steel)
+    kit.taper(parent, .048, .064, .12, [.02, 1.03, 0], gold, .72)
+    kit.between(parent, [.06, 1.17, .029], [.21, 1.48, .029], .007, edge)
   } else if (shape === 'serpent') {
-    kit.solid(parent, [[-.03, .99], [.06, 1.12], [-.04, 1.27], [.05, 1.43], [.01, 1.58], [-.04, 1.40], [-.10, 1.26], [.00, 1.10]], .055, [0, 0, 0], steel)
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-.02, .98, 0), new THREE.Vector3(.08, 1.10, 0), new THREE.Vector3(-.06, 1.25, 0),
+      new THREE.Vector3(.07, 1.37, 0), new THREE.Vector3(.01, 1.52, 0),
+    ])
+    kit.mesh(parent, kit.own(new THREE.TubeGeometry(curve, 12, .037, 5, false)), steel)
+    kit.solid(parent, [[-.03, 1.45], [.02, 1.62], [.08, 1.54], [.06, 1.45]], .06, [0, 0, 0], steel)
+    kit.oval(parent, [.028, .045, .028], [.055, 1.55, .036], gold)
   } else {
-    kit.solid(parent, [[-.07, 1.00], [0, 1.45], [.07, 1.00], [0, 1.08]], .055, [0, 0, 0], steel)
-    if (shape === 'trident') for (const side of [-1, 1]) kit.solid(parent, [[side * .055, 1.03], [side * .18, 1.15], [side * .15, 1.37], [side * .23, 1.19], [side * .19, 1.03]], .04, [0, 0, 0], steel)
+    kit.solid(parent, [[-.065, 1.00], [0, 1.47], [.065, 1.00], [0, 1.09]], .055, [0, 0, 0], steel)
+    if (shape === 'trident') for (const side of [-1, 1]) {
+      kit.solid(parent, [[side * .045, 1.04], [side * .16, 1.18], [side * .14, 1.40], [side * .23, 1.20], [side * .19, 1.03]], .04, [0, 0, 0], steel)
+      kit.between(parent, [side * .065, 1.08, .025], [side * .18, 1.31, .025], .008, edge)
+    }
   }
 }
 
@@ -269,40 +370,69 @@ function addHandProp(kit: MeshKit, parent: THREE.Group, profile: Profile) {
   const trim = kit.material(profile.trim, true); const ivory = kit.material('#e7e2cf'); const wood = kit.material('#806847')
   if (['sword', 'spear', 'guandao', 'serpent', 'trident'].includes(profile.prop)) { addBlade(kit, parent, profile, profile.prop); return }
   if (profile.prop === 'fan') {
-    kit.pole(parent, .018, .30, [0, .05, 0], wood)
+    kit.taper(parent, .020, .030, .30, [0, .05, 0], wood)
     for (let index = 0; index < 7; index++) {
       const angle = (index - 3) * .16
-      kit.oval(parent, [.044, .24, .026], [Math.sin(angle) * .21, .25 + Math.cos(angle) * .13, 0], ivory).rotation.z = -angle
-      kit.between(parent, [0, .07, .027], [Math.sin(angle) * .28, .25 + Math.cos(angle) * .29, .027], .005, trim)
+      const feather = kit.solid(parent, [[-.02, 0], [.045, .035], [.065, .19], [.015, .265], [-.045, .18]], .028,
+        [Math.sin(angle) * .19, .17 + Math.cos(angle) * .13, 0], ivory)
+      feather.rotation.z = -angle
+      kit.between(parent, [0, .07, .027], [Math.sin(angle) * .27, .22 + Math.cos(angle) * .28, .027], .005, trim)
     }
+    kit.oval(parent, [.045, .045, .045], [0, .07, .032], trim)
   } else if (profile.prop === 'moon') {
-    const disk = kit.pole(parent, .17, .045, [0, .17, 0], ivory); disk.rotation.x = Math.PI / 2
-    kit.mesh(parent, kit.own(new THREE.TorusGeometry(.138, .013, 5, 16)), trim, [0, .17, .03])
+    const crescent = kit.solid(parent, [
+      [.02, .34], [.15, .29], [.24, .16], [.25, -.01], [.18, -.17], [.05, -.27], [-.09, -.26],
+      [-.18, -.18], [-.08, -.19], [.02, -.13], [.09, -.04], [.11, .07], [.08, .18], [.01, .27],
+    ], .042, [0, .17, 0], ivory)
+    crescent.rotation.z = -.12
+    const rim = kit.mesh(parent, kit.own(new THREE.TorusGeometry(.185, .012, 5, 16, Math.PI * 1.55)), trim, [0, .17, .028]); rim.rotation.z = -.12
+    kit.taper(parent, .018, .028, .28, [0, -.02, 0], wood)
+    kit.oval(parent, [.038, .038, .038], [0, -.17, 0], trim)
   } else if (profile.prop === 'parasol') {
-    kit.pole(parent, .016, 1.37, [0, .43, 0], wood)
-    kit.taper(parent, .018, .12, .73, [0, .72, 0], ivory)
-    for (const side of [-1, 1]) kit.between(parent, [0, 1.09, .015], [side * .10, .35, .015], .008, kit.material(profile.lining))
+    kit.taper(parent, .012, .019, 1.37, [0, .43, 0], wood)
+    kit.taper(parent, .13, .018, .73, [0, .72, 0], ivory)
+    const rim = kit.mesh(parent, kit.own(new THREE.TorusGeometry(.125, .010, 5, 14)), kit.material(profile.lining), [0, .36, .01]); rim.rotation.x = Math.PI / 2
+    for (const [x, z] of [[-.10, .01], [.10, .01], [0, -.10]] as const) kit.between(parent, [0, 1.08, .015], [x, .37, z], .007, trim)
+    kit.taper(parent, .025, .035, .14, [0, -.26, 0], wood)
   } else if (profile.prop === 'bow') {
     const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(0, -.50, 0), new THREE.Vector3(.17, -.25, 0), new THREE.Vector3(.23, .06, 0), new THREE.Vector3(.17, .42, 0), new THREE.Vector3(0, .73, 0)])
     kit.mesh(parent, kit.own(new THREE.TubeGeometry(curve, 12, .028, 5, false)), wood)
     kit.between(parent, [0, -.50, 0], [0, .73, 0], .006, ivory)
-    kit.box(parent, [.07, .17, .055], [.22, .06, 0], trim)
-  } else if (profile.prop === 'scroll') {
-    kit.box(parent, [.25, .15, .10], [0, .11, 0], ivory)
-    for (const side of [-1, 1]) kit.pole(parent, .035, .20, [side * .14, .11, 0], wood)
-  } else if (profile.prop === 'armillary') {
-    for (const rotation of [[0, 0, 0], [Math.PI / 2, 0, 0], [.5, .7, 0]]) {
-      const ring = kit.mesh(parent, kit.own(new THREE.TorusGeometry(.15, .014, 5, 16)), trim, [0, .19, 0]); ring.rotation.set(rotation[0]!, rotation[1]!, rotation[2]!)
+    kit.taper(parent, .052, .060, .16, [.22, .06, 0], trim, .85)
+    for (const y of [.01, .07, .13]) {
+      const wrap = kit.mesh(parent, kit.own(new THREE.TorusGeometry(.056, .006, 5, 10)), ivory, [.22, y, 0]); wrap.rotation.x = Math.PI / 2
     }
-    kit.pole(parent, .03, .18, [0, .025, 0], wood); kit.oval(parent, [.035, .035, .035], [0, .19, 0], trim)
+    kit.oval(parent, [.033, .033, .033], [0, -.51, 0], trim); kit.oval(parent, [.033, .033, .033], [0, .74, 0], trim)
+  } else if (profile.prop === 'scroll') {
+    kit.solid(parent, [[-.13, 0], [.13, 0], [.115, .23], [-.115, .23]], .075, [0, .0, 0], ivory)
+    for (const side of [-1, 1]) {
+      const roll = kit.pole(parent, .042, .27, [side * .14, .11, 0], wood); roll.rotation.z = Math.PI / 2
+      const cap = kit.mesh(parent, kit.own(new THREE.TorusGeometry(.044, .007, 5, 10)), trim, [side * .14, .11, .04]); cap.rotation.z = Math.PI / 2
+    }
+    kit.taper(parent, .012, .018, .18, [0, .11, .043], trim, .7)
+  } else if (profile.prop === 'armillary') {
+    for (const rotation of [[0, 0, 0], [Math.PI / 2, 0, 0], [.5, .7, .18]]) {
+      const ring = kit.mesh(parent, kit.own(new THREE.TorusGeometry(.15, .012, 5, 16)), trim, [0, .19, 0]); ring.rotation.set(rotation[0]!, rotation[1]!, rotation[2]!)
+    }
+    kit.taper(parent, .020, .034, .20, [0, .025, 0], wood)
+    kit.between(parent, [-.11, -.06, 0], [.11, -.06, 0], .015, wood)
+    kit.oval(parent, [.037, .037, .037], [0, .19, 0], trim)
   } else if (profile.prop === 'herbs') {
     for (const side of [-1, 0, 1]) {
       kit.between(parent, [0, -.02, 0], [side * .06, .27, 0], .01, wood)
-      kit.oval(parent, [.045, .085, .018], [side * .065, .24, 0], kit.material('#637c51')).rotation.z = side * -.5
+      const leaf = kit.solid(parent, [[0, 0], [.055, .06], [.015, .16], [-.045, .07]], .024, [side * .065, .19, 0], kit.material('#637c51'))
+      leaf.rotation.z = side * -.5
     }
-    kit.box(parent, [.15, .035, .09], [0, .06, 0], ivory)
+    kit.taper(parent, .07, .10, .16, [0, .04, 0], ivory, .85)
+    kit.between(parent, [-.075, .09, .045], [.075, .09, .045], .008, trim)
   } else {
-    for (const side of [-1, 0, 1]) kit.oval(parent, [.05, .045, .045], [side * .06, .07 + (side === 0 ? .04 : 0), 0], kit.material('#919986'))
+    const stones = ['#7f9387', '#a6a994', '#6c827c']
+    for (const side of [-1, 0, 1]) {
+      const stone = kit.solid(parent, [[-.045, 0], [.035, -.025], [.055, .035], [.005, .075], [-.05, .05]], .07,
+        [side * .06, .07 + (side === 0 ? .04 : 0), 0], kit.material(stones[side + 1]!))
+      stone.rotation.z = side * .16
+    }
+    kit.between(parent, [-.10, .02, .04], [.10, .02, .04], .007, trim)
   }
 }
 
@@ -310,35 +440,51 @@ function addIdentityDetails(kit: MeshKit, torso: THREE.Group, pelvis: THREE.Grou
   const wood = kit.material('#826c4a'); const trim = kit.material(profile.trim)
   if (templateId === 'libai' || templateId === 'zhouyu') {
     const scabbard = joint(torso, 'swordScabbard', [-.23, .25, -.22]); scabbard.rotation.z = -.46
-    kit.box(scabbard, [.085, 1.08, .07], [0, 0, 0], kit.material(profile.lining)); kit.box(scabbard, [.20, .04, .09], [0, .57, 0], trim)
+    kit.taper(scabbard, .052, .073, 1.10, [0, 0, 0], kit.material(profile.lining), .84)
+    for (const y of [-.52, .52]) {
+      const cap = kit.mesh(scabbard, kit.own(new THREE.TorusGeometry(.065, .010, 5, 10)), trim, [0, y, 0]); cap.rotation.x = Math.PI / 2
+    }
+    kit.oval(scabbard, [.045, .055, .045], [0, -.59, 0], wood)
   }
   if (templateId === 'libai') {
-    kit.oval(pelvis, [.09, .11, .075], [-.31, -.15, .03], wood); kit.oval(pelvis, [.065, .075, .06], [-.31, -.015, .03], wood)
+    kit.oval(pelvis, [.09, .11, .075], [-.31, -.15, .03], wood)
+    kit.taper(pelvis, .045, .065, .11, [-.31, -.005, .03], wood)
+    const ring = kit.mesh(pelvis, kit.own(new THREE.TorusGeometry(.055, .008, 5, 10)), trim, [-.31, .05, .03]); ring.rotation.x = Math.PI / 2
   }
   if (templateId === 'huatuo') {
-    kit.box(pelvis, [.28, .29, .20], [-.34, -.19, -.02], wood)
-    kit.box(pelvis, [.30, .055, .21], [-.34, -.055, -.02], trim)
+    kit.solid(pelvis, [[-.15, 0], [.15, 0], [.12, .28], [-.12, .28]], .18, [-.34, -.33, -.02], wood)
+    kit.taper(pelvis, .13, .15, .035, [-.34, -.19, -.02], trim, .75)
     kit.between(torso, [-.20, .70, -.20], [.29, .10, .20], .022, wood)
   }
   if (templateId === 'houyi') {
     const quiver = joint(torso, 'quiver', [-.25, .20, -.24]); quiver.rotation.z = -.20
-    kit.pole(quiver, .09, .58, [0, 0, 0], wood)
+    kit.taper(quiver, .07, .10, .58, [0, 0, 0], wood)
+    const rim = kit.mesh(quiver, kit.own(new THREE.TorusGeometry(.085, .010, 5, 10)), trim, [0, .28, 0]); rim.rotation.x = Math.PI / 2
     for (const side of [-1, 0, 1]) {
       kit.pole(quiver, .009, .67, [side * .035, .21, 0], trim)
-      kit.box(quiver, [.04, .11, .015], [side * .035, .52, 0], kit.material(profile.lining))
+      kit.taper(quiver, .012, .019, .11, [side * .035, .52, 0], kit.material(profile.lining), .7)
     }
   }
   if (templateId === 'jingwei') {
     for (const side of [-1, 1]) for (let feather = 0; feather < 3; feather++) {
-      kit.oval(torso, [.08, .20, .04], [side * (.25 + feather * .025), .62 - feather * .065, -.05], kit.material(feather % 2 ? profile.lining : profile.trim)).rotation.z = side * .55
+      const plume = kit.solid(torso, [[0, 0], [.06, .05], [.04, .20], [-.035, .14], [-.055, .04]], .04,
+        [side * (.25 + feather * .025), .62 - feather * .065, -.05], kit.material(feather % 2 ? profile.lining : profile.trim))
+      plume.rotation.z = side * .55
     }
-    kit.oval(pelvis, [.13, .16, .08], [-.30, -.19, .03], wood)
+    kit.solid(pelvis, [[-.12, 0], [.12, 0], [.10, .18], [-.08, .21], [-.13, .12]], .13, [-.30, -.28, .03], wood)
   }
   if (templateId === 'nezha') {
     kit.mesh(pelvis, kit.own(new THREE.TorusGeometry(.12, .023, 5, 16)), trim, [-.28, -.18, .11])
-    for (const side of [-1, 1]) kit.box(pelvis, [.09, .43, .035], [side * .25, -.20, -.08], kit.material(profile.lining)).rotation.z = side * .22
+    for (const side of [-1, 1]) {
+      const ribbon = kit.solid(pelvis, [[-.035, 0], [.035, 0], [.055, .42], [-.02, .45]], .035,
+        [side * .25, -.20, -.08], kit.material(profile.lining))
+      ribbon.rotation.z = side * .22
+    }
   }
-  if (templateId === 'zhangheng') kit.box(pelvis, [.055, .35, .045], [-.29, -.08, .07], trim).rotation.z = -.25
+  if (templateId === 'zhangheng') {
+    const sash = kit.solid(pelvis, [[-.025, 0], [.025, 0], [.045, .35], [-.035, .35]], .045, [-.29, -.08, .07], trim)
+    sash.rotation.z = -.25
+  }
 }
 
 export function createCultivatorModel(identity: { templateId: string; enemy?: boolean; boss?: boolean }) {
