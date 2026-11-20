@@ -287,3 +287,43 @@ async function assign() {
 @media(max-width:640px){.charter-heading{gap:12px;padding-left:10px}.territory-overview{gap:10px;font-size:11px}.garrison-list small{font-size:11px}.garrison-production{gap:10px;font-size:12px}.enemy-intel small,.sect-rules p{font-size:12px}.sect-detail-tabs>button{padding-inline:8px}.sect-marker>strong{overflow-wrap:anywhere}.marker-status{font-size:10px}}
 
 </style>
+
+<style scoped>
+.charter-heading { border-left-color: var(--jade); }
+.charter-heading h3, .sect-dossier .section-heading h3, .garrison-list strong { color: var(--ink); }
+.charter-seal { color: var(--gold); border-color: var(--gold-deep); box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 4px rgba(228,189,107,.35); }
+.territory-overview { border-color: var(--line-faint); }
+.territory-overview strong { color: var(--jade); }
+.sect-map { background: repeating-linear-gradient(0deg, #14221f 0 29px, #1a2b27 29px 30px); border-color: var(--border); }
+.sect-marker { background: var(--surface-raised); border-color: var(--border); border-top-color: var(--gold-deep); box-shadow: none; }
+.sect-marker.selected { background: var(--jade-light); border-color: var(--jade); box-shadow: inset 3px 0 var(--jade); }
+.sect-marker.conquered { background: #1c352e; border-top-color: var(--jade); }
+.sect-marker > strong { color: var(--ink); }
+.marker-status { border-top-color: var(--line-faint); color: var(--jade); }
+.sect-marker::after { background: rgba(228,189,107,.45); }
+.sect-dossier { background: var(--surface); border-color: var(--border); border-top-color: var(--jade); box-shadow: none; }
+.sect-detail-tabs { background: var(--surface); border-bottom-color: var(--line-faint); }
+.sect-detail-tabs > button.active { background: var(--jade-light); border-color: var(--border); color: var(--jade); box-shadow: inset 0 -2px var(--jade); }
+.enemy-intel > div, .first-loot { background: var(--surface-inset); border-color: var(--line-faint); }
+.enemy-intel > div { border-left-color: var(--gold-deep); }
+.enemy-intel img, .garrison-list img { background: var(--surface-raised); border-color: var(--border); }
+.first-loot { color: var(--jade); border-block-color: var(--line-faint); }
+.first-loot strong { color: var(--ink); }
+.garrison-production { background: #1c352e; border-color: var(--border); border-left-color: var(--jade); }
+.garrison-production strong { color: var(--jade); }
+.garrison-list > div { border-bottom-color: var(--line-faint); }
+.garrison-form label { color: var(--text); }
+.garrison-form select { background: var(--surface-raised); border-color: var(--border); color: var(--text); }
+.retrial-block, .sect-rules { border-color: var(--line-faint); }
+.expedition-start { box-shadow: 0 3px 0 #0d2b22, inset 0 1px rgba(255,255,255,.15); }
+.sect-detail-tabs > button:focus-visible, .sect-rules > summary:focus-visible { outline-color: var(--gold); }
+@media (max-width: 640px) {
+  .sect-map { max-height: min(46dvh, 360px); }
+  .sect-marker { min-height: 126px; }
+  .sect-dossier { padding: 14px; }
+  .sect-detail-tabs { gap: 3px; }
+  .sect-detail-tabs > button { flex: 1 0 auto; }
+  .garrison-form { gap: 8px; }
+  .garrison-form > .btn { width: 100%; }
+}
+</style>

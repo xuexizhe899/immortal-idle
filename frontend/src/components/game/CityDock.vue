@@ -7,7 +7,7 @@ const entries = [{ id: 'sect', label: '宗门', hint: '设施 · 存档' }, { id
 <template>
   <nav class="city-dock" aria-label="宗门功能">
     <div class="dock-inner">
-      <button v-for="entry in entries" :key="entry.id" :class="['dock-entry', { 'dock-tower': entry.id === 'tower', 'dock-expedition': entry.id === 'expedition', selected: active === entry.id }]" :aria-label="entry.id === 'tower' ? `${towerLabel}，${towerHint}` : entry.id === 'expedition' ? `${expeditionLabel}，${expeditionHint}` : entry.label" @click="$emit('open', entry.id)">
+      <button v-for="entry in entries" :key="entry.id" :class="['dock-entry', { 'dock-tower': entry.id === 'tower', 'dock-expedition': entry.id === 'expedition', selected: active === entry.id }]" :aria-current="active === entry.id ? 'page' : undefined" :aria-label="entry.id === 'tower' ? `${towerLabel}，${towerHint}` : entry.id === 'expedition' ? `${expeditionLabel}，${expeditionHint}` : entry.label" @click="$emit('open', entry.id)">
         <span class="dock-icon"><CityNavIcon :name="entry.id" /><span v-if="entry.id === 'codex' && discipleCount" class="dock-count">{{ discipleCount }}</span><i v-if="(entry.id === 'tower' && towerLabel !== '问道') || (entry.id === 'expedition' && expeditionLabel !== '山河')" class="run-dot"></i></span>
         <span class="dock-label">{{ entry.id === 'tower' ? towerLabel : entry.id === 'expedition' ? expeditionLabel : entry.label }}</span>
         <small :title="entry.id === 'tower' ? towerHint : entry.id === 'expedition' ? expeditionHint : entry.id === 'duty' ? `${dutyCount} 位值守` : entry.hint">{{ entry.id === 'tower' ? towerHint : entry.id === 'expedition' ? expeditionHint : entry.id === 'duty' ? `${dutyCount} 位值守` : entry.hint }}</small>
@@ -16,12 +16,61 @@ const entries = [{ id: 'sect', label: '宗门', hint: '设施 · 存档' }, { id
   </nav>
 </template>
 <style scoped>
-.city-dock{position:relative;z-index:10;flex:none;padding:0 24px env(safe-area-inset-bottom);background:linear-gradient(#f9f3e2,#e8dfc5);border-top:2px solid #ad9866;box-shadow:0 -6px 24px #27483b22,inset 0 3px #fffaec}.city-dock::before{content:'';position:absolute;inset:6px 12px auto;height:1px;background:#cdbb91;pointer-events:none}.dock-inner{max-width:1020px;margin:auto;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.dock-entry{position:relative;min-height:104px;padding:6px 4px 8px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#355447;transition:background .15s}.dock-entry:hover,.dock-entry.selected{background:#d5dfc466}.dock-icon{position:relative;display:block;width:42px;height:42px}.dock-icon svg{width:100%;height:100%;filter:drop-shadow(0 2px #a2967133)}.dock-label{font:600 17px/1.5 'SimSun',serif;letter-spacing:.14em;padding-left:.14em}.dock-entry small{font-size:10px;color:#7a8069;white-space:nowrap}.dock-count{position:absolute;top:0;right:-8px;min-width:17px;height:17px;padding:0 3px;background:#f8f0d9;border:1px solid #b4a477;font-size:10px;line-height:15px;color:#4a654b}.dock-tower{border-inline:1px solid #c8b47e;background:linear-gradient(#e6ddba99,#d6c89755);box-shadow:inset 0 3px #bd984e}.dock-tower .dock-icon{width:48px;height:48px;margin-top:-7px}.dock-tower .dock-label{color:#735621}.dock-expedition .dock-icon{color:#557b69}.run-dot{position:absolute;right:0;top:5px;width:7px;height:7px;background:#aa5837;box-shadow:0 0 0 2px #f6edcf}
-@media(max-width:640px){.city-dock{padding-inline:5px}.dock-inner{gap:0}.dock-entry{min-height:90px;padding:6px 1px}.dock-icon{width:34px;height:34px}.dock-label{font-size:14px;letter-spacing:.03em}.dock-entry small{font-size:9px}.dock-tower .dock-icon{width:40px;height:40px;margin-top:-6px}.dock-tower .dock-label{font-size:13px;letter-spacing:0}.dock-count{right:-4px;min-width:15px;height:15px;line-height:13px;font-size:9px}}
-.dock-entry::after{content:'';position:absolute;bottom:5px;width:16px;height:2px;background:transparent;transition:width .16s,background .16s}.dock-entry.selected::after{width:32px;background:var(--jade)}
-.dock-icon{transition:transform .18s cubic-bezier(.2,.7,.3,1)}.dock-entry.selected .dock-icon{color:var(--jade)}.dock-entry.selected .dock-label{color:var(--jade)}.dock-entry small{max-width:100%;overflow:hidden;text-overflow:ellipsis}.dock-count{box-shadow:0 2px 0 #504b2820}.run-dot{border:1px solid #fff4d6;outline:1px solid #aa5837;box-shadow:0 0 0 3px #f6edcf}
-@media(hover:hover) and (pointer:fine){.dock-entry:hover .dock-icon{filter:brightness(1.08)}.dock-entry:hover::after{width:25px;background:#a6b58d}}
-@media(max-width:640px){.dock-label{font-size:clamp(11px,3.2vw,14px);white-space:nowrap}.dock-tower .dock-label{font-size:clamp(11px,3.2vw,13px)}.dock-entry small{max-width:calc(100% - 4px)}.dock-entry::after{bottom:3px}}
-@media(prefers-reduced-motion:reduce){.dock-icon,.dock-entry::after{transition:none}.dock-entry.selected .dock-icon,.dock-entry:hover .dock-icon{transform:none}}
-.dock-entry:active{background:#c5d5b5;box-shadow:inset 0 2px 5px #294c3b1a}.dock-entry:focus-visible{outline:2px solid var(--jade);outline-offset:-3px}
+.city-dock {
+  position: relative;
+  z-index: 10;
+  flex: none;
+  padding: 0 24px env(safe-area-inset-bottom);
+  border-top: 1px solid #49665a;
+  background: #102a23;
+  box-shadow: 0 -8px 26px #07171066;
+}
+.dock-inner { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; max-width: 1120px; margin: auto; }
+.dock-entry {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 82px;
+  padding: 7px 5px 8px;
+  border: 0;
+  border-top: 2px solid transparent;
+  background: transparent;
+  color: #aabca8;
+  transition: background .16s, color .16s, border-color .16s;
+}
+.dock-entry:hover, .dock-entry.selected { background: #1b3d32; color: #eef2e7; }
+.dock-entry.selected { border-top-color: var(--jade); }
+.dock-icon { position: relative; display: block; width: 34px; height: 34px; color: #83b8a0; opacity: .82; transition: opacity .16s; }
+.dock-icon svg { width: 100%; height: 100%; }
+.dock-entry:hover .dock-icon, .dock-entry.selected .dock-icon { opacity: 1; }
+.dock-label { overflow: hidden; max-width: 100%; font: 600 14px/1.45 'Microsoft YaHei', 'PingFang SC', sans-serif; white-space: nowrap; text-overflow: ellipsis; }
+.dock-entry small { overflow: hidden; max-width: 100%; color: #789282; font-size: 10px; white-space: nowrap; text-overflow: ellipsis; }
+.dock-entry.selected small { color: #b6cda8; }
+.dock-count { position: absolute; top: -2px; right: -6px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; border: 1px solid #102a23; background: var(--gold); color: #20352c; font-size: 10px; line-height: 1; }
+.dock-tower { border-top-color: #806c3f; }
+.dock-tower:hover, .dock-tower.selected { background: #38351f; }
+.dock-tower.selected { border-top-color: var(--gold); }
+.dock-tower .dock-icon { color: var(--gold); }
+.dock-tower .dock-label { color: #ebd58d; }
+.dock-tower small { color: #b7a671; }
+.dock-expedition .dock-icon { color: #86bda0; }
+.run-dot { position: absolute; top: 1px; right: -2px; width: 8px; height: 8px; border: 2px solid #102a23; background: #e19c6a; }
+.dock-entry:active { background: #24503f; }
+.dock-entry:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; }
+@media (hover: hover) and (pointer: fine) { .dock-entry:hover .dock-icon { transform: translateY(-1px); } }
+@media (max-width: 640px) {
+  .city-dock { padding-inline: 3px; }
+  .dock-inner { gap: 0; }
+  .dock-entry { min-height: 64px; padding: 5px 1px 6px; }
+  .dock-icon { width: 25px; height: 25px; }
+  .dock-label { font-size: 11px; }
+  .dock-entry small { display: none; }
+  .dock-count { top: -3px; right: -5px; min-width: 16px; height: 16px; font-size: 9px; }
+}
+@media (max-height: 600px) and (min-width: 641px) { .dock-entry { min-height: 64px; } }
+@media (prefers-reduced-motion: reduce) { .dock-icon, .dock-entry { transition: none; } }
 </style>

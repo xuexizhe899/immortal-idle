@@ -53,27 +53,76 @@ onUnmounted(() => {
 </script>
 <template><Teleport to="body"><div class="modal-overlay" @click.self="$emit('close')"><section ref="sheet" data-panel-modal class="modal-sheet" :class="{ wide }" role="dialog" aria-modal="true" :aria-label="title" tabindex="-1" @keydown="emit('keydown',$event)"><header class="modal-head"><div class="modal-heading"><svg class="modal-sigil" viewBox="0 0 36 46" fill="none" aria-hidden="true"><path d="M3 1h30v44H3zM7 5h22v36H7z" stroke="currentColor"/><path d="m18 11 7 11-7 12-7-12 7-11Zm-8 11h16M18 11v23" stroke="currentColor"/><path d="M1 9h5M30 37h5" stroke="currentColor" stroke-width="2"/></svg><div class="modal-titles"><span class="eyebrow">云岫仙宗 · {{ subtitle ?? '宗门事务' }}</span><h2>{{ title }}</h2></div></div><div class="modal-head-controls"><slot name="actions" /><button class="modal-close btn btn-quiet" aria-label="关闭面板" @click="$emit('close')"><GameIcon name="close" /></button></div></header><div ref="body" class="modal-body"><slot /></div></section></div></Teleport></template>
 <style scoped>
-.modal-overlay{position:fixed;inset:0;z-index:40;padding:30px;background:#16362bb0;backdrop-filter:blur(5px);display:grid;place-items:center;animation:veil-arrive .16s ease-out}
-.modal-sheet{display:flex;flex-direction:column;width:min(820px,100%);min-width:0;max-height:min(88dvh,950px);background:var(--surface);border:1px solid #d7caa5;box-shadow:0 28px 100px #0e201c66,inset 0 0 0 5px #e6deca;outline:0;animation:sheet-unroll .2s cubic-bezier(.2,.7,.3,1)}
-.modal-sheet.wide{width:min(1100px,100%)}
-.modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 26px;border-top:3px solid var(--jade);border-bottom:1px solid var(--border);background:var(--surface-raised);box-shadow:0 3px 0 #b8aa7b12;flex:none}
-.modal-head>div{min-width:0}
-.modal-heading{display:flex;align-items:center;gap:14px}.modal-sigil{width:30px;height:40px;color:var(--gold);flex:none}.modal-titles{min-width:0}
-.modal-head-controls{display:flex;align-items:center;gap:8px;flex:none}
-.modal-head h2{margin:3px 0 0;font-size:25px;line-height:1.4;letter-spacing:.08em;overflow-wrap:anywhere}
-.modal-body{padding:24px 26px;overflow-y:auto;min-height:0;overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#a4b091 #eee9d9}
-.modal-close{flex:none;width:44px;height:44px;padding:8px}
-@keyframes veil-arrive{from{background:#16362b00}}
-@keyframes sheet-unroll{from{opacity:0;transform:translateY(8px)}}
-@media(max-width:640px){
-  .modal-overlay{padding:10px;align-items:stretch}
-  .modal-sheet{max-height:calc(100dvh - 20px);width:100%}
-  .modal-head{padding:16px;gap:10px}
-  .modal-heading{gap:9px}.modal-sigil{width:23px;height:34px}
-  .modal-head h2{font-size:22px}
-  .modal-body{padding:18px 14px}
-  .modal-head .eyebrow{font-size:8px}
-  .modal-close{width:44px;height:44px}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 34px);
+  background: #061510d9;
+  backdrop-filter: blur(10px) saturate(.85);
+  animation: veil-arrive .16s ease-out;
 }
-@media(prefers-reduced-motion:reduce){.modal-overlay,.modal-sheet{animation:none}}
+.modal-sheet {
+  display: flex;
+  flex-direction: column;
+  width: min(860px, 100%);
+  min-width: 0;
+  max-height: min(90dvh, 960px);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid #45665b;
+  box-shadow: 0 30px 90px #030d0acc, 0 0 0 5px #102c2544;
+  outline: 0;
+  animation: sheet-unroll .2s cubic-bezier(.2,.7,.3,1);
+}
+.modal-sheet.wide { width: min(1160px, 100%); }
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 76px;
+  padding: 15px 22px;
+  border-top: 4px solid var(--jade);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+  flex: none;
+}
+.modal-head > div { min-width: 0; }
+.modal-heading { display: flex; align-items: center; gap: 12px; }
+.modal-sigil { width: 26px; height: 36px; color: var(--gold); flex: none; }
+.modal-titles { min-width: 0; }
+.modal-head .eyebrow { color: var(--gold); letter-spacing: .16em; }
+.modal-head h2 { margin: 3px 0 0; color: var(--ink); font-size: 24px; letter-spacing: .06em; line-height: 1.4; overflow-wrap: anywhere; }
+.modal-head-controls { display: flex; align-items: center; gap: 4px; flex: none; }
+.modal-close { width: 42px; height: 42px; border: 1px solid transparent; color: var(--muted); }
+.modal-close:hover { border-color: #53776a; background: #29443f; color: var(--ink); }
+.modal-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 26px 30px;
+  background: var(--surface-inset);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #55766a #14221f;
+}
+.modal-body :deep(.paper), .modal-body :deep(.panel) {
+  box-shadow: none;
+  border-color: var(--border);
+}
+@keyframes veil-arrive { from { background: #06151000; } }
+@keyframes sheet-unroll { from { opacity: 0; transform: translateY(8px); } }
+@media (max-width: 640px) {
+  .modal-overlay { padding: 8px; align-items: stretch; }
+  .modal-sheet { width: 100%; max-height: calc(100dvh - 16px); }
+  .modal-head { min-height: 66px; padding: 12px 14px; gap: 10px; }
+  .modal-heading { gap: 8px; }
+  .modal-sigil { width: 21px; height: 30px; }
+  .modal-head h2 { font-size: 20px; letter-spacing: .03em; }
+  .modal-body { padding: 16px 12px 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .modal-overlay, .modal-sheet { animation: none; } }
 </style>

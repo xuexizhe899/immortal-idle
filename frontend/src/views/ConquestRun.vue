@@ -209,3 +209,39 @@ function toggle(id: string) {
 @media(max-width:540px){.conquest-heading{padding:12px 11px 12px 48px;gap:8px}.conquest-heading::before{left:9px;width:27px;height:35px;font-size:21px}.conquest-heading h2{font-size:22px}.conquest-heading>.btn{font-size:11px;padding-inline:8px}.conquest-ending{padding:15px 13px 15px 58px}.ending-seal{left:12px;top:17px;width:31px;height:38px;font-size:25px}.conquest-ending h3{font-size:21px}.arena-toolbar>div>small{font-size:11px}.siege-progress{margin-block:12px}.fighter-grid img{height:75px}}
 
 </style>
+
+<style scoped>
+.conquest-page { color: var(--text); }
+.conquest-heading { border-color: var(--border); border-left-color: var(--jade); background: var(--surface); box-shadow: none; }
+.conquest-heading h2, .conquest-ending h3 { color: var(--ink); }
+.conquest-heading::before { border-color: var(--gold-deep); box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 4px rgba(228,189,107,.35); color: var(--gold); }
+.siege-progress { border-color: var(--border); background: var(--surface-raised); }
+.guard-track { background: #273b36; border-color: var(--border); box-shadow: inset 0 1px 2px rgba(3,10,8,.4); }
+.guard-track > span { background: var(--jade); border-right-color: var(--gold); }
+.siege-stages { border-top-color: var(--line-faint); }
+.siege-stages li.done { color: var(--muted); }
+.arena-toolbar { background: var(--surface-raised); border-color: var(--border); border-left-color: var(--gold); box-shadow: none; }
+.arena-toolbar strong { color: var(--ink); }
+.arena-toolbar > div > small { color: var(--jade); border-left-color: var(--jade-deep); }
+.arena-selection { border-color: var(--border); background: var(--surface); }
+.fighter-grid > button { border-color: var(--border); background: var(--surface-raised); box-shadow: inset 0 0 0 2px var(--surface), 0 2px 0 rgba(5,13,12,.35); }
+.fighter-grid > button.selected { border-color: var(--jade); background: var(--jade-light); box-shadow: inset 0 0 0 2px var(--jade), 0 2px 0 rgba(5,13,12,.45); }
+.fighter-grid > button:hover:not(:disabled) { border-color: var(--jade); background: #29443f; }
+.fighter-grid img { background: radial-gradient(ellipse at 50% 90%, rgba(125,214,173,.18), transparent 65%); border-bottom-color: var(--line-faint); }
+.fighter-track { background: #273b36; }
+.selection-order { background: var(--jade); border-color: #b8e7cd; color: #071713; }
+.selected-lineup li { border-color: var(--border); background: var(--surface-inset); color: var(--muted); }
+.selected-lineup li.filled { border-color: var(--jade-deep); background: var(--jade-light); color: var(--jade); box-shadow: inset 0 -2px rgba(125,214,173,.2); }
+.selected-lineup b { background: var(--surface-raised); color: var(--jade); }
+.selection-hint { border-left-color: var(--jade); background: var(--jade-light); color: var(--jade); }
+.selection-hint.locked { border-color: var(--gold); background: #3d3220; color: var(--gold); }
+.opponent-panel article, .spoils-panel > div { border-top-color: var(--line-faint); }
+.conquest-ending { border-color: var(--border); border-left-color: var(--gold); background: var(--surface); box-shadow: none; }
+.ending-seal { border-color: var(--gold-deep); color: var(--gold); box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 4px rgba(228,189,107,.35); }
+.retreat-control p { color: var(--danger); }
+@media (max-width: 540px) {
+  .conquest-page { padding: 16px 10px 28px; }
+  .fighter-grid > button { box-shadow: inset 0 0 0 1px var(--surface), 0 2px 0 rgba(5,13,12,.35); }
+  .arena-selection { padding: 12px; }
+}
+</style>

@@ -33,8 +33,65 @@ async function readFile(event:Event){const input=event.target as HTMLInputElemen
   </div>
 </template>
 <style scoped>
-.save-list{margin:20px 0;max-height:min(56dvh,560px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}.save-list:focus-visible{outline:2px solid var(--jade);outline-offset:2px}.save-row{display:flex;flex-wrap:wrap;align-items:center;gap:15px;padding:18px 14px;border:1px solid #d3c8ab;background:#f4eedf;margin-bottom:9px}.save-row.active{border-color:#9cad8b;background:#e5ead7}.save-name{flex:1;min-width:150px}.save-name strong{font:17px 'SimSun',serif;margin-right:10px}.save-name>.badge{font-size:9px}.save-name small{display:block;font-size:10px;color:var(--muted);margin-top:6px}.save-actions{display:flex;gap:5px}.delete-button{color:var(--danger)}.delete-confirm{width:100%;padding:12px;background:#f4e5d7;border:1px solid #c7947f}.delete-confirm p{font-size:12px;margin:0 0 10px}.delete-confirm>div{display:flex;gap:8px}.save-tools{display:grid;gap:12px;margin:16px 0}.save-tools>details{padding:12px;border:1px solid var(--border);background:#f4eedf}.save-tools summary{cursor:pointer;color:var(--jade);font-size:13px;min-height:24px}.save-tools summary:focus-visible{outline:2px solid var(--jade);outline-offset:2px}.create-save{padding-top:16px}.create-save>div{display:flex;gap:9px}.create-save input{flex:1}.import-save>div{padding-top:16px}.import-save input{width:100%;margin-bottom:16px;font-size:11px}.import-save textarea{font-family:monospace;font-size:11px}.import-save .muted{margin:8px 0 12px}
-@media(max-width:640px){.save-row{gap:12px;padding:14px}.save-actions{width:100%;justify-content:space-between}.save-actions .btn{flex:1;font-size:11px}.create-save>div{flex-direction:column}.save-name strong{font-size:17px}}
-.saves-panel{min-width:0}.save-summary{display:flex;gap:13px;align-items:center;padding:6px 0 16px;border-bottom:1px solid #c4cbb0}.save-summary>div{flex:1;min-width:0}.save-seal{display:grid;place-items:center;flex:none;width:47px;height:54px;font:29px 'SimSun',serif;color:#326c55;border:1px solid #9db28f;background:#e5ecd8;box-shadow:inset 0 0 0 4px #f6f1df,inset 0 0 0 5px #b8c6a6}.save-summary h3{font-size:22px;margin:0 0 6px;color:#213f36}.save-summary p{font-size:11px;line-height:1.8;margin:0}.save-count{flex:none;color:#8c6844;font-size:11px;font-variant-numeric:tabular-nums}.save-tools{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:9px;margin:14px 0}.save-tools>details{padding:13px;border-color:#b8c5a5;background:#f1f1df;border-left:3px solid #8fa57e}.save-tools>details[open]{grid-column:1/-1}.save-tools summary{font:16px 'SimSun',serif;color:#326c55;min-height:27px;line-height:1.8}.save-tools summary>span{display:block;font:10px 'Microsoft YaHei',sans-serif;color:#82856b;margin:4px 0 0 18px}.save-tools>details[open]>summary>span{display:none}.save-tools label{font-size:11px}.create-save>div>input{min-width:0;background:#f6f1df}.import-save textarea{background:#f6f1df}.save-list{margin:15px 0;padding:1px}.save-row{position:relative;gap:12px;padding:15px 13px;border-color:#c3c9ad;background:#f6f1df;border-left:3px solid #b6c3a1;margin-bottom:7px}.save-row.active{border-color:#9fb38f;border-left-color:#326c55;background:#eaf0dc}.save-mark{width:35px;height:39px;flex:none;display:grid;place-items:center;font:22px 'SimSun',serif;border:1px solid #bdc9aa;color:#8aa07a;background:#eeefdf}.save-row.active>.save-mark{background:#326c55;border-color:#326c55;color:#f6f1df}.save-name{min-width:130px}.save-name strong{display:inline-block;max-width:100%;overflow-wrap:anywhere;color:#213f36;line-height:1.6}.save-name>.badge{color:#326c55;border-color:#adc19b;background:#dde8ce}.save-name small{line-height:1.8;font-variant-numeric:tabular-nums}.save-actions{gap:5px}.save-actions .btn{min-height:35px}.save-empty{padding:21px 15px;border:1px dashed #b8c5a5;background:#eff0df}.save-empty strong{font:21px 'SimSun',serif;color:#326c55}.save-empty p{max-width:40em;font-size:12px;color:var(--muted);line-height:1.9;margin:10px 0 0}.save-list .delete-confirm{margin-top:2px}.saves-panel button:focus-visible{outline:2px solid #326c55;outline-offset:2px}
-@media(max-width:640px){.save-summary{gap:10px;align-items:flex-start}.save-seal{width:39px;height:47px;font-size:25px}.save-summary h3{font-size:20px}.save-summary p{font-size:11px}.save-count{font-size:10px;white-space:nowrap;margin-top:4px}.save-tools{gap:7px}.save-tools>details{padding:10px}.save-tools summary{font-size:15px;line-height:1.8;min-height:40px}.save-tools summary>span{font-size:10px;margin:4px 0 0}.save-row{padding:12px 10px;gap:10px}.save-mark{width:32px;height:37px}.save-name{min-width:110px}.save-name strong{font-size:17px;margin-right:6px}.save-name small{font-size:11px}.save-actions{gap:5px}.save-actions .btn{min-height:44px;font-size:11px;padding-inline:6px}.save-tools input,.save-tools>.new-save .btn,.import-save .btn,.delete-confirm .btn{min-height:44px}.delete-confirm>div{flex-wrap:wrap}.save-tools>.new-save[open],.save-tools>.import-save[open]{grid-column:1/-1}}
+.saves-panel { min-width: 0; }
+.save-summary { display: flex; align-items: center; gap: 13px; padding: 6px 0 16px; border-bottom: 1px solid var(--border); }
+.save-summary > div { flex: 1; min-width: 0; }
+.save-seal { display: grid; place-items: center; flex: none; width: 47px; height: 54px; font: 29px var(--font-display); color: var(--gold); border: 1px solid #8b7042; background: #293d35; box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 5px #6f5a37; }
+.save-summary h3 { margin: 0 0 6px; color: var(--ink); font-size: 22px; }
+.save-summary p { margin: 0; font-size: 11px; line-height: 1.8; }
+.save-count { flex: none; color: var(--gold); font-size: 11px; font-variant-numeric: tabular-nums; }
+.save-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 9px; margin: 14px 0; }
+.save-tools > details { padding: 13px; border: 1px solid var(--border); border-left: 3px solid var(--jade-deep); background: var(--surface); }
+.save-tools > details[open] { grid-column: 1 / -1; }
+.save-tools summary { min-height: 27px; color: var(--jade); font: 16px var(--font-display); line-height: 1.8; }
+.save-tools summary > span { display: block; margin: 4px 0 0 18px; color: var(--muted); font: 10px 'Microsoft YaHei', sans-serif; }
+.save-tools > details[open] > summary > span { display: none; }
+.create-save { padding-top: 16px; }
+.create-save > div { display: flex; gap: 9px; }
+.create-save > div > input { flex: 1; min-width: 0; }
+.import-save > div { padding-top: 16px; }
+.import-save input { width: 100%; margin-bottom: 16px; font-size: 11px; }
+.import-save textarea { background: var(--surface-raised); font-family: monospace; font-size: 11px; }
+.import-save .muted { margin: 8px 0 12px; }
+.save-list { max-height: min(56dvh, 560px); margin: 15px 0; padding: 1px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.save-list:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+.save-row { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 15px 13px; margin-bottom: 7px; border: 1px solid var(--border); border-left: 3px solid #527463; background: var(--surface); }
+.save-row.active { border-color: #66977b; border-left-color: var(--jade); background: #1d3933; }
+.save-mark { display: grid; place-items: center; flex: none; width: 35px; height: 39px; border: 1px solid #4d6c60; color: var(--muted); background: var(--surface-inset); font: 22px var(--font-display); }
+.save-row.active > .save-mark { border-color: var(--jade); color: #0b1b16; background: var(--jade); }
+.save-name { flex: 1; min-width: 130px; }
+.save-name strong { display: inline-block; max-width: 100%; overflow-wrap: anywhere; color: var(--ink); font: 17px var(--font-display); line-height: 1.6; }
+.save-name > .badge { color: var(--jade); border-color: #4c856c; background: var(--jade-light); }
+.save-name small { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.8; font-variant-numeric: tabular-nums; }
+.save-actions { display: flex; gap: 5px; }
+.save-actions .btn { min-height: 38px; }
+.delete-button { color: var(--danger); }
+.delete-confirm { width: 100%; padding: 12px; border: 1px solid #865247; background: #3b2824; }
+.delete-confirm p { margin: 0 0 10px; font-size: 12px; }
+.delete-confirm > div { display: flex; gap: 8px; }
+.save-empty { padding: 21px 15px; border: 1px dashed var(--border); background: var(--surface-inset); }
+.save-empty strong { color: var(--jade); font: 21px var(--font-display); }
+.save-empty p { max-width: 40em; margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.9; }
+.saves-panel button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .save-summary { gap: 10px; align-items: flex-start; }
+  .save-seal { width: 39px; height: 47px; font-size: 25px; }
+  .save-summary h3 { font-size: 20px; }
+  .save-summary p, .save-count { font-size: 10px; }
+  .save-count { margin-top: 4px; white-space: nowrap; }
+  .save-tools { gap: 7px; }
+  .save-tools > details { padding: 10px; }
+  .save-tools summary { min-height: 40px; font-size: 15px; }
+  .save-row { gap: 10px; padding: 12px 10px; }
+  .save-mark { width: 32px; height: 37px; }
+  .save-name { min-width: 110px; }
+  .save-name strong { margin-right: 6px; font-size: 17px; }
+  .save-name small { font-size: 11px; }
+  .save-actions { width: 100%; gap: 5px; }
+  .save-actions .btn { flex: 1; min-height: 44px; padding-inline: 6px; font-size: 11px; }
+  .create-save > div { flex-direction: column; }
+  .save-tools > details[open] { grid-column: 1 / -1; }
+  .save-tools input, .save-tools > .new-save .btn, .import-save .btn, .delete-confirm .btn { min-height: 44px; }
+  .delete-confirm > div { flex-wrap: wrap; }
+}
 </style>

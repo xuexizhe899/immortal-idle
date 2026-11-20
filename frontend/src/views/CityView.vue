@@ -149,3 +149,125 @@ function followGoal() {
 @media(max-width:640px){.scene-heading{max-width:calc(100% - 112px);padding:8px 10px}.scene-heading h2{font-size:16px}.scene-injury{font-size:9px;margin-left:4px}.sky-control{gap:4px}.phase-orb{width:9px;height:9px;margin-left:4px;box-shadow:none}.goal-slip{max-width:none}.collect-button{font-size:13px}.map-help{letter-spacing:.02em}}
 @media(max-height:600px) and (min-width:641px){.scene-heading{padding:7px 12px}.scene-heading h2{font-size:16px}}
 </style>
+<style scoped>
+/* 主城是空间首页：把控件压到边缘，给场景本身留出呼吸感。 */
+.city-page {
+  --scene-ink: #e8eddc;
+  --scene-muted: #b4c4af;
+  --scene-line: #a9c39d;
+  background: #10251f;
+}
+.city-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, #0b1e1a22 0%, transparent 30%, transparent 70%, #081b1688 100%);
+  z-index: 1;
+}
+.scene-heading {
+  left: 28px;
+  top: 24px;
+  max-width: min(480px, calc(100% - 220px));
+  padding: 0 0 0 15px;
+  border: 0;
+  border-left: 2px solid var(--scene-line);
+  background: transparent;
+  box-shadow: none;
+  color: var(--scene-ink);
+  text-shadow: 0 2px 8px #071710aa;
+}
+.scene-heading .eyebrow {
+  color: #d2bd7b;
+  letter-spacing: .22em;
+  font-size: 10px;
+}
+.scene-heading h2 {
+  margin: 5px 0 2px;
+  color: var(--scene-ink);
+  font-size: clamp(20px, 2.2vw, 28px);
+  letter-spacing: .12em;
+  line-height: 1.35;
+}
+.scene-heading p { color: var(--scene-muted); font-size: 11px; }
+.scene-injury { color: #f0c8a6; background: #542f2b99; border: 1px solid #bb755a; }
+.sky-control {
+  right: 28px;
+  top: 24px;
+  min-height: 38px;
+  padding: 3px 5px 3px 12px;
+  border: 1px solid #d2e0c044;
+  background: #0e2923cc;
+  box-shadow: 0 8px 24px #07171055;
+  color: #d9e3d1;
+  backdrop-filter: blur(8px);
+}
+.sky-control select { color: #d9e3d1; }
+.sky-control select option { color: #20332b; background: #eff2e7; }
+.phase-orb { box-shadow: 0 0 0 3px #a6c2991c; }
+.scene-actions {
+  left: 28px;
+  right: 28px;
+  bottom: 28px;
+  align-items: flex-end;
+}
+.goal-slip {
+  max-width: min(430px, calc(100% - 190px));
+  min-height: 58px;
+  padding: 9px 15px 9px 10px;
+  border: 1px solid #ccdbbe55;
+  border-left: 3px solid #c8b36e;
+  background: #102c25dd;
+  box-shadow: 0 10px 28px #06161055;
+  color: #e9eedf;
+  backdrop-filter: blur(8px);
+}
+.goal-slip:hover { background: #173a30ee; border-color: #d7e7c977; }
+.goal-mark { border-color: #c8b36e99; box-shadow: inset 0 0 0 2px #102c25; color: #e0c783; }
+.goal-slip small { color: #aabfa8; }
+.goal-slip strong { color: #f0f2e5; }
+.goal-slip > span:last-child { color: #bfcf9e; }
+.goal-slip.travelling { border-left-color: #77b99a; }
+.goal-slip.ended { border-left-color: #dbb86a; background: #3a3320dd; }
+.next-slip {
+  min-height: 36px;
+  border: 1px solid #d8c17c66;
+  background: #172f28e6;
+  box-shadow: 0 6px 18px #06161055;
+  color: #e2e9d9;
+}
+.next-slip:hover { background: #21463a; }
+.collect-button {
+  min-height: 58px;
+  padding: 10px 18px;
+  border: 1px solid #d9c37b;
+  background: #d4b86b;
+  color: #182d26;
+  box-shadow: 0 6px 20px #06161066;
+}
+.collect-button:hover:not(:disabled) { background: #e1c980; }
+.collect-button .game-icon { color: #284b3b; }
+.collect-button small { color: #3d5b49; }
+.collect-button:disabled { background: #71806d; color: #dfe7d8; }
+.collect-button:disabled small { color: #d3ddcf; }
+.map-help {
+  bottom: 9px;
+  color: #d1ddc9aa;
+  letter-spacing: .12em;
+  text-shadow: 0 1px 4px #06161099;
+}
+@media (max-width: 640px) {
+  .scene-heading { left: 15px; top: 15px; max-width: calc(100% - 125px); padding-left: 10px; }
+  .scene-heading .eyebrow { font-size: 8px; letter-spacing: .12em; }
+  .scene-heading h2 { font-size: 17px; letter-spacing: .04em; }
+  .scene-heading p { margin-top: 2px; color: #c0cfbd; }
+  .sky-control { right: 12px; top: 15px; min-height: 36px; padding-left: 7px; }
+  .scene-actions { left: 12px; right: 12px; bottom: 22px; gap: 8px; }
+  .goal-slip { max-width: calc(100% - 106px); min-height: 52px; padding: 7px 9px; }
+  .goal-slip strong { font-size: 11px; }
+  .collect-button { min-height: 52px; padding: 8px 10px; font-size: 13px; }
+  .collect-button small { font-size: 8px; }
+  .next-slip { max-width: 170px; overflow: hidden; text-overflow: ellipsis; }
+  .map-help { font-size: 8px; letter-spacing: .02em; }
+}
+</style>

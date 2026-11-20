@@ -149,3 +149,85 @@ function bondSkillNames(skillIds:string[]){return [...new Set(skillIds)].map(id=
 @media(prefers-reduced-motion:reduce){.node-card,.affix-card{transition:none}}
 
 </style>
+<style scoped>
+/* 战斗工作区：路线、状态、结果分别使用焦点色、危情色和弱分隔线。 */
+.run-page{color:var(--text);background:transparent}
+.run-title{border-color:var(--border);border-left-color:var(--jade);background:var(--surface);box-shadow:0 10px 26px rgba(3,12,10,.18)}
+.run-title h2,.run-ending h3,.run-info h3{color:var(--ink)}
+.run-title h2>span{color:var(--muted)}
+.run-title::before{border-color:var(--gold-deep);box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4px #b38a4666;color:var(--gold)}
+.tower-count strong{color:var(--jade)}
+.tower-count span{color:var(--muted)}
+.floor-progress>span{background:#263b35;border-bottom-color:#3a5a4c}
+.floor-progress>span.done{background:var(--jade-deep);border-color:var(--jade)}
+.floor-progress>span.current{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 2px #e4bd6b33}
+.floor-progress>span.boss{background:#825b45}
+.floor-progress small{color:var(--muted)}
+.run-health{border-color:var(--border);border-left-color:var(--jade);background:rgba(125,214,173,.08)}
+.run-health>div:first-child{color:var(--jade)}
+.run-health span{color:var(--muted)}
+.run-health .progress-track{background:#263b35;box-shadow:inset 0 1px 1px #06110f88}
+.run-health .progress-track>span{background:var(--jade);border-right-color:#b3e2bf}
+.run-decision-bar{border-color:var(--border);border-left-color:var(--gold);background:var(--surface-raised);box-shadow:0 8px 20px rgba(3,12,10,.18)}
+.run-decision-bar strong{color:var(--ink)}
+.run-decision-bar p{color:var(--muted)}
+.run-info{border-color:var(--border);background:var(--surface);box-shadow:inset 3px 0 rgba(228,189,107,.15)}
+.run-info-tabs{border-bottom-color:var(--line-faint);background:var(--surface-inset)}
+.run-info-tabs button{color:var(--muted)}
+.run-info-tabs button.active{border-color:var(--jade);background:var(--jade-light);color:var(--jade);box-shadow:inset 0 -2px var(--jade)}
+.run-info-content{background:var(--surface);color:var(--text)}
+.run-supply,.run-bonds,.run-build{color:var(--text)}
+.loot-row,.run-bonds article,.run-build article{border-top-color:var(--line-faint);border-bottom-color:var(--line-faint)}
+.loot-row strong,.run-bonds article strong,.run-build article>strong{color:var(--jade)}
+.loot-note,.run-bonds article small{color:var(--muted)}
+.build-group{color:var(--gold)}
+.party-vitals{border-color:var(--border);background:var(--surface-inset)}
+.party-vitals summary{color:var(--jade)}
+.party-vitals>div{background:transparent}
+.party-vitals article{background:var(--surface-raised);border-color:var(--border)}
+.party-vitals article>strong{color:var(--ink)}
+.party-vitals article>span{color:var(--muted)}
+.party-vitals article>img{background:#1b302b}
+.battle-context{color:var(--muted);background:#1d302b;border-color:var(--border)}
+.decision-hint{border-left-color:var(--jade);background:rgba(125,214,173,.08);color:var(--jade)}
+.decision-hint.locked{border-left-color:var(--gold);background:rgba(228,189,107,.1);color:var(--gold)}
+.node-choices,.affix-choices{gap:10px}
+.node-card{border-color:var(--border);border-top-color:var(--jade-deep);background:var(--surface-raised);box-shadow:0 8px 20px rgba(3,12,10,.18)}
+.node-card:hover:not(:disabled){border-color:var(--jade);background:#29443d}
+.node-card>.game-icon{color:var(--jade)}
+.node-card.elite>.game-icon,.node-card.boss>.game-icon{color:var(--gold)}
+.node-card h4{color:var(--ink)}
+.node-card>p,.node-threats{color:var(--muted)}
+.node-card>p.node-description{color:var(--text)}
+.node-card>p small{color:var(--muted)}
+.node-card.rest{background:#1d342d;border-color:#47745d}
+.node-card.event{background:#352f23;border-color:#806a3c}
+.node-card.rest>.game-icon{color:var(--jade)}
+.node-card.event>.game-icon{color:var(--gold)}
+.node-loot{border-top-color:var(--line-faint);color:var(--muted)}
+.node-loot>strong{color:var(--gold)}
+.node-enter,.affix-pick{color:var(--jade)}
+.enemy-chip{background:#263b34;border-color:#3e6050;color:var(--text)}
+.enemy-chip small{color:var(--gold)}
+.affix-card{border-color:var(--border);background:var(--surface-raised);box-shadow:0 8px 20px rgba(3,12,10,.18)}
+.affix-card:hover:not(:disabled){border-color:var(--jade);background:#29443d;box-shadow:0 0 0 2px rgba(125,214,173,.2)}
+.affix-card.resonating{border-top-color:var(--jade);background:#1d342d}
+.affix-symbol{border-color:var(--gold-deep);color:var(--gold);background:#352f23}
+.affix-card h4{color:var(--ink)}
+.affix-card p,.affix-card small{color:var(--muted)}
+.affix-pick{border-top-color:var(--line-faint)}
+.run-ending{border-color:var(--border);border-left-color:var(--gold);background:var(--surface);box-shadow:0 8px 20px rgba(3,12,10,.18)}
+.run-ending p{color:var(--muted)}
+.gear-spoils{border-top-color:var(--line-faint)}
+.gear-spoils h4{color:var(--jade)}
+.gear-spoils article{border-top-color:var(--line-faint)}
+.run-page :deep(.badge){background:rgba(125,214,173,.1);border-color:#3d7660;color:var(--jade)}
+.run-page :deep(.badge-gold){background:rgba(228,189,107,.1);border-color:#806a3c;color:var(--gold)}
+.node-card:focus-visible,.affix-card:focus-visible,.run-info-tabs button:focus-visible{outline-color:var(--gold)}
+@media(max-width:720px){
+  .run-page{padding-inline:12px}
+  .run-title{box-shadow:0 6px 14px rgba(3,12,10,.22)}
+  .run-info-content{background:var(--surface)}
+  .node-card,.affix-card{box-shadow:0 6px 14px rgba(3,12,10,.2)}
+}
+</style>

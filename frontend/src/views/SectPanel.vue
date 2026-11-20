@@ -131,3 +131,40 @@ function onTabKey(event: KeyboardEvent, id: SectTab) {
 .sect-intro{position:relative;gap:18px;margin:8px 0 20px;padding:18px 0;border-bottom:1px solid #c8c7ac}.sect-intro>div{min-width:0;flex:1}.sect-intro .eyebrow{color:#8c6844;font-size:11px;letter-spacing:.12em}.sect-seal{flex:none;width:60px;height:70px;border-color:#7a9a7d;background:#dfe8cf;box-shadow:inset 0 0 0 4px #f6f1df,inset 0 0 0 5px #7a9a7d;color:#326c55;font-size:35px}.sect-intro h3{color:#213f36;font-size:25px;line-height:1.5}.sect-intro p{font-size:11px;line-height:1.8}.sect-level{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding-left:17px;border-left:1px solid #c8c7ac;color:#8c6844;font-size:10px}.sect-level strong{font:29px 'SimSun',serif;color:#326c55;font-variant-numeric:tabular-nums}.sect-panel :deep(.stat-grid){gap:0;border-block:1px solid #c8c7ac;background:#f6f1df}.sect-panel :deep(.stat-cell){border:0;border-right:1px solid #ded8c0;background:none}.sect-panel :deep(.stat-cell:last-child){border-right:0}.sect-panel :deep(.stat-cell strong){font-variant-numeric:tabular-nums}.overview-links{margin:16px 0 12px}.sect-affairs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #b6c4a5;background:#edf0df}.sect-affairs>button{display:flex;align-items:center;gap:10px;min-width:0;min-height:78px;padding:12px;text-align:left;border:0;border-right:1px solid #cbd1b9;background:none;color:#326c55}.sect-affairs>button:last-child{border-right:0}.sect-affairs>button>svg{flex:none;width:23px;height:23px}.sect-affairs>button>svg:last-child{width:14px;height:14px;margin-left:auto}.sect-affairs>button>span{min-width:0}.sect-affairs strong,.sect-affairs small{display:block}.sect-affairs strong{font:15px 'SimSun',serif;color:#213f36}.sect-affairs small{font-size:10px;color:var(--muted);line-height:1.65;margin-top:5px}.sect-affairs>button:hover{background:#e1e9d3}.sect-affairs>button:focus-visible{outline:2px solid #326c55;outline-offset:-3px}.sect-log{margin-top:20px}.sect-log>.section-heading{margin-bottom:5px}.sect-log>.section-heading h3{font-size:18px}.sect-log>p{padding:8px 0 8px 13px;position:relative;line-height:1.7}.sect-log>p:before{position:absolute;left:0;top:15px;width:4px;height:4px;background:#b38a46;content:''}.idle-section{margin:8px 0 16px;padding:16px 0}.settle-result{border-left:3px solid #326c55}.settle-result>.eyebrow{font-size:11px;letter-spacing:0;color:#326c55}.settle-result .badge{font-variant-numeric:tabular-nums}.run-review{border-left:3px solid #b38a46}.run-review>.eyebrow{color:#8c6844}.review-advice{padding:9px 11px;background:#e7ecd9;border-left:2px solid #7a9a7d}
 @media(max-width:640px){.sect-intro{gap:10px;padding:12px 0}.sect-intro h3{font-size:19px}.sect-intro .eyebrow{font-size:10px}.sect-seal{width:44px;height:58px;font-size:29px}.sect-level{padding-left:10px;font-size:9px}.sect-level strong{font-size:24px}.sect-intro p{font-size:10px}.sect-affairs{grid-template-columns:1fr}.sect-affairs>button{min-height:62px;padding:10px 12px;border-right:0;border-bottom:1px solid #cbd1b9}.sect-affairs>button:last-child{border-bottom:0}.sect-affairs small{font-size:11px;margin-top:3px}.sect-affairs strong{font-size:16px}.overview-links>.btn{flex:1 0 calc(50% - 8px);min-height:44px}.sect-log>p{font-size:12px}.sect-log>.section-heading{gap:8px}.sect-log>.section-heading>.muted{font-size:10px}}
 </style>
+<style scoped>
+/* 夜航山门：主殿以信息带和事务入口分层，避免整页纸张卡片堆叠。 */
+.sect-panel{color:var(--text);background:transparent}
+.sect-panel h3,.sect-panel h4{color:var(--ink)}
+.sect-navigation{background:var(--surface);border-bottom-color:var(--line-faint);box-shadow:0 8px 18px rgba(3,12,10,.16)}
+.sect-navigation>button{color:var(--muted);border-bottom:2px solid transparent}
+.sect-navigation>button.active{border-color:var(--jade);background:rgba(125,214,173,.12);color:var(--jade)}
+.sect-intro{border-bottom-color:var(--line-faint)}
+.sect-seal{background:var(--surface-inset);border-color:var(--gold-deep);box-shadow:inset 0 0 0 4px var(--surface),inset 0 0 0 5px var(--gold-deep);color:var(--gold)}
+.sect-intro .eyebrow{color:var(--gold)}
+.sect-intro h3,.sect-affairs strong{color:var(--ink)}
+.sect-level{border-left-color:var(--line-faint);color:var(--muted)}
+.sect-level strong{color:var(--jade)}
+.sect-panel :deep(.stat-grid){border-block-color:var(--line-faint);background:var(--surface-inset)}
+.sect-panel :deep(.stat-cell){border-right-color:var(--line-faint);background:transparent}
+.sect-affairs{border-color:var(--border);background:var(--surface-raised)}
+.sect-affairs>button{border-right-color:var(--border);color:var(--jade)}
+.sect-affairs>button:hover{background:rgba(125,214,173,.1)}
+.sect-affairs>button:focus-visible{outline-color:var(--gold)}
+.sect-affairs small{color:var(--muted)}
+.sect-log>p{border-bottom-color:var(--line-faint)}
+.sect-log>p:before{background:var(--gold)}
+.sect-log summary{color:var(--jade)}
+.idle-section{border-block-color:var(--line-faint)}
+.settle-result,.run-review{background:var(--surface-raised);border:1px solid var(--border);border-left:3px solid var(--jade)}
+.settle-result>.eyebrow{color:var(--jade)}
+.run-review{border-left-color:var(--gold)}
+.run-review>.eyebrow{color:var(--gold)}
+.review-advice{background:rgba(125,214,173,.08);border-left-color:var(--jade);color:var(--text)}
+.sect-panel :deep(.notice-box){background:rgba(125,214,173,.09);border-color:#3d7660;color:var(--jade)}
+.sect-panel :deep(.badge){background:rgba(125,214,173,.1);border-color:#3d7660;color:var(--jade)}
+.sect-panel :deep(.badge-gold){background:rgba(228,189,107,.1);border-color:#806a3c;color:var(--gold)}
+@media(max-width:640px){
+  .sect-navigation{box-shadow:0 5px 12px rgba(3,12,10,.2)}
+  .sect-affairs>button{border-bottom-color:var(--border)}
+}
+</style>

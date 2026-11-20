@@ -105,3 +105,24 @@ const activeBonds = computed(() => Object.entries(store.catalog?.bonds ?? {}).fi
 @media(max-width:740px){.prepare-content{min-width:0}.prepare-layout{gap:0}.prepare-facts>div{padding:12px}.formation-rule{font-size:12px}.tier-field select{min-height:44px}.start-button{min-height:48px}}
 
 </style>
+
+<style scoped>
+.prepare-visual { background: linear-gradient(160deg, rgba(125,214,173,.1), transparent 55%), var(--surface-inset); border-color: var(--border); box-shadow: inset 0 3px var(--jade-deep), inset 0 0 0 1px rgba(255,255,255,.03); }
+.prepare-visual::before { border-color: #4d7567; box-shadow: 0 0 0 9px rgba(125,214,173,.08), 0 0 0 10px rgba(125,214,173,.04); }
+.prepare-visual h3, .prepare-content .section-heading h3 { color: var(--ink); }
+.tower-record { border-top-color: var(--line-faint); color: var(--muted); }
+.tower-record > strong { color: var(--jade); }
+.tower-record small, .tier-best { color: var(--muted); }
+.tower-record-track { background: #273b36; }
+.tower-record-track > i { background: var(--jade); border-right-color: var(--gold); }
+.tier-field { color: var(--text); }
+.tier-field select { background: var(--surface-raised); border-color: var(--border); color: var(--text); }
+.prepare-facts { background: var(--surface-inset); border-color: var(--line-faint); }
+.prepare-facts > div + div { border-left-color: var(--line-faint); }
+.prepare-facts strong { color: var(--jade); }
+.bonds { border-top-color: var(--line-faint); }
+.prepare-content .formation-rule, .formation-rule { color: var(--muted); }
+.start-button { box-shadow: 0 3px 0 #0d2b22, inset 0 1px rgba(255,255,255,.15); }
+.tier-field select:focus-visible { outline-color: var(--gold); }
+@media (max-width: 740px) { .prepare-layout { gap: 0; } .prepare-facts > div { padding: 12px 10px; } }
+</style>

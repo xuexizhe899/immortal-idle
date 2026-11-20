@@ -216,3 +216,72 @@ async function ascend() {
 @media(max-width:520px){.region-intro{align-items:flex-start;gap:9px}.region-record{flex-direction:column;align-items:flex-end;gap:2px;font-size:10px}.region-record>span+span{border:0;padding:0}.region-record strong{font-size:17px}.map-caption>div{min-width:0;flex:1}.map-legend{gap:6px 9px;font-size:10px}.map-caption>.btn{align-self:center;max-width:43%}.atlas-tools>button{box-shadow:inset 0 3px #8c6844}}
 
 </style>
+<style scoped>
+.world-atlas{color:var(--text)}
+.atlas-heading h3,.region-intro h4,.node-detail h4{color:var(--ink)}
+.atlas-heading p,.region-intro p,.map-caption p{color:var(--muted)}
+.region-switch{gap:6px}
+.region-switch button{border-color:var(--border);background:var(--surface-raised);color:var(--text)}
+.region-switch button.active{background:var(--jade-light);border-color:var(--jade);color:var(--jade);box-shadow:inset 0 -2px var(--jade)}
+.region-switch button:focus-visible{outline-color:var(--gold)}
+.region-intro{border-bottom:1px solid var(--line-faint);padding-bottom:9px}
+.region-record{color:var(--muted)}
+.region-record>span+span{border-left-color:var(--line-faint)}
+.region-record strong{color:var(--jade)}
+.map-scroll{background:#13211f;border-color:#3a5e51;box-shadow:0 12px 24px rgba(3,12,10,.22)}
+.map-board{background:#172925;box-shadow:inset 0 0 0 5px #14231f,inset 0 0 0 6px #35584c}
+.map-board.azure{background:#1a2928}
+.mountain{stroke:#557866;opacity:.26}
+.river{stroke:#477e78;opacity:.52}
+.roads{stroke:#b49156;opacity:.62}
+.contours{stroke:#6f9580;opacity:.34}
+.ridge-lines{stroke:#789982;opacity:.48}
+.river-thread{stroke:#9bc8b4;opacity:.46}
+.atlas-woods{fill:#385d4b;stroke:#6a8d70;opacity:.55}
+.atlas-compass{stroke:var(--gold-deep)}
+.atlas-compass text{fill:var(--gold)}
+.area-label strong{color:#d5e2d4}
+.area-label small{color:#9bb3a3}
+.map-node{color:#d6e1d4}
+.node-mark{background:#203a32;border-color:#81ad8d;color:#d5e5d4;box-shadow:inset 0 0 0 2px #294a3c,0 4px 10px #07110f88}
+.node-name{background:#101b19e8;color:#d9e4d8;border:1px solid #3e5e50}
+.map-node.gate .node-mark,.map-node.invasion .node-mark{border-color:var(--gold);color:var(--gold)}
+.map-node.selected .node-mark{outline-color:var(--gold);background:#447c61;border-color:#b6dec0;box-shadow:inset 0 0 0 2px #7bb58d,0 4px 13px #06110f99;color:#f1f4e9}
+.map-node.cleared:not(.selected) .node-mark{background:#365c49;border-color:#8fbe91;color:#e2eddb}
+.map-node.locked{opacity:.48}
+.map-node:focus-visible{outline-color:var(--gold)}
+.map-node:hover:not(.locked) .node-name{background:#1c302a;color:var(--ink);box-shadow:0 3px 12px #07110f88}
+.map-legend{color:var(--muted)}
+.map-legend li::before{background:#203a32;border-color:#81ad8d}
+.map-legend .cleared::before{background:#7ba47d}
+.map-caption{border-bottom:1px solid var(--line-faint);padding-bottom:9px}
+.atlas-tools{gap:1px;background:var(--border);border:1px solid var(--border)}
+.atlas-tools>button{background:var(--surface-raised);border:0;box-shadow:inset 3px 0 var(--jade);color:var(--jade)}
+.atlas-tools>button:hover{background:#29443d}
+.atlas-tools strong{color:var(--ink)}
+.atlas-tools span{color:var(--muted)}
+.detail-tabs{border-bottom-color:var(--line-faint)}
+.detail-tabs>button.active{background:var(--jade-light);color:var(--jade);box-shadow:inset 0 -2px var(--jade)}
+.target-facts{border-block-color:var(--line-faint);color:var(--muted)}
+.target-facts strong{color:var(--ink)}
+.enemy-preview>span,.node-rewards>span{background:#263b34;color:var(--text);border:1px solid #3b5a4c}
+.node-rewards small{color:var(--gold)}
+.locked-reason,.action-reason{color:#efa18d}
+.utility-detail h4{color:var(--gold)}
+.invasion-list{gap:1px;background:var(--border);border:1px solid var(--border)}
+.invasion-list button{background:var(--surface-raised);border:0;color:var(--jade)}
+.invasion-list button:hover{background:#2a4039}
+.invasion-list strong{color:var(--ink)}
+.invasion-list span{color:var(--muted)}
+.map-scroll:focus-visible,.atlas-tools button:focus-visible,.detail-tabs button:focus-visible,.invasion-list button:focus-visible{outline-color:var(--gold)}
+@media(max-width:520px){
+  .region-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .region-switch button{min-width:0;min-height:46px}
+  .region-intro{align-items:center}
+  .map-scroll{max-height:48dvh}
+  .map-caption{align-items:flex-start}
+  .atlas-tools{grid-template-columns:1fr}
+  .atlas-tools>button{min-height:58px;padding:9px 12px}
+  .atlas-tools>button+button{border-top:1px solid var(--border)}
+}
+</style>

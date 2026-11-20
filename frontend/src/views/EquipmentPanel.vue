@@ -126,3 +126,42 @@ async function smelt() {
 .equipment-intro{padding:5px 0 15px;align-items:flex-start;border-bottom-color:#c5cbae}.equipment-intro h3{color:#213f36;font-size:22px}.equipment-intro p{font-size:11px;line-height:1.8;max-width:36em}.equipment-total{display:block;font-size:10px;color:#8c6844;margin-top:8px;font-variant-numeric:tabular-nums}.material-stock{border-left:1px solid #c6cdb1;padding-left:16px;min-width:89px}.material-stock>span{color:#6b785e;font-size:10px}.material-stock>strong{font-size:28px;color:#326c55;line-height:1.6}.material-stock>small{font-size:9px;color:#8a8c70}.equipment-toolbar{padding:0 0 13px;border-bottom:1px solid #d4d8bf;margin-bottom:10px}.slot-filters{gap:4px}.slot-filters>button{border-bottom:2px solid #d5dbc2;min-height:44px;background:#f0f0df}.slot-filters>button.active{background:#e3ebd5;border-color:#b4c2a1;border-bottom-color:#326c55}.equipment-search select,.equipment-search input{background:#f6f1df;border-color:#bfc7aa}.list-count{margin:0;padding:2px 0 7px;font-size:10px}.gear-list{gap:8px;scrollbar-gutter:stable}.gear-list>button{position:relative;min-height:86px;align-items:flex-start;padding:12px 10px;background:#f6f1df;border-color:#c7cbb0;border-bottom:2px solid #bcc8a7}.gear-list>button.active{background:#e7eeda;border-color:#7d9a74;box-shadow:inset 3px 0 #326c55}.gear-list>button.pending{border-right-color:#b38a46}.gear-list>button>.gear-icon{flex:none;margin-top:2px}.gear-list strong{font-size:15px;line-height:1.5;color:#213f36}.gear-list strong>small{color:#8c6844}.gear-list span>small{font-size:10px;line-height:1.7}.gear-list em{font-size:10px}.gear-list>button.pending>span>em{display:inline-block;color:#7b5e22;background:#eee5c7;padding:1px 5px;border:1px solid #c9b77d}.gear-detail{background:#f6f1df;border-color:#b8c5a4;border-top:3px solid #326c55}.gear-detail-head{padding-bottom:13px;border-bottom:1px solid #d7d9be}.gear-detail-head h4{color:#213f36}.gear-stats{border-top:0;margin-top:0;padding:13px 0;gap:9px 15px}.gear-stats>span{flex:1 0 40%;display:flex;justify-content:space-between;gap:12px}.detail-tabs button.active{border-color:#a9ba97;background:#e3ebd5;box-shadow:inset 0 -2px #326c55}.comparison-table thead{background:#e7ecd9}.comparison-table td.improved{background:#eef1df}.equipment-costs{padding:12px;background:#efefdd;border-color:#cdd4b8}.reforge-result>article{border-left:3px solid #95a482;background:#edf0de}.reforge-result>.new-affix{border-left-color:#b38a46}.equipment-workshop .empty-state{padding:23px 14px;border:1px dashed #b9c6a6;background:#f1f1df}.equipment-workshop .empty-state>.gear-icon{margin-bottom:9px}.equipment-workshop .empty-state>strong{font:20px 'SimSun',serif;color:#326c55}.equipment-empty-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.equipment-workshop button:focus-visible{outline:2px solid #326c55;outline-offset:2px}
 @media(max-width:640px){.equipment-intro{gap:12px}.equipment-intro h3{font-size:21px}.equipment-intro p{font-size:11px}.equipment-total{font-size:11px;line-height:1.8}.material-stock{min-width:76px;padding-left:10px}.material-stock>strong{font-size:25px}.material-stock>small{font-size:9px}.equipment-toolbar{gap:11px}.gear-list{gap:6px;max-height:min(45dvh,340px)}.gear-list>button{min-height:104px;padding:10px 7px;gap:5px}.gear-list strong{font-size:14px}.gear-list>button>.gear-icon{width:28px;height:30px}.gear-list span>small{font-size:10px}.gear-stats{font-size:12px}.gear-stats>span{flex-basis:100%}.gear-detail-head h4{font-size:21px}.equipment-empty-actions>.btn{min-height:44px;font-size:12px}.equipment-workshop .empty-state{padding:18px 12px}}
 </style>
+
+<style scoped>
+/* 个人装备使用深色工作台，选中态只用边缘和颜色区分，避免重复卡片层级。 */
+.equipment-intro { border-bottom-color: var(--line-faint); }
+.equipment-intro h3, .gear-list strong, .gear-detail-head h4 { color: var(--ink); }
+.equipment-total, .material-stock > small { color: var(--muted); }
+.material-stock { border-left-color: var(--border); }
+.material-stock > strong { color: var(--jade); }
+.equipment-toolbar { border-bottom-color: var(--line-faint); }
+.slot-filters > button { background: transparent; border-bottom-color: var(--line-faint); }
+.slot-filters > button.active { background: var(--jade-light); border-color: var(--border); border-bottom-color: var(--jade); color: var(--jade); }
+.equipment-search select, .equipment-search input { background: var(--surface-raised); border-color: var(--border); color: var(--text); }
+.gear-list > button { background: var(--surface-raised); border-color: var(--border); border-bottom-color: var(--border); }
+.gear-list > button:hover:not(:disabled) { background: #29443f; }
+.gear-list > button.active { background: var(--jade-light); border-color: var(--jade); box-shadow: inset 3px 0 var(--jade); }
+.gear-list > button.pending { border-right-color: var(--gold); }
+.gear-list strong > small { color: var(--gold); }
+.gear-list > button.pending > span > em { color: var(--gold); background: #3d3220; border-color: #8b6e3e; }
+.gear-detail { background: var(--surface-raised); border-color: var(--border); border-top-color: var(--jade); }
+.gear-detail-head { border-bottom-color: var(--line-faint); }
+.gear-detail-head h4 small { color: var(--gold); }
+.gear-stats { border-bottom-color: var(--line-faint); }
+.detail-tabs button.active { background: var(--jade-light); border-color: var(--border); box-shadow: inset 0 -2px var(--jade); color: var(--jade); }
+.comparison-table th, .comparison-table td { border-bottom-color: var(--line-faint); }
+.comparison-table thead { background: var(--surface-inset); }
+.comparison-table td.improved { background: rgba(125,214,173,.08); }
+.equipment-costs { background: var(--surface-inset); border-color: var(--line-faint); }
+.reforge-result > article { border-color: var(--border); border-left-color: var(--jade-deep); background: var(--surface-inset); }
+.reforge-result > .new-affix { border-left-color: var(--gold); background: #3d3220; }
+.smelt-confirm { background: #3b2824; border-color: #865247; }
+.equipment-workshop .empty-state { border-color: var(--border); background: var(--surface-inset); }
+.equipment-workshop .empty-state > strong { color: var(--jade); }
+.equipment-workshop button:focus-visible { outline-color: var(--gold); }
+@media (max-width: 640px) {
+  .material-stock { padding-left: 10px; }
+  .gear-list { max-height: 300px; }
+  .gear-list > button { min-height: 82px; }
+}
+</style>
